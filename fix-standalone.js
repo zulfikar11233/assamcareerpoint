@@ -3,14 +3,8 @@ const path = require('path')
 
 // ── Copy these packages to standalone ──────────────────────────
 const packages = [
-  'bcryptjs',
-  'next-auth',
-  '@auth/core',
-  'oauth',
-  'openid-client',
-  'jose',
-  'uuid',
-  'cookie',
+  'bcryptjs', 'next-auth', '@auth/core',
+  'oauth', 'openid-client', 'jose', 'uuid', 'cookie',
 ]
 
 packages.forEach(pkg => {
@@ -24,9 +18,13 @@ packages.forEach(pkg => {
   }
 })
 
-// ── Write .env.local with real $ signs ─────────────────────────
-const original = fs.readFileSync('.env.local', 'utf8')
-const fixed = original.replace(/\\\$/g, '$')
-fs.writeFileSync('.next/standalone/.env.local', fixed)
-console.log('✅ .env.local written with real $ signs')
-console.log(fs.readFileSync('.next/standalone/.env.local', 'utf8'))
+// ── Only copy .env.local if it exists (local dev only) ─────────
+const envFile = '.env.local'
+if (fs.existsSync(envFile)) {
+  const original = fs.readFileSync(envFile, 'utf8')
+  const fixed = original.replace(/\\\$/g, '$')
+  fs.writeFileSync('.next/standalone/.env.local', fixed)
+  console.log('✅ .env.local written with real $ signs')
+} else {
+  console.log('ℹ️  No .env.local found — skipping (Hostinger uses panel env vars)')
+}
