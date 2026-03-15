@@ -1,5 +1,6 @@
 'use client'
 export const dynamic = 'force-dynamic'
+import MigrateButton from '@/components/MigrateButton'
 // src/app/admin/dashboard/page.tsx — ACPI Admin v6
 // ✅ Portal: Assam Career Point & Info
 // ✅ Jobs: multi-post (Driver/Grade IV/Peon each with own vacancy/age/salary/date/link)
@@ -615,6 +616,7 @@ export default function AdminDashboard() {
             {/* ── DASHBOARD ── */}
             {activeTab==='dashboard' && (
               <>
+                <MigrateButton />
                 {/* Stats cards — 3 columns × 2 rows */}
                 <div style={{ display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:24 }}>
                   {[
