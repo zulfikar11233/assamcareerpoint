@@ -1,0 +1,52 @@
+/* src/app/globals.css */
+:root {
+  --red: #e63946; --red-dark: #b5202d;
+  --navy: #0d1b2a; --navy-mid: #1b2f45;
+  --teal: #00b4d8; --teal-dark: #0096b7;
+  --gold: #f4a261; --green: #2a9d8f;
+  --bg: #f0f4f8; --card-bg: #ffffff;
+  --text: #1a1a2e; --text-muted: #5a6a7a;
+  --border: #d4e0ec;
+  --radius: 12px;
+  --transition: 0.22s cubic-bezier(.4,0,.2,1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+::-webkit-scrollbar { width: 7px; }
+::-webkit-scrollbar-thumb { background: var(--teal); border-radius: 99px; }
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+  /* Homepage hero */
+  .hero-grid      { grid-template-columns: 1fr !important; }
+  .hero-card      { display: none !important; }
+  .hero-title     { font-size: 2rem !important; }
+  .stats-row      { grid-template-columns: repeat(2,1fr) !important; }
+  /* Categories */
+  .cat-grid       { grid-template-columns: repeat(2,1fr) !important; }
+  /* Jobs list */
+  .job-right      { display: none !important; }
+  /* Footer */
+  .footer-cols    { grid-template-columns: 1fr !important; }
+  /* Navigation */
+  .header-nav     { display: none !important; }
+  .header-right   { display: none !important; }
+  /* Show mobile menu button */
+  .mobile-menu-btn { display: flex !important; }
+  /* District strip scroll */
+  .district-strip { padding: 14px 0 !important; }
+}
+
+@media (max-width: 480px) {
+  .hero-title  { font-size: 1.7rem !important; }
+  .hero-btns   { flex-wrap: wrap !important; }
+  .cat-grid    { grid-template-columns: repeat(2,1fr) !important; }
+}
+
+/* Animations */
+@keyframes ticker  { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+@keyframes pulse   { 0%,100%{box-shadow:0 0 0 0 rgba(230,57,70,.4)} 50%{box-shadow:0 0 0 6px rgba(230,57,70,0)} }
+@keyframes fadeUp  { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }

@@ -1,0 +1,12 @@
+# robots.txt — place this file in your /public/ folder
+# Tells Google which pages to index
+
+User-agent: *
+Allow: /
+
+# Do NOT index admin pages
+Disallow: /admin/
+Disallow: /api/
+
+# Your sitemap location — Google reads this to find all your pages
+Sitemap: https://www.assamcareerpoint-info.com/sitemap.xml

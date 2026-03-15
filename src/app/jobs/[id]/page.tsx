@@ -1,0 +1,684 @@
+'use client'
+// src/app/jobs/[id]/page.tsx — Full Job Detail Page with all fields
+// Reads from localStorage 'acp_jobs_v6'
+
+import Link from 'next/link'
+import { useState, useEffect, use } from 'react'
+
+const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
+
+type JobAffiliate = { id:string; title:string; link:string; img:string; badge:string }
+type Post    = { id:string; name:string; dept:string; vacancy:number; qualification:string; ageMin:number; ageMax:number; salary:string; lastDate:string; applyLink:string }
+type AdvPdf  = { name:string; url:string; size?:string; label?:string; type?:string }
+type DateExt = { date:string; note:string; extendedOn:string }
+type Job     = {
+  id:number; logo:string; title:string; org:string; category:string
+  district:string; status:string; vacancy:string; qualification:string; ageLimit:string
+  salary:string; lastDate:string; applyLink:string
+  posts?:Post[]; advPdfs?:AdvPdf[]; dateHistory?:DateExt[]
+  fee?:string; selection?:string; website?:string
+  howToApply?:string; youtubeLink?:string; createdAt?:string
+  description?:string; advtNo?:string; ageLimitDate?:string; ageRelaxation?:string
+  feeRefund?:string; lastDateTime?:string; paymentLastDate?:string; paymentLastDateTime?:string
+  correctionWindow?:string; applicationStart?:string
+  helplineEmail?:string; helplinePhone?:string; selectionDetails?:string
+  syllabusDetails?:string; zoneWiseVacancy?:string
+  jobAffiliates?:JobAffiliate[]
+  titleAs?:string; orgAs?:string; descriptionAs?:string; howToApplyAs?:string; selectionAs?:string
+}
+
+const fmt     = (d:string|undefined|null) => { if(!d) return '—'; try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) } catch { return d } }
+const fmtLong = (d:string|undefined|null) => { if(!d) return '—'; try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}) } catch { return d } }
+
+// ── Google Drive URL helpers ───────────────────────────────────
+// Extracts file ID from any Drive share/view URL and builds clean direct URL
+function driveId(url: string): string {
+  if (!url) return ''
+  // Pattern: /file/d/FILE_ID/  or  id=FILE_ID
+  const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/)
+  return m ? m[1] : ''
+}
+function driveViewUrl(url: string): string {
+  const id = driveId(url)
+  if (!id) return url   // not a Drive link — use as-is
+  return `https://drive.google.com/file/d/${id}/preview`
+}
+function driveDownloadUrl(url: string): string {
+  const id = driveId(url)
+  if (!id) return url   // not a Drive link — use as-is (direct PDF url etc.)
+  return `https://drive.google.com/uc?export=download&id=${id}`
+}
+function driveImgUrl(url: string): string {
+  const id = driveId(url)
+  if (!id) return url   // not a Drive link — use as-is
+  return `https://lh3.googleusercontent.com/d/${id}`
+}
+
+// ── Countdown Timer Component ──────────────────────────────────
+function Countdown({ target, label, color='#c9a227' }:{target:string; label:string; color?:string}) {
+  const diff = new Date(target).getTime() - Date.now()
+  if (diff <= 0) return <span style={{color:'#ef4444',fontWeight:800,fontSize:'.82rem'}}>⌛ {label} expired</span>
+  const d = Math.floor(diff/86400000)
+  const h = Math.floor((diff%86400000)/3600000)
+  const m = Math.floor((diff%3600000)/60000)
+  const s = Math.floor((diff%60000)/1000)
+  const pad = (n:number) => String(n).padStart(2,'0')
+  return (
+    <div style={{display:'inline-flex',alignItems:'center',gap:6,flexWrap:'wrap' as const}}>
+      <span style={{fontSize:'.68rem',color:'#8fa3b8',fontWeight:700,textTransform:'uppercase' as const,letterSpacing:'.04em'}}>{label}:</span>
+      {[{v:d,l:'Days'},{v:h,l:'Hrs'},{v:m,l:'Min'},{v:s,l:'Sec'}].map(({v,l})=>(
+        <div key={l} style={{background:'rgba(0,0,0,.35)',borderRadius:6,padding:'3px 7px',textAlign:'center' as const,minWidth:36}}>
+          <div style={{fontFamily:'Arial Black,sans-serif',fontWeight:900,fontSize:'.9rem',color,lineHeight:1}}>{pad(v)}</div>
+          <div style={{fontSize:'.55rem',color:'rgba(255,255,255,.4)',letterSpacing:'.04em'}}>{l}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// Inline countdown that accepts pre-computed `now` so it re-renders from parent state
+function CountdownInline({ target, now }:{target:string; now:number}) {
+  const diff = new Date(target).getTime() - now
+  if (diff <= 0) return <span style={{color:'#ef4444',fontWeight:800,fontSize:'.85rem'}}>Application Closed</span>
+  const d = Math.floor(diff/86400000)
+  const h = Math.floor((diff%86400000)/3600000)
+  const m = Math.floor((diff%3600000)/60000)
+  const s = Math.floor((diff%60000)/1000)
+  const pad = (n:number) => String(n).padStart(2,'0')
+  const G='#c9a227'
+  return (
+    <div style={{display:'flex',gap:6,alignItems:'center',flexWrap:'wrap' as const}}>
+      {[{v:d,l:'Days'},{v:h,l:'Hrs'},{v:m,l:'Min'},{v:s,l:'Sec'}].map(({v,l})=>(
+        <div key={l} style={{background:'rgba(0,0,0,.4)',borderRadius:7,padding:'4px 9px',textAlign:'center' as const,minWidth:42}}>
+          <div style={{fontFamily:'Arial Black,sans-serif',fontWeight:900,fontSize:'1rem',color:G,lineHeight:1.1}}>{pad(v)}</div>
+          <div style={{fontSize:'.55rem',color:'rgba(255,255,255,.4)',letterSpacing:'.05em',marginTop:1}}>{l}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function Logo({ size=38 }:{size?:number}) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100">
+      <defs><linearGradient id="ig" x1="30" y1="15" x2="70" y2="55" gradientUnits="userSpaceOnUse"><stop offset="0%" stopColor={T}/><stop offset="100%" stopColor={G}/></linearGradient></defs>
+      <circle cx="50" cy="50" r="47" fill={N} stroke={G} strokeWidth="3"/>
+      <rect x="33" y="16" width="34" height="34" rx="8" fill="url(#ig)"/>
+      <circle cx="50" cy="33" r="10" stroke={N} strokeWidth="2.2" fill="none"/>
+      <circle cx="50" cy="33" r="5.5" stroke={N} strokeWidth="2" fill="none"/>
+      <circle cx="50" cy="33" r="2" fill={N}/>
+      <text x="50" y="66" textAnchor="middle" fontFamily="Arial Black,sans-serif" fontWeight="900" fontSize="10.5" fill={G} letterSpacing="1.5">ASSAM</text>
+      <text x="50" y="77" textAnchor="middle" fontFamily="Arial Black,sans-serif" fontWeight="900" fontSize="10.5" fill={W}>CAREER</text>
+      <line x1="22" y1="80" x2="78" y2="80" stroke={T} strokeWidth="0.8"/>
+      <text x="50" y="90" textAnchor="middle" fontFamily="Arial,sans-serif" fontWeight="700" fontSize="8" fill={T} letterSpacing="2">POINT</text>
+    </svg>
+  )
+}
+
+const SAMPLES: Job[] = [{
+  id:1, logo:'🚂', title:'RRB Group D Recruitment 2026 – 22195 Level-1 Posts',
+  org:'Railway Recruitment Board (RRB)', category:'Railway', district:'All India', status:'Live',
+  vacancy:'22195', qualification:'10th Pass / ITI', ageLimit:'18–33',
+  salary:'Pay Level-1, 7th CPC — ₹18,000+ Basic Pay',
+  lastDate:'2026-03-09', applyLink:'https://rrbapply.gov.in',
+  posts:[
+    {id:'p1',name:'Trackmaintainer Grade IV',dept:'Engineering',vacancy:5000,qualification:'10th Pass or ITI',ageMin:18,ageMax:33,salary:'₹18,000–56,900',lastDate:'2026-03-09',applyLink:'https://rrbapply.gov.in'},
+    {id:'p2',name:'Assistant (S&T)',dept:'Signal & Telecom',vacancy:3500,qualification:'10th Pass or ITI',ageMin:18,ageMax:33,salary:'₹18,000–56,900',lastDate:'2026-03-09',applyLink:'https://rrbapply.gov.in'},
+    {id:'p3',name:'Pointsman B',dept:'Operations',vacancy:4000,qualification:'10th Pass',ageMin:18,ageMax:33,salary:'₹18,000–56,900',lastDate:'2026-03-09',applyLink:'https://rrbapply.gov.in'},
+  ],
+  advPdfs:[], dateHistory:[],
+  description:'Railway Recruitment Board (RRB) has released RRB Group D 2026 official notification for 22,195 Level-1 posts under CEN 09/2025. Northeast Frontier Railway (Guwahati) has 1,776 vacancies for candidates from Assam and Northeast India. Eligible 10th pass / ITI candidates can apply online before 9 March 2026.',
+  advtNo:'CEN 09/2025', applicationStart:'2026-01-31', lastDateTime:'23:59 Hrs',
+  correctionWindow:'12 March – 21 March 2026', ageLimitDate:'2026-01-01',
+  ageRelaxation:'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years',
+  fee:'SC/ST/PwBD/Female/EWS: Rs.250\nAll Others: Rs.500',
+  feeRefund:'SC/ST/PwBD/Female/EWS/Minority: Full Rs.250 refunded after exam\nAll Others: Rs.400 refunded out of Rs.500 after exam',
+  selection:'CBT → PET → Document Verification → Medical Examination',
+  selectionDetails:'Stage 1 — Computer Based Test (CBT)\n- Duration: 90 minutes | 100 Questions | 100 Marks\n- General Science: 25 Questions – 25 Marks\n- Mathematics: 25 Questions – 25 Marks\n- General Intelligence & Reasoning: 30 Questions – 30 Marks\n- General Awareness & Current Affairs: 20 Questions – 20 Marks\n- Negative Marking: 1/3 mark per wrong answer\n- Cut-off: UR/EWS 40% | OBC 30% | SC/ST 30%\n\nStage 2 — Physical Efficiency Test (PET)\n- Male: Carry 35kg for 100m in 2 min; Run 1000m in 4 min 15 sec\n- Female: Carry 20kg for 100m in 2 min; Run 1000m in 5 min 40 sec\n\nStage 3 — Document Verification (DV)\n- Merit ratio 1:1 based on CBT score\n\nStage 4 — Medical Examination (ME)',
+  syllabusDetails:'Mathematics\nNumber system, BODMAS, Decimals, Fractions, LCM, HCF, Ratio & Proportion, Percentages, Mensuration, Time & Work, Time & Distance, Simple & Compound Interest, Profit & Loss, Algebra, Geometry, Statistics, Square root, Calendar & Clock, Pipes & Cistern\n\nGeneral Intelligence & Reasoning\nAnalogies, Alphabetical & Number Series, Coding & Decoding, Syllogism, Venn Diagram, Data Interpretation, Analytical Reasoning, Classification, Directions, Statement-Arguments\n\nGeneral Science\nPhysics, Chemistry and Life Sciences at Class 10 CBSE level\n\nGeneral Awareness & Current Affairs\nScience & Technology, Sports, Culture, Personalities, Economics, Politics',
+  zoneWiseVacancy:'Northeast Frontier Railway (Guwahati): 1,776\nNorthern Railway (New Delhi): 3,537\nWestern Railway (Mumbai): 3,148\nCentral Railway (Mumbai): 2,012\nEast Central Railway (Hajipur): 976\nNorth Central Railway (Allahabad): 1,183\nWest Central Railway (Jabalpur): 1,147\nEastern Railway (Kolkata): 1,180\nNorth Eastern Railway (Gorakhpur): 1,196\nSouth East Central Railway (Bilaspur): 1,199\nEast Coast Railway (Bhubaneswar): 803\nNorth Western Railway (Jaipur): 974\nSouth Western Railway (Hubli): 90\nSouth Central Railway (Secunderabad): 1,016\nSouth Eastern Railway (Kolkata): 955\nSouthern Railway (Chennai): 1,036',
+  helplineEmail:'rrb.help@csc.gov.in', helplinePhone:'9592001188 / 01725653333',
+  website:'rrbapply.gov.in',
+  howToApply:'1. Visit rrbapply.gov.in\n2. Click Register Now\n3. Fill personal and educational details\n4. Upload photo and signature\n5. Pay application fee as per category\n6. Submit and save confirmation receipt',
+  youtubeLink:'', createdAt:'2026-01-31T00:00:00Z',
+}]
+
+export default function JobDetail({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
+  const [job,       setJob]       = useState<Job|null>(null)
+  const [timerOn,   setTimerOn]   = useState<boolean>(true)
+  const [now,       setNow]       = useState<number>(Date.now())
+  const [others,    setOthers]    = useState<Job[]>([])
+  const [activeTab, setActiveTab] = useState<'details'|'syllabus'|'howapply'>('details')
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('acp_jobs_v6')
+      const list: Job[] = saved ? JSON.parse(saved) : SAMPLES
+      setJob(list.find(j => String(j.id) === String(id)) || null)
+      setOthers(list.filter(j => String(j.id) !== String(id) && j.status !== 'Draft').slice(0,4))
+      // Read timer setting
+      const s = localStorage.getItem('acp_settings_v1')
+      setTimerOn(s ? JSON.parse(s).timerEnabled !== false : true)
+    } catch {
+      setJob(SAMPLES.find(j => String(j.id) === String(id)) || null)
+    }
+  }, [id])
+
+  // Live clock for countdown
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(t)
+  }, [])
+
+  if (!job) return (
+    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column' as const,gap:16,background:'#f0f4f8'}}>
+      <div style={{fontSize:'3rem'}}>📭</div>
+      <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,color:N}}>Job not found</h2>
+      <Link href="/govt-jobs" style={{padding:'10px 22px',borderRadius:99,background:N,color:G,fontWeight:900,textDecoration:'none',fontFamily:'Arial Black,sans-serif',fontSize:'.85rem'}}>← Back to All Jobs</Link>
+    </div>
+  )
+
+  const posts    = job.posts || []
+  const totalV   = posts.reduce((a,p)=>a+p.vacancy,0) || Number(job.vacancy)||0
+  const ageMin   = posts.length ? Math.min(...posts.map(p=>p.ageMin)) : 0
+  const ageMax   = posts.length ? Math.max(...posts.map(p=>p.ageMax)) : 0
+  const steps    = (job.howToApply||'').split('\n').filter(s=>s.trim())
+  const ageRows  = (job.ageRelaxation||'').split('\n').filter(s=>s.trim())
+  const selLines = (job.selectionDetails||'').split('\n')
+  const sylSecs  = (job.syllabusDetails||'').split('\n\n').filter(s=>s.trim())
+  const zones    = (job.zoneWiseVacancy||'').split('\n').filter(s=>s.trim())
+  const sc       = job.status==='Live'?'#22c55e':job.status==='Closing'?'#f59e0b':'#8fa3b8'
+
+  const dl = (() => {
+    try {
+      const diff = Math.ceil((new Date(job.lastDate).getTime()-Date.now())/86400000)
+      if(diff<0)  return {t:'Closed',          c:'#ef4444'}
+      if(diff===0)return {t:'Last Day!',        c:'#ef4444'}
+      if(diff<=5) return {t:`⚠️ ${diff}d left`, c:'#f59e0b'}
+      return        {t:`${diff} days left`,     c:'#22c55e'}
+    } catch { return null }
+  })()
+
+  // Parse selection stages
+  const selSections: {title:string;lines:string[]}[] = []
+  let cur: {title:string;lines:string[]}|null = null
+  for (const line of selLines) {
+    const isHead = /^Stage\s+\d|^CBT|^PET|^Physical|^Document|^Medical/.test(line.trim())
+    if (isHead) { if(cur)selSections.push(cur); cur={title:line.trim(),lines:[]} }
+    else if(cur && line.trim()) { cur.lines.push(line.startsWith('-')?line.slice(1).trim():line.trim()) }
+  }
+  if(cur) selSections.push(cur)
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Nunito:wght@400;600;700&display=swap');
+        *,*::before,*::after{box-sizing:border-box}
+        html,body{margin:0;font-family:Nunito,sans-serif;background:#f0f4f8;color:#1a1a2e;overflow-x:hidden}
+        .nav-a{color:rgba(255,255,255,.6);font-size:.82rem;font-weight:700;padding:7px 11px;border-radius:8px;text-decoration:none;white-space:nowrap}
+        .nav-a:hover{color:${G}}
+        .tab-btn{flex:1;padding:10px 6px;border:none;background:transparent;font-family:Nunito,sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;color:#5a6a7a;border-bottom:3px solid transparent;transition:.18s}
+        .tab-btn.on{color:${N};border-bottom-color:${G}}
+        .tbl{width:100%;border-collapse:collapse;font-size:.8rem}
+        .tbl th{background:${N};color:${G};padding:9px 12px;text-align:left;font-family:Arial Black,sans-serif;font-size:.72rem}
+        .tbl td{padding:9px 12px;border-bottom:1px solid #f0f4f8;vertical-align:top}
+        .tbl tr:hover td{background:#f8fbff}
+        .tbl tr:last-child td{border-bottom:none}
+        .re-card{background:#fff;border:1.5px solid #d4e0ec;border-radius:11px;text-decoration:none;color:inherit;display:flex;gap:12px;padding:12px;transition:.18s}
+        .re-card:hover{border-color:${T};transform:translateX(3px)}
+        .sh2{fontFamily:Sora,sans-serif;font-weight:700;font-size:.93rem;color:${N};margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid ${T}}
+        @media(max-width:860px){.layout{flex-direction:column!important}}
+        @media(max-width:600px){.tbl{font-size:.71rem}.tbl th,.tbl td{padding:6px 8px}}
+      `}</style>
+
+      {/* HEADER */}
+      <header style={{background:N,borderBottom:`2px solid ${G}`,position:'sticky',top:0,zIndex:100,boxShadow:'0 2px 20px rgba(0,0,0,.4)'}}>
+        <div style={{maxWidth:1200,margin:'0 auto',padding:'10px 20px',display:'flex',alignItems:'center',gap:14,flexWrap:'wrap' as const}}>
+          <Link href="/" style={{display:'flex',alignItems:'center',gap:10,textDecoration:'none',flexShrink:0}}>
+            <Logo size={40}/><div>
+              <div style={{fontFamily:'Arial Black,sans-serif',fontSize:'.78rem'}}><span style={{color:G}}>ASSAM </span><span style={{color:W}}>CAREER</span></div>
+              <div style={{fontFamily:'Arial Black,sans-serif',fontSize:'.65rem',color:T,letterSpacing:'.12em'}}>◆ POINT ◆</div>
+            </div>
+          </Link>
+          <nav style={{display:'flex',gap:2,flexWrap:'wrap' as const}}>
+            {([['🏠','/'],[' Jobs','/govt-jobs'],['📚 Exams','/exams'],['ℹ️ Info','/information'],['📄 PDFs','/pdf-forms']] as [string,string][]).map(([l,h])=>(
+              <Link key={h} href={h} className="nav-a">{l}</Link>
+            ))}
+          </nav>
+        </div>
+      </header>
+
+      {/* Breadcrumb */}
+      <div style={{background:'#fff',borderBottom:'1px solid #e8eef6',padding:'9px 20px',fontSize:'.77rem',color:'#5a6a7a'}}>
+        <div style={{maxWidth:1200,margin:'0 auto',display:'flex',gap:6,alignItems:'center',flexWrap:'wrap' as const}}>
+          <Link href="/" style={{color:T,textDecoration:'none'}}>Home</Link> <span>›</span>
+          <Link href="/govt-jobs" style={{color:T,textDecoration:'none'}}>Govt Jobs</Link> <span>›</span>
+          <span style={{color:N,fontWeight:700}}>{job.title.slice(0,55)}{job.title.length>55?'…':''}</span>
+        </div>
+      </div>
+
+
+      {/* HERO */}
+      <div style={{background:`linear-gradient(135deg,${N},#0a3050)`,padding:'26px 20px 22px'}}>
+        <div style={{maxWidth:1200,margin:'0 auto'}}>
+          <div style={{display:'flex',gap:16,alignItems:'flex-start',flexWrap:'wrap' as const}}>
+            <div style={{width:66,height:66,borderRadius:15,background:`${sc}22`,border:`2px solid ${sc}55`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2.1rem',flexShrink:0}}>{job.logo}</div>
+            <div style={{flex:1,minWidth:200}}>
+              <div style={{display:'flex',gap:7,flexWrap:'wrap' as const,marginBottom:9}}>
+                <span style={{background:`${sc}28`,color:sc,border:`1px solid ${sc}55`,padding:'3px 11px',borderRadius:99,fontSize:'.72rem',fontWeight:800}}>● {job.status}</span>
+                <span style={{background:'rgba(255,255,255,.1)',color:'rgba(255,255,255,.65)',padding:'3px 11px',borderRadius:99,fontSize:'.72rem',fontWeight:700}}>{job.category}</span>
+                <span style={{background:'rgba(255,255,255,.1)',color:'rgba(255,255,255,.65)',padding:'3px 11px',borderRadius:99,fontSize:'.72rem',fontWeight:700}}>📍 {job.district}</span>
+                {job.advtNo&&<span style={{background:`${G}22`,color:G,border:`1px solid ${G}44`,padding:'3px 11px',borderRadius:99,fontSize:'.72rem',fontWeight:700}}>Advt: {job.advtNo}</span>}
+              </div>
+              <h1 style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:'clamp(1rem,2.5vw,1.5rem)',color:W,margin:'0 0 7px',lineHeight:1.3}}>{job.title}{job.titleAs&&<><br/><span style={{fontSize:'clamp(.8rem,1.8vw,1.1rem)',color:G,fontWeight:700}}>{job.titleAs}</span></>}</h1>
+              <div style={{color:'rgba(255,255,255,.5)',fontSize:'.85rem',marginBottom:10}}>by <strong style={{color:G}}>{job.org}</strong>{job.orgAs&&<><span style={{color:'rgba(255,255,255,.25)'}}> · </span><strong style={{color:'#ffd54f'}}>{job.orgAs}</strong></>}</div>
+              {(job.description||job.descriptionAs)&&<div style={{maxWidth:700}}>{job.description&&<p style={{color:'rgba(255,255,255,.7)',fontSize:'.84rem',lineHeight:1.8,margin:'0 0 4px'}}>{job.description}</p>}{job.descriptionAs&&<p style={{color:'rgba(255,255,255,.55)',fontSize:'.82rem',lineHeight:1.8,margin:0,fontStyle:'italic'}}>{job.descriptionAs}</p>}</div>}
+            </div>
+          </div>
+          {/* Stats strip */}
+          <div style={{display:'flex',gap:10,flexWrap:'wrap' as const,marginTop:18}}>
+            {[
+              {l:'Total Vacancies',v:totalV.toLocaleString('en-IN'),c:G},
+              {l:'Last Date',      v:`${fmtLong(job.lastDate)}${job.lastDateTime?` · ${job.lastDateTime}`:''}`,c:dl?.c||W},
+              {l:'Age Limit',      v:posts.length?`${ageMin}–${ageMax} yrs${job.ageLimitDate?` (as on ${fmt(job.ageLimitDate)})`:''}`:job.ageLimit,c:T},
+              {l:'App. Fee',       v:job.fee?job.fee.split('\n')[0].slice(0,32):'Check Notice',c:'#c0622a'},
+            ].map(s=>(
+              <div key={s.l} style={{background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.12)',borderRadius:10,padding:'10px 14px',flex:'1 1 160px',minWidth:140}}>
+                <div style={{fontSize:'.63rem',color:'rgba(255,255,255,.4)',fontWeight:700,textTransform:'uppercase' as const,letterSpacing:'.04em',marginBottom:4}}>{s.l}</div>
+                <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.83rem',color:s.c,lineHeight:1.3}}>{s.v}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Countdown Timer Strip */}
+          {timerOn && job.lastDate && new Date(job.lastDate).getTime() > Date.now() && (
+            <div style={{marginTop:16,background:'rgba(0,0,0,.25)',border:'1px solid rgba(201,162,39,.3)',borderRadius:10,padding:'10px 16px',display:'flex',alignItems:'center',gap:16,flexWrap:'wrap' as const}}>
+              <span style={{fontSize:'.72rem',color:'rgba(255,255,255,.45)',fontWeight:700,textTransform:'uppercase' as const,letterSpacing:'.06em',flexShrink:0}}>⏱ Time Remaining</span>
+              {/* Render here using now to force re-render each second */}
+              <CountdownInline target={job.lastDate} now={now} />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="layout" style={{maxWidth:1200,margin:'0 auto',padding:'20px 20px 60px',display:'flex',gap:20,alignItems:'flex-start'}}>
+
+        {/* MAIN */}
+        <div style={{flex:1,minWidth:0}}>
+
+          {/* Tabs */}
+          <div style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:13,marginBottom:18,overflow:'hidden'}}>
+            <div style={{display:'flex',borderBottom:'1px solid #e8eef6'}}>
+              {(['details','syllabus','howapply'] as const).map(k=>(
+                <button key={k} className={`tab-btn${activeTab===k?' on':''}`} onClick={()=>setActiveTab(k)}>
+                  {k==='details'?'📋 Details':k==='syllabus'?'📚 Syllabus & Selection':'✅ How to Apply'}
+                </button>
+              ))}
+            </div>
+
+            {/* ── DETAILS TAB ── */}
+            {activeTab==='details'&&(
+              <div style={{padding:'20px'}}>
+
+                {/* Important Dates */}
+                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📅 Important Dates</h2>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(185px,1fr))',gap:10,marginBottom:22}}>
+                  {[
+                    ...(job.applicationStart?[{l:'Application Opens',v:job.applicationStart,hi:false,d:true}]:[]),
+                    {l:'Last Date to Apply',v:job.lastDate,hi:true,d:true},
+                    ...(job.lastDateTime?[{l:'Last Date Time',v:job.lastDateTime,hi:true,d:false}]:[]),
+                    ...(job.paymentLastDate?[{l:'Fee Payment Last Date',v:job.paymentLastDate,hi:false,d:true}]:[]),
+                    ...(job.paymentLastDateTime?[{l:'Payment Last Time',v:job.paymentLastDateTime,hi:false,d:false}]:[]),
+                    ...(job.correctionWindow?[{l:'Correction Window',v:job.correctionWindow,hi:false,d:false}]:[]),
+                  ].map((item:any,i:number)=>(
+                    <div key={i} style={{background:item.hi?`${G}14`:'#f8fbff',border:`1.5px solid ${item.hi?G+'55':'#d4e0ec'}`,borderRadius:10,padding:'11px 14px'}}>
+                      <div style={{fontSize:'.62rem',fontWeight:700,color:'#8fa3b8',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:5}}>{item.l}</div>
+                      <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.87rem',color:item.hi?G:N}}>{item.d?fmtLong(item.v):item.v}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Post-wise table */}
+                {posts.length>0&&(
+                  <>
+                    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>📊 Post-wise Vacancy Breakdown</h2>
+                    <div style={{overflowX:'auto' as const,marginBottom:22,borderRadius:10,border:'1.5px solid #d4e0ec'}}>
+                      <table className="tbl">
+                        <thead><tr><th>#</th><th>Post Name</th><th>Department</th><th>Vacancies</th><th>Qualification</th><th>Age</th><th>Salary</th><th>Apply</th></tr></thead>
+                        <tbody>
+                          {posts.map((p,i)=>(
+                            <tr key={p.id}>
+                              <td style={{color:'#8fa3b8',fontWeight:700}}>{i+1}</td>
+                              <td style={{fontWeight:700,color:N,minWidth:120}}>{p.name}</td>
+                              <td style={{color:'#5a6a7a'}}>{p.dept}</td>
+                              <td><strong style={{color:T,fontFamily:'Arial Black,sans-serif'}}>{p.vacancy.toLocaleString('en-IN')}</strong></td>
+                              <td>{p.qualification}</td>
+                              <td style={{whiteSpace:'nowrap' as const}}>{p.ageMin}–{p.ageMax} yrs</td>
+                              <td style={{whiteSpace:'nowrap' as const,color:'#2a3a4a'}}>{p.salary}</td>
+                              <td><a href={p.applyLink} target="_blank" rel="noopener noreferrer" style={{color:T,fontWeight:700,textDecoration:'none',fontSize:'.77rem'}}>Apply →</a></td>
+                            </tr>
+                          ))}
+                          <tr style={{background:`${N}08`}}>
+                            <td colSpan={3} style={{fontFamily:'Arial Black,sans-serif',fontWeight:900,color:N,fontSize:'.8rem'}}>TOTAL</td>
+                            <td style={{fontFamily:'Arial Black,sans-serif',fontWeight:900,color:G,fontSize:'.9rem'}}>{totalV.toLocaleString('en-IN')}</td>
+                            <td colSpan={4}/>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )}
+
+                {/* Zone-wise */}
+                {zones.length>0&&(
+                  <>
+                    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>🗺️ Zone / RRB-wise Vacancy</h2>
+                    <div style={{background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'14px 18px',marginBottom:22}}>
+                      {zones.map((z,i)=>{
+                        const parts = z.split(':'); const name=parts[0]?.trim(); const val=parts[1]?.trim()
+                        const isNE = /Northeast Frontier|NFR|Guwahati/i.test(name||'')
+                        return (
+                          <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:isNE?'8px 10px':'6px 0',margin:isNE?'3px 0':undefined,background:isNE?`${G}12`:undefined,borderRadius:isNE?7:undefined,borderBottom:isNE?undefined:'1px solid #f0f4f8'}}>
+                            <span style={{fontSize:'.82rem',color:isNE?N:'#3a4a5a',fontWeight:isNE?700:400}}>{isNE&&'⭐ '}{name}</span>
+                            <span style={{fontFamily:'Arial Black,sans-serif',fontWeight:900,fontSize:'.82rem',color:isNE?G:N}}>{val}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </>
+                )}
+
+                {/* Age limit & relaxation */}
+                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>👤 Age Limit & Relaxation</h2>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:22}}>
+                  <div style={{background:`${T}10`,border:`1.5px solid ${T}44`,borderRadius:10,padding:'14px'}}>
+                    <div style={{fontSize:'.65rem',fontWeight:700,color:'#5a6a7a',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:6}}>Age Range</div>
+                    <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'1.1rem',color:N}}>{posts.length?`${ageMin}–${ageMax} years`:job.ageLimit}</div>
+                    {job.ageLimitDate&&<div style={{fontSize:'.72rem',color:'#5a6a7a',marginTop:4}}>as on {fmtLong(job.ageLimitDate)}</div>}
+                  </div>
+                  {ageRows.length>0&&(
+                    <div style={{background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'14px'}}>
+                      <div style={{fontSize:'.65rem',fontWeight:700,color:'#5a6a7a',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:8}}>Relaxation</div>
+                      {ageRows.map((r,i)=>{const [cat,yrs]=r.split(':').map(s=>s.trim());return(
+                        <div key={i} style={{display:'flex',justifyContent:'space-between',fontSize:'.78rem',padding:'4px 0',borderBottom:i<ageRows.length-1?'1px solid #f0f4f8':undefined}}>
+                          <span style={{color:'#3a4a5a'}}>{cat}</span><span style={{fontWeight:700,color:N}}>{yrs}</span>
+                        </div>
+                      )})}
+                    </div>
+                  )}
+                </div>
+
+                {/* Fee & Refund */}
+                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>💳 Application Fee & Refund</h2>
+                <div style={{display:'grid',gridTemplateColumns:job.feeRefund?'1fr 1fr':'1fr',gap:12,marginBottom:22}}>
+                  <div style={{background:'#fff3e0',border:'1.5px solid #ffe082',borderRadius:10,padding:'14px'}}>
+                    <div style={{fontSize:'.65rem',fontWeight:700,color:'#e65100',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:8}}>💳 Fee Amount</div>
+                    {(job.fee||'').split('\n').map((l,i)=><div key={i} style={{fontSize:'.82rem',color:'#2a3a4a',padding:'2px 0',lineHeight:1.65}}>{l}</div>)}
+                  </div>
+                  {job.feeRefund&&(
+                    <div style={{background:'#e8f5e9',border:'1.5px solid #a5d6a7',borderRadius:10,padding:'14px'}}>
+                      <div style={{fontSize:'.65rem',fontWeight:700,color:'#2e7d32',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:8}}>💚 Refund After Exam</div>
+                      {job.feeRefund.split('\n').map((l,i)=><div key={i} style={{fontSize:'.82rem',color:'#1b5e20',padding:'2px 0',lineHeight:1.65}}>{l}</div>)}
+                    </div>
+                  )}
+                </div>
+
+                {/* Selection process (brief) */}
+                {job.selection&&(
+                  <>
+                    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>🏆 Selection Process</h2>
+                    <div style={{display:'flex',gap:4,flexWrap:'wrap' as const,alignItems:'center',marginBottom:12}}>
+                      {(job.selection||"").split('→').map((s,i,arr)=>(
+                        <div key={i} style={{display:'flex',alignItems:'center',gap:4}}>
+                          <div style={{background:N,color:G,padding:'8px 14px',borderRadius:8,fontSize:'.79rem',fontWeight:800,fontFamily:'Arial Black,sans-serif',border:`1.5px solid ${G}44`}}>{s.trim()}</div>
+                          {i<arr.length-1&&<span style={{color:G,fontWeight:900,fontSize:'1.1rem'}}>→</span>}
+                        </div>
+                      ))}
+                    </div>
+                    <button onClick={()=>setActiveTab('syllabus')} style={{background:'transparent',border:'none',color:T,fontWeight:700,fontSize:'.82rem',cursor:'pointer',padding:'0 0 18px',fontFamily:'Nunito,sans-serif'}}>📋 See detailed CBT pattern, PET criteria & syllabus →</button>
+                  </>
+                )}
+
+                {/* Helpline */}
+                {(job.helplineEmail||job.helplinePhone)&&(
+                  <>
+                    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>📞 Helpline for Candidates</h2>
+                    <div style={{background:`${N}08`,border:'1.5px solid #d4e0ec',borderRadius:10,padding:'14px 18px',marginBottom:20,display:'flex',gap:22,flexWrap:'wrap' as const}}>
+                      {job.helplineEmail&&(
+                        <div>
+                          <div style={{fontSize:'.65rem',fontWeight:700,color:'#8fa3b8',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:4}}>📧 Email</div>
+                          <a href={`mailto:${job.helplineEmail}`} style={{color:T,fontWeight:700,fontSize:'.85rem',textDecoration:'none'}}>{job.helplineEmail}</a>
+                          <div style={{fontSize:'.68rem',color:'#8fa3b8',marginTop:2}}>10:00 AM – 5:00 PM (working days)</div>
+                        </div>
+                      )}
+                      {job.helplinePhone&&(
+                        <div>
+                          <div style={{fontSize:'.65rem',fontWeight:700,color:'#8fa3b8',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:4}}>📱 Phone</div>
+                          <div style={{color:N,fontWeight:700,fontSize:'.85rem'}}>{job.helplinePhone}</div>
+                          <div style={{fontSize:'.68rem',color:'#8fa3b8',marginTop:2}}>10:00 AM – 5:00 PM (working days)</div>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                {/* Official PDFs */}
+                {job.advPdfs?.length>0&&(
+                  <>
+                    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>📄 Official PDFs</h2>
+                    {(job.advPdfs||[]).map((pdf,i)=>(
+                      <a key={i} href={driveDownloadUrl(pdf.url)} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',gap:12,padding:'11px 15px',background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,textDecoration:'none',color:N,marginBottom:9}}>
+                        <span style={{fontSize:'1.3rem'}}>📄</span>
+                        <div style={{flex:1}}><div style={{fontWeight:700,fontSize:'.84rem'}}>{pdf.name}</div>{pdf.size&&<div style={{fontSize:'.72rem',color:'#5a6a7a'}}>{pdf.size}</div>}</div>
+                        <span style={{background:T,color:N,padding:'5px 11px',borderRadius:7,fontWeight:800,fontSize:'.74rem',fontFamily:'Arial Black,sans-serif'}}>Download</span>
+                      </a>
+                    ))}
+                  </>
+                )}
+
+                {/* Date history */}
+                {job.dateHistory?.length>0&&(
+                  <div style={{background:'#fff8e1',border:'1.5px solid #ffe082',borderRadius:10,padding:'14px 18px'}}>
+                    <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.85rem',color:'#e65100',marginBottom:10}}>📅 Date Extension History</div>
+                    {(job.dateHistory||[]).map((h,i)=>(
+                      <div key={i} style={{fontSize:'.8rem',color:'#5a3a00',padding:'4px 0',borderBottom:i<(job.dateHistory||[]).length-1?'1px solid #ffe082':undefined}}>
+                        <strong>{fmtLong(h.date)}</strong> — {h.note}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── SYLLABUS TAB ── */}
+            {activeTab==='syllabus'&&(
+              <div style={{padding:'20px'}}>
+                {selSections.length>0&&(
+                  <>
+                    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>🏆 Detailed Selection Process & Exam Pattern</h2>
+                    {selSections.map((sec,i)=>(
+                      <div key={i} style={{borderLeft:`3px solid ${G}`,padding:'10px 14px',marginBottom:12,background:'#fafbf0',borderRadius:'0 8px 8px 0'}}>
+                        {sec.title&&<div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.88rem',color:N,marginBottom:8}}>{sec.title}</div>}
+                        {sec.lines.map((l,j)=><div key={j} style={{fontSize:'.82rem',color:'#3a4a5a',lineHeight:1.85,padding:'1px 0'}}>• {l}</div>)}
+                      </div>
+                    ))}
+                    <div style={{marginBottom:20}}/>
+                  </>
+                )}
+                {sylSecs.length>0&&(
+                  <>
+                    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📚 Detailed Syllabus</h2>
+                    {sylSecs.map((sec,i)=>{
+                      const lines=sec.split('\n'); const [head,...rest]=lines
+                      return (
+                        <div key={i} style={{background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'14px 16px',marginBottom:12}}>
+                          <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.87rem',color:N,marginBottom:8,paddingBottom:6,borderBottom:`2px solid ${T}`}}>{head}</div>
+                          <div style={{fontSize:'.82rem',color:'#3a4a5a',lineHeight:1.85}}>{rest.join(' ')}</div>
+                        </div>
+                      )
+                    })}
+                  </>
+                )}
+                {!selSections.length&&!sylSecs.length&&(
+                  <div style={{textAlign:'center' as const,padding:'40px',color:'#8fa3b8'}}>
+                    <div style={{fontSize:'2.5rem',marginBottom:12}}>📋</div>
+                    <p>Detailed syllabus and selection process will be added soon.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── HOW TO APPLY TAB ── */}
+            {activeTab==='howapply'&&(
+              <div style={{padding:'20px'}}>
+                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>✅ How to Apply Online</h2>
+                {steps.map((step,i)=>{
+                  const clean=step.replace(/^[\d]+[\.\)]\s*/,'')
+                  return (
+                    <div key={i} style={{display:'flex',gap:13,padding:'11px 0',borderBottom:i<steps.length-1?'1px solid #f0f4f8':'none',alignItems:'flex-start'}}>
+                      <div style={{width:29,height:29,borderRadius:'50%',background:N,color:G,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:'.8rem',flexShrink:0,fontFamily:'Arial Black,sans-serif',border:`2px solid ${G}`}}>{i+1}</div>
+                      <div style={{paddingTop:3,fontSize:'.86rem',color:'#2a3a4a',lineHeight:1.75,flex:1}}>{clean}</div>
+                    </div>
+                  )
+                })}
+                {/* Assamese steps if available */}
+                {job.howToApplyAs&&(
+                  <div style={{background:'#fff8e1',border:'1.5px solid #ffe082',borderRadius:11,padding:'14px',marginTop:8,marginBottom:4}}>
+                    <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.78rem',color:'#5d4037',marginBottom:10}}>🇮🇳 অসমীয়াত আবেদন পদ্ধতি</div>
+                    {job.howToApplyAs.split('\n').filter(s=>s.trim()).map((step,i)=>(
+                      <div key={i} style={{display:'flex',gap:10,padding:'7px 0',borderBottom:'1px solid #fff3cd',alignItems:'flex-start'}}>
+                        <div style={{width:22,height:22,borderRadius:'50%',background:'#5d4037',color:'#fff8e1',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:'.7rem',flexShrink:0}}>{i+1}</div>
+                        <div style={{fontSize:'.84rem',color:'#4a3728',lineHeight:1.7,flex:1,paddingTop:1}}>{step.replace(/^[১২৩৪৫৬৭৮৯০\d]+[.।)]\s*/,'')}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div style={{display:'flex',gap:10,flexWrap:'wrap' as const,marginTop:18}}>
+                  <a href={job.applyLink||`https://${job.website}`} target="_blank" rel="noopener noreferrer"
+                    style={{flex:1,minWidth:150,display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'13px',borderRadius:11,background:T,color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif'}}>
+                    📝 APPLY ONLINE
+                  </a>
+                  {job.website&&(
+                    <a href={`https://${job.website}`} target="_blank" rel="noopener noreferrer"
+                      style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,padding:'13px 18px',borderRadius:11,background:'#f0f4f8',color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',border:'1.5px solid #d4e0ec',fontFamily:'Arial Black,sans-serif'}}>
+                      🌐 Official Site
+                    </a>
+                  )}
+                </div>
+                {job.youtubeLink&&(
+                  <a href={job.youtubeLink} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',gap:10,padding:'12px 16px',background:'#fde8ea',border:'1.5px solid #f7bcc0',borderRadius:10,textDecoration:'none',color:'#c62828',fontWeight:700,fontSize:'.84rem',marginTop:12}}>▶️ Watch Video Guide on YouTube</a>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Affiliate Products / Books */}
+          {(job.jobAffiliates||[]).filter(ja=>ja.title&&ja.link).length > 0 && (
+            <div style={{marginBottom:18}}>
+              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:'#0b1f33',marginBottom:12}}>📚 Recommended Books & Study Material</h2>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(150px,1fr))',gap:12}}>
+                {(job.jobAffiliates||[]).filter(ja=>ja.title&&ja.link).map(ja=>(
+                  <a key={ja.id} href={ja.link} target="_blank" rel="noopener noreferrer sponsored"
+                    style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:12,overflow:'hidden',textDecoration:'none',color:'inherit',display:'flex',flexDirection:'column' as const,transition:'.18s',boxShadow:'0 2px 8px rgba(0,0,0,.06)'}}>
+                    <div style={{position:'relative' as const}}>
+                      {ja.img
+                        ? <img src={ja.img} alt={ja.title} style={{width:'100%',height:120,objectFit:'cover',display:'block'}}/>
+                        : <div style={{width:'100%',height:120,background:'linear-gradient(135deg,#0b1f33,#0a3050)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2.5rem'}}>📖</div>
+                      }
+                      {ja.badge&&<span style={{position:'absolute' as const,top:7,left:7,background:'#c9a227',color:'#0b1f33',fontSize:'.62rem',fontWeight:900,padding:'2px 8px',borderRadius:99,fontFamily:'Arial Black,sans-serif',letterSpacing:'.02em'}}>{ja.badge}</span>}
+                    </div>
+                    <div style={{padding:'10px 11px',flex:1,display:'flex',flexDirection:'column' as const,gap:8}}>
+                      <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.78rem',color:'#0b1f33',lineHeight:1.4}}>{ja.title}</div>
+                      <div style={{marginTop:'auto',background:'#1dbfad',color:'#0b1f33',borderRadius:7,padding:'6px',textAlign:'center' as const,fontWeight:900,fontSize:'.72rem',fontFamily:'Arial Black,sans-serif'}}>
+                        Buy Now →
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+              <div style={{fontSize:'.7rem',color:'#8fa3b8',marginTop:8}}>* Affiliate links — purchasing supports this portal</div>
+            </div>
+          )}
+
+          {/* Related jobs */}
+          {others.length>0&&(
+            <div>
+              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:N,marginBottom:12}}>💼 Other Job Vacancies</h2>
+              <div style={{display:'flex',flexDirection:'column' as const,gap:9}}>
+                {others.map(j=>{const jsc=j.status==='Live'?'#22c55e':j.status==='Closing'?'#f59e0b':'#8fa3b8';return(
+                  <Link key={j.id} href={`/jobs/${j.id}`} className="re-card">
+                    <div style={{width:42,height:42,borderRadius:10,background:`${jsc}18`,border:`1.5px solid ${jsc}44`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.3rem',flexShrink:0}}>{j.logo}</div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.83rem',color:N,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const}}>{j.title}</div>
+                      <div style={{fontSize:'.72rem',color:'#5a6a7a',marginTop:2}}>{j.org} · Last: {fmt(j.lastDate)}</div>
+                    </div>
+                    <span style={{background:`${jsc}20`,color:jsc,padding:'3px 9px',borderRadius:99,fontSize:'.65rem',fontWeight:800,flexShrink:0,border:`1px solid ${jsc}44`}}>{j.status}</span>
+                  </Link>
+                )})}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* SIDEBAR */}
+        <div style={{width:285,flexShrink:0}}>
+          {job.status!=='Draft'&&(
+            <div style={{background:N,border:`2px solid ${G}`,borderRadius:14,padding:'18px',marginBottom:15}}>
+              <div style={{fontFamily:'Arial Black,sans-serif',color:G,fontSize:'.72rem',letterSpacing:'.06em',marginBottom:12}}>📋 QUICK APPLY</div>
+              {dl&&<div style={{background:`${dl.c}20`,color:dl.c,border:`1px solid ${dl.c}44`,padding:'7px 12px',borderRadius:8,fontSize:'.78rem',fontWeight:800,marginBottom:12,textAlign:'center' as const}}>🗓 {dl.t}</div>}
+              <a href={job.applyLink||`https://${job.website}`} target="_blank" rel="noopener noreferrer"
+                style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,width:'100%',padding:'13px',borderRadius:11,background:G,color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif',boxSizing:'border-box' as const,marginBottom:10}}>
+                📝 APPLY NOW
+              </a>
+              {job.website&&<a href={`https://${job.website}`} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,width:'100%',padding:'10px',borderRadius:10,background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.6)',fontWeight:700,fontSize:'.82rem',textDecoration:'none',border:'1px solid rgba(255,255,255,.15)',boxSizing:'border-box' as const}}>🌐 {job.website}</a>}
+            </div>
+          )}
+          <div style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:13,padding:'16px',marginBottom:15}}>
+            <h3 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.87rem',color:N,marginBottom:12}}>📌 Quick Info</h3>
+            {[
+              {l:'Organisation',  v:job.org},
+              {l:'Category',      v:job.category},
+              {l:'District',      v:job.district},
+              ...(job.advtNo?[{l:'Advt. No',v:job.advtNo}]:[]),
+              ...(job.paymentLastDate?[{l:'Fee Last Date',v:fmtLong(job.paymentLastDate)+(job.paymentLastDateTime?' · '+job.paymentLastDateTime:'')}]:[]),
+              {l:'Total Posts',   v:totalV.toLocaleString('en-IN')},
+              {l:'Pay Scale',     v:job.salary},
+              {l:'Qualification', v:job.qualification||(posts[0]?.qualification||'—')},
+            ].map(r=>(
+              <div key={r.l} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f0f4f8',gap:8}}>
+                <span style={{fontSize:'.72rem',color:'#8fa3b8',fontWeight:700,flexShrink:0}}>{r.l}</span>
+                <span style={{fontSize:'.76rem',fontWeight:700,color:N,textAlign:'right' as const,lineHeight:1.4}}>{r.v||'—'}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{background:'#f8fbff',border:'1px solid #d4e0ec',borderRadius:12,padding:'14px',textAlign:'center' as const,marginBottom:15}}>
+            <div style={{fontSize:'.74rem',color:'#5a6a7a',fontWeight:700,marginBottom:10}}>📢 Share this job</div>
+            <div style={{display:'flex',gap:8,justifyContent:'center'}}>
+              {[
+                {l:'WhatsApp',c:'#25d366',ico:'💬',href:`https://wa.me/?text=${encodeURIComponent(job.title+'\nVacancy: '+totalV.toLocaleString('en-IN')+' Posts | Last Date: '+fmt(job.lastDate)+'\n\nhttps://www.assamcareerpoint-info.com/jobs/'+job.id)}`},
+                {l:'Telegram',c:'#0088cc',ico:'✈️',href:`https://t.me/share/url?url=${encodeURIComponent('https://www.assamcareerpoint-info.com/jobs/'+job.id)}&text=${encodeURIComponent(job.title)}`},
+              ].map(s=>(
+                <a key={s.l} href={s.href} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',gap:5,padding:'8px 12px',borderRadius:8,background:s.c,color:W,fontSize:'.74rem',fontWeight:700,textDecoration:'none'}}>
+                  {s.ico} {s.l}
+                </a>
+              ))}
+            </div>
+          </div>
+          <div style={{background:'#fff8e1',border:'1px solid #ffe082',borderRadius:10,padding:'11px 13px',fontSize:'.72rem',color:'#5a3a00',lineHeight:1.75}}>
+            ⚠️ <strong>Disclaimer:</strong> Always verify from the official website. Assam Career Point & Info is not affiliated with any government body.
+          </div>
+        </div>
+      </div>
+
+      <footer style={{background:N,borderTop:`3px solid ${G}`,padding:'18px',textAlign:'center' as const}}>
+        <div style={{fontSize:'.72rem',color:'rgba(255,255,255,.3)'}}>
+          © 2025–2026 Assam Career Point & Info ·{' '}
+          {([['Privacy','/privacy-policy'],['About','/about-us'],['Contact','/contact'],['Home','/']] as [string,string][]).map(([l,h])=>(
+            <span key={h}><Link href={h} style={{color:'#c9a22788',textDecoration:'none'}}>{l}</Link> · </span>
+          ))}
+        </div>
+      </footer>
+    </>
+  )
+}
