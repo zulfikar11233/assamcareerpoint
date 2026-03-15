@@ -338,11 +338,21 @@ export default function AdminDashboard() {
     try { localStorage.setItem(key, JSON.stringify(val)) }
     catch(e) { alert('⚠️ Storage quota exceeded!\n\nMake sure job banners and PDFs use Google Drive links — NOT file uploads.\n\nDelete old jobs with uploaded images/PDFs to free space.') }
   }
-  useEffect(() => { safeSet('acp_jobs_v6',      jobs)      }, [jobs])
-  useEffect(() => { safeSet('acp_exams_v6',     exams)     }, [exams])
-  useEffect(() => { safeSet('acp_info_v6',      infoList)  }, [infoList])
-  useEffect(() => { safeSet('acp_pdfforms_v6',  pdfForms)  }, [pdfForms])
-  useEffect(() => { safeSet('acp_affiliate_v1', affiliates)}, [affiliates])
+  useEffect(() => { safeSet('acp_jobs_v6',      jobs)      
+    if (jobs.length > 0) fetch('/api/data/jobs',      { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(jobs)      })
+  }, [jobs])
+  useEffect(() => { safeSet('acp_exams_v6',     exams)     
+    if (exams.length > 0) fetch('/api/data/exams',     { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(exams)     })
+  }, [exams])
+  useEffect(() => { safeSet('acp_info_v6',      infoList)  
+    if (infoList.length > 0) fetch('/api/data/info',  { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(infoList)  })
+  }, [infoList])
+  useEffect(() => { safeSet('acp_pdfforms_v6',  pdfForms)  
+    if (pdfForms.length > 0) fetch('/api/data/pdfforms', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(pdfForms) })
+  }, [pdfForms])
+  useEffect(() => { safeSet('acp_affiliate_v1', affiliates)
+    if (affiliates.length > 0) fetch('/api/data/affiliate', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(affiliates) })
+  }, [affiliates])
 
   const toast = (msg:string) => { setToastMsg(msg); setTimeout(()=>setToastMsg(''), 2800) }
   const fmt   = (d:string|undefined|null) => { if(!d) return '—'; try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) } catch { return d } }
