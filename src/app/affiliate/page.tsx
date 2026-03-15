@@ -185,13 +185,26 @@ export default function AffiliatePage() {
   const [cat, setCat]     = useState('All')
   const [items, setItems] = useState<AffItem[]>(DEFAULT_ITEMS)
 
-  useEffect(() => {
-    // Admin can override items via localStorage (from admin panel)
-    try {
-      const saved = localStorage.getItem('acp_affiliate_v1')
-      if (saved) setItems(JSON.parse(saved))
-    } catch { /* use defaults */ }
+useEffect(() => {
+    fetch('/api/data/affiliate')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) setItems(data)
+        else {
+          try {
+            const saved = localStorage.getItem('acp_affiliate_v1')
+            if (saved) setItems(JSON.parse(saved))
+          } catch {}
+        }
+      })
+      .catch(() => {
+        try {
+          const saved = localStorage.getItem('acp_affiliate_v1')
+          if (saved) setItems(JSON.parse(saved))
+        } catch {}
+      })
   }, [])
+
 
   const visible = cat === 'All' ? items : items.filter(i => i.category === cat)
 

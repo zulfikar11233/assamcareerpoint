@@ -22,9 +22,21 @@ export default function ResultsPage() {
   const [filterCat, setFilterCat] = useState('All')
   const [loaded, setLoaded] = useState(false)
 
-  useEffect(() => {
-    setPosts(getPublishedResults())
-    setLoaded(true)
+useEffect(() => {
+    fetch('/api/data/results')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setPosts(data)
+        } else {
+          setPosts(getPublishedResults())
+        }
+        setLoaded(true)
+      })
+      .catch(() => {
+        setPosts(getPublishedResults())
+        setLoaded(true)
+      })
   }, [])
 
   const filtered = posts.filter(p => {

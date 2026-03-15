@@ -487,11 +487,26 @@ export default function ResultsAdmin() {
   const [filterCat, setFilterCat] = useState('All')
   const { msg: toastMsg, toast } = useToast()
 
-  useEffect(() => { setPosts(getResultPosts()) }, [])
+  useEffect(() => {
+    fetch('/api/data/results')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) setPosts(data)
+        else setPosts(getResultPosts())
+      })
+      .catch(() => setPosts(getResultPosts()))
+  }, [])
 
   const save = (updated: ResultPost[]) => {
-    setPosts(updated); saveResultPosts(updated)
+    setPosts(updated)
+    saveResultPosts(updated)
+    fetch('/api/data/results', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated)
+    })
   }
+
 
   const handleSave = (post: ResultPost) => {
     const updated = editPost

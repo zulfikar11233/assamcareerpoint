@@ -16,11 +16,22 @@ export default function GuidesPage() {
   const [search, setSearch] = useState('')
   const [loaded, setLoaded] = useState(false)
 
-  useEffect(() => {
-    setPosts(getOthersPosts(TYPE).filter(p => p.published).sort((a, b) => b.id - a.id))
-    setLoaded(true)
+useEffect(() => {
+    fetch('/api/data/guides')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setPosts(data.filter((p: OthersPost) => p.published).sort((a, b) => b.id - a.id))
+        } else {
+          setPosts(getOthersPosts(TYPE).filter(p => p.published).sort((a, b) => b.id - a.id))
+        }
+        setLoaded(true)
+      })
+      .catch(() => {
+        setPosts(getOthersPosts(TYPE).filter(p => p.published).sort((a, b) => b.id - a.id))
+        setLoaded(true)
+      })
   }, [])
-
   const filtered = posts.filter(p =>
     !search ||
     p.title.toLowerCase().includes(search.toLowerCase()) ||

@@ -456,13 +456,30 @@ export default function OthersAdmin() {
   const { msg: toastMsg, toast } = useToast()
 
   // Load from localStorage
-  useEffect(() => {
-    setPosts(getOthersPosts(activeType))
+useEffect(() => {
+    const collection = activeType === 'announcement' ? 'announcements'
+      : activeType === 'guide' ? 'guides'
+      : 'services'
+    fetch(`/api/data/${collection}`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) setPosts(data)
+        else setPosts(getOthersPosts(activeType))
+      })
+      .catch(() => setPosts(getOthersPosts(activeType)))
   }, [activeType])
 
   const save = (updated: OthersPost[]) => {
     setPosts(updated)
     saveOthersPosts(activeType, updated)
+    const collection = activeType === 'announcement' ? 'announcements'
+      : activeType === 'guide' ? 'guides'
+      : 'services'
+    fetch(`/api/data/${collection}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated)
+    })
   }
 
   const handleSave = (post: OthersPost) => {
