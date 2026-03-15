@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && node fix-standalone.js",
-    "start": "node -r dotenv/config .next/standalone/server.js dotenv_config_path=.next/standalone/.env.local",
+    "build": "next build",
+    "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
