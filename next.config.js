@@ -52,7 +52,6 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   compress: true,
-  output: 'standalone',
 
   async headers() {
     return [
