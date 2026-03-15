@@ -8,13 +8,16 @@ import { useState } from 'react'
 import { migrateLocalStorageToServer } from '@/lib/dataHelper'
 
 export default function MigrateButton() {
-  const [status, setStatus] = useState<'idle'|'running'|'done'|'error'>('idle')
+  const [status, setStatus] = useState<'idle'|'running'|'done'|'error'>(
+  typeof window !== 'undefined' && localStorage.getItem('acpi_migrated') === 'yes' ? 'done' : 'idle'
+)
 
   async function handleMigrate() {
     setStatus('running')
     try {
       await migrateLocalStorageToServer()
-      setStatus('done')
+      localStorage.setItem('acpi_migrated', 'yes')
+setStatus('done')
     } catch {
       setStatus('error')
     }

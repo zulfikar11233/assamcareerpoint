@@ -1,8 +1,7 @@
 'use client'
 // src/app/pdf-forms/page.tsx — ACPI PDF Forms Library
-// ✅ Shows ONLY government PDF forms (syllabus, application forms, question papers etc.)
-// ✅ All stored as Google Drive links — NOT base64, NOT job advertisement PDFs
-// ✅ Job advertisement PDFs are on the job detail page, NOT here
+// ✅ Loads from server API — visible to ALL devices and visitors
+// ✅ Falls back to localStorage if server has no data yet
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
@@ -43,18 +42,41 @@ export default function PdfFormsPage() {
   const [cat,      setCat]     = useState('All')
   const [search,   setSearch]  = useState('')
   const [tracked,  setTracked] = useState<Record<number,number>>({})
+  const [loading,  setLoading] = useState(true)
 
   useEffect(() => {
+    // ── Load from server API — visible to ALL devices ──
+    fetch('/api/data/pdfforms')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setForms(data)
+        } else {
+          // Fall back to localStorage if server has no data yet
+          try {
+            const sp = localStorage.getItem('acp_pdfforms_v6')
+            setForms(sp ? JSON.parse(sp) : SAMPLE)
+          } catch { setForms(SAMPLE) }
+        }
+        setLoading(false)
+      })
+      .catch(() => {
+        // Fall back to localStorage on error
+        try {
+          const sp = localStorage.getItem('acp_pdfforms_v6')
+          setForms(sp ? JSON.parse(sp) : SAMPLE)
+        } catch { setForms(SAMPLE) }
+        setLoading(false)
+      })
+
+    // Load download tracking from localStorage (device-specific is fine)
     try {
-      const sp = localStorage.getItem('acp_pdfforms_v6')
-      setForms(sp ? JSON.parse(sp) : SAMPLE)
       const st = localStorage.getItem('acp_pdf_dl')
       if (st) setTracked(JSON.parse(st))
-    } catch { setForms(SAMPLE) }
+    } catch {}
   }, [])
 
   function openDrive(form: PdfForm) {
-    // Track download count locally
     const updated = { ...tracked, [form.id]: (tracked[form.id] || 0) + 1 }
     setTracked(updated)
     localStorage.setItem('acp_pdf_dl', JSON.stringify(updated))
@@ -83,6 +105,8 @@ export default function PdfFormsPage() {
         .dl-btn:hover { background:linear-gradient(135deg,#1b2f45,#0a3050);transform:translateY(-1px); }
         .prev-btn { display:flex;align-items:center;justify-content:center;gap:7px;padding:10px 16px;border-radius:9px;background:#f0f4f8;color:#0d1b2a;font-weight:700;font-size:.82rem;border:1.5px solid #d4e0ec;cursor:pointer;font-family:Nunito,sans-serif;width:100%;transition:.15s; }
         .prev-btn:hover { background:#e0f7fc;border-color:#00b4d8;color:#0096b7; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media(max-width:600px) { .pgrid { grid-template-columns:1fr; } }
       `}</style>
 
       {/* HEADER */}
@@ -95,16 +119,16 @@ export default function PdfFormsPage() {
               <div style={{ fontSize:'.6rem',color:'rgba(255,255,255,.35)' }}>& Info</div>
             </div>
           </Link>
-          <nav style={{ display:'flex',gap:2 }}>
+          <nav style={{ display:'flex',gap:2,flexWrap:'wrap' as const }}>
             {NAV.map(([l,h])=>(
-              <Link key={h} href={h} style={{ color: h==='/pdf-forms' ? '#00b4d8' : 'rgba(255,255,255,.65)', fontSize:'.82rem',fontWeight:600,padding:'7px 10px',borderRadius:8,textDecoration:'none',whiteSpace:'nowrap' }}>{l}</Link>
+              <Link key={h} href={h} style={{ color: h==='/pdf-forms' ? '#00b4d8' : 'rgba(255,255,255,.65)', fontSize:'.82rem',fontWeight:600,padding:'7px 10px',borderRadius:8,textDecoration:'none',whiteSpace:'nowrap' as const }}>{l}</Link>
             ))}
           </nav>
         </div>
       </header>
 
       {/* HERO */}
-      <div style={{ background:'linear-gradient(135deg,#0d1b2a,#1b2f45)',padding:'40px 20px 34px',textAlign:'center' }}>
+      <div style={{ background:'linear-gradient(135deg,#0d1b2a,#1b2f45)',padding:'40px 20px 34px',textAlign:'center' as const }}>
         <div style={{ display:'inline-flex',alignItems:'center',gap:7,background:'rgba(107,0,173,.2)',border:'1px solid rgba(107,0,173,.4)',borderRadius:99,padding:'4px 13px',fontSize:'.73rem',fontWeight:700,color:'#ce93d8',marginBottom:14 }}>
           📄 PDF Forms Library
         </div>
@@ -117,9 +141,7 @@ export default function PdfFormsPage() {
         <p style={{ color:'rgba(255,255,255,.35)',fontSize:'.78rem' }}>
           All documents hosted on Google Drive — open directly in browser or download
         </p>
-
-        {/* Info box */}
-        <div style={{ maxWidth:680,margin:'20px auto 0',background:'rgba(255,255,255,.07)',border:'1px solid rgba(255,255,255,.12)',borderRadius:12,padding:'13px 20px',fontSize:'.8rem',color:'rgba(255,255,255,.6)',textAlign:'left' }}>
+        <div style={{ maxWidth:680,margin:'20px auto 0',background:'rgba(255,255,255,.07)',border:'1px solid rgba(255,255,255,.12)',borderRadius:12,padding:'13px 20px',fontSize:'.8rem',color:'rgba(255,255,255,.6)',textAlign:'left' as const }}>
           <strong style={{color:'rgba(255,255,255,.8)'}}>📌 About this section:</strong> This library contains <strong style={{color:'#00b4d8'}}>official government forms, syllabi, question papers</strong> and similar documents.
           Job vacancy advertisement PDFs are separate — find them on each individual job page.
         </div>
@@ -147,8 +169,13 @@ export default function PdfFormsPage() {
           </div>
         </div>
 
-        {/* Grid */}
-        {visible.length === 0 ? (
+        {/* Loading state */}
+        {loading ? (
+          <div style={{ textAlign:'center' as const,padding:'60px 20px',color:'#5a6a7a' }}>
+            <div style={{ width:36,height:36,border:'4px solid #d4e0ec',borderTopColor:'#00b4d8',borderRadius:'50%',animation:'spin 1s linear infinite',margin:'0 auto 14px' }} />
+            <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700 }}>Loading documents...</div>
+          </div>
+        ) : visible.length === 0 ? (
           <div style={{ textAlign:'center' as const,padding:'60px 20px',color:'#5a6a7a' }}>
             <div style={{ fontSize:'2.5rem',marginBottom:12 }}>📭</div>
             <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700 }}>No documents found</div>
@@ -172,13 +199,11 @@ export default function PdfFormsPage() {
                   </div>
                 </div>
 
-                {/* Drive info */}
                 <div style={{ background:'#f0f4f8',borderRadius:8,padding:'8px 11px',fontSize:'.75rem',color:'#5a6a7a',display:'flex',alignItems:'center',gap:7 }}>
                   <span style={{ fontSize:'1rem' }}>🔗</span>
                   <span>Stored on <strong style={{color:'#0d1b2a'}}>Google Drive</strong> — opens in browser</span>
                 </div>
 
-                {/* Buttons */}
                 <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:8 }}>
                   <button className="prev-btn" onClick={()=>window.open(form.driveLink,'_blank')}>
                     👁️ View
