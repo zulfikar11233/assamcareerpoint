@@ -1,23 +1,26 @@
-// src/components/MigrateButton.tsx
-// Add this button to admin dashboard to migrate localStorage → server
-// After clicking once, all your existing data moves to server
-// Delete this component after migration is done
-
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { migrateLocalStorageToServer } from '@/lib/dataHelper'
 
 export default function MigrateButton() {
-  const [status, setStatus] = useState<'idle'|'running'|'done'|'error'>(
-  typeof window !== 'undefined' && localStorage.getItem('acpi_migrated') === 'yes' ? 'done' : 'idle'
-)
+  const [status, setStatus] = useState<'idle'|'running'|'done'|'error'>('idle')
+
+  useEffect(() => {
+    // If already migrated before, hide the button
+    if (localStorage.getItem('acpi_migrated') === 'yes') {
+      setStatus('done')
+    }
+  }, [])
+
+  // If already done, show nothing
+  if (status === 'done') return null
 
   async function handleMigrate() {
     setStatus('running')
     try {
       await migrateLocalStorageToServer()
       localStorage.setItem('acpi_migrated', 'yes')
-setStatus('done')
+      setStatus('done')
     } catch {
       setStatus('error')
     }
@@ -32,20 +35,13 @@ setStatus('done')
         Your existing content is stored locally. Click the button below to copy it to the server so all visitors can see it. Do this only once!
       </p>
       {status === 'idle' && (
-        <button
-          onClick={handleMigrate}
-          style={{ background:'#e63946',color:'#fff',border:'none',borderRadius:8,padding:'10px 22px',fontWeight:700,fontSize:'.92rem',cursor:'pointer' }}
-        >
+        <button onClick={handleMigrate}
+          style={{ background:'#e63946',color:'#fff',border:'none',borderRadius:8,padding:'10px 22px',fontWeight:700,fontSize:'.92rem',cursor:'pointer' }}>
           🚀 Migrate Data to Server Now
         </button>
       )}
       {status === 'running' && (
         <div style={{ color:'#0096b7',fontWeight:700 }}>⏳ Migrating... please wait...</div>
-      )}
-      {status === 'done' && (
-        <div style={{ color:'#2e7d32',fontWeight:700 }}>
-          ✅ Migration complete! All your data is now on the server. All visitors can see it now!
-        </div>
       )}
       {status === 'error' && (
         <div style={{ color:'#e63946',fontWeight:700 }}>❌ Migration failed. Please try again.</div>
