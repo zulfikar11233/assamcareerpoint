@@ -47,13 +47,29 @@ export default function GovtJobsPage() {
   const [loaded,  setLoaded]  = useState(false)
   const [sortBy,  setSortBy]  = useState<'latest'|'lastDate'>('latest')
 
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('acp_jobs_v6')
-      const list: Job[] = saved ? JSON.parse(saved) : FALLBACK
-      setJobs(list.filter(j => j.status !== 'Draft'))
-    } catch { setJobs(FALLBACK) }
-    setLoaded(true)
+useEffect(() => {
+    fetch('/api/data/jobs')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setJobs(data.filter((j: Job) => j.status !== 'Draft'))
+        } else {
+          try {
+            const saved = localStorage.getItem('acp_jobs_v6')
+            const list: Job[] = saved ? JSON.parse(saved) : FALLBACK
+            setJobs(list.filter(j => j.status !== 'Draft'))
+          } catch { setJobs(FALLBACK) }
+        }
+        setLoaded(true)
+      })
+      .catch(() => {
+        try {
+          const saved = localStorage.getItem('acp_jobs_v6')
+          const list: Job[] = saved ? JSON.parse(saved) : FALLBACK
+          setJobs(list.filter(j => j.status !== 'Draft'))
+        } catch { setJobs(FALLBACK) }
+        setLoaded(true)
+      })
   }, [])
 
   const filtered = jobs

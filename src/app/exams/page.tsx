@@ -58,12 +58,27 @@ export default function ExamsPage() {
   const [q,     setQ]     = useState('')
   const [loaded, setLoaded] = useState(false)
 
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('acp_exams_v6')
-      setExams(saved ? JSON.parse(saved) : FALLBACK)
-    } catch { setExams(FALLBACK) }
-    setLoaded(true)
+useEffect(() => {
+    fetch('/api/data/exams')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setExams(data)
+        } else {
+          try {
+            const saved = localStorage.getItem('acp_exams_v6')
+            setExams(saved ? JSON.parse(saved) : FALLBACK)
+          } catch { setExams(FALLBACK) }
+        }
+        setLoaded(true)
+      })
+      .catch(() => {
+        try {
+          const saved = localStorage.getItem('acp_exams_v6')
+          setExams(saved ? JSON.parse(saved) : FALLBACK)
+        } catch { setExams(FALLBACK) }
+        setLoaded(true)
+      })
   }, [])
 
   const filtered = exams.filter(e =>

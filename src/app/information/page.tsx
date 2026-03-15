@@ -44,11 +44,26 @@ export default function InformationPage() {
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('acp_info_v6')
-      setItems(saved ? JSON.parse(saved) : FALLBACK)
-    } catch { setItems(FALLBACK) }
-    setLoaded(true)
+    fetch('/api/data/info')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setItems(data)
+        } else {
+          try {
+            const saved = localStorage.getItem('acp_info_v6')
+            setItems(saved ? JSON.parse(saved) : FALLBACK)
+          } catch { setItems(FALLBACK) }
+        }
+        setLoaded(true)
+      })
+      .catch(() => {
+        try {
+          const saved = localStorage.getItem('acp_info_v6')
+          setItems(saved ? JSON.parse(saved) : FALLBACK)
+        } catch { setItems(FALLBACK) }
+        setLoaded(true)
+      })
   }, [])
 
   const filtered = items.filter(i =>
