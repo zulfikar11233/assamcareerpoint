@@ -54,20 +54,26 @@ const nextConfig = {
   compress: true,
 
   async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: securityHeaders,
-      },
-      {
-        source: '/admin/:path*',
-        headers: [
-          { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate' },
-          { key: 'Pragma',        value: 'no-cache' },
-        ],
-      },
-    ]
-  },
+  return [
+    {
+      source: '/_next/static/:path*',
+      headers: [
+        { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+      ],
+    },
+    {
+      source: '/(.*)',
+      headers: securityHeaders,
+    },
+    {
+      source: '/admin/:path*',
+      headers: [
+        { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate' },
+        { key: 'Pragma',        value: 'no-cache' },
+      ],
+    },
+  ]
+},
 
   images: {
     remotePatterns: [
