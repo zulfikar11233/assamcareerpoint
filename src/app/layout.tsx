@@ -81,7 +81,7 @@ export const metadata: Metadata = {
 
   // ── Verification (add your codes when you verify) ──
   verification: {
-    google: 'REPLACE_WITH_GOOGLE_SEARCH_CONSOLE_CODE',  // from Google Search Console
+    google: 'QTg9Okvs2Ox9fTAxT4emmHEcPHrD0apfqn8xxRZ4mkQ',  // from Google Search Console
     // yandex: 'xxx',
     // bing: 'xxx',
   },
