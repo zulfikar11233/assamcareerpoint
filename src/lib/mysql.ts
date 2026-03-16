@@ -5,7 +5,7 @@ import mysql from 'mysql2/promise'
 
 // Connection pool — reuses connections efficiently
 const pool = mysql.createPool({
-  host:     process.env.MYSQL_HOST     || 'localhost',
+  host: process.env.MYSQL_HOST || '127.0.0.1',
   user:     process.env.MYSQL_USER     || 'u570952740_acpiuser',
   password: process.env.MYSQL_PASSWORD || '',
   database: process.env.MYSQL_DATABASE || 'u570952740_acpidata',
