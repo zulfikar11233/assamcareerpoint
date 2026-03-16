@@ -98,7 +98,7 @@ export default function HomePage() {
   const [totalExams, setTotalExams] = useState(0)
   const [totalInfo,  setTotalInfo]  = useState(0)
 
-    useEffect(() => {
+      useEffect(() => {
     Promise.all([
       fetch('/api/data/jobs').then(r => r.json()).catch(() => []),
       fetch('/api/data/exams').then(r => r.json()).catch(() => []),
@@ -109,17 +109,17 @@ export default function HomePage() {
         const live = jobs.filter((j: Job) => j.status === 'Live')
         if (live.length) setJobs(live.slice(0, 8))
         else setJobs(jobs.slice(0, 8))
-      }
+      } else setTotalJobs(DEF_JOBS.length)
       if (Array.isArray(exams) && exams.length > 0) {
         setTotalExams(exams.length)
         setExams(exams.slice(0, 6))
-      }
+      } else setTotalExams(DEF_EXAMS.length)
       if (Array.isArray(info) && info.length > 0) {
         setTotalInfo(info.length)
         const active = info.filter((i: Info) => i.status === 'Active')
         if (active.length) setInfo(active.slice(0, 6))
         else setInfo(info.slice(0, 6))
-      }
+      } else setTotalInfo(DEF_INFO.length)
     })
   }, [])
   // Close mobile menu when user clicks a link
