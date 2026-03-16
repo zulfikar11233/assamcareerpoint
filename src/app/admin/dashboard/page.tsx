@@ -291,7 +291,7 @@ export default function AdminDashboard() {
   const [editJob,  setEditJob]  = useState<Job|null>(null)
   const [editExam, setEditExam] = useState<Exam|null>(null)
   const [editInfo, setEditInfo] = useState<InfoItem|null>(null)
-
+const [dataLoaded, setDataLoaded] = useState(false)
   // Job form
   const BLANK_JF = { logo:'🏛️', title:'', org:'', category:'Govt Job', district:'All Districts', status:'Live' as Job['status'], fee:'', selection:'', website:'', howToApply:'', youtubeLink:'', description:'', advtNo:'', ageLimitDate:'', ageRelaxation:'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:'', lastDateTime:'23:59 Hrs', paymentLastDate:'', paymentLastDateTime:'23:59 Hrs', correctionWindow:'', applicationStart:'', helplineEmail:'', helplinePhone:'', selectionDetails:'', syllabusDetails:'', zoneWiseVacancy:'', titleAs:'', orgAs:'', descriptionAs:'', howToApplyAs:'', selectionAs:'' }
   const [jf, setJf] = useState(BLANK_JF)
@@ -316,21 +316,31 @@ export default function AdminDashboard() {
   const [search,   setSearch]   = useState('')
   const [toastMsg, setToastMsg] = useState('')
 
-  // ── Persistence ──────────────────────────────────────────────────────────
+  // ── Persistence — Load from SERVER first ─────────────────────────────────
   useEffect(() => {
-    // Generate a session write key on load — protects localStorage from CSRF
     sessionStorage.setItem('__acp_wk', crypto.randomUUID())
-    try {
-      const sj = localStorage.getItem('acp_jobs_v6');    setJobs(sj ? JSON.parse(sj) : SAMPLE_JOBS)
-      const se = localStorage.getItem('acp_exams_v6');   setExams(se ? JSON.parse(se) : SAMPLE_EXAMS)
-      const si = localStorage.getItem('acp_info_v6');    setInfoList(si ? JSON.parse(si) : SAMPLE_INFO)
-      const sp = localStorage.getItem('acp_pdfforms_v6');setPdfForms(sp ? JSON.parse(sp) : SAMPLE_PDFS)
-      const sa = localStorage.getItem('acp_affiliate_v1');setAffiliates(sa ? JSON.parse(sa) : DEFAULT_AFFILIATES)
-    } catch {
-      setJobs(SAMPLE_JOBS); setExams(SAMPLE_EXAMS); setInfoList(SAMPLE_INFO); setPdfForms(SAMPLE_PDFS); setAffiliates(DEFAULT_AFFILIATES)
-    }
-  }, [])
 
+    // Load all data from server — works on ALL devices
+    Promise.all([
+      fetch('/api/data/jobs').then(r => r.json()).catch(() => null),
+      fetch('/api/data/exams').then(r => r.json()).catch(() => null),
+      fetch('/api/data/info').then(r => r.json()).catch(() => null),
+      fetch('/api/data/pdfforms').then(r => r.json()).catch(() => null),
+      fetch('/api/data/affiliate').then(r => r.json()).catch(() => null),
+    ]).then(([jobs, exams, info, pdfs, aff]) => {
+      setJobs(Array.isArray(jobs) && jobs.length > 0 ? jobs :
+        (() => { try { const s = localStorage.getItem('acp_jobs_v6'); return s ? JSON.parse(s) : SAMPLE_JOBS } catch { return SAMPLE_JOBS } })())
+      setExams(Array.isArray(exams) && exams.length > 0 ? exams :
+        (() => { try { const s = localStorage.getItem('acp_exams_v6'); return s ? JSON.parse(s) : SAMPLE_EXAMS } catch { return SAMPLE_EXAMS } })())
+      setInfoList(Array.isArray(info) && info.length > 0 ? info :
+        (() => { try { const s = localStorage.getItem('acp_info_v6'); return s ? JSON.parse(s) : SAMPLE_INFO } catch { return SAMPLE_INFO } })())
+      setPdfForms(Array.isArray(pdfs) && pdfs.length > 0 ? pdfs :
+        (() => { try { const s = localStorage.getItem('acp_pdfforms_v6'); return s ? JSON.parse(s) : SAMPLE_PDFS } catch { return SAMPLE_PDFS } })())
+      setAffiliates(Array.isArray(aff) && aff.length > 0 ? aff :
+        (() => { try { const s = localStorage.getItem('acp_affiliate_v1'); return s ? JSON.parse(s) : DEFAULT_AFFILIATES } catch { return DEFAULT_AFFILIATES } })())
+      setDataLoaded(true)
+    })
+  }, [])
   // ── SECURITY: write key prevents unauthorized localStorage writes ──
   function safeSet(key:string, val:unknown) {
     const wk = sessionStorage.getItem('__acp_wk')
@@ -338,22 +348,35 @@ export default function AdminDashboard() {
     try { localStorage.setItem(key, JSON.stringify(val)) }
     catch(e) { alert('⚠️ Storage quota exceeded!\n\nMake sure job banners and PDFs use Google Drive links — NOT file uploads.\n\nDelete old jobs with uploaded images/PDFs to free space.') }
   }
-  useEffect(() => { safeSet('acp_jobs_v6',      jobs)      
-    if (jobs.length > 0) fetch('/api/data/jobs',      { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(jobs)      })
+  useEffect(() => {
+    if (!dataLoaded) return
+    safeSet('acp_jobs_v6', jobs)
+    fetch('/api/data/jobs', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(jobs) })
   }, [jobs])
-  useEffect(() => { safeSet('acp_exams_v6',     exams)     
-    if (exams.length > 0) fetch('/api/data/exams',     { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(exams)     })
-  }, [exams])
-  useEffect(() => { safeSet('acp_info_v6',      infoList)  
-    if (infoList.length > 0) fetch('/api/data/info',  { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(infoList)  })
-  }, [infoList])
-  useEffect(() => { safeSet('acp_pdfforms_v6',  pdfForms)  
-    if (pdfForms.length > 0) fetch('/api/data/pdfforms', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(pdfForms) })
-  }, [pdfForms])
-  useEffect(() => { safeSet('acp_affiliate_v1', affiliates)
-    if (affiliates.length > 0) fetch('/api/data/affiliate', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(affiliates) })
-  }, [affiliates])
 
+  useEffect(() => {
+    if (!dataLoaded) return
+    safeSet('acp_exams_v6', exams)
+    fetch('/api/data/exams', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(exams) })
+  }, [exams])
+
+  useEffect(() => {
+    if (!dataLoaded) return
+    safeSet('acp_info_v6', infoList)
+    fetch('/api/data/info', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(infoList) })
+  }, [infoList])
+
+  useEffect(() => {
+    if (!dataLoaded) return
+    safeSet('acp_pdfforms_v6', pdfForms)
+    fetch('/api/data/pdfforms', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(pdfForms) })
+  }, [pdfForms])
+
+  useEffect(() => {
+    if (!dataLoaded) return
+    safeSet('acp_affiliate_v1', affiliates)
+    fetch('/api/data/affiliate', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(affiliates) })
+  }, [affiliates])
   const toast = (msg:string) => { setToastMsg(msg); setTimeout(()=>setToastMsg(''), 2800) }
   const fmt   = (d:string|undefined|null) => { if(!d) return '—'; try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) } catch { return d } }
 

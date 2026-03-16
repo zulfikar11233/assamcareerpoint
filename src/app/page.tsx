@@ -98,17 +98,30 @@ export default function HomePage() {
   const [totalExams, setTotalExams] = useState(0)
   const [totalInfo,  setTotalInfo]  = useState(0)
 
-  useEffect(() => {
-    try {
-      const sj = localStorage.getItem('acp_jobs_v6')
-      if (sj) { const a:Job[]=JSON.parse(sj); setTotalJobs(a.length); const l=a.filter(j=>j.status==='Live'); if(l.length) setJobs(l.slice(0,8)) } else setTotalJobs(DEF_JOBS.length)
-      const se = localStorage.getItem('acp_exams_v6')
-      if (se) { const a:Exam[]=JSON.parse(se); setTotalExams(a.length); if(a.length) setExams(a.slice(0,6)) } else setTotalExams(DEF_EXAMS.length)
-      const si = localStorage.getItem('acp_info_v6')
-      if (si) { const a:Info[]=JSON.parse(si); setTotalInfo(a.length); const ac=a.filter(i=>i.status==='Active'); if(ac.length) setInfo(ac.slice(0,6)) } else setTotalInfo(DEF_INFO.length)
-    } catch {}
+    useEffect(() => {
+    Promise.all([
+      fetch('/api/data/jobs').then(r => r.json()).catch(() => []),
+      fetch('/api/data/exams').then(r => r.json()).catch(() => []),
+      fetch('/api/data/info').then(r => r.json()).catch(() => []),
+    ]).then(([jobs, exams, info]) => {
+      if (Array.isArray(jobs) && jobs.length > 0) {
+        setTotalJobs(jobs.length)
+        const live = jobs.filter((j: Job) => j.status === 'Live')
+        if (live.length) setJobs(live.slice(0, 8))
+        else setJobs(jobs.slice(0, 8))
+      }
+      if (Array.isArray(exams) && exams.length > 0) {
+        setTotalExams(exams.length)
+        setExams(exams.slice(0, 6))
+      }
+      if (Array.isArray(info) && info.length > 0) {
+        setTotalInfo(info.length)
+        const active = info.filter((i: Info) => i.status === 'Active')
+        if (active.length) setInfo(active.slice(0, 6))
+        else setInfo(info.slice(0, 6))
+      }
+    })
   }, [])
-
   // Close mobile menu when user clicks a link
   const closeMenu = () => setMenuOpen(false)
 
