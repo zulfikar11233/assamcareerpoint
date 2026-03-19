@@ -246,15 +246,17 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
         .re-card{background:#fff;border:1.5px solid #d4e0ec;border-radius:11px;text-decoration:none;color:inherit;display:flex;gap:12px;padding:12px;transition:.18s}
         .re-card:hover{border-color:${T};transform:translateX(3px)}
         .sh2{fontFamily:Sora,sans-serif;font-weight:700;font-size:.93rem;color:${N};margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid ${T}}
-        @media(max-width:860px){.layout{flex-direction:column!important}.layout>div:last-child{width:100%!important}}
+        @media(max-width:860px){
+          .layout{flex-direction:column!important}
+          .layout>div:last-child{width:100%!important;min-width:0!important}
+        }
         @media(max-width:600px){
-          .tbl{font-size:.71rem}
-          .tbl th,.tbl td{padding:6px 8px}
-          .tbl{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+          .tbl{font-size:.7rem;display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+          .tbl th,.tbl td{padding:5px 7px;white-space:nowrap}
+          .sel-stages{flex-direction:column!important}
         }
         @media(max-width:480px){
-          h1{font-size:1.1rem!important}
-          .stats-strip>div{flex:1 1 140px!important}
+          .stats-strip{grid-template-columns:1fr 1fr!important}
         }
       `}</style>
 
@@ -303,7 +305,7 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
             </div>
           </div>
           {/* Stats strip */}
-          <div style={{display:'flex',gap:10,flexWrap:'wrap' as const,marginTop:18}}>
+          <div className="stats-strip" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:10,marginTop:18}}>
             {[
               {l:'Total Vacancies',v:totalV.toLocaleString('en-IN'),c:G},
               {l:'Last Date',      v:`${fmtLong(job.lastDate)}${job.lastDateTime?` · ${job.lastDateTime}`:''}`,c:dl?.c||W},
@@ -454,11 +456,11 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
                 {job.selection&&(
                   <>
                     <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>🏆 Selection Process</h2>
-                    <div style={{display:'flex',gap:4,flexWrap:'wrap' as const,alignItems:'center',marginBottom:12}}>
+                    <div className="sel-stages" style={{display:'flex',gap:4,flexWrap:'wrap' as const,alignItems:'center',marginBottom:12}}>
                       {(job.selection||"").split('→').map((s,i,arr)=>(
-                        <div key={i} style={{display:'flex',alignItems:'center',gap:4}}>
-                          <div style={{background:N,color:G,padding:'8px 14px',borderRadius:8,fontSize:'.79rem',fontWeight:800,fontFamily:'Arial Black,sans-serif',border:`1.5px solid ${G}44`}}>{s.trim()}</div>
-                          {i<arr.length-1&&<span style={{color:G,fontWeight:900,fontSize:'1.1rem'}}>→</span>}
+                        <div key={i} style={{display:'flex',alignItems:'center',gap:4,flexShrink:0}}>
+                          <div style={{background:N,color:G,padding:'7px 11px',borderRadius:8,fontSize:'.75rem',fontWeight:800,fontFamily:'Arial Black,sans-serif',border:`1.5px solid ${G}44`,whiteSpace:'nowrap'}}>{s.trim()}</div>
+                          {i<arr.length-1&&<span style={{color:G,fontWeight:900,fontSize:'1rem'}}>→</span>}
                         </div>
                       ))}
                     </div>

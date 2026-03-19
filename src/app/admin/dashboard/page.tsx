@@ -129,6 +129,8 @@ type Exam = {
   descriptionAs?: string
   eligibilityAs?: string
   syllabusAs?: string
+  examPdfs?:      { label: string; url: string }[]
+  examAffiliates?: { id: string; title: string; link: string; img?: string; badge?: string }[]
 }
 
 type InfoItem = {
@@ -302,7 +304,7 @@ const [dataLoaded, setDataLoaded] = useState(false)
   const [dateHistory, setDateHistory] = useState<DateExt[]>([])
 
   // Exam form
-  const blankExam = { emoji:'📚', title:'', conductedBy:'', category:'Teaching', description:'', applicationStart:'', applicationLastDate:'', paymentLastDate:'', examDate:'', examTime:'', admitCardDate:'', resultDate:'', fee:'', eligibility:'', syllabus:'', officialSite:'', applyLink:'', admitCardLink:'', status:'Upcoming' as Exam['status'], titleAs:'', descriptionAs:'', eligibilityAs:'' }
+  const blankExam = { emoji:'📚', title:'', conductedBy:'', category:'Teaching', description:'', applicationStart:'', applicationLastDate:'', paymentLastDate:'', examDate:'', examTime:'', admitCardDate:'', resultDate:'', fee:'', eligibility:'', syllabus:'', officialSite:'', applyLink:'', admitCardLink:'', status:'Upcoming' as Exam['status'], titleAs:'', descriptionAs:'', eligibilityAs:'', examPdfs:[] as {label:string;url:string}[], examAffiliates:[] as {id:string;title:string;link:string;img?:string;badge?:string}[] }
   const [ef, setEf] = useState(blankExam)
 
   // Info form
@@ -1281,10 +1283,10 @@ const [dataLoaded, setDataLoaded] = useState(false)
                     <input type="date" value={ef.paymentLastDate} onChange={e=>setEf(p=>({...p,paymentLastDate:e.target.value}))} style={{...si,borderColor:'#ce93d8'}} />
                     <div style={{ fontSize:'.67rem',color:'#6a0dad',marginTop:3 }}>Often 1–2 days AFTER form last date</div>
                   </div>
-                  <div className="fg"><label style={lb}>Admit Card Date</label><input type="date" value={ef.admitCardDate||''} onChange={e=>setEf(p=>({...p,admitCardDate:e.target.value}))} style={si} /></div>
+                  <div className="fg"><label style={lb}>Admit Card Date</label><input value={ef.admitCardDate||''} onChange={e=>setEf(p=>({...p,admitCardDate:e.target.value}))} style={si} placeholder="e.g. 10 May 2026 OR 10-12 May 2026"/></div>
                 </div>
                 <div className="g2">
-                  <div className="fg"><label style={{...lb,color:'#e63946'}}>📅 Exam Date *</label><input type="date" value={ef.examDate} onChange={e=>setEf(p=>({...p,examDate:e.target.value}))} style={{...si,borderColor:'#f7bcc0'}} /></div>
+                  <div className="fg"><label style={{...lb,color:'#e63946'}}>📅 Exam Date *</label><input value={ef.examDate} onChange={e=>setEf(p=>({...p,examDate:e.target.value}))} style={si} placeholder="e.g. 22 May 2026 OR 22-25 May 2026"/></div>
                   <div className="fg">
                     <label style={{...lb,color:'#e63946'}}>⏰ Exam Time *</label>
                     <input value={ef.examTime} onChange={e=>setEf(p=>({...p,examTime:e.target.value}))} style={si} placeholder="e.g. 9:30 AM – 12:00 PM  &  2:30 PM – 5:00 PM" />
@@ -1322,7 +1324,42 @@ const [dataLoaded, setDataLoaded] = useState(false)
                   <input value={ef.eligibilityAs||''} onChange={e=>setEf(p=>({...p,eligibilityAs:e.target.value}))} style={{...si,borderColor:'#ffe082'}} placeholder="স্নাতক + বি.এড / ডি.এল.এড" />
                 </div>
 
-              </div>
+              </div> {/* ── Section: PDFs ── */}
+<div className="sh">📄 Official PDFs / Documents (Google Drive Links)</div>
+<div style={{background:'#e3f2fd',border:'1px solid #90caf9',borderRadius:9,padding:'9px 13px',fontSize:'.78rem',color:'#0d47a1',marginBottom:10}}>
+  Add notification PDF, syllabus, admit card etc. Enter a label and Google Drive share link for each.
+</div>
+{(ef.examPdfs||[]).map((pdf,i)=>(
+  <div key={i} style={{display:'flex',gap:8,marginBottom:9,background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'10px 12px'}}>
+    <div style={{flex:1,display:'flex',flexDirection:'column' as const,gap:7}}>
+      <input value={pdf.label} onChange={e=>{const n=[...(ef.examPdfs||[])];n[i]={...n[i],label:e.target.value};setEf(p=>({...p,examPdfs:n}))}} style={si} placeholder="Label e.g. Official Notification, Syllabus PDF, Admit Card"/>
+      <input value={pdf.url} onChange={e=>{const n=[...(ef.examPdfs||[])];n[i]={...n[i],url:e.target.value};setEf(p=>({...p,examPdfs:n}))}} style={{...si,borderColor:'#90caf9'}} placeholder="Google Drive share link"/>
+    </div>
+    <button type="button" onClick={()=>setEf(p=>({...p,examPdfs:(p.examPdfs||[]).filter((_,j)=>j!==i)}))} style={{background:'#fde8ea',border:'1.5px solid #f7bcc0',borderRadius:7,color:'#e63946',fontWeight:700,fontSize:'.8rem',padding:'6px 10px',cursor:'pointer',flexShrink:0}}>✕</button>
+  </div>
+))}
+<button type="button" onClick={()=>setEf(p=>({...p,examPdfs:[...(p.examPdfs||[]),{label:'',url:''}]}))} style={{...bT,fontSize:'.8rem',padding:'8px 16px',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:7,marginBottom:4}}>
+  ➕ Add PDF Link
+</button>
+
+{/* ── Section: Affiliate ── */}
+<div className="sh">🛒 Recommended Books/Courses (optional)</div>
+{(ef.examAffiliates||[]).map((aff,i)=>(
+  <div key={aff.id} style={{background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:11,padding:'12px',marginBottom:10}}>
+    <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
+      <span style={{fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.8rem',color:'#0d1b2a'}}>Item #{i+1}</span>
+      <button type="button" onClick={()=>setEf(p=>({...p,examAffiliates:(p.examAffiliates||[]).filter((_,j)=>j!==i)}))} style={{background:'#fde8ea',border:'1.5px solid #f7bcc0',borderRadius:7,color:'#e63946',fontWeight:700,fontSize:'.77rem',padding:'3px 9px',cursor:'pointer'}}>✕ Remove</button>
+    </div>
+    <div className="g2">
+      <div className="fg"><label style={lb}>Title</label><input value={aff.title} onChange={e=>{const n=[...(ef.examAffiliates||[])];n[i]={...n[i],title:e.target.value};setEf(p=>({...p,examAffiliates:n}))}} style={si} placeholder="Book/Course title"/></div>
+      <div className="fg"><label style={lb}>Badge</label><input value={aff.badge||''} onChange={e=>{const n=[...(ef.examAffiliates||[])];n[i]={...n[i],badge:e.target.value};setEf(p=>({...p,examAffiliates:n}))}} style={si} placeholder="Best Seller"/></div>
+    </div>
+    <div className="fg"><label style={lb}>Affiliate Link *</label><input value={aff.link} onChange={e=>{const n=[...(ef.examAffiliates||[])];n[i]={...n[i],link:e.target.value};setEf(p=>({...p,examAffiliates:n}))}} style={{...si,borderColor:'#90caf9'}} placeholder="https://amzn.to/..."/></div>
+  </div>
+))}
+<button type="button" onClick={()=>setEf(p=>({...p,examAffiliates:[...(p.examAffiliates||[]),{id:Date.now().toString(),title:'',link:'',badge:''}]}))} style={{...bT,fontSize:'.8rem',padding:'8px 16px',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:7,marginBottom:4}}>
+  🛒 Add Book/Course
+</button>
               <div style={{ padding:'14px 24px',borderTop:'1px solid #d4e0ec',display:'flex',justifyContent:'flex-end',gap:10 }}>
                 <button type="button" onClick={()=>setShowExamModal(false)} style={bS}>Cancel</button>
                 <button type="submit" style={bO}>💾 {editExam?'Update Exam':'Publish Exam'}</button>
