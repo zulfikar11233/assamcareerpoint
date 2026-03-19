@@ -233,7 +233,7 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Nunito:wght@400;600;700&display=swap');
         *,*::before,*::after{box-sizing:border-box}
-        html,body{margin:0;font-family:Nunito,sans-serif;background:#f0f4f8;color:#1a1a2e;overflow-x:hidden}
+        html,body{margin:0;font-family:Nunito,sans-serif;background:#f0f4f8;color:#1a1a2e;overflow-x:hidden;max-width:100vw}
         .nav-a{color:rgba(255,255,255,.6);font-size:.82rem;font-weight:700;padding:7px 11px;border-radius:8px;text-decoration:none;white-space:nowrap}
         .nav-a:hover{color:${G}}
         .tab-btn{flex:1;padding:10px 6px;border:none;background:transparent;font-family:Nunito,sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;color:#5a6a7a;border-bottom:3px solid transparent;transition:.18s}
@@ -246,8 +246,16 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
         .re-card{background:#fff;border:1.5px solid #d4e0ec;border-radius:11px;text-decoration:none;color:inherit;display:flex;gap:12px;padding:12px;transition:.18s}
         .re-card:hover{border-color:${T};transform:translateX(3px)}
         .sh2{fontFamily:Sora,sans-serif;font-weight:700;font-size:.93rem;color:${N};margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid ${T}}
-        @media(max-width:860px){.layout{flex-direction:column!important}}
-        @media(max-width:600px){.tbl{font-size:.71rem}.tbl th,.tbl td{padding:6px 8px}}
+        @media(max-width:860px){.layout{flex-direction:column!important}.layout>div:last-child{width:100%!important}}
+        @media(max-width:600px){
+          .tbl{font-size:.71rem}
+          .tbl th,.tbl td{padding:6px 8px}
+          .tbl{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+        }
+        @media(max-width:480px){
+          h1{font-size:1.1rem!important}
+          .stats-strip>div{flex:1 1 140px!important}
+        }
       `}</style>
 
       {/* HEADER */}
@@ -640,7 +648,7 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
         </div>
 
         {/* SIDEBAR */}
-        <div style={{width:285,flexShrink:0}}>
+        <div style={{width:285,flexShrink:0,minWidth:0}}>
           {job.status!=='Draft'&&(
             <div style={{background:N,border:`2px solid ${G}`,borderRadius:14,padding:'18px',marginBottom:15}}>
               <div style={{fontFamily:'Arial Black,sans-serif',color:G,fontSize:'.72rem',letterSpacing:'.06em',marginBottom:12}}>📋 QUICK APPLY</div>
