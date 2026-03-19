@@ -23,7 +23,7 @@ export default function ResultsPage() {
   const [loaded, setLoaded] = useState(false)
 
 useEffect(() => {
-    fetch('/api/data/results')
+    fetch('/api/data/results', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {

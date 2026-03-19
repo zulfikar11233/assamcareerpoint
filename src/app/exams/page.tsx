@@ -59,7 +59,7 @@ export default function ExamsPage() {
   const [loaded, setLoaded] = useState(false)
 
 useEffect(() => {
-    fetch('/api/data/exams')
+    fetch('/api/data/exams', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {

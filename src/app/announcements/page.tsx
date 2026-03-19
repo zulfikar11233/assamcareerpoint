@@ -19,7 +19,7 @@ export default function AnnouncementsPage() {
   const [loaded, setLoaded] = useState(false)
 
 useEffect(() => {
-    fetch('/api/data/announcements')
+    fetch('/api/data/announcements', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {

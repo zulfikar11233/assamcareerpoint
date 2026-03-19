@@ -1,7 +1,7 @@
 'use client'
 // src/app/exams/[id]/page.tsx — Public Exam Detail Page
 // Reads from localStorage 'acp_exams_v6' — same key admin saves to
-
+export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { useState, useEffect, use } from 'react'
 
@@ -59,19 +59,34 @@ export default function ExamDetail({ params }: { params: Promise<{ id: string }>
   const [timerOn, setTimerOn] = useState<boolean>(true)
 
   useEffect(() => {
+    fetch('/api/data/exams', { cache: 'no-store' })
+      .then(r => r.json())
+      .then((list: Exam[]) => {
+        if (Array.isArray(list) && list.length > 0) {
+          setAllExams(list)
+          setExam(list.find(e => String(e.id) === String(id)) || null)
+        } else {
+          try {
+            const saved = localStorage.getItem('acp_exams_v6')
+            const local: Exam[] = saved ? JSON.parse(saved) : FALLBACK
+            setAllExams(local)
+            setExam(local.find(e => String(e.id) === String(id)) || null)
+          } catch { setAllExams(FALLBACK); setExam(null) }
+        }
+      })
+      .catch(() => {
+        try {
+          const saved = localStorage.getItem('acp_exams_v6')
+          const local: Exam[] = saved ? JSON.parse(saved) : FALLBACK
+          setAllExams(local)
+          setExam(local.find(e => String(e.id) === String(id)) || null)
+        } catch { setAllExams(FALLBACK); setExam(null) }
+      })
+    // Read timer setting
     try {
-      const saved = localStorage.getItem('acp_exams_v6')
-      const list: Exam[] = saved ? JSON.parse(saved) : FALLBACK
-      setAllExams(list)
-      const found = list.find(e => String(e.id) === String(id))
-      setExam(found || null)
-      // Read timer setting
       const s = localStorage.getItem('acp_settings_v1')
       setTimerOn(s ? JSON.parse(s).timerEnabled !== false : true)
-    } catch {
-      setAllExams(FALLBACK)
-      setExam(FALLBACK.find(e => String(e.id) === String(id)) || null)
-    }
+    } catch {}
   }, [id])
 
   // Countdown timer

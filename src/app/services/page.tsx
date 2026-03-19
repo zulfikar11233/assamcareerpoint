@@ -17,7 +17,7 @@ export default function ServicesPage() {
   const [loaded, setLoaded] = useState(false)
 
 useEffect(() => {
-    fetch('/api/data/services')
+    fetch('/api/data/services', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {

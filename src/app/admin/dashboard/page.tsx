@@ -322,11 +322,11 @@ const [dataLoaded, setDataLoaded] = useState(false)
 
     // Load all data from server — works on ALL devices
     Promise.all([
-      fetch('/api/data/jobs').then(r => r.json()).catch(() => null),
-      fetch('/api/data/exams').then(r => r.json()).catch(() => null),
-      fetch('/api/data/info').then(r => r.json()).catch(() => null),
-      fetch('/api/data/pdfforms').then(r => r.json()).catch(() => null),
-      fetch('/api/data/affiliate').then(r => r.json()).catch(() => null),
+      fetch('/api/data/jobs',      { cache: 'no-store' }).then(r => r.json()).catch(() => null),
+      fetch('/api/data/exams',      { cache: 'no-store' }).then(r => r.json()).catch(() => null),
+      fetch('/api/data/info',      { cache: 'no-store' }).then(r => r.json()).catch(() => null),
+      fetch('/api/data/pdfforms',      { cache: 'no-store' }).then(r => r.json()).catch(() => null),
+      fetch('/api/data/affiliate',      { cache: 'no-store' }).then(r => r.json()).catch(() => null),
     ]).then(([jobs, exams, info, pdfs, aff]) => {
       setJobs(Array.isArray(jobs) && jobs.length > 0 ? jobs :
         (() => { try { const s = localStorage.getItem('acp_jobs_v6'); return s ? JSON.parse(s) : SAMPLE_JOBS } catch { return SAMPLE_JOBS } })())

@@ -48,7 +48,7 @@ export default function GovtJobsPage() {
   const [sortBy,  setSortBy]  = useState<'latest'|'lastDate'>('latest')
 
 useEffect(() => {
-    fetch('/api/data/jobs')
+    fetch('/api/data/jobs', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {

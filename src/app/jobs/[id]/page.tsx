@@ -1,7 +1,7 @@
 'use client'
 // src/app/jobs/[id]/page.tsx — Full Job Detail Page with all fields
 // Reads from localStorage 'acp_jobs_v6'
-
+export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { useState, useEffect, use } from 'react'
 
@@ -152,17 +152,35 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
   const [activeTab, setActiveTab] = useState<'details'|'syllabus'|'howapply'>('details')
 
   useEffect(() => {
+    fetch('/api/data/jobs', { cache: 'no-store' })
+      .then(r => r.json())
+      .then((list: Job[]) => {
+        if (Array.isArray(list) && list.length > 0) {
+          setJob(list.find(j => String(j.id) === String(id)) || null)
+          setOthers(list.filter(j => String(j.id) !== String(id) && j.status !== 'Draft').slice(0,4))
+        } else {
+          // fallback to localStorage
+          try {
+            const saved = localStorage.getItem('acp_jobs_v6')
+            const local: Job[] = saved ? JSON.parse(saved) : SAMPLES
+            setJob(local.find(j => String(j.id) === String(id)) || null)
+            setOthers(local.filter(j => String(j.id) !== String(id) && j.status !== 'Draft').slice(0,4))
+          } catch { setJob(null) }
+        }
+      })
+      .catch(() => {
+        try {
+          const saved = localStorage.getItem('acp_jobs_v6')
+          const local: Job[] = saved ? JSON.parse(saved) : SAMPLES
+          setJob(local.find(j => String(j.id) === String(id)) || null)
+          setOthers(local.filter(j => String(j.id) !== String(id) && j.status !== 'Draft').slice(0,4))
+        } catch { setJob(null) }
+      })
+    // Read timer setting
     try {
-      const saved = localStorage.getItem('acp_jobs_v6')
-      const list: Job[] = saved ? JSON.parse(saved) : SAMPLES
-      setJob(list.find(j => String(j.id) === String(id)) || null)
-      setOthers(list.filter(j => String(j.id) !== String(id) && j.status !== 'Draft').slice(0,4))
-      // Read timer setting
       const s = localStorage.getItem('acp_settings_v1')
       setTimerOn(s ? JSON.parse(s).timerEnabled !== false : true)
-    } catch {
-      setJob(SAMPLES.find(j => String(j.id) === String(id)) || null)
-    }
+    } catch {}
   }, [id])
 
   // Live clock for countdown

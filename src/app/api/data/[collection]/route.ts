@@ -1,6 +1,7 @@
 // src/app/api/data/[collection]/route.ts
 // ✅ Uses MySQL database — data persists forever, works on ALL devices
-
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection, setCollection } from '@/lib/mysql'
 

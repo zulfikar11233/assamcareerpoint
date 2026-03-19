@@ -17,7 +17,7 @@ export default function GuidesPage() {
   const [loaded, setLoaded] = useState(false)
 
 useEffect(() => {
-    fetch('/api/data/guides')
+    fetch('/api/data/guides', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {

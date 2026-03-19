@@ -32,25 +32,9 @@ type Job  = { id:number; logo:string; title:string; org:string; category:string;
 type Exam = { id:number; emoji:string; title:string; conductedBy:string; category:string; applicationLastDate:string; paymentLastDate:string; examDate:string; examTime:string; status:string }
 type Info = { id:number; emoji:string; title:string; category:string; description:string; lastDate?:string; status:string; importantDates:{label:string;date:string;time?:string}[] }
 
-const DEF_JOBS: Job[] = [
-  {id:1,logo:'👮',title:'Assam Police Recruitment 2026 – SI, Constable, Driver & Other Posts',org:'SLPRB Assam',category:'Govt Job',district:'All Districts',status:'Live',vacancy:'5734',lastDate:'2026-03-25'},
-  {id:2,logo:'🌲',title:'BT Kokrajhar Forest Guard & Forest Protection Force 2026',org:'BT, Kokrajhar',category:'Govt Job',district:'Kokrajhar',status:'Live',vacancy:'157',lastDate:'2026-03-15'},
-  {id:3,logo:'🚂',title:'RRB Group D Recruitment 2026 – 22195 Posts All India',org:'Railway Recruitment Board',category:'Central Govt',district:'All India',status:'Closing',vacancy:'22195',lastDate:'2026-03-10'},
-  {id:4,logo:'🏦',title:'SBI Clerk 2026 – Junior Associates 13735 Posts',org:'State Bank of India',category:'Banking',district:'All India',status:'Live',vacancy:'13735',lastDate:'2026-04-10'},
-  {id:5,logo:'🎓',title:'NVS Teaching & Non-Teaching Recruitment 2026',org:'Navodaya Vidyalaya Samiti',category:'Teaching',district:'All India',status:'Live',vacancy:'2500',lastDate:'2026-04-05'},
-]
-const DEF_EXAMS: Exam[] = [
-  {id:1,emoji:'📚',title:'CTET 2026 — Central Teacher Eligibility Test',conductedBy:'CBSE',category:'Teaching',applicationLastDate:'2026-03-15',paymentLastDate:'2026-03-17',examDate:'2026-05-22',examTime:'9:30 AM – 12:00 PM',status:'Registration Open'},
-  {id:2,emoji:'🏥',title:'NEET UG 2026 – Medical Entrance',conductedBy:'NTA',category:'Medical',applicationLastDate:'2026-03-31',paymentLastDate:'2026-04-01',examDate:'2026-05-04',examTime:'2:00 PM – 5:20 PM',status:'Registration Open'},
-  {id:3,emoji:'⚙️',title:'JEE Main 2026 – Session 2',conductedBy:'NTA',category:'Engineering',applicationLastDate:'2026-03-20',paymentLastDate:'2026-03-21',examDate:'2026-04-02',examTime:'9:00 AM – 12:00 PM',status:'Registration Open'},
-  {id:4,emoji:'🎓',title:'UPSC CSE 2026 – Civil Services Prelims',conductedBy:'UPSC',category:'Civil Services',applicationLastDate:'2026-03-18',paymentLastDate:'2026-03-19',examDate:'2026-06-01',examTime:'9:30 AM – 11:30 AM',status:'Upcoming'},
-]
-const DEF_INFO: Info[] = [
-  {id:1,emoji:'🗳️',title:'Voter ID Registration / Correction 2026',category:'Electoral',description:'Register as a new voter or correct existing voter ID details via Form 6/6A/8 online.',lastDate:'2026-04-30',status:'Active',importantDates:[{label:'Last Date to Apply',date:'2026-04-30',time:'11:59 PM'}]},
-  {id:2,emoji:'🔗',title:'PAN–Aadhaar Linking Deadline 2026',category:'ID & Documents',description:'Link PAN with Aadhaar to avoid PAN becoming inoperative. ₹1,000 penalty applies.',lastDate:'2026-06-30',status:'Active',importantDates:[{label:'Final Deadline',date:'2026-06-30',time:'11:59 PM'}]},
-  {id:3,emoji:'💊',title:'Ayushman Bharat PM-JAY — Free Health Cover ₹5 Lakh',category:'Government Scheme',description:'Free health insurance up to ₹5 lakh per year for eligible families under PM-JAY scheme.',status:'Active',importantDates:[]},
-  {id:4,emoji:'📱',title:'Free Mobile Scheme Assam — Eligibility & Process',category:'Government Scheme',description:'Free smartphones for eligible women and students under Assam government scheme.',status:'Active',importantDates:[{label:'Apply by',date:'2026-05-31'}]},
-]
+const DEF_JOBS: Job[] = []
+const DEF_EXAMS: Exam[] = []
+const DEF_INFO: Info[] = []
 
 const CATS = [
   {name:'Govt Jobs',   emoji:'🏛️',href:'/govt-jobs',  count:'Assam & India', color:'#e63946'},
@@ -100,9 +84,9 @@ export default function HomePage() {
 
       useEffect(() => {
     Promise.all([
-      fetch('/api/data/jobs').then(r => r.json()).catch(() => []),
-      fetch('/api/data/exams').then(r => r.json()).catch(() => []),
-      fetch('/api/data/info').then(r => r.json()).catch(() => []),
+      fetch('/api/data/jobs',  { cache: 'no-store' }).then(r => r.json()).catch(() => []),
+      fetch('/api/data/exams', { cache: 'no-store' }).then(r => r.json()).catch(() => []),
+      fetch('/api/data/info',  { cache: 'no-store' }).then(r => r.json()).catch(() => []),
     ]).then(([jobs, exams, info]) => {
       if (Array.isArray(jobs) && jobs.length > 0) {
         setTotalJobs(jobs.length)

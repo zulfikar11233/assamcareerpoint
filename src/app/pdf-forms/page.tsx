@@ -46,7 +46,7 @@ export default function PdfFormsPage() {
 
   useEffect(() => {
     // ── Load from server API — visible to ALL devices ──
-    fetch('/api/data/pdfforms')
+    fetch('/api/data/pdfforms', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {

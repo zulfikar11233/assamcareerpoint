@@ -44,7 +44,7 @@ export default function InformationPage() {
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
-    fetch('/api/data/info')
+    fetch('/api/data/info', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {

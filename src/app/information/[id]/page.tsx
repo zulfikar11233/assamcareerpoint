@@ -1,6 +1,6 @@
 'use client'
 // src/app/information/[id]/page.tsx — Public Information Detail Page
-
+export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { useState, useEffect, use } from 'react'
 
@@ -46,14 +46,29 @@ export default function InfoDetail({ params }: { params: Promise<{ id: string }>
   const [others, setOthers] = useState<InfoItem[]>([])
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('acp_info_v6')
-      const list: InfoItem[] = saved ? JSON.parse(saved) : FALLBACK
-      setOthers(list.filter(i => String(i.id) !== String(id) && i.status !== 'Expired').slice(0,4))
-      setItem(list.find(i => String(i.id) === String(id)) || null)
-    } catch {
-      setItem(FALLBACK.find(i => String(i.id) === String(id)) || null)
-    }
+    fetch('/api/data/info', { cache: 'no-store' })
+      .then(r => r.json())
+      .then((list: InfoItem[]) => {
+        if (Array.isArray(list) && list.length > 0) {
+          setItem(list.find(i => String(i.id) === String(id)) || null)
+          setOthers(list.filter(i => String(i.id) !== String(id) && i.status !== 'Expired').slice(0,4))
+        } else {
+          try {
+            const saved = localStorage.getItem('acp_info_v6')
+            const local: InfoItem[] = saved ? JSON.parse(saved) : FALLBACK
+            setItem(local.find(i => String(i.id) === String(id)) || null)
+            setOthers(local.filter(i => String(i.id) !== String(id) && i.status !== 'Expired').slice(0,4))
+          } catch { setItem(null) }
+        }
+      })
+      .catch(() => {
+        try {
+          const saved = localStorage.getItem('acp_info_v6')
+          const local: InfoItem[] = saved ? JSON.parse(saved) : FALLBACK
+          setItem(local.find(i => String(i.id) === String(id)) || null)
+          setOthers(local.filter(i => String(i.id) !== String(id) && i.status !== 'Expired').slice(0,4))
+        } catch { setItem(null) }
+      })
   }, [id])
 
   const fmt = (d?: string) => { if(!d) return '—'; try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}) } catch { return d } }
