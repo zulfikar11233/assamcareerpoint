@@ -1,14 +1,11 @@
 'use client'
-// src/app/contact/page.tsx
-// ✅ Required by Google AdSense
-// ✅ Contact form (sends via mailto — replace with Formspree/EmailJS for real sending)
-// ✅ Social media links, FAQ section
-
 import Link from 'next/link'
 import { useState } from 'react'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 const EMAIL = 'assam.cpi123@gmail.com'
+// ✅ Formspree form ID
+const FORMSPREE_ID = 'xwvryorl'
 
 function Logo({ size = 38 }: { size?: number }) {
   return (
@@ -33,33 +30,32 @@ function Logo({ size = 38 }: { size?: number }) {
 const faqs = [
   { q: 'Is this website free to use?', a: 'Yes, completely free. You can browse all job listings, exam updates, and information without any registration or payment.' },
   { q: 'How often is the content updated?', a: 'Our team monitors official government websites daily. New job notifications are typically published within 24 hours of official release.' },
-  { q: 'Are the job details 100% accurate?', a: 'We source all information from official government websites. However, always verify from the official portal before paying any application fee, as last dates and details can change.' },
+  { q: 'Are the job details 100% accurate?', a: 'We source all information from official government websites. However, always verify from the official portal before paying any application fee.' },
   { q: 'Can I submit a job notification I found?', a: 'Yes! Use the contact form below with subject "Job Submission" and we will verify and publish it.' },
-  { q: 'How can I advertise on this portal?', a: 'If you are a coaching centre, education platform, or business targeting job seekers in Assam, email us for advertising and sponsored content rates.' },
+  { q: 'How can I advertise on this portal?', a: 'If you are a coaching centre, education platform, or business targeting job seekers in Assam, email us for advertising rates.' },
   { q: 'Is there a mobile app?', a: 'Not yet, but our website is fully optimised for mobile. You can add it to your home screen from your browser for an app-like experience.' },
 ]
 
 const socials = [
-  { ico: '✈️', name: 'Telegram',  color: '#0088cc', sub: 'Instant alerts',       href: 'https://t.me/assamcareerpoint' },
-  { ico: '💬', name: 'WhatsApp',  color: '#25d366', sub: 'Join our channel',      href: 'https://whatsapp.com/channel/0029Vb7IqrK42DcoItnDXy3x' },
-  { ico: '▶️', name: 'YouTube',   color: '#ff0000', sub: 'Video guides',          href: 'https://youtube.com/@atech_way?si=PZfu2G3k7xlI0gz7' },
-  { ico: '📘', name: 'Facebook',  color: '#1877f2', sub: 'Like our page',         href: 'https://www.facebook.com/share/1CZ2MGDNG9/' },
-  { ico: '📸', name: 'Instagram', color: '#e1306c', sub: 'Follow us',             href: 'https://www.instagram.com/assam.cpi/' },
-  { ico: '🐦', name: 'Twitter/X', color: '#000000', sub: 'Latest updates',        href: 'https://x.com/assam_cpi' },
+  { ico: '✈️', name: 'Telegram',  color: '#0088cc', sub: 'Instant alerts',  href: 'https://t.me/assamcareerpoint' },
+  { ico: '💬', name: 'WhatsApp',  color: '#25d366', sub: 'Join our channel', href: 'https://whatsapp.com/channel/0029Vb7IqrK42DcoItnDXy3x' },
+  { ico: '▶️', name: 'YouTube',   color: '#ff0000', sub: 'Video guides',     href: 'https://youtube.com/@atech_way?si=PZfu2G3k7xlI0gz7' },
+  { ico: '📘', name: 'Facebook',  color: '#1877f2', sub: 'Like our page',    href: 'https://www.facebook.com/share/1CZ2MGDNG9/' },
+  { ico: '📸', name: 'Instagram', color: '#e1306c', sub: 'Follow us',        href: 'https://www.instagram.com/assam.cpi/' },
+  { ico: '🐦', name: 'Twitter/X', color: '#000000', sub: 'Latest updates',   href: 'https://x.com/assam_cpi' },
 ]
 
 export default function ContactPage() {
-  const [form,     setForm]     = useState({ name: '', email: '', subject: 'General Enquiry', message: '' })
-  const [honey,    setHoney]    = useState('')   // honeypot — bots fill this, humans don't
-  const [sent,     setSent]     = useState(false)
-  const [formErr,  setFormErr]  = useState('')
+  const [form,    setForm]    = useState({ name: '', email: '', subject: 'General Enquiry', message: '' })
+  const [honey,   setHoney]   = useState('')
+  const [status,  setStatus]  = useState<'idle'|'sending'|'sent'|'error'>('idle')
+  const [formErr, setFormErr] = useState('')
 
-  // ── Validated submit with honeypot bot detection ─────────────
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setFormErr('')
 
-    // Honeypot: if 'website' field has content → it's a bot
+    // Honeypot bot check
     if (honey) return
 
     // Validation
@@ -72,12 +68,34 @@ export default function ContactPage() {
     if (form.message.length > 2000)
       return setFormErr('Message is too long (maximum 2000 characters).')
 
-    // Send via mailto (replace with Formspree fetch for production)
-    const subject = encodeURIComponent(`[ACPI Contact] ${form.subject} — ${form.name}`)
-    const body    = encodeURIComponent(`Name: ${form.name}\nEmail: ${form.email}\nSubject: ${form.subject}\n\nMessage:\n${form.message}`)
-    window.open(`mailto:${EMAIL}?subject=${subject}&body=${body}`, '_blank')
-    setSent(true)
-    setTimeout(() => setSent(false), 5000)
+    setStatus('sending')
+
+    try {
+      // ✅ Send via Formspree — messages go directly to your email inbox!
+      const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          name:    form.name,
+          email:   form.email,
+          subject: form.subject,
+          message: form.message,
+          _subject: `[ACPI Contact] ${form.subject} — ${form.name}`,
+        }),
+      })
+
+      if (res.ok) {
+        setStatus('sent')
+        setForm({ name: '', email: '', subject: 'General Enquiry', message: '' })
+        setTimeout(() => setStatus('idle'), 6000)
+      } else {
+        setStatus('error')
+        setFormErr('Failed to send. Please try again or email us directly.')
+      }
+    } catch {
+      setStatus('error')
+      setFormErr('Network error. Please try again or email us directly.')
+    }
   }
 
   const si: React.CSSProperties = {
@@ -95,21 +113,23 @@ export default function ContactPage() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Nunito:wght@400;600;700&display=swap');
         *, *::before, *::after { box-sizing: border-box; }
-        html, body { margin: 0; font-family: Nunito, sans-serif; background: #f0f4f8; color: #1a1a2e; overflow-x: hidden; }
+        html, body { margin: 0; font-family: Nunito, sans-serif; background: #f0f4f8; color: #1a1a2e; overflow-x: hidden; max-width:100vw; }
         .nav-a { color: rgba(255,255,255,.6); font-size: .82rem; font-weight: 700; padding: 7px 11px; border-radius: 8px; text-decoration: none; white-space: nowrap; }
         .nav-a:hover { color: ${G}; }
         input:focus, select:focus, textarea:focus { border-color: ${T} !important; background: #fff !important; }
-        .soc-btn { display: flex; align-items: center; gap: 11px; padding: 13px 16px; border-radius: 11px; border: 1.5px solid #d4e0ec; background: #fff; text-decoration: none; transition: .18s; cursor: pointer; }
+        .soc-btn { display: flex; align-items: center; gap: 11px; padding: 13px 16px; border-radius: 11px; border: 1.5px solid #d4e0ec; background: #fff; text-decoration: none; transition: .18s; }
         .soc-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.1); }
         .faq-item { background: #fff; border: 1.5px solid #d4e0ec; border-radius: 12px; padding: 16px 20px; margin-bottom: 10px; }
-        @media(max-width:860px){ .layout{flex-direction:column!important} }
+        @media(max-width:860px){ .layout{flex-direction:column!important} .layout>div:last-child{width:100%!important} }
+        @media(max-width:600px){ .name-row{grid-template-columns:1fr!important} }
         @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
         .sent-msg { animation: fadeUp .4s ease; }
+        @keyframes spin { to{transform:rotate(360deg)} }
       `}</style>
 
       {/* HEADER */}
       <header style={{ background: N, borderBottom: `2px solid ${G}`, position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,.4)' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 14, flexWrap:'wrap' as const }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', flexShrink: 0 }}>
             <Logo size={40} />
             <div>
@@ -119,8 +139,8 @@ export default function ContactPage() {
               <div style={{ fontFamily: 'Arial Black, sans-serif', fontSize: '.65rem', color: T, letterSpacing: '.12em' }}>◆ POINT ◆</div>
             </div>
           </Link>
-          <nav style={{ display: 'flex', gap: 2, marginLeft: 10 }}>
-            {[['🏠 Home', '/'], ['💼 Jobs', '/govt-jobs'], ['📚 Exams', '/exams'], ['ℹ️ Info', '/information']].map(([l, h]) => (
+          <nav style={{ display: 'flex', gap: 2, flexWrap:'wrap' as const }}>
+            {([['🏠 Home', '/'], ['💼 Jobs', '/govt-jobs'], ['📚 Exams', '/exams'], ['ℹ️ Info', '/information']] as [string,string][]).map(([l, h]) => (
               <Link key={h} href={h} className="nav-a">{l}</Link>
             ))}
           </nav>
@@ -128,49 +148,46 @@ export default function ContactPage() {
       </header>
 
       {/* HERO */}
-      <div style={{ background: `linear-gradient(135deg, ${N}, #112240)`, padding: '40px 20px 34px', textAlign: 'center' }}>
+      <div style={{ background: `linear-gradient(135deg, ${N}, #112240)`, padding: '40px 20px 34px', textAlign: 'center' as const }}>
         <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>📬</div>
         <h1 style={{ fontFamily: 'Sora, sans-serif', fontWeight: 800, fontSize: 'clamp(1.5rem,3vw,2.2rem)', color: W, marginBottom: 10 }}>Contact Us</h1>
         <p style={{ color: 'rgba(255,255,255,.55)', fontSize: '.92rem', maxWidth: 460, margin: '0 auto' }}>
-          Have a question, correction, or business enquiry? We're here to help. We respond within 24–48 hours.
+          Have a question, correction, or business enquiry? We respond within 24–48 hours.
         </p>
       </div>
 
       <div style={{ maxWidth: 1060, margin: '0 auto', padding: '30px 20px 60px' }}>
         <div className="layout" style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
 
-          {/* ════ CONTACT FORM ════ */}
+          {/* ── CONTACT FORM ── */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ background: '#fff', border: '1.5px solid #d4e0ec', borderRadius: 16, padding: '26px 28px', marginBottom: 24, borderLeft: `5px solid ${G}` }}>
-              <h2 style={{ fontFamily: 'Sora, sans-serif', fontWeight: 700, fontSize: '1.05rem', color: N, marginBottom: 20 }}>
-                ✉️ Send Us a Message
-              </h2>
+              <h2 style={{ fontFamily: 'Sora, sans-serif', fontWeight: 700, fontSize: '1.05rem', color: N, marginBottom: 6 }}>✉️ Send Us a Message</h2>
+              <p style={{ fontSize:'.82rem', color:'#5a6a7a', marginBottom:20 }}>
+                Messages are sent directly to our inbox via Formspree. No email app needed!
+              </p>
 
-              {sent && (
+              {/* Success message */}
+              {status === 'sent' && (
                 <div className="sent-msg" style={{ background: '#e8f5e9', border: '1.5px solid #a5d6a7', borderRadius: 10, padding: '13px 16px', marginBottom: 18, fontSize: '.87rem', color: '#2e7d32', fontWeight: 700 }}>
-                  ✅ Your message has been opened in your email app. Please press Send to complete!
+                  ✅ Message sent successfully! We will reply to <strong>{form.email || 'your email'}</strong> within 24–48 hours.
+                </div>
+              )}
+
+              {/* Error message */}
+              {formErr && (
+                <div style={{ background:'#fde8ea', border:'1.5px solid #f7bcc0', borderRadius:9, padding:'10px 14px', marginBottom:14, fontSize:'.83rem', color:'#c62828' }}>
+                  ⚠ {formErr}
                 </div>
               )}
 
               <form onSubmit={handleSubmit}>
-                {/* ── Bot honeypot (hidden from humans, visible to bots) ── */}
+                {/* Honeypot — hidden from humans */}
                 <div style={{ display: 'none' }} aria-hidden="true">
-                  <input
-                    type="text"
-                    name="website"
-                    value={honey}
-                    onChange={e => setHoney(e.target.value)}
-                    tabIndex={-1}
-                    autoComplete="off"
-                  />
+                  <input type="text" name="website" value={honey} onChange={e => setHoney(e.target.value)} tabIndex={-1} autoComplete="off" />
                 </div>
-                {/* Error display */}
-                {formErr && (
-                  <div style={{ background:'#fde8ea', border:'1.5px solid #f7bcc0', borderRadius:9, padding:'10px 14px', marginBottom:14, fontSize:'.83rem', color:'#c62828' }}>
-                    ⚠ {formErr}
-                  </div>
-                )}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+
+                <div className="name-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
                   <div>
                     <label style={lb}>Your Name *</label>
                     <input required style={si} placeholder="e.g. Rahul Bora" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
@@ -180,6 +197,7 @@ export default function ContactPage() {
                     <input required type="email" style={si} placeholder="your@email.com" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} />
                   </div>
                 </div>
+
                 <div style={{ marginBottom: 14 }}>
                   <label style={lb}>Subject</label>
                   <select style={{ ...si, cursor: 'pointer' }} value={form.subject} onChange={e => setForm(p => ({ ...p, subject: e.target.value }))}>
@@ -193,24 +211,33 @@ export default function ContactPage() {
                     <option>Other</option>
                   </select>
                 </div>
+
                 <div style={{ marginBottom: 18 }}>
                   <label style={lb}>Message *</label>
-                  <textarea required style={{ ...si, minHeight: 130, resize: 'vertical' as const }} placeholder="Describe your query in detail. For job corrections, please include the job title, what is wrong, and the correct information with source link." value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} />
+                  <textarea required style={{ ...si, minHeight: 130, resize: 'vertical' as const }}
+                    placeholder="Describe your query in detail. For job corrections, please include the job title, what is wrong, and the correct information with source link."
+                    value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} />
                 </div>
-                <button type="submit" style={{ width: '100%', padding: '13px', borderRadius: 10, background: N, border: `2px solid ${G}`, color: G, fontWeight: 900, fontSize: '.92rem', fontFamily: 'Arial Black, sans-serif', cursor: 'pointer', letterSpacing: '.04em' }}>
-                  📧 SEND MESSAGE
+
+                <button type="submit" disabled={status === 'sending'}
+                  style={{ width: '100%', padding: '13px', borderRadius: 10, background: status === 'sending' ? '#5a6a7a' : N, border: `2px solid ${G}`, color: G, fontWeight: 900, fontSize: '.92rem', fontFamily: 'Arial Black, sans-serif', cursor: status === 'sending' ? 'not-allowed' : 'pointer', letterSpacing: '.04em', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+                  {status === 'sending' ? (
+                    <>
+                      <span style={{ width:18,height:18,border:'2px solid rgba(201,162,39,.3)',borderTopColor:G,borderRadius:'50%',animation:'spin 1s linear infinite',display:'inline-block' }}/>
+                      Sending...
+                    </>
+                  ) : '📧 SEND MESSAGE'}
                 </button>
+
                 <div style={{ fontSize: '.72rem', color: '#8fa3b8', marginTop: 10, textAlign: 'center' as const }}>
-                  💡 Tip: For faster setup, sign up at <strong>formspree.io</strong> (free) to receive messages directly in your email inbox without opening the email app.
+                  🔒 Powered by <a href="https://formspree.io" target="_blank" rel="noopener noreferrer" style={{color:T,textDecoration:'none'}}>Formspree</a> — your message goes directly to our inbox
                 </div>
               </form>
             </div>
 
             {/* FAQ */}
             <div>
-              <h2 style={{ fontFamily: 'Sora, sans-serif', fontWeight: 700, fontSize: '1.05rem', color: N, marginBottom: 16 }}>
-                ❓ Frequently Asked Questions
-              </h2>
+              <h2 style={{ fontFamily: 'Sora, sans-serif', fontWeight: 700, fontSize: '1.05rem', color: N, marginBottom: 16 }}>❓ Frequently Asked Questions</h2>
               {faqs.map((f, i) => (
                 <div key={i} className="faq-item">
                   <div style={{ fontFamily: 'Sora, sans-serif', fontWeight: 700, fontSize: '.88rem', color: N, marginBottom: 7 }}>Q: {f.q}</div>
@@ -220,8 +247,8 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* ════ SIDEBAR ════ */}
-          <div style={{ width: 290, flexShrink: 0 }}>
+          {/* ── SIDEBAR ── */}
+          <div style={{ width: 290, flexShrink: 0, minWidth:0 }}>
 
             {/* Contact Info */}
             <div style={{ background: N, border: `2px solid ${G}`, borderRadius: 14, padding: '20px', marginBottom: 18 }}>
@@ -251,7 +278,7 @@ export default function ContactPage() {
               <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
                 {socials.map(s => (
                   <a key={s.name} href={s.href} target="_blank" rel="noreferrer" className="soc-btn">
-                    <div style={{ width: 38, height: 38, borderRadius: 9, background: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>{s.ico}</div>
+                    <div style={{ width: 36, height: 36, borderRadius: 9, background: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>{s.ico}</div>
                     <div>
                       <div style={{ fontFamily: 'Sora, sans-serif', fontWeight: 700, fontSize: '.83rem', color: N }}>{s.name}</div>
                       <div style={{ fontSize: '.7rem', color: '#5a6a7a' }}>{s.sub}</div>
@@ -265,22 +292,21 @@ export default function ContactPage() {
             <div style={{ background: `${G}18`, border: `2px solid ${G}44`, borderRadius: 14, padding: '18px' }}>
               <h3 style={{ fontFamily: 'Sora, sans-serif', fontWeight: 700, fontSize: '.88rem', color: N, marginBottom: 10 }}>📢 Advertise With Us</h3>
               <p style={{ fontSize: '.81rem', color: '#3a4a5a', lineHeight: 1.75, marginBottom: 14 }}>
-                Reach thousands of active job seekers in Assam & NE India. Perfect for coaching centres, online courses, and government exam prep platforms.
+                Reach thousands of active job seekers in Assam & NE India.
               </p>
-              <a href={`mailto:${EMAIL}?subject=Advertising Enquiry`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, padding: '10px', borderRadius: 9, background: N, color: G, fontWeight: 900, fontSize: '.82rem', textDecoration: 'none', fontFamily: 'Arial Black, sans-serif' }}>
+              <a href={`mailto:${EMAIL}?subject=Advertising Enquiry`}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, padding: '10px', borderRadius: 9, background: N, color: G, fontWeight: 900, fontSize: '.82rem', textDecoration: 'none', fontFamily: 'Arial Black, sans-serif' }}>
                 📧 GET AD RATES
               </a>
             </div>
           </div>
-
         </div>
       </div>
 
-      {/* FOOTER */}
       <footer style={{ background: N, borderTop: `3px solid ${G}`, padding: '18px', textAlign: 'center' as const }}>
         <div style={{ fontSize: '.72rem', color: 'rgba(255,255,255,.3)' }}>
           © 2025–2026 Assam Career Point & Info ·{' '}
-          {[['Privacy', '/privacy-policy'], ['About', '/about-us'], ['Affiliate', '/affiliate'], ['Home', '/']].map(([l, h]) => (
+          {([['Privacy', '/privacy-policy'], ['About', '/about-us'], ['Affiliate', '/affiliate'], ['Home', '/']] as [string,string][]).map(([l, h]) => (
             <span key={h}><Link href={h} style={{ color: `${G}88`, textDecoration: 'none' }}>{l}</Link> · </span>
           ))}
         </div>
