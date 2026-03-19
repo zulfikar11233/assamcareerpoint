@@ -1,35 +1,37 @@
 // src/lib/mysql.ts
-// MySQL database connection for ACPI portal
-
 import mysql from 'mysql2/promise'
 
-// Connection pool — reuses connections efficiently
+// ✅ Single persistent pool with keep-alive
 const pool = mysql.createPool({
-  host: process.env.MYSQL_HOST || '127.0.0.1',
-  user:     process.env.MYSQL_USER     || 'u570952740_acpiuser',
-  password: process.env.MYSQL_PASSWORD || '',
-  database: process.env.MYSQL_DATABASE || 'u570952740_acpidata',
+  host:               process.env.MYSQL_HOST     || '127.0.0.1',
+  user:               process.env.MYSQL_USER     || 'u570952740_acpiuser',
+  password:           process.env.MYSQL_PASSWORD || '',
+  database:           process.env.MYSQL_DATABASE || 'u570952740_acpidata',
   waitForConnections: true,
-  connectionLimit:    10,
+  connectionLimit:    5,
   queueLimit:         0,
+  enableKeepAlive:    true,
+  keepAliveInitialDelay: 0,
+  connectTimeout:     10000,
 })
 
-// ── Read a collection ─────────────────────────────────────────────
+// ── Read ─────────────────────────────────────────────────────────
 export async function getCollection(collection: string): Promise<unknown[]> {
   try {
     const [rows] = await pool.execute(
       'SELECT data FROM acpi_data WHERE collection = ?',
       [collection]
     ) as mysql.RowDataPacket[][]
-    if (rows.length === 0) return []
-    return JSON.parse(rows[0].data) || []
+    if (!rows.length) return []
+    const parsed = JSON.parse(rows[0].data)
+    return Array.isArray(parsed) ? parsed : []
   } catch (err) {
     console.error(`DB read error for ${collection}:`, err)
     return []
   }
 }
 
-// ── Save a collection ─────────────────────────────────────────────
+// ── Write ─────────────────────────────────────────────────────────
 export async function setCollection(collection: string, data: unknown): Promise<boolean> {
   try {
     await pool.execute(

@@ -67,6 +67,7 @@ export default function HomePage() {
   const [totalJobs,  setTotalJobs]  = useState(0)
   const [totalExams, setTotalExams] = useState(0)
   const [totalInfo,  setTotalInfo]  = useState(0)
+  const [loaded, setLoaded] = useState(false)
   const [tickerItems, setTickerItems] = useState<string[]>([])
 
   useEffect(() => {
@@ -363,10 +364,24 @@ export default function HomePage() {
 
             {/* JOBS */}
             {sec==='jobs' && (
-              jobs.length === 0 ? (
-                <div style={{ padding:'40px',textAlign:'center' as const,color:'#5a6a7a' }}>
-                  <div style={{ fontSize:'2rem',marginBottom:8 }}>💼</div>
-                  <div style={{ fontWeight:700 }}>No job vacancies yet</div>
+  !loaded ? (
+    <div style={{ padding:'30px 20px' }}>
+      {[1,2,3].map(i=>(
+        <div key={i} style={{ display:'flex',gap:14,padding:'15px 0',borderBottom:'1px solid #f0f4f8',alignItems:'center' }}>
+          <div style={{ width:46,height:46,borderRadius:10,background:'#f0f4f8',flexShrink:0 }}/>
+          <div style={{ flex:1 }}>
+            <div style={{ height:14,background:'#f0f4f8',borderRadius:4,marginBottom:8,width:'70%' }}/>
+            <div style={{ height:11,background:'#f0f4f8',borderRadius:4,width:'40%' }}/>
+          </div>
+        </div>
+      ))}
+    </div>
+  ) : jobs.length === 0 ? (
+    <div style={{ padding:'40px',textAlign:'center' as const,color:'#5a6a7a' }}>
+      <div style={{ fontSize:'2rem',marginBottom:8 }}>💼</div>
+      <div style={{ fontWeight:700 }}>No job vacancies yet</div>
+      <div style={{ fontSize:'.83rem',marginTop:4 }}>Check back soon!</div>
+    </div>
                   <div style={{ fontSize:'.83rem',marginTop:4 }}>Check back soon!</div>
                 </div>
               ) : jobs.map((j,i)=>{
