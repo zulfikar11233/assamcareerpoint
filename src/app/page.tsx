@@ -67,6 +67,7 @@ export default function HomePage() {
   const [totalJobs,  setTotalJobs]  = useState(0)
   const [totalExams, setTotalExams] = useState(0)
   const [totalInfo,  setTotalInfo]  = useState(0)
+  const [pageReady, setPageReady] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const [tickerItems, setTickerItems] = useState<string[]>([])
 
@@ -118,6 +119,7 @@ export default function HomePage() {
         })
       }
       if (tickers.length > 0) setTickerItems(tickers)
+      setPageReady(true)
     }).catch(() => {})
   }, [])
 

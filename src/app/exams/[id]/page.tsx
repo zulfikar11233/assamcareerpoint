@@ -367,25 +367,37 @@ export default function ExamDetail({ params }: { params: Promise<{ id: string }>
 
           {/* ✅ Affiliate links for exam */}
           {affiliates.length > 0 && (
-            <div style={{marginBottom:18}}>
-              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:N,marginBottom:12}}>📚 Recommended Books & Courses</h2>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(150px,1fr))',gap:12}}>
+            <div className="card">
+              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📚 Recommended Books & Study Material</h2>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:12}}>
                 {affiliates.map(aff => (
                   <a key={aff.id} href={aff.link} target="_blank" rel="noopener noreferrer sponsored"
-                    style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:12,overflow:'hidden',textDecoration:'none',color:'inherit',display:'flex',flexDirection:'column' as const,transition:'.18s'}}>
-                    {aff.img
-                      ? <img src={aff.img} alt={aff.title} style={{width:'100%',height:110,objectFit:'cover',display:'block'}}/>
-                      : <div style={{width:'100%',height:110,background:`linear-gradient(135deg,${N},#0a3050)`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2.2rem'}}>📖</div>
-                    }
-                    <div style={{padding:'10px 11px',flex:1,display:'flex',flexDirection:'column' as const,gap:8}}>
-                      {aff.badge && <span style={{background:G,color:N,fontSize:'.62rem',fontWeight:900,padding:'2px 7px',borderRadius:99,alignSelf:'flex-start' as const}}>{aff.badge}</span>}
-                      <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.78rem',color:N,lineHeight:1.4}}>{aff.title}</div>
-                      <div style={{marginTop:'auto',background:T,color:N,borderRadius:7,padding:'6px',textAlign:'center' as const,fontWeight:900,fontSize:'.72rem',fontFamily:'Arial Black,sans-serif'}}>Buy Now →</div>
+                    style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:12,overflow:'hidden',textDecoration:'none',color:'inherit',display:'flex',flexDirection:'column',transition:'.18s',boxShadow:'0 2px 8px rgba(0,0,0,.06)'}}>
+                    {/* Image box — same style as job vacancies */}
+                    <div style={{position:'relative',width:'100%',paddingBottom:'70%',overflow:'hidden',background:`linear-gradient(135deg,#0d1b2a,#0a3050)`}}>
+                      {aff.img
+                        ? <img src={aff.img} alt={aff.title} style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',objectFit:'cover',display:'block'}}/>
+                        : <div style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2.5rem'}}>📖</div>
+                      }
+                      {aff.badge && (
+                        <span style={{position:'absolute',top:6,left:6,background:'#c9a227',color:'#0b1f33',fontSize:'.6rem',fontWeight:900,padding:'2px 7px',borderRadius:99,fontFamily:'Arial Black,sans-serif'}}>
+                          {aff.badge}
+                        </span>
+                      )}
+                    </div>
+                    {/* Content */}
+                    <div style={{padding:'10px 11px',flex:1,display:'flex',flexDirection:'column',gap:6}}>
+                      <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.78rem',color:'#0b1f33',lineHeight:1.4}}>{aff.title}</div>
+                      <div style={{marginTop:'auto',background:'#1dbfad',color:'#0b1f33',borderRadius:7,padding:'7px',textAlign:'center',fontWeight:900,fontSize:'.72rem',fontFamily:'Arial Black,sans-serif'}}>
+                        Buy Now →
+                      </div>
                     </div>
                   </a>
                 ))}
               </div>
-              <div style={{fontSize:'.7rem',color:'#8fa3b8',marginTop:8}}>* Affiliate links — purchasing supports this portal</div>
+              <div style={{fontSize:'.7rem',color:'#8fa3b8',marginTop:10}}>
+                * Affiliate links — purchasing supports this free portal
+              </div>
             </div>
           )}
 

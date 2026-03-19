@@ -14,7 +14,7 @@ const pool = mysql.createPool({
   keepAliveInitialDelay: 0,
   connectTimeout:     10000,
 })
-
+pool.getConnection().then(conn => conn.release()).catch(() => {})
 // ── Read ─────────────────────────────────────────────────────────
 export async function getCollection(collection: string): Promise<unknown[]> {
   try {
