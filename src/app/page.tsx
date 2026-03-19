@@ -384,8 +384,7 @@ export default function HomePage() {
       <div style={{ fontWeight:700 }}>No job vacancies yet</div>
       <div style={{ fontSize:'.83rem',marginTop:4 }}>Check back soon!</div>
     </div>
-                  <div style={{ fontSize:'.83rem',marginTop:4 }}>Check back soon!</div>
-                </div>
+                  
               ) : jobs.map((j,i)=>{
                 const totalV = j.posts?.reduce((a,p)=>a+p.vacancy,0) || parseInt(j.vacancy||'0')
                 const d = days(j.lastDate)
