@@ -286,14 +286,18 @@ if (!job) return (
         .re-card{background:#fff;border:1.5px solid #d4e0ec;border-radius:11px;text-decoration:none;color:inherit;display:flex;gap:12px;padding:12px;transition:.18s}
         .re-card:hover{border-color:${T};transform:translateX(3px)}
         .sh2{fontFamily:Sora,sans-serif;font-weight:700;font-size:.93rem;color:${N};margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid ${T}}
+        .safe-wrap{overflow-wrap:anywhere;word-break:break-word}
         @media(max-width:860px){
           .layout{flex-direction:column!important}
           .layout>div:last-child{width:100%!important;min-width:0!important}
         }
         @media(max-width:600px){
+          .layout{padding:14px 12px 40px!important}
+          .tab-btn{font-size:.72rem;padding:9px 4px}
           .tbl{font-size:.7rem;display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
           .tbl th,.tbl td{padding:5px 7px;white-space:nowrap}
           .sel-stages{flex-direction:column!important}
+          .stats-strip{grid-template-columns:1fr!important}
         }
         @media(max-width:480px){
           .stats-strip{grid-template-columns:1fr 1fr!important}
@@ -354,7 +358,7 @@ if (!job) return (
             ].map(s=>(
               <div key={s.l} style={{background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.12)',borderRadius:10,padding:'10px 14px',flex:'1 1 160px',minWidth:140}}>
                 <div style={{fontSize:'.63rem',color:'rgba(255,255,255,.4)',fontWeight:700,textTransform:'uppercase' as const,letterSpacing:'.04em',marginBottom:4}}>{s.l}</div>
-                <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.83rem',color:s.c,lineHeight:1.3}}>{s.v}</div>
+                <div className="safe-wrap" style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.83rem',color:s.c,lineHeight:1.3}}>{s.v}</div>
               </div>
             ))}
           </div>
@@ -476,7 +480,7 @@ if (!job) return (
                       <div style={{fontSize:'.65rem',fontWeight:700,color:'#5a6a7a',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:8}}>Relaxation</div>
                       {ageRows.map((r,i)=>{const [cat,yrs]=r.split(':').map(s=>s.trim());return(
                         <div key={i} style={{display:'flex',justifyContent:'space-between',fontSize:'.78rem',padding:'4px 0',borderBottom:i<ageRows.length-1?'1px solid #f0f4f8':undefined}}>
-                          <span style={{color:'#3a4a5a'}}>{cat}</span><span style={{fontWeight:700,color:N}}>{yrs}</span>
+                          <span className="safe-wrap" style={{color:'#3a4a5a'}}>{cat}</span><span className="safe-wrap" style={{fontWeight:700,color:N}}>{yrs}</span>
                         </div>
                       )})}
                     </div>
@@ -635,7 +639,7 @@ if (!job) return (
                   </a>
                   {job.website&&(
                     <a href={`https://${job.website}`} target="_blank" rel="noopener noreferrer"
-                      style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,padding:'13px 18px',borderRadius:11,background:'#f0f4f8',color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',border:'1.5px solid #d4e0ec',fontFamily:'Arial Black,sans-serif'}}>
+                      style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,padding:'13px 18px',borderRadius:11,background:'#f0f4f8',color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',border:'1.5px solid #d4e0ec',fontFamily:'Arial Black,sans-serif',overflowWrap:'anywhere',wordBreak:'break-word'}}>
                       🌐 Official Site
                     </a>
                   )}
@@ -705,7 +709,7 @@ if (!job) return (
                 style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,width:'100%',padding:'13px',borderRadius:11,background:G,color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif',boxSizing:'border-box' as const,marginBottom:10}}>
                 📝 APPLY NOW
               </a>
-              {job.website&&<a href={`https://${job.website}`} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,width:'100%',padding:'10px',borderRadius:10,background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.6)',fontWeight:700,fontSize:'.82rem',textDecoration:'none',border:'1px solid rgba(255,255,255,.15)',boxSizing:'border-box' as const}}>🌐 {job.website}</a>}
+              {job.website&&<a href={`https://${job.website}`} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,width:'100%',padding:'10px',borderRadius:10,background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.6)',fontWeight:700,fontSize:'.82rem',textDecoration:'none',border:'1px solid rgba(255,255,255,.15)',boxSizing:'border-box' as const,overflowWrap:'anywhere',wordBreak:'break-word',whiteSpace:'normal' as const}}>🌐 {job.website}</a>}
             </div>
           )}
           <div style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:13,padding:'16px',marginBottom:15}}>
@@ -722,7 +726,7 @@ if (!job) return (
             ].map(r=>(
               <div key={r.l} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f0f4f8',gap:8}}>
                 <span style={{fontSize:'.72rem',color:'#8fa3b8',fontWeight:700,flexShrink:0}}>{r.l}</span>
-                <span style={{fontSize:'.76rem',fontWeight:700,color:N,textAlign:'right' as const,lineHeight:1.4}}>{r.v||'—'}</span>
+                <span className="safe-wrap" style={{fontSize:'.76rem',fontWeight:700,color:N,textAlign:'right' as const,lineHeight:1.4,minWidth:0}}>{r.v||'—'}</span>
               </div>
             ))}
           </div>
