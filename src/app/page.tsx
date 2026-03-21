@@ -67,8 +67,6 @@ export default function HomePage() {
   const [totalJobs,  setTotalJobs]  = useState(0)
   const [totalExams, setTotalExams] = useState(0)
   const [totalInfo,  setTotalInfo]  = useState(0)
-  const [pageReady, setPageReady] = useState(false)
-  const [loaded, setLoaded] = useState(false)
   const [tickerItems, setTickerItems] = useState<string[]>([])
 
   useEffect(() => {
@@ -119,8 +117,9 @@ export default function HomePage() {
         })
       }
       if (tickers.length > 0) setTickerItems(tickers)
-      setPageReady(true)
-    }).catch(() => {})
+    }).catch((err) => {
+  console.error('Homepage fetch error:', err)
+})
   }, [])
 
   const closeMenu = () => setMenuOpen(false)
@@ -366,47 +365,68 @@ export default function HomePage() {
 
             {/* JOBS */}
             {sec==='jobs' && (
-  !loaded ? (
-    <div style={{ padding:'30px 20px' }}>
-      {[1,2,3].map(i=>(
-        <div key={i} style={{ display:'flex',gap:14,padding:'15px 0',borderBottom:'1px solid #f0f4f8',alignItems:'center' }}>
-          <div style={{ width:46,height:46,borderRadius:10,background:'#f0f4f8',flexShrink:0 }}/>
-          <div style={{ flex:1 }}>
-            <div style={{ height:14,background:'#f0f4f8',borderRadius:4,marginBottom:8,width:'70%' }}/>
-            <div style={{ height:11,background:'#f0f4f8',borderRadius:4,width:'40%' }}/>
-          </div>
-        </div>
-      ))}
-    </div>
-  ) : jobs.length === 0 ? (
-    <div style={{ padding:'40px',textAlign:'center' as const,color:'#5a6a7a' }}>
+  jobs.length === 0 ? (
+    <div style={{ padding:'40px',textAlign:'center',color:'#5a6a7a' }}>
       <div style={{ fontSize:'2rem',marginBottom:8 }}>💼</div>
       <div style={{ fontWeight:700 }}>No job vacancies yet</div>
-      <div style={{ fontSize:'.83rem',marginTop:4 }}>Check back soon!</div>
     </div>
-                  
-              ) : jobs.map((j,i)=>{
-                const totalV = j.posts?.reduce((a,p)=>a+p.vacancy,0) || parseInt(j.vacancy||'0')
-                const d = days(j.lastDate)
-                return (
-                  <Link key={j.id} href={`/jobs/${j.id}`} style={{ textDecoration:'none' }}>
-                    <div className="jr" style={{ display:'flex',alignItems:'center',gap:14,padding:'15px 22px',borderBottom:i<jobs.length-1?'1px solid #f0f4f8':'none',cursor:'pointer' }}>
-                      <div style={{ width:46,height:46,borderRadius:10,background:'linear-gradient(135deg,#e0f7fc,#b2ebf5)',border:'1.5px solid #d4e0ec',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.35rem',flexShrink:0 }}>{j.logo}</div>
-                      <div style={{ flex:1,minWidth:0 }}>
-                        <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.97rem',color:'#1a1a2e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const }}>{j.title}</div>
-                        <div style={{ fontSize:'.80rem',color:'#5a6a7a',marginTop:3 }}>{j.org} · {j.district}</div>
-                      </div>
-                      <div className="job-badges" style={{ display:'flex',gap:7,flexShrink:0,flexWrap:'wrap' as const,justifyContent:'flex-end' }}>
-                        <span style={{ background:'#fde8ea',color:'#e63946',padding:'4px 11px',borderRadius:99,fontSize:'.77rem',fontWeight:700 }}>{totalV.toLocaleString()} Posts</span>
-                        <span style={{ background:d<=7?'#fde8ea':'#f0f4f8',color:d<=7?'#e63946':'#5a6a7a',padding:'4px 11px',borderRadius:99,fontSize:'.77rem',fontWeight:700,whiteSpace:'nowrap' as const }}>
-                          {d<=0?'⚠️ Expired':d<=7?`⚡ ${d}d left`:`📅 ${fmt(j.lastDate)}`}
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-                )
-              })
-            )}
+  ) : jobs.map((j,i)=>{
+    const totalV = j.posts?.reduce((a,p)=>a+p.vacancy,0) || parseInt(j.vacancy||'0')
+    const d = days(j.lastDate)
+
+    return (
+      <Link key={j.id} href={`/jobs/${j.id}`} style={{ textDecoration:'none' }}>
+        <div className="jr" style={{
+          display:'flex',alignItems:'center',gap:14,padding:'15px 22px',
+          borderBottom:i<jobs.length-1?'1px solid #f0f4f8':'none',
+          cursor:'pointer'
+        }}>
+          <div style={{
+            width:46,height:46,borderRadius:10,
+            background:'linear-gradient(135deg,#e0f7fc,#b2ebf5)',
+            border:'1.5px solid #d4e0ec',
+            display:'flex',alignItems:'center',justifyContent:'center',
+            fontSize:'1.35rem',flexShrink:0
+          }}>
+            {j.logo}
+          </div>
+
+          <div style={{ flex:1,minWidth:0 }}>
+            <div style={{
+              fontFamily:"'Sora',sans-serif",
+              fontWeight:700,fontSize:'.97rem',color:'#1a1a2e',
+              overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'
+            }}>
+              {j.title}
+            </div>
+            <div style={{ fontSize:'.80rem',color:'#5a6a7a',marginTop:3 }}>
+              {j.org} · {j.district}
+            </div>
+          </div>
+
+          <div className="job-badges" style={{
+            display:'flex',gap:7,flexShrink:0,flexWrap:'wrap',justifyContent:'flex-end'
+          }}>
+            <span style={{
+              background:'#fde8ea',color:'#e63946',
+              padding:'4px 11px',borderRadius:99,fontSize:'.77rem',fontWeight:700
+            }}>
+              {totalV.toLocaleString()} Posts
+            </span>
+
+            <span style={{
+              background:d<=7?'#fde8ea':'#f0f4f8',
+              color:d<=7?'#e63946':'#5a6a7a',
+              padding:'4px 11px',borderRadius:99,fontSize:'.77rem',fontWeight:700
+            }}>
+              {d<=0?'⚠️ Expired':d<=7?`⚡ ${d}d left`:`📅 ${fmt(j.lastDate)}`}
+            </span>
+          </div>
+        </div>
+      </Link>
+    )
+  })
+)}
 
             {/* EXAMS */}
             {sec==='exams' && (

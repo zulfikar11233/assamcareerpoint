@@ -1355,6 +1355,29 @@ const [dataLoaded, setDataLoaded] = useState(false)
       <div className="fg"><label style={lb}>Badge</label><input value={aff.badge||''} onChange={e=>{const n=[...(ef.examAffiliates||[])];n[i]={...n[i],badge:e.target.value};setEf(p=>({...p,examAffiliates:n}))}} style={si} placeholder="Best Seller"/></div>
     </div>
     <div className="fg"><label style={lb}>Affiliate Link *</label><input value={aff.link} onChange={e=>{const n=[...(ef.examAffiliates||[])];n[i]={...n[i],link:e.target.value};setEf(p=>({...p,examAffiliates:n}))}} style={{...si,borderColor:'#90caf9'}} placeholder="https://amzn.to/..."/></div>
+    {/* ← ADD THIS BELOW THE LINK FIELD */}
+    <div className="fg">
+      <label style={lb}>Product Image (max 150 KB)</label>
+      <input type="file" accept="image/*" style={{display:'none'}} id={`ea-img-${aff.id}`}
+        onChange={e=>{
+          const f=e.target.files?.[0]; if(!f) return
+          if(f.size>153600){alert('Image must be under 150 KB. Please compress it first.'); e.target.value=''; return}
+          const r=new FileReader(); r.onload=ev=>{
+            const n=[...(ef.examAffiliates||[])];
+            n[i]={...n[i],img:ev.target?.result as string};
+            setEf(p=>({...p,examAffiliates:n}))
+          }; r.readAsDataURL(f)
+        }}
+      />
+      <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap' as const}}>
+        {aff.img&&<img src={aff.img} alt="product" style={{width:64,height:64,objectFit:'cover',borderRadius:8,border:'1.5px solid #d4e0ec'}}/>}
+        <label htmlFor={`ea-img-${aff.id}`} style={{...bS,cursor:'pointer',display:'inline-flex',alignItems:'center',gap:6,fontSize:'.78rem'}}>
+          📷 {aff.img?'Change Image':'Upload Image'}
+        </label>
+        {aff.img&&<button type="button" onClick={()=>{const n=[...(ef.examAffiliates||[])];n[i]={...n[i],img:''};setEf(p=>({...p,examAffiliates:n}))}} style={{...bS,fontSize:'.72rem',padding:'4px 9px',color:'#e63946'}}>✕ Remove</button>}
+        <span style={{fontSize:'.7rem',color:'#8fa3b8'}}>JPG/PNG · max 150 KB</span>
+      </div>
+    </div>
   </div>
 ))}
 <button type="button" onClick={()=>setEf(p=>({...p,examAffiliates:[...(p.examAffiliates||[]),{id:Date.now().toString(),title:'',link:'',badge:''}]}))} style={{...bT,fontSize:'.8rem',padding:'8px 16px',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:7,marginBottom:4}}>

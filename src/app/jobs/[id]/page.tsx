@@ -148,6 +148,7 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
   const [job,       setJob]       = useState<Job|null>(null)
   const [timerOn,   setTimerOn]   = useState<boolean>(true)
   const [now,       setNow]       = useState<number>(Date.now())
+  const [loading, setLoading] = useState(true)
   const [others,    setOthers]    = useState<Job[]>([])
   const [activeTab, setActiveTab] = useState<'details'|'syllabus'|'howapply'>('details')
 
@@ -167,6 +168,7 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
             setOthers(local.filter(j => String(j.id) !== String(id) && j.status !== 'Draft').slice(0,4))
           } catch { setJob(null) }
         }
+         setLoading(false)
       })
       .catch(() => {
         try {
@@ -175,6 +177,7 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
           setJob(local.find(j => String(j.id) === String(id)) || null)
           setOthers(local.filter(j => String(j.id) !== String(id) && j.status !== 'Draft').slice(0,4))
         } catch { setJob(null) }
+        setLoading(false)
       })
     // Read timer setting
     try {
@@ -189,7 +192,21 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
     return () => clearInterval(t)
   }, [])
 
-  if (!job) return (
+if (loading) return (
+  <div style={{
+    minHeight:'100vh',
+    display:'flex',
+    alignItems:'center',
+    justifyContent:'center',
+    flexDirection:'column',
+    gap:12,
+    background:'#f0f4f8'
+  }}>
+    <div style={{fontSize:'2rem'}}>⏳</div>
+    <div style={{fontWeight:700}}>Loading job details...</div>
+  </div>
+)  
+if (!job) return (
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column' as const,gap:16,background:'#f0f4f8'}}>
       <div style={{fontSize:'3rem'}}>📭</div>
       <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,color:N}}>Job not found</h2>
@@ -238,9 +255,32 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
         .nav-a:hover{color:${G}}
         .tab-btn{flex:1;padding:10px 6px;border:none;background:transparent;font-family:Nunito,sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;color:#5a6a7a;border-bottom:3px solid transparent;transition:.18s}
         .tab-btn.on{color:${N};border-bottom-color:${G}}
-        .tbl{width:100%;border-collapse:collapse;font-size:.8rem}
-        .tbl th{background:${N};color:${G};padding:9px 12px;text-align:left;font-family:Arial Black,sans-serif;font-size:.72rem}
+        .tbl{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  font-size:.8rem;
+  min-width:700px;
+}
+        .tbl th{
+  background:#0b1f33;
+  color:#c9a227;
+  padding:9px 12px;
+  text-align:left;
+  font-family:Arial Black,sans-serif;
+  font-size:.72rem;
+  position:sticky;
+  top:0;
+  z-index:2;
+}
         .tbl td{padding:9px 12px;border-bottom:1px solid #f0f4f8;vertical-align:top}
+.tbl td:first-child,
+.tbl th:first-child{
+  position:sticky;
+  left:0;
+  background:#0b1f33;
+  z-index:1;
+}
         .tbl tr:hover td{background:#f8fbff}
         .tbl tr:last-child td{border-bottom:none}
         .re-card{background:#fff;border:1.5px solid #d4e0ec;border-radius:11px;text-decoration:none;color:inherit;display:flex;gap:12px;padding:12px;transition:.18s}
@@ -371,7 +411,13 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
                 {posts.length>0&&(
                   <>
                     <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>📊 Post-wise Vacancy Breakdown</h2>
-                    <div style={{overflowX:'auto' as const,marginBottom:22,borderRadius:10,border:'1.5px solid #d4e0ec'}}>
+                    <div style={{
+  overflowX:'auto',
+  WebkitOverflowScrolling:'touch',
+  marginBottom:22,
+  borderRadius:10,
+  border:'1.5px solid #d4e0ec'
+}}>
                       <table className="tbl">
                         <thead><tr><th>#</th><th>Post Name</th><th>Department</th><th>Vacancies</th><th>Qualification</th><th>Age</th><th>Salary</th><th>Apply</th></tr></thead>
                         <tbody>
