@@ -333,11 +333,12 @@ if (!job) return (
           .breadcrumb-bar{padding-left:12px!important;padding-right:12px!important}
           .hero-sec{padding:20px 12px 18px!important}
           .layout{padding:14px 12px 40px!important}
-          .tab-row{flex-wrap:wrap}
+          .tab-row{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
           .tab-btn{font-size:.68rem;padding:9px 4px;line-height:1.25}
           .tbl{font-size:.7rem;width:100%}
           .tbl th,.tbl td{padding:5px 7px;white-space:nowrap}
           .tbl-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tbl td:first-child,.tbl th:first-child{position:static!important}
           .sel-stages{flex-direction:column!important;align-items:stretch!important}
           .sel-stages > div{max-width:100%}
           .stats-strip{grid-template-columns:1fr!important}
@@ -345,6 +346,7 @@ if (!job) return (
           .age-fee-grid{grid-template-columns:1fr!important}
           .dates-grid{grid-template-columns:1fr!important}
           .tab-panel{padding:14px 12px!important}
+.re-card{overflow:hidden!important;max-width:100%!important}
         }
       `}</style>
 
