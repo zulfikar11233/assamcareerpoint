@@ -54,6 +54,31 @@ function driveImgUrl(url: string): string {
   return `https://lh3.googleusercontent.com/d/${id}`
 }
 
+/** Only allow http(s) URLs from CMS data — blocks javascript:, data:, etc. (phishing / XSS) */
+function sanitizeHttpUrl(raw: string | undefined | null): string {
+  if (!raw || typeof raw !== 'string') return ''
+  const t = raw.trim()
+  if (!t) return ''
+  let u = t
+  if (!/^https?:\/\//i.test(u)) {
+    if (/^[\w.-]+\.[a-z]{2,}/i.test(u)) u = `https://${u}`
+    else return ''
+  }
+  try {
+    const parsed = new URL(u)
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return ''
+    return parsed.href
+  } catch {
+    return ''
+  }
+}
+
+function safePdfHref(raw: string): string {
+  const id = driveId(raw)
+  if (id) return `https://drive.google.com/uc?export=download&id=${id}`
+  return sanitizeHttpUrl(raw)
+}
+
 // ── Countdown Timer Component ──────────────────────────────────
 function Countdown({ target, label, color='#c9a227' }:{target:string; label:string; color?:string}) {
   const diff = new Date(target).getTime() - Date.now()
@@ -245,15 +270,22 @@ if (!job) return (
   }
   if(cur) selSections.push(cur)
 
+  const applyHrefMain =
+    sanitizeHttpUrl(job.applyLink) ||
+    (job.website ? sanitizeHttpUrl(`https://${job.website.trim()}`) : '')
+  const siteHref = job.website ? sanitizeHttpUrl(`https://${job.website.trim()}`) : ''
+
   return (
-    <>
+    <div className="job-detail-root">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Nunito:wght@400;600;700&display=swap');
         *,*::before,*::after{box-sizing:border-box}
-        html,body{margin:0;font-family:Nunito,sans-serif;background:#f0f4f8;color:#1a1a2e;overflow-x:hidden;max-width:100vw}
+        html,body{margin:0;font-family:Nunito,sans-serif;background:#f0f4f8;color:#1a1a2e;overflow-x:hidden;max-width:100%}
+        .job-detail-root{width:100%;max-width:100%;overflow-x:hidden;position:relative}
         .nav-a{color:rgba(255,255,255,.6);font-size:.82rem;font-weight:700;padding:7px 11px;border-radius:8px;text-decoration:none;white-space:nowrap}
         .nav-a:hover{color:${G}}
-        .tab-btn{flex:1;padding:10px 6px;border:none;background:transparent;font-family:Nunito,sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;color:#5a6a7a;border-bottom:3px solid transparent;transition:.18s}
+        .nav-wrap{display:flex;gap:2;flex-wrap:wrap;min-width:0}
+        .tab-btn{flex:1;min-width:0;padding:10px 6px;border:none;background:transparent;font-family:Nunito,sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;color:#5a6a7a;border-bottom:3px solid transparent;transition:.18s}
         .tab-btn.on{color:${N};border-bottom-color:${G}}
         .tbl{
   width:100%;
@@ -283,37 +315,49 @@ if (!job) return (
 }
         .tbl tr:hover td{background:#f8fbff}
         .tbl tr:last-child td{border-bottom:none}
-        .re-card{background:#fff;border:1.5px solid #d4e0ec;border-radius:11px;text-decoration:none;color:inherit;display:flex;gap:12px;padding:12px;transition:.18s}
+        .re-card{background:#fff;border:1.5px solid #d4e0ec;border-radius:11px;text-decoration:none;color:inherit;display:flex;gap:12px;padding:12px;transition:.18s;min-width:0}
         .re-card:hover{border-color:${T};transform:translateX(3px)}
+        @media(max-width:600px){.re-card:hover{transform:none}}
         .sh2{fontFamily:Sora,sans-serif;font-weight:700;font-size:.93rem;color:${N};margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid ${T}}
         .safe-wrap{overflow-wrap:anywhere;word-break:break-word}
+        .age-fee-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .dates-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px}
         @media(max-width:860px){
           .layout{flex-direction:column!important}
           .layout>div:last-child{width:100%!important;min-width:0!important}
         }
         @media(max-width:600px){
+          .header-inner{padding:10px 12px!important}
+          .nav-wrap{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;padding-bottom:4px;gap:4px}
+          .nav-a{flex-shrink:0;font-size:.74rem;padding:6px 8px}
+          .breadcrumb-bar{padding-left:12px!important;padding-right:12px!important}
+          .hero-sec{padding:20px 12px 18px!important}
           .layout{padding:14px 12px 40px!important}
-          .tab-btn{font-size:.72rem;padding:9px 4px}
-          .tbl{font-size:.7rem;display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+          .tab-row{flex-wrap:wrap}
+          .tab-btn{font-size:.68rem;padding:9px 4px;line-height:1.25}
+          .tbl{font-size:.7rem;width:100%}
           .tbl th,.tbl td{padding:5px 7px;white-space:nowrap}
-          .sel-stages{flex-direction:column!important}
+          .tbl-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+          .sel-stages{flex-direction:column!important;align-items:stretch!important}
+          .sel-stages > div{max-width:100%}
           .stats-strip{grid-template-columns:1fr!important}
-        }
-        @media(max-width:480px){
-          .stats-strip{grid-template-columns:1fr 1fr!important}
+          .stats-strip > div{min-width:0!important}
+          .age-fee-grid{grid-template-columns:1fr!important}
+          .dates-grid{grid-template-columns:1fr!important}
+          .tab-panel{padding:14px 12px!important}
         }
       `}</style>
 
       {/* HEADER */}
       <header style={{background:N,borderBottom:`2px solid ${G}`,position:'sticky',top:0,zIndex:100,boxShadow:'0 2px 20px rgba(0,0,0,.4)'}}>
-        <div style={{maxWidth:1200,margin:'0 auto',padding:'10px 20px',display:'flex',alignItems:'center',gap:14,flexWrap:'wrap' as const}}>
+        <div className="header-inner" style={{maxWidth:1200,margin:'0 auto',padding:'10px 20px',display:'flex',alignItems:'center',gap:14,flexWrap:'wrap' as const,minWidth:0}}>
           <Link href="/" style={{display:'flex',alignItems:'center',gap:10,textDecoration:'none',flexShrink:0}}>
             <Logo size={40}/><div>
               <div style={{fontFamily:'Arial Black,sans-serif',fontSize:'.78rem'}}><span style={{color:G}}>ASSAM </span><span style={{color:W}}>CAREER</span></div>
               <div style={{fontFamily:'Arial Black,sans-serif',fontSize:'.65rem',color:T,letterSpacing:'.12em'}}>◆ POINT ◆</div>
             </div>
           </Link>
-          <nav style={{display:'flex',gap:2,flexWrap:'wrap' as const}}>
+          <nav className="nav-wrap">
             {([['🏠','/'],[' Jobs','/govt-jobs'],['📚 Exams','/exams'],['ℹ️ Info','/information'],['📄 PDFs','/pdf-forms']] as [string,string][]).map(([l,h])=>(
               <Link key={h} href={h} className="nav-a">{l}</Link>
             ))}
@@ -322,7 +366,7 @@ if (!job) return (
       </header>
 
       {/* Breadcrumb */}
-      <div style={{background:'#fff',borderBottom:'1px solid #e8eef6',padding:'9px 20px',fontSize:'.77rem',color:'#5a6a7a'}}>
+      <div className="breadcrumb-bar" style={{background:'#fff',borderBottom:'1px solid #e8eef6',padding:'9px 20px',fontSize:'.77rem',color:'#5a6a7a'}}>
         <div style={{maxWidth:1200,margin:'0 auto',display:'flex',gap:6,alignItems:'center',flexWrap:'wrap' as const}}>
           <Link href="/" style={{color:T,textDecoration:'none'}}>Home</Link> <span>›</span>
           <Link href="/govt-jobs" style={{color:T,textDecoration:'none'}}>Govt Jobs</Link> <span>›</span>
@@ -332,20 +376,20 @@ if (!job) return (
 
 
       {/* HERO */}
-      <div style={{background:`linear-gradient(135deg,${N},#0a3050)`,padding:'26px 20px 22px'}}>
+      <div className="hero-sec" style={{background:`linear-gradient(135deg,${N},#0a3050)`,padding:'26px 20px 22px'}}>
         <div style={{maxWidth:1200,margin:'0 auto'}}>
           <div style={{display:'flex',gap:16,alignItems:'flex-start',flexWrap:'wrap' as const}}>
             <div style={{width:66,height:66,borderRadius:15,background:`${sc}22`,border:`2px solid ${sc}55`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2.1rem',flexShrink:0}}>{job.logo}</div>
-            <div style={{flex:1,minWidth:200}}>
+            <div style={{flex:1,minWidth:0,maxWidth:'100%'}}>
               <div style={{display:'flex',gap:7,flexWrap:'wrap' as const,marginBottom:9}}>
                 <span style={{background:`${sc}28`,color:sc,border:`1px solid ${sc}55`,padding:'3px 11px',borderRadius:99,fontSize:'.72rem',fontWeight:800}}>● {job.status}</span>
                 <span style={{background:'rgba(255,255,255,.1)',color:'rgba(255,255,255,.65)',padding:'3px 11px',borderRadius:99,fontSize:'.72rem',fontWeight:700}}>{job.category}</span>
                 <span style={{background:'rgba(255,255,255,.1)',color:'rgba(255,255,255,.65)',padding:'3px 11px',borderRadius:99,fontSize:'.72rem',fontWeight:700}}>📍 {job.district}</span>
                 {job.advtNo&&<span style={{background:`${G}22`,color:G,border:`1px solid ${G}44`,padding:'3px 11px',borderRadius:99,fontSize:'.72rem',fontWeight:700}}>Advt: {job.advtNo}</span>}
               </div>
-              <h1 style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:'clamp(1rem,2.5vw,1.5rem)',color:W,margin:'0 0 7px',lineHeight:1.3}}>{job.title}{job.titleAs&&<><br/><span style={{fontSize:'clamp(.8rem,1.8vw,1.1rem)',color:G,fontWeight:700}}>{job.titleAs}</span></>}</h1>
+              <h1 className="safe-wrap" style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:'clamp(1rem,2.5vw,1.5rem)',color:W,margin:'0 0 7px',lineHeight:1.3}}>{job.title}{job.titleAs&&<><br/><span style={{fontSize:'clamp(.8rem,1.8vw,1.1rem)',color:G,fontWeight:700}}>{job.titleAs}</span></>}</h1>
               <div style={{color:'rgba(255,255,255,.5)',fontSize:'.85rem',marginBottom:10}}>by <strong style={{color:G}}>{job.org}</strong>{job.orgAs&&<><span style={{color:'rgba(255,255,255,.25)'}}> · </span><strong style={{color:'#ffd54f'}}>{job.orgAs}</strong></>}</div>
-              {(job.description||job.descriptionAs)&&<div style={{maxWidth:700}}>{job.description&&<p style={{color:'rgba(255,255,255,.7)',fontSize:'.84rem',lineHeight:1.8,margin:'0 0 4px'}}>{job.description}</p>}{job.descriptionAs&&<p style={{color:'rgba(255,255,255,.55)',fontSize:'.82rem',lineHeight:1.8,margin:0,fontStyle:'italic'}}>{job.descriptionAs}</p>}</div>}
+              {(job.description||job.descriptionAs)&&<div className="safe-wrap" style={{maxWidth:700}}>{job.description&&<p style={{color:'rgba(255,255,255,.7)',fontSize:'.84rem',lineHeight:1.8,margin:'0 0 4px'}}>{job.description}</p>}{job.descriptionAs&&<p style={{color:'rgba(255,255,255,.55)',fontSize:'.82rem',lineHeight:1.8,margin:0,fontStyle:'italic'}}>{job.descriptionAs}</p>}</div>}
             </div>
           </div>
           {/* Stats strip */}
@@ -356,7 +400,7 @@ if (!job) return (
               {l:'Age Limit',      v:posts.length?`${ageMin}–${ageMax} yrs${job.ageLimitDate?` (as on ${fmt(job.ageLimitDate)})`:''}`:job.ageLimit,c:T},
               {l:'App. Fee',       v:job.fee?job.fee.split('\n')[0].slice(0,32):'Check Notice',c:'#c0622a'},
             ].map(s=>(
-              <div key={s.l} style={{background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.12)',borderRadius:10,padding:'10px 14px',flex:'1 1 160px',minWidth:140}}>
+              <div key={s.l} style={{background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.12)',borderRadius:10,padding:'10px 14px',flex:'1 1 160px',minWidth:0}}>
                 <div style={{fontSize:'.63rem',color:'rgba(255,255,255,.4)',fontWeight:700,textTransform:'uppercase' as const,letterSpacing:'.04em',marginBottom:4}}>{s.l}</div>
                 <div className="safe-wrap" style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.83rem',color:s.c,lineHeight:1.3}}>{s.v}</div>
               </div>
@@ -380,8 +424,8 @@ if (!job) return (
         <div style={{flex:1,minWidth:0}}>
 
           {/* Tabs */}
-          <div style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:13,marginBottom:18,overflow:'hidden'}}>
-            <div style={{display:'flex',borderBottom:'1px solid #e8eef6'}}>
+          <div style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:13,marginBottom:18,overflow:'hidden',maxWidth:'100%'}}>
+            <div className="tab-row" style={{display:'flex',borderBottom:'1px solid #e8eef6',minWidth:0}}>
               {(['details','syllabus','howapply'] as const).map(k=>(
                 <button key={k} className={`tab-btn${activeTab===k?' on':''}`} onClick={()=>setActiveTab(k)}>
                   {k==='details'?'📋 Details':k==='syllabus'?'📚 Syllabus & Selection':'✅ How to Apply'}
@@ -391,11 +435,11 @@ if (!job) return (
 
             {/* ── DETAILS TAB ── */}
             {activeTab==='details'&&(
-              <div style={{padding:'20px'}}>
+              <div className="tab-panel" style={{padding:'20px'}}>
 
                 {/* Important Dates */}
                 <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📅 Important Dates</h2>
-                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(185px,1fr))',gap:10,marginBottom:22}}>
+                <div className="dates-grid" style={{marginBottom:22}}>
                   {[
                     ...(job.applicationStart?[{l:'Application Opens',v:job.applicationStart,hi:false,d:true}]:[]),
                     {l:'Last Date to Apply',v:job.lastDate,hi:true,d:true},
@@ -415,9 +459,7 @@ if (!job) return (
                 {posts.length>0&&(
                   <>
                     <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>📊 Post-wise Vacancy Breakdown</h2>
-                    <div style={{
-  overflowX:'auto',
-  WebkitOverflowScrolling:'touch',
+                    <div className="tbl-wrap" style={{
   marginBottom:22,
   borderRadius:10,
   border:'1.5px solid #d4e0ec'
@@ -425,7 +467,9 @@ if (!job) return (
                       <table className="tbl">
                         <thead><tr><th>#</th><th>Post Name</th><th>Department</th><th>Vacancies</th><th>Qualification</th><th>Age</th><th>Salary</th><th>Apply</th></tr></thead>
                         <tbody>
-                          {posts.map((p,i)=>(
+                          {posts.map((p,i)=>{
+                            const postApply = sanitizeHttpUrl(p.applyLink)
+                            return (
                             <tr key={p.id}>
                               <td style={{color:'#8fa3b8',fontWeight:700}}>{i+1}</td>
                               <td style={{fontWeight:700,color:N,minWidth:120}}>{p.name}</td>
@@ -434,9 +478,12 @@ if (!job) return (
                               <td>{p.qualification}</td>
                               <td style={{whiteSpace:'nowrap' as const}}>{p.ageMin}–{p.ageMax} yrs</td>
                               <td style={{whiteSpace:'nowrap' as const,color:'#2a3a4a'}}>{p.salary}</td>
-                              <td><a href={p.applyLink} target="_blank" rel="noopener noreferrer" style={{color:T,fontWeight:700,textDecoration:'none',fontSize:'.77rem'}}>Apply →</a></td>
+                              <td>{postApply ? (
+                                <a href={postApply} target="_blank" rel="noopener noreferrer" style={{color:T,fontWeight:700,textDecoration:'none',fontSize:'.77rem'}}>Apply →</a>
+                              ) : <span style={{color:'#8fa3b8',fontSize:'.77rem'}}>—</span>}</td>
                             </tr>
-                          ))}
+                            )
+                          })}
                           <tr style={{background:`${N}08`}}>
                             <td colSpan={3} style={{fontFamily:'Arial Black,sans-serif',fontWeight:900,color:N,fontSize:'.8rem'}}>TOTAL</td>
                             <td style={{fontFamily:'Arial Black,sans-serif',fontWeight:900,color:G,fontSize:'.9rem'}}>{totalV.toLocaleString('en-IN')}</td>
@@ -457,9 +504,9 @@ if (!job) return (
                         const parts = z.split(':'); const name=parts[0]?.trim(); const val=parts[1]?.trim()
                         const isNE = /Northeast Frontier|NFR|Guwahati/i.test(name||'')
                         return (
-                          <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:isNE?'8px 10px':'6px 0',margin:isNE?'3px 0':undefined,background:isNE?`${G}12`:undefined,borderRadius:isNE?7:undefined,borderBottom:isNE?undefined:'1px solid #f0f4f8'}}>
-                            <span style={{fontSize:'.82rem',color:isNE?N:'#3a4a5a',fontWeight:isNE?700:400}}>{isNE&&'⭐ '}{name}</span>
-                            <span style={{fontFamily:'Arial Black,sans-serif',fontWeight:900,fontSize:'.82rem',color:isNE?G:N}}>{val}</span>
+                          <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:10,flexWrap:'wrap' as const,padding:isNE?'8px 10px':'6px 0',margin:isNE?'3px 0':undefined,background:isNE?`${G}12`:undefined,borderRadius:isNE?7:undefined,borderBottom:isNE?undefined:'1px solid #f0f4f8'}}>
+                            <span className="safe-wrap" style={{fontSize:'.82rem',color:isNE?N:'#3a4a5a',fontWeight:isNE?700:400,flex:'1 1 auto',minWidth:0}}>{isNE&&'⭐ '}{name}</span>
+                            <span className="safe-wrap" style={{fontFamily:'Arial Black,sans-serif',fontWeight:900,fontSize:'.82rem',color:isNE?G:N,flexShrink:0}}>{val}</span>
                           </div>
                         )
                       })}
@@ -469,7 +516,7 @@ if (!job) return (
 
                 {/* Age limit & relaxation */}
                 <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>👤 Age Limit & Relaxation</h2>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:22}}>
+                <div className="age-fee-grid" style={{marginBottom:22}}>
                   <div style={{background:`${T}10`,border:`1.5px solid ${T}44`,borderRadius:10,padding:'14px'}}>
                     <div style={{fontSize:'.65rem',fontWeight:700,color:'#5a6a7a',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:6}}>Age Range</div>
                     <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'1.1rem',color:N}}>{posts.length?`${ageMin}–${ageMax} years`:job.ageLimit}</div>
@@ -489,7 +536,7 @@ if (!job) return (
 
                 {/* Fee & Refund */}
                 <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>💳 Application Fee & Refund</h2>
-                <div style={{display:'grid',gridTemplateColumns:job.feeRefund?'1fr 1fr':'1fr',gap:12,marginBottom:22}}>
+                <div className="age-fee-grid" style={{gridTemplateColumns:job.feeRefund?'1fr 1fr':'1fr',marginBottom:22}}>
                   <div style={{background:'#fff3e0',border:'1.5px solid #ffe082',borderRadius:10,padding:'14px'}}>
                     <div style={{fontSize:'.65rem',fontWeight:700,color:'#e65100',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:8}}>💳 Fee Amount</div>
                     {(job.fee||'').split('\n').map((l,i)=><div key={i} style={{fontSize:'.82rem',color:'#2a3a4a',padding:'2px 0',lineHeight:1.65}}>{l}</div>)}
@@ -508,8 +555,8 @@ if (!job) return (
                     <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>🏆 Selection Process</h2>
                     <div className="sel-stages" style={{display:'flex',gap:4,flexWrap:'wrap' as const,alignItems:'center',marginBottom:12}}>
                       {(job.selection||"").split('→').map((s,i,arr)=>(
-                        <div key={i} style={{display:'flex',alignItems:'center',gap:4,flexShrink:0}}>
-                          <div style={{background:N,color:G,padding:'7px 11px',borderRadius:8,fontSize:'.75rem',fontWeight:800,fontFamily:'Arial Black,sans-serif',border:`1.5px solid ${G}44`,whiteSpace:'nowrap'}}>{s.trim()}</div>
+                        <div key={i} style={{display:'flex',alignItems:'center',gap:4,flexWrap:'wrap' as const,minWidth:0,maxWidth:'100%'}}>
+                          <div className="safe-wrap" style={{background:N,color:G,padding:'7px 11px',borderRadius:8,fontSize:'.75rem',fontWeight:800,fontFamily:'Arial Black,sans-serif',border:`1.5px solid ${G}44`,whiteSpace:'normal' as const}}>{s.trim()}</div>
                           {i<arr.length-1&&<span style={{color:G,fontWeight:900,fontSize:'1rem'}}>→</span>}
                         </div>
                       ))}
@@ -545,13 +592,17 @@ if (!job) return (
                 {job.advPdfs?.length>0&&(
                   <>
                     <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>📄 Official PDFs</h2>
-                    {(job.advPdfs||[]).map((pdf,i)=>(
-                      <a key={i} href={driveDownloadUrl(pdf.url)} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',gap:12,padding:'11px 15px',background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,textDecoration:'none',color:N,marginBottom:9}}>
+                    {(job.advPdfs||[]).map((pdf,i)=>{
+                      const pdfHref = safePdfHref(pdf.url)
+                      if (!pdfHref) return null
+                      return (
+                      <a key={i} href={pdfHref} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',gap:12,padding:'11px 15px',background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,textDecoration:'none',color:N,marginBottom:9}}>
                         <span style={{fontSize:'1.3rem'}}>📄</span>
-                        <div style={{flex:1}}><div style={{fontWeight:700,fontSize:'.84rem'}}>{pdf.name}</div>{pdf.size&&<div style={{fontSize:'.72rem',color:'#5a6a7a'}}>{pdf.size}</div>}</div>
-                        <span style={{background:T,color:N,padding:'5px 11px',borderRadius:7,fontWeight:800,fontSize:'.74rem',fontFamily:'Arial Black,sans-serif'}}>Download</span>
+                        <div style={{flex:1,minWidth:0}} className="safe-wrap"><div style={{fontWeight:700,fontSize:'.84rem'}}>{pdf.name}</div>{pdf.size&&<div style={{fontSize:'.72rem',color:'#5a6a7a'}}>{pdf.size}</div>}</div>
+                        <span style={{background:T,color:N,padding:'5px 11px',borderRadius:7,fontWeight:800,fontSize:'.74rem',fontFamily:'Arial Black,sans-serif',flexShrink:0}}>Download</span>
                       </a>
-                    ))}
+                      )
+                    })}
                   </>
                 )}
 
@@ -571,7 +622,7 @@ if (!job) return (
 
             {/* ── SYLLABUS TAB ── */}
             {activeTab==='syllabus'&&(
-              <div style={{padding:'20px'}}>
+              <div className="tab-panel" style={{padding:'20px'}}>
                 {selSections.length>0&&(
                   <>
                     <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>🏆 Detailed Selection Process & Exam Pattern</h2>
@@ -609,7 +660,7 @@ if (!job) return (
 
             {/* ── HOW TO APPLY TAB ── */}
             {activeTab==='howapply'&&(
-              <div style={{padding:'20px'}}>
+              <div className="tab-panel" style={{padding:'20px'}}>
                 <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>✅ How to Apply Online</h2>
                 {steps.map((step,i)=>{
                   const clean=step.replace(/^[\d]+[\.\)]\s*/,'')
@@ -633,20 +684,27 @@ if (!job) return (
                   </div>
                 )}
                 <div style={{display:'flex',gap:10,flexWrap:'wrap' as const,marginTop:18}}>
-                  <a href={job.applyLink||`https://${job.website}`} target="_blank" rel="noopener noreferrer"
-                    style={{flex:1,minWidth:150,display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'13px',borderRadius:11,background:T,color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif'}}>
-                    📝 APPLY ONLINE
-                  </a>
-                  {job.website&&(
-                    <a href={`https://${job.website}`} target="_blank" rel="noopener noreferrer"
-                      style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,padding:'13px 18px',borderRadius:11,background:'#f0f4f8',color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',border:'1.5px solid #d4e0ec',fontFamily:'Arial Black,sans-serif',overflowWrap:'anywhere',wordBreak:'break-word'}}>
+                  {applyHrefMain ? (
+                    <a href={applyHrefMain} target="_blank" rel="noopener noreferrer"
+                      style={{flex:1,minWidth:0,maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'13px',borderRadius:11,background:T,color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif'}}>
+                      📝 APPLY ONLINE
+                    </a>
+                  ) : (
+                    <span style={{flex:1,minWidth:0,padding:'13px',borderRadius:11,background:'#d4e0ec',color:'#5a6a7a',fontWeight:700,fontSize:'.85rem',textAlign:'center' as const}}>Apply link not available</span>
+                  )}
+                  {siteHref&&(
+                    <a href={siteHref} target="_blank" rel="noopener noreferrer"
+                      style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,padding:'13px 18px',borderRadius:11,background:'#f0f4f8',color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',border:'1.5px solid #d4e0ec',fontFamily:'Arial Black,sans-serif',overflowWrap:'anywhere',wordBreak:'break-word',minWidth:0,maxWidth:'100%'}}>
                       🌐 Official Site
                     </a>
                   )}
                 </div>
-                {job.youtubeLink&&(
-                  <a href={job.youtubeLink} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',gap:10,padding:'12px 16px',background:'#fde8ea',border:'1.5px solid #f7bcc0',borderRadius:10,textDecoration:'none',color:'#c62828',fontWeight:700,fontSize:'.84rem',marginTop:12}}>▶️ Watch Video Guide on YouTube</a>
-                )}
+                {(() => {
+                  const yt = sanitizeHttpUrl(job.youtubeLink)
+                  return yt ? (
+                    <a href={yt} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',gap:10,padding:'12px 16px',background:'#fde8ea',border:'1.5px solid #f7bcc0',borderRadius:10,textDecoration:'none',color:'#c62828',fontWeight:700,fontSize:'.84rem',marginTop:12}}>▶️ Watch Video Guide on YouTube</a>
+                  ) : null
+                })()}
               </div>
             )}
           </div>
@@ -656,8 +714,8 @@ if (!job) return (
             <div style={{marginBottom:18}}>
               <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:'#0b1f33',marginBottom:12}}>📚 Recommended Books & Study Material</h2>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(150px,1fr))',gap:12}}>
-                {(job.jobAffiliates||[]).filter(ja=>ja.title&&ja.link).map(ja=>(
-                  <a key={ja.id} href={ja.link} target="_blank" rel="noopener noreferrer sponsored"
+                {(job.jobAffiliates||[]).filter(ja=>ja.title&&ja.link&&sanitizeHttpUrl(ja.link)).map(ja=>(
+                  <a key={ja.id} href={sanitizeHttpUrl(ja.link)} target="_blank" rel="noopener noreferrer sponsored"
                     style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:12,overflow:'hidden',textDecoration:'none',color:'inherit',display:'flex',flexDirection:'column' as const,transition:'.18s',boxShadow:'0 2px 8px rgba(0,0,0,.06)'}}>
                     <div style={{position:'relative' as const}}>
                       {ja.img
@@ -700,16 +758,20 @@ if (!job) return (
         </div>
 
         {/* SIDEBAR */}
-        <div style={{width:285,flexShrink:0,minWidth:0}}>
+        <div style={{width:285,maxWidth:'100%',flexShrink:0,minWidth:0}}>
           {job.status!=='Draft'&&(
             <div style={{background:N,border:`2px solid ${G}`,borderRadius:14,padding:'18px',marginBottom:15}}>
               <div style={{fontFamily:'Arial Black,sans-serif',color:G,fontSize:'.72rem',letterSpacing:'.06em',marginBottom:12}}>📋 QUICK APPLY</div>
               {dl&&<div style={{background:`${dl.c}20`,color:dl.c,border:`1px solid ${dl.c}44`,padding:'7px 12px',borderRadius:8,fontSize:'.78rem',fontWeight:800,marginBottom:12,textAlign:'center' as const}}>🗓 {dl.t}</div>}
-              <a href={job.applyLink||`https://${job.website}`} target="_blank" rel="noopener noreferrer"
-                style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,width:'100%',padding:'13px',borderRadius:11,background:G,color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif',boxSizing:'border-box' as const,marginBottom:10}}>
-                📝 APPLY NOW
-              </a>
-              {job.website&&<a href={`https://${job.website}`} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,width:'100%',padding:'10px',borderRadius:10,background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.6)',fontWeight:700,fontSize:'.82rem',textDecoration:'none',border:'1px solid rgba(255,255,255,.15)',boxSizing:'border-box' as const,overflowWrap:'anywhere',wordBreak:'break-word',whiteSpace:'normal' as const}}>🌐 {job.website}</a>}
+              {applyHrefMain ? (
+                <a href={applyHrefMain} target="_blank" rel="noopener noreferrer"
+                  style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,width:'100%',padding:'13px',borderRadius:11,background:G,color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif',boxSizing:'border-box' as const,marginBottom:10}}>
+                  📝 APPLY NOW
+                </a>
+              ) : (
+                <div style={{width:'100%',padding:'13px',borderRadius:11,background:'rgba(255,255,255,.08)',color:'rgba(255,255,255,.45)',fontWeight:700,fontSize:'.82rem',textAlign:'center' as const,marginBottom:10}}>Apply link not set</div>
+              )}
+              {siteHref&&<a href={siteHref} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,width:'100%',padding:'10px',borderRadius:10,background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.6)',fontWeight:700,fontSize:'.82rem',textDecoration:'none',border:'1px solid rgba(255,255,255,.15)',boxSizing:'border-box' as const,overflowWrap:'anywhere',wordBreak:'break-word',whiteSpace:'normal' as const}}>🌐 {job.website}</a>}
             </div>
           )}
           <div style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:13,padding:'16px',marginBottom:15}}>
@@ -732,7 +794,7 @@ if (!job) return (
           </div>
           <div style={{background:'#f8fbff',border:'1px solid #d4e0ec',borderRadius:12,padding:'14px',textAlign:'center' as const,marginBottom:15}}>
             <div style={{fontSize:'.74rem',color:'#5a6a7a',fontWeight:700,marginBottom:10}}>📢 Share this job</div>
-            <div style={{display:'flex',gap:8,justifyContent:'center'}}>
+            <div style={{display:'flex',gap:8,justifyContent:'center',flexWrap:'wrap' as const}}>
               {[
                 {l:'WhatsApp',c:'#25d366',ico:'💬',href:`https://wa.me/?text=${encodeURIComponent(job.title+'\nVacancy: '+totalV.toLocaleString('en-IN')+' Posts | Last Date: '+fmt(job.lastDate)+'\n\nhttps://www.assamcareerpoint-info.com/jobs/'+job.id)}`},
                 {l:'Telegram',c:'#0088cc',ico:'✈️',href:`https://t.me/share/url?url=${encodeURIComponent('https://www.assamcareerpoint-info.com/jobs/'+job.id)}&text=${encodeURIComponent(job.title)}`},
@@ -757,6 +819,6 @@ if (!job) return (
           ))}
         </div>
       </footer>
-    </>
+    </div>
   )
 }

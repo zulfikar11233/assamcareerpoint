@@ -2,11 +2,12 @@
 import mysql from 'mysql2/promise'
 
 // ✅ Single persistent pool with keep-alive
+// ⚠️ Never commit real DB credentials — use .env.local only (MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE)
 const pool = mysql.createPool({
   host:               process.env.MYSQL_HOST     || '127.0.0.1',
-  user:               process.env.MYSQL_USER     || 'u570952740_acpiuser',
+  user:               process.env.MYSQL_USER     || '',
   password:           process.env.MYSQL_PASSWORD || '',
-  database:           process.env.MYSQL_DATABASE || 'u570952740_acpidata',
+  database:           process.env.MYSQL_DATABASE || '',
   waitForConnections: true,
   connectionLimit:    5,
   queueLimit:         0,
