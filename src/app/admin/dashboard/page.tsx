@@ -431,7 +431,17 @@ const [dataLoaded, setDataLoaded] = useState(false)
       salary:      posts[0]?.salary || editJob?.salary || '',
     }
     if (editJob) setJobs(prev => prev.map(j => j.id===editJob.id ? {...editJob,...base} as Job : j))
-    else         setJobs(prev => [{id:Date.now(),createdAt:new Date().toISOString(),...base} as Job, ...prev])
+    else {
+      const newJob = {id:Date.now(),createdAt:new Date().toISOString(),...base} as Job
+      setJobs(prev => [newJob, ...prev])
+      if (newJob.status === 'Live') {
+        fetch('/api/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'job', data: newJob })
+        }).catch(() => {})
+      }
+    }
     setShowJobModal(false); toast('✅ Job saved!')
   }
 
@@ -442,7 +452,15 @@ const [dataLoaded, setDataLoaded] = useState(false)
     e.preventDefault()
     if (!ef.title) { alert('Title required.'); return }
     if (editExam) setExams(prev => prev.map(x => x.id===editExam.id ? {...editExam,...ef} : x))
-    else          setExams(prev => [{id:Date.now(),createdAt:new Date().toISOString(),...ef}, ...prev])
+    else {
+      const newExam = {id:Date.now(),createdAt:new Date().toISOString(),...ef}
+      setExams(prev => [newExam, ...prev])
+      fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'exam', data: newExam })
+      }).catch(() => {})
+    }
     setShowExamModal(false); toast('✅ Exam saved!')
   }
 
