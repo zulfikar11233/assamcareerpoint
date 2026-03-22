@@ -47,7 +47,7 @@ const NAV_LINKS = [
 ]
 
 const fmt  = (d:string) => { try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) } catch { return d } }
-const days = (d:string) => Math.ceil((new Date(d).getTime()-Date.now())/86400000)
+const days = (d:string) => Math.ceil((new Date(d + 'T23:59:59').getTime()-Date.now())/86400000)
 
 function fmtCount(n:number):string {
   if (n === 0) return '0'
@@ -200,9 +200,11 @@ export default function HomePage() {
           .hero-section { padding:32px 0 28px !important; }
         }
         @media(max-width:480px) {
-          .cg { grid-template-columns:repeat(2,1fr) !important; }
-          .stat-num { font-size:1.1rem !important; }
-        }
+  .cg { grid-template-columns:repeat(2,1fr) !important; }
+  .stat-num { font-size:1.1rem !important; }
+  .jr { flex-wrap:wrap !important; padding:12px 14px !important; }
+  .job-badges { width:100% !important; justify-content:flex-start !important; flex-direction:row !important; flex-shrink:1 !important; }
+}
       `}</style>
 
       {/* TICKER — dynamic from real data */}
