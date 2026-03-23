@@ -276,7 +276,7 @@ if (!job) return (
   const siteHref = job.website ? sanitizeHttpUrl(`https://${job.website.trim()}`) : ''
 
   return (
-    <div className="job-detail-root">
+    <div className="job-detail-root" style={{overflowX:'hidden',maxWidth:'100vw'}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Nunito:wght@400;600;700&display=swap');
         *,*::before,*::after{box-sizing:border-box}
@@ -317,38 +317,30 @@ if (!job) return (
         .tbl tr:last-child td{border-bottom:none}
         .re-card{background:#fff;border:1.5px solid #d4e0ec;border-radius:11px;text-decoration:none;color:inherit;display:flex;gap:12px;padding:12px;transition:.18s;min-width:0}
         .re-card:hover{border-color:${T};transform:translateX(3px)}
-        @media(max-width:600px){.re-card:hover{transform:none}}
-        .sh2{fontFamily:Sora,sans-serif;font-weight:700;font-size:.93rem;color:${N};margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid ${T}}
-        .safe-wrap{overflow-wrap:anywhere;word-break:break-word}
-        .age-fee-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-        .dates-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px}
-        @media(max-width:860px){
-          .layout{flex-direction:column!important}
-          .layout>div:last-child{width:100%!important;min-width:0!important}
-        }
         @media(max-width:600px){
-          .header-inner{padding:10px 12px!important}
-          .nav-wrap{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;padding-bottom:4px;gap:4px}
-          .nav-a{flex-shrink:0;font-size:.74rem;padding:6px 8px}
-          .breadcrumb-bar{padding-left:12px!important;padding-right:12px!important}
-          .hero-sec{padding:20px 12px 18px!important}
-          .layout{padding:14px 12px 40px!important}
-          .tab-row{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
-          .tab-btn{font-size:.68rem;padding:9px 4px;line-height:1.25}
-          .tbl{font-size:.7rem;width:100%}
-          .tbl th,.tbl td{padding:5px 7px;white-space:nowrap}
-          .tbl-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.tbl td:first-child,.tbl th:first-child{position:static!important}
-          .sel-stages{flex-direction:column!important;align-items:stretch!important}
-          .sel-stages > div{max-width:100%}
-          .stats-strip{grid-template-columns:1fr!important}
-          .stats-strip > div{min-width:0!important}
-          .age-fee-grid{grid-template-columns:1fr!important}
-          .dates-grid{grid-template-columns:1fr!important}
-          .tab-panel{padding:14px 12px!important}
-.re-card{overflow:hidden!important;max-width:100%!important}
-        }
-      `}</style>
+  .header-inner{padding:10px 12px!important}
+  .nav-wrap{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;padding-bottom:4px;gap:4px}
+  .nav-a{flex-shrink:0;font-size:.74rem;padding:6px 8px}
+  .breadcrumb-bar{padding-left:12px!important;padding-right:12px!important}
+  .hero-sec{padding:20px 12px 18px!important}
+  .layout{padding:14px 12px 40px!important;overflow-x:hidden!important}
+  .tab-row{overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;flex-wrap:nowrap!important}
+  .tab-btn{font-size:.68rem;padding:9px 4px;line-height:1.25;flex-shrink:0}
+  .tbl{font-size:.7rem}
+  .tbl th,.tbl td{padding:5px 7px;white-space:nowrap}
+  .tbl td:first-child,.tbl th:first-child{position:static!important}
+  .tbl-wrap{max-width:100%!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;display:block!important}
+  .sel-stages{flex-direction:column!important;align-items:stretch!important}
+  .sel-stages > div{max-width:100%}
+  .stats-strip{grid-template-columns:1fr!important}
+  .stats-strip > div{min-width:0!important}
+  .age-fee-grid{grid-template-columns:1fr!important}
+  .dates-grid{grid-template-columns:1fr!important}
+  .tab-panel{padding:14px 12px!important;overflow-x:hidden!important}
+  .re-card{overflow:hidden!important;max-width:100%!important;flex-wrap:wrap!important}
+  .safe-wrap{overflow-wrap:anywhere!important;word-break:break-word!important}
+  .job-detail-root{overflow-x:hidden!important;max-width:100vw!important}
+}      `}</style>
 
       {/* HEADER */}
       <header style={{background:N,borderBottom:`2px solid ${G}`,position:'sticky',top:0,zIndex:100,boxShadow:'0 2px 20px rgba(0,0,0,.4)'}}>
@@ -427,7 +419,7 @@ if (!job) return (
 
           {/* Tabs */}
           <div style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:13,marginBottom:18,overflow:'hidden',maxWidth:'100%'}}>
-            <div className="tab-row" style={{display:'flex',borderBottom:'1px solid #e8eef6',minWidth:0}}>
+            <div className="tab-row" style={{display:'flex',borderBottom:'1px solid #e8eef6',minWidth:0,overflowX:'auto',WebkitOverflowScrolling:'touch' as any}}>
               {(['details','syllabus','howapply'] as const).map(k=>(
                 <button key={k} className={`tab-btn${activeTab===k?' on':''}`} onClick={()=>setActiveTab(k)}>
                   {k==='details'?'📋 Details':k==='syllabus'?'📚 Syllabus & Selection':'✅ How to Apply'}
@@ -464,7 +456,12 @@ if (!job) return (
                     <div className="tbl-wrap" style={{
   marginBottom:22,
   borderRadius:10,
-  border:'1.5px solid #d4e0ec'
+  border:'1.5px solid #d4e0ec',
+  width:'100%',
+  maxWidth:'100%',
+  overflowX:'auto',
+  WebkitOverflowScrolling:'touch' as any,
+  display:'block'
 }}>
                       <table className="tbl">
                         <thead><tr><th>#</th><th>Post Name</th><th>Department</th><th>Vacancies</th><th>Qualification</th><th>Age</th><th>Salary</th><th>Apply</th></tr></thead>
@@ -748,7 +745,7 @@ if (!job) return (
                   <Link key={j.id} href={`/jobs/${j.id}`} className="re-card">
                     <div style={{width:42,height:42,borderRadius:10,background:`${jsc}18`,border:`1.5px solid ${jsc}44`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.3rem',flexShrink:0}}>{j.logo}</div>
                     <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.83rem',color:N,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const}}>{j.title}</div>
+                      <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.83rem',color:N,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'normal' as const,wordBreak:'break-word',lineHeight:1.3}}>{j.title}</div>
                       <div style={{fontSize:'.72rem',color:'#5a6a7a',marginTop:2}}>{j.org} · Last: {fmt(j.lastDate)}</div>
                     </div>
                     <span style={{background:`${jsc}20`,color:jsc,padding:'3px 9px',borderRadius:99,fontSize:'.65rem',fontWeight:800,flexShrink:0,border:`1px solid ${jsc}44`}}>{j.status}</span>
