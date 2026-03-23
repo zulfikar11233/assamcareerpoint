@@ -52,6 +52,16 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   compress: true,
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'assamcareerpoint-info.com' }],
+        destination: 'https://www.assamcareerpoint-info.com/:path*',
+        permanent: true,
+      },
+    ]
+  },
 
   async headers() {
   return [
