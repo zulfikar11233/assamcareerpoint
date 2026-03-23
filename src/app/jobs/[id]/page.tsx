@@ -317,7 +317,13 @@ if (!job) return (
         .tbl tr:last-child td{border-bottom:none}
         .re-card{background:#fff;border:1.5px solid #d4e0ec;border-radius:11px;text-decoration:none;color:inherit;display:flex;gap:12px;padding:12px;transition:.18s;min-width:0}
         .re-card:hover{border-color:${T};transform:translateX(3px)}
-        @media(max-width:600px){
+        @media(max-width:860px){
+  .layout{flex-direction:column!important;flex-wrap:wrap!important}
+  .layout>div:last-child{width:100%!important;min-width:0!important}
+  .sidebar-col{width:100%!important;max-width:100%!important;flex-shrink:1!important;order:2}
+  .layout>div:first-child{width:100%!important;min-width:0!important;order:1}
+}
+	@media(max-width:600px){
   .header-inner{padding:10px 12px!important}
   .nav-wrap{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;padding-bottom:4px;gap:4px}
   .nav-a{flex-shrink:0;font-size:.74rem;padding:6px 8px}
@@ -412,7 +418,7 @@ if (!job) return (
         </div>
       </div>
 
-      <div className="layout" style={{maxWidth:1200,margin:'0 auto',padding:'20px 20px 60px',display:'flex',gap:20,alignItems:'flex-start'}}>
+      <div className="layout" style={{maxWidth:1200,margin:'0 auto',padding:'20px 20px 60px',display:'flex',gap:20,alignItems:'flex-start',flexWrap:'wrap' as const}}>
 
         {/* MAIN */}
         <div style={{flex:1,minWidth:0}}>
@@ -757,7 +763,7 @@ if (!job) return (
         </div>
 
         {/* SIDEBAR */}
-        <div style={{width:285,maxWidth:'100%',flexShrink:0,minWidth:0}}>
+        <div className="sidebar-col" style={{width:285,maxWidth:'100%',flexShrink:0,minWidth:0}}>
           {job.status!=='Draft'&&(
             <div style={{background:N,border:`2px solid ${G}`,borderRadius:14,padding:'18px',marginBottom:15}}>
               <div style={{fontFamily:'Arial Black,sans-serif',color:G,fontSize:'.72rem',letterSpacing:'.06em',marginBottom:12}}>📋 QUICK APPLY</div>
