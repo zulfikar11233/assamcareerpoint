@@ -24,7 +24,7 @@ function Logo({ size=38 }:{size?:number}) {
   )
 }
 
-type Job    = { id:number; logo:string; title:string; org:string; category:string; district:string; status:string; vacancy:string; lastDate:string; posts?:{vacancy:number}[] }
+type Job = { id:number; logo:string; title:string; org:string; category:string; district:string; status:string; vacancy:string; lastDate:string; description?:string; posts?:{vacancy:number}[] }
 type Exam   = { id:number; emoji:string; title:string; conductedBy:string; category:string; applicationLastDate:string; paymentLastDate:string; examDate:string; examTime:string; status:string }
 type Info   = { id:number; emoji:string; title:string; category:string; description:string; lastDate?:string; status:string; importantDates:{label:string;date:string;time?:string}[] }
 type Result = { id:number; emoji:string; title:string; org:string; category:string; resultDate?:string; slug:string }
@@ -68,14 +68,26 @@ export default function HomePage() {
   const [totalExams, setTotalExams] = useState(0)
   const [totalInfo,  setTotalInfo]  = useState(0)
   const [tickerItems, setTickerItems] = useState<string[]>([])
-
+async function fetchWithRetry(url: string, retries = 2): Promise<any> {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const res = await fetch(url, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      })
+      if (res.ok) return await res.json()
+    } catch {}
+    if (i < retries) await new Promise(r => setTimeout(r, 1000))
+  }
+  return []
+}
   useEffect(() => {
     Promise.all([
-  fetch('/api/data/jobs',          { cache: 'no-store', headers:{'Cache-Control':'no-cache'} }).then(r => r.json()).catch(() => []),
-  fetch('/api/data/exams',         { cache: 'no-store', headers:{'Cache-Control':'no-cache'} }).then(r => r.json()).catch(() => []),
-  fetch('/api/data/info',          { cache: 'no-store', headers:{'Cache-Control':'no-cache'} }).then(r => r.json()).catch(() => []),
-  fetch('/api/data/results',       { cache: 'no-store', headers:{'Cache-Control':'no-cache'} }).then(r => r.json()).catch(() => []),
-  fetch('/api/data/announcements', { cache: 'no-store', headers:{'Cache-Control':'no-cache'} }).then(r => r.json()).catch(() => []),
+  fetchWithRetry('/api/data/jobs'),
+  fetchWithRetry('/api/data/exams'),
+  fetchWithRetry('/api/data/info'),
+  fetchWithRetry('/api/data/results'),
+  fetchWithRetry('/api/data/announcements'),
 ]).then(([jobsData, examsData, infoData, resultsData, announcementsData]) => {
   // ✅ Clear old localStorage cache — prevents deleted content from showing
   try {
@@ -178,6 +190,18 @@ export default function HomePage() {
         .alerts { height:310px; overflow:hidden; }
         .cc  { transition:.2s; } .cc:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.1); }
         .jr:hover { background:#f8fbff !important; }
+.jr { position:relative; overflow:hidden; }
+.jr::before {
+  content:'';
+  position:absolute;
+  left:0; top:0;
+  width:3px;
+  height:0;
+  background:linear-gradient(180deg,#1dbfad,#c9a227);
+  transition:height .35s ease;
+  border-radius:0 3px 3px 0;
+}
+.jr:hover::before { height:100%; }
         .stab { padding:10px 16px;border:none;font-family:Nunito,sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:.15s;background:none;white-space:nowrap; }
         .stab.on  { color:#e63946; border-bottom:3px solid #e63946; }
         .stab.off { color:#5a6a7a; border-bottom:3px solid transparent; }
@@ -410,8 +434,18 @@ export default function HomePage() {
               {j.title}
             </div>
             <div style={{ fontSize:'.80rem',color:'#5a6a7a',marginTop:3 }}>
-              {j.org} · {j.district}
-            </div>
+  {j.org} · {j.district}
+</div>
+{j.description && (
+  <div style={{
+    fontSize:'.76rem',color:'#5a6a7a',marginTop:4,
+    overflow:'hidden',textOverflow:'ellipsis',
+    display:'-webkit-box',WebkitLineClamp:2,
+    WebkitBoxOrient:'vertical' as const,lineHeight:1.5
+  }}>
+    {j.description}
+  </div>
+)}
           </div>
 
           <div className="job-badges" style={{
