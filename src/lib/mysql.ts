@@ -15,21 +15,38 @@ const pool = mysql.createPool({
   keepAliveInitialDelay: 0,
   connectTimeout:     10000,
 })
-pool.getConnection().then(conn => conn.release()).catch(() => {})
+// Warm up connection on startup with retry
+async function warmUp() {
+  for (let i = 0; i < 3; i++) {
+    try {
+      const conn = await pool.getConnection()
+      conn.release()
+      console.log('✅ MySQL pool warmed up')
+      return
+    } catch {
+      await new Promise(r => setTimeout(r, 1000))
+    }
+  }
+  console.error('⚠️ MySQL warmup failed after 3 attempts')
+}
+warmUp()
 // ── Read ─────────────────────────────────────────────────────────
 export async function getCollection(collection: string): Promise<unknown[]> {
-  try {
-    const [rows] = await pool.execute(
-      'SELECT data FROM acpi_data WHERE collection = ?',
-      [collection]
-    ) as mysql.RowDataPacket[][]
-    if (!rows.length) return []
-    const parsed = JSON.parse(rows[0].data)
-    return Array.isArray(parsed) ? parsed : []
-  } catch (err) {
-    console.error(`DB read error for ${collection}:`, err)
-    return []
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const [rows] = await pool.execute(
+        'SELECT data FROM acpi_data WHERE collection = ?',
+        [collection]
+      ) as mysql.RowDataPacket[][]
+      if (!rows.length) return []
+      const parsed = JSON.parse(rows[0].data)
+      return Array.isArray(parsed) ? parsed : []
+    } catch (err) {
+      console.error(`DB read error for ${collection} (attempt ${attempt}):`, err)
+      if (attempt < 3) await new Promise(r => setTimeout(r, 800))
+    }
   }
+  return []
 }
 
 // ── Write ─────────────────────────────────────────────────────────

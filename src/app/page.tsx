@@ -68,6 +68,7 @@ export default function HomePage() {
   const [totalExams, setTotalExams] = useState(0)
   const [totalInfo,  setTotalInfo]  = useState(0)
   const [tickerItems, setTickerItems] = useState<string[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
 async function fetchWithRetry(url: string, retries = 2): Promise<any> {
   for (let i = 0; i <= retries; i++) {
     try {
@@ -139,6 +140,17 @@ async function fetchWithRetry(url: string, retries = 2): Promise<any> {
       if (tickers.length > 0) setTickerItems(tickers)
     }).catch((err) => {
   console.error('Homepage fetch error:', err)
+  // ✅ Fallback from localStorage if API completely fails
+  try {
+    const j = JSON.parse(localStorage.getItem('acp_jobs_v6') || '[]')
+    const e = JSON.parse(localStorage.getItem('acp_exams_v6') || '[]')
+    const i = JSON.parse(localStorage.getItem('acp_info_v6') || '[]')
+    if (j.length) setJobs(j.slice(0,8))
+    if (e.length) setExams(e.slice(0,6))
+    if (i.length) setInfo(i.slice(0,6))
+  } catch {}
+}).finally(() => {
+  setLoading(false)
 })
   }, [])
 
@@ -181,7 +193,7 @@ async function fetchWithRetry(url: string, retries = 2): Promise<any> {
         @import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Nunito:wght@400;600;700&display=swap');
         @keyframes ticker   { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
         @keyframes scroll   { 0%{transform:translateY(0)} 100%{transform:translateY(-50%)} }
-        @keyframes pulse    { 0%,100%{opacity:1} 50%{opacity:.4} }
+        @keyframes pulse    { 0%,100%{opacity:1;background:#e8eef6} 50%{opacity:.7;background:#f5f7fa} }
         @keyframes fadeUp   { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
         @keyframes slideDown{ from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:none} }
         .tk  { display:inline-flex; animation: ticker 30s linear infinite; white-space:nowrap; }
@@ -399,7 +411,23 @@ async function fetchWithRetry(url: string, retries = 2): Promise<any> {
 
             {/* JOBS */}
             {sec==='jobs' && (
-  jobs.length === 0 ? (
+  loading ? (
+    <div style={{ padding:'20px' }}>
+      {[1,2,3].map(i=>(
+        <div key={i} style={{
+          display:'flex',gap:14,padding:'15px 22px',
+          borderBottom:'1px solid #f0f4f8',alignItems:'center'
+        }}>
+          <div style={{ width:46,height:46,borderRadius:10,background:'#e8eef6',flexShrink:0,animation:'pulse 1.5s ease infinite' }}/>
+          <div style={{ flex:1 }}>
+            <div style={{ height:16,background:'#e8eef6',borderRadius:6,marginBottom:8,width:'70%',animation:'pulse 1.5s ease infinite' }}/>
+            <div style={{ height:12,background:'#f0f4f8',borderRadius:6,width:'45%',animation:'pulse 1.5s ease infinite' }}/>
+          </div>
+          <div style={{ width:80,height:28,background:'#e8eef6',borderRadius:99,animation:'pulse 1.5s ease infinite' }}/>
+        </div>
+      ))}
+    </div>
+  ) : jobs.length === 0 ? (
     <div style={{ padding:'40px',textAlign:'center',color:'#5a6a7a' }}>
       <div style={{ fontSize:'2rem',marginBottom:8 }}>💼</div>
       <div style={{ fontWeight:700 }}>No job vacancies yet</div>
