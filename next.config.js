@@ -40,7 +40,7 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https://lh3.googleusercontent.com https://drive.google.com https://www.google.com https://pagead2.googlesyndication.com",
       "frame-src https://drive.google.com https://www.google.com",
-      "connect-src 'self' https://www.google-analytics.com",
+      "connect-src 'self' https://www.assamcareerpoint-info.com https://www.google-analytics.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self' https://formspree.io",
@@ -68,7 +68,7 @@ const nextConfig = {
     {
   source: '/_next/static/:path*',
   headers: [
-    { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+    { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
   ],
 },
     {
