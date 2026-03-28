@@ -54,6 +54,20 @@ function fmtCount(n:number):string {
   if (n >= 100) return `${Math.floor(n/100)*100}+`
   return `${n}+`
 }
+// ✅ Outside component — avoids recreation on every render
+async function fetchWithRetry(url: string, retries = 2): Promise<any> {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const res = await fetch(url, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+      })
+      if (res.ok) return await res.json()
+    } catch {}
+    if (i < retries) await new Promise(r => setTimeout(r, 800))
+  }
+  return []
+}
 
 export default function HomePage() {
   const [lang,      setLang]      = useState<'en'|'as'>('en')
@@ -69,19 +83,6 @@ export default function HomePage() {
   const [totalInfo,  setTotalInfo]  = useState(0)
   const [tickerItems, setTickerItems] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(true)
-async function fetchWithRetry(url: string, retries = 2): Promise<any> {
-  for (let i = 0; i <= retries; i++) {
-    try {
-      const res = await fetch(url, {
-        cache: 'no-store',
-        headers: { 'Cache-Control': 'no-cache' }
-      })
-      if (res.ok) return await res.json()
-    } catch {}
-    if (i < retries) await new Promise(r => setTimeout(r, 1000))
-  }
-  return []
-}
   useEffect(() => {
     Promise.all([
   fetchWithRetry('/api/data/jobs'),

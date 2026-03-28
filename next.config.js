@@ -55,7 +55,7 @@ const nextConfig = {
   async redirects() {
   return [
     {
-      source: '/((?!api).*)',
+      source: '/:path*',
       has: [{ type: 'host', value: 'assamcareerpoint-info.com' }],
       destination: 'https://www.assamcareerpoint-info.com/:path*',
       permanent: true,
@@ -66,11 +66,12 @@ const nextConfig = {
   async headers() {
   return [
     {
-      source: '/_next/static/:path*',
-      headers: [
-        { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
-      ],
-    },
+  source: '/_next/static/:path*',
+  headers: [
+    { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+    { key: 'Content-Type', value: 'application/javascript' },
+  ],
+},
     {
       source: '/(.*)',
       headers: securityHeaders,
