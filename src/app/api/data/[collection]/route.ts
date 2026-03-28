@@ -22,7 +22,14 @@ export async function GET(
   }
 
   const data = await getCollection(collection)
-  return NextResponse.json(data)
+  return NextResponse.json(data, {
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+      'Surrogate-Control': 'no-store',
+    }
+  })
 }
 
 export async function POST(

@@ -71,12 +71,20 @@ export default function HomePage() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/data/jobs',          { cache: 'no-store' }).then(r => r.json()).catch(() => []),
-      fetch('/api/data/exams',         { cache: 'no-store' }).then(r => r.json()).catch(() => []),
-      fetch('/api/data/info',          { cache: 'no-store' }).then(r => r.json()).catch(() => []),
-      fetch('/api/data/results',       { cache: 'no-store' }).then(r => r.json()).catch(() => []),
-      fetch('/api/data/announcements', { cache: 'no-store' }).then(r => r.json()).catch(() => []),
-    ]).then(([jobsData, examsData, infoData, resultsData, announcementsData]) => {
+  fetch('/api/data/jobs',          { cache: 'no-store', headers:{'Cache-Control':'no-cache'} }).then(r => r.json()).catch(() => []),
+  fetch('/api/data/exams',         { cache: 'no-store', headers:{'Cache-Control':'no-cache'} }).then(r => r.json()).catch(() => []),
+  fetch('/api/data/info',          { cache: 'no-store', headers:{'Cache-Control':'no-cache'} }).then(r => r.json()).catch(() => []),
+  fetch('/api/data/results',       { cache: 'no-store', headers:{'Cache-Control':'no-cache'} }).then(r => r.json()).catch(() => []),
+  fetch('/api/data/announcements', { cache: 'no-store', headers:{'Cache-Control':'no-cache'} }).then(r => r.json()).catch(() => []),
+]).then(([jobsData, examsData, infoData, resultsData, announcementsData]) => {
+  // ✅ Clear old localStorage cache — prevents deleted content from showing
+  try {
+    if (Array.isArray(jobsData)          && jobsData.length > 0)          localStorage.setItem('acp_jobs_v6',       JSON.stringify(jobsData))
+    if (Array.isArray(examsData)         && examsData.length > 0)         localStorage.setItem('acp_exams_v6',      JSON.stringify(examsData))
+    if (Array.isArray(infoData)          && infoData.length > 0)          localStorage.setItem('acp_info_v6',       JSON.stringify(infoData))
+    if (Array.isArray(resultsData)       && resultsData.length > 0)       localStorage.setItem('acp_results',       JSON.stringify(resultsData))
+    if (Array.isArray(announcementsData) && announcementsData.length > 0) localStorage.setItem('acp_announcements', JSON.stringify(announcementsData))
+  } catch {}
       // Jobs
       if (Array.isArray(jobsData) && jobsData.length > 0) {
         setTotalJobs(jobsData.length)

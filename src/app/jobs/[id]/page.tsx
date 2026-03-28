@@ -178,23 +178,25 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
   const [activeTab, setActiveTab] = useState<'details'|'syllabus'|'howapply'>('details')
 
   useEffect(() => {
-    fetch('/api/data/jobs', { cache: 'no-store' })
-      .then(r => r.json())
-      .then((list: Job[]) => {
-        if (Array.isArray(list) && list.length > 0) {
-          setJob(list.find(j => String(j.id) === String(id)) || null)
-          setOthers(list.filter(j => String(j.id) !== String(id) && j.status !== 'Draft').slice(0,4))
-        } else {
-          // fallback to localStorage
-          try {
-            const saved = localStorage.getItem('acp_jobs_v6')
-            const local: Job[] = saved ? JSON.parse(saved) : SAMPLES
-            setJob(local.find(j => String(j.id) === String(id)) || null)
-            setOthers(local.filter(j => String(j.id) !== String(id) && j.status !== 'Draft').slice(0,4))
-          } catch { setJob(null) }
-        }
-         setLoading(false)
-      })
+    fetch('/api/data/jobs', { cache: 'no-store', headers:{'Cache-Control':'no-cache'} })
+  .then(r => r.json())
+  .then((list: Job[]) => {
+    if (Array.isArray(list) && list.length > 0) {
+      // ✅ Always update localStorage with fresh server data
+      try { localStorage.setItem('acp_jobs_v6', JSON.stringify(list)) } catch {}
+      setJob(list.find(j => String(j.id) === String(id)) || null)
+      setOthers(list.filter(j => String(j.id) !== String(id) && j.status !== 'Draft').slice(0,4))
+    } else {
+      // fallback to localStorage ONLY if server returns nothing
+      try {
+        const saved = localStorage.getItem('acp_jobs_v6')
+        const local: Job[] = saved ? JSON.parse(saved) : SAMPLES
+        setJob(local.find(j => String(j.id) === String(id)) || null)
+        setOthers(local.filter(j => String(j.id) !== String(id) && j.status !== 'Draft').slice(0,4))
+      } catch { setJob(null) }
+    }
+    setLoading(false)
+  })
       .catch(() => {
         try {
           const saved = localStorage.getItem('acp_jobs_v6')
