@@ -29,6 +29,8 @@ type Exam   = { id:number; emoji:string; title:string; conductedBy:string; categ
 type Info   = { id:number; emoji:string; title:string; category:string; description:string; lastDate?:string; status:string; importantDates:{label:string;date:string;time?:string}[] }
 type Result = { id:number; emoji:string; title:string; org:string; category:string; resultDate?:string; slug:string }
 type Announcement = { id:number; emoji:string; title:string; category?:string; description?:string; createdAt:string; slug:string; published:boolean }
+type Guide   = { id:number; emoji:string; title:string; category?:string; description?:string; createdAt:string; slug:string; published:boolean }
+type Service = { id:number; emoji:string; title:string; category?:string; description?:string; createdAt:string; slug:string; published:boolean }
 
 const CATS = [
   {name:'Govt Jobs',   emoji:'🏛️',href:'/govt-jobs',  count:'Assam & India', color:'#e63946'},
@@ -76,7 +78,9 @@ export default function HomePage() {
   const [info,      setInfo]      = useState<Info[]>([])
   const [results,   setResults]   = useState<Result[]>([])
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
-  const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'announcements'>('jobs')
+const [guides,        setGuides]        = useState<Guide[]>([])
+const [services,      setServices]      = useState<Service[]>([])
+const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'announcements'|'guides'|'services'>('jobs')
   const [menuOpen,  setMenuOpen]  = useState(false)
   const [totalJobs,  setTotalJobs]  = useState(0)
   const [totalExams, setTotalExams] = useState(0)
@@ -90,7 +94,9 @@ export default function HomePage() {
   fetchWithRetry('/api/data/info'),
   fetchWithRetry('/api/data/results'),
   fetchWithRetry('/api/data/announcements'),
-]).then(([jobsData, examsData, infoData, resultsData, announcementsData]) => {
+  fetchWithRetry('/api/data/guides'),
+  fetchWithRetry('/api/data/services'),
+]).then(([jobsData, examsData, infoData, resultsData, announcementsData, guidesData, servicesData]) => {
   // ✅ Clear old localStorage cache — prevents deleted content from showing
   try {
     if (Array.isArray(jobsData)          && jobsData.length > 0)          localStorage.setItem('acp_jobs_v6',       JSON.stringify(jobsData))
@@ -98,6 +104,8 @@ export default function HomePage() {
     if (Array.isArray(infoData)          && infoData.length > 0)          localStorage.setItem('acp_info_v6',       JSON.stringify(infoData))
     if (Array.isArray(resultsData)       && resultsData.length > 0)       localStorage.setItem('acp_results',       JSON.stringify(resultsData))
     if (Array.isArray(announcementsData) && announcementsData.length > 0) localStorage.setItem('acp_announcements', JSON.stringify(announcementsData))
+    if (Array.isArray(guidesData)        && guidesData.length > 0)        localStorage.setItem('acp_guides',        JSON.stringify(guidesData))
+    if (Array.isArray(servicesData)      && servicesData.length > 0)      localStorage.setItem('acp_services',      JSON.stringify(servicesData))
   } catch {}
       // Jobs
       if (Array.isArray(jobsData) && jobsData.length > 0) {
@@ -124,6 +132,16 @@ export default function HomePage() {
       if (Array.isArray(announcementsData) && announcementsData.length > 0) {
         const pub = announcementsData.filter((a: Announcement) => a.published)
         setAnnouncements(pub.slice(0, 5))
+      }
+      // Guides
+      if (Array.isArray(guidesData) && guidesData.length > 0) {
+        const pub = guidesData.filter((g: Guide) => g.published)
+        setGuides(pub.slice(0, 5))
+      }
+      // Services
+      if (Array.isArray(servicesData) && servicesData.length > 0) {
+        const pub = servicesData.filter((s: Service) => s.published)
+        setServices(pub.slice(0, 5))
       }
       // Build dynamic ticker from real data
       const tickers: string[] = []
@@ -182,8 +200,10 @@ export default function HomePage() {
     { id:'jobs',  label:'💼 Latest Jobs' },
     { id:'exams', label:'📚 Exams' },
     { id:'info',  label:'ℹ️ Information' },
-    ...(results.length > 0          ? [{ id:'results',       label:'📊 Results' }] : []),
-    ...(announcements.length > 0    ? [{ id:'announcements', label:'📢 Announcements' }] : []),
+    ...(results.length > 0       ? [{ id:'results',       label:'📊 Results' }]       : []),
+    ...(announcements.length > 0 ? [{ id:'announcements', label:'📢 Announcements' }] : []),
+    ...(guides.length > 0        ? [{ id:'guides',        label:'📋 Guides' }]        : []),
+    ...(services.length > 0      ? [{ id:'services',      label:'🏛️ Services' }]      : []),
   ]
 
   return (
@@ -406,7 +426,7 @@ export default function HomePage() {
               {tabs.map(({id,label})=>(
                 <button key={id} onClick={()=>setSec(id as any)} className={`stab ${sec===id?'on':'off'}`}>{label}</button>
               ))}
-              <Link href={sec==='jobs'?'/govt-jobs':sec==='exams'?'/exams':sec==='results'?'/results':sec==='announcements'?'/announcements':'/information'}
+              <Link href={sec==='jobs'?'/govt-jobs':sec==='exams'?'/exams':sec==='results'?'/results':sec==='announcements'?'/announcements':sec==='guides'?'/guides':sec==='services'?'/services':'/information'}
                 style={{ marginLeft:'auto',padding:'10px 18px',fontSize:'.86rem',fontWeight:700,color:'#e63946',textDecoration:'none',display:'flex',alignItems:'center',whiteSpace:'nowrap' as const }}>View All →</Link>
             </div>
 
@@ -617,6 +637,64 @@ export default function HomePage() {
                   </Link>
                 ))}
               </div>
+            )}
+
+            {/* GUIDES */}
+            {sec==='guides' && (
+              guides.length === 0 ? (
+                <div style={{ padding:'40px',textAlign:'center' as const,color:'#5a6a7a' }}>
+                  <div style={{ fontSize:'2rem',marginBottom:8 }}>📋</div>
+                  <div style={{ fontWeight:700 }}>No guides yet</div>
+                </div>
+              ) : (
+                <div style={{ padding:'16px 20px',display:'flex',flexDirection:'column' as const,gap:10 }}>
+                  {guides.map(g=>(
+                    <Link key={g.id} href={`/guides/${g.slug}`} style={{ textDecoration:'none' }}>
+                      <div style={{ background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:11,padding:'14px 16px',display:'flex',gap:12,alignItems:'center',transition:'.18s' }}>
+                        <div style={{ width:40,height:40,borderRadius:9,background:'#e0f7fc',border:'1.5px solid #b2ebf5',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.2rem',flexShrink:0 }}>{g.emoji}</div>
+                        <div style={{ flex:1,minWidth:0 }}>
+                          <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.88rem',color:'#1a1a2e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const }}>{g.title}</div>
+                          {g.description && <div style={{ fontSize:'.76rem',color:'#5a6a7a',marginTop:3,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const }}>{g.description}</div>}
+                          <div style={{ fontSize:'.72rem',color:'#5a6a7a',marginTop:3 }}>
+                            {g.category&&<span style={{ background:'#e0f7fc',color:'#0096b7',padding:'1px 7px',borderRadius:99,fontWeight:700,marginRight:6 }}>{g.category}</span>}
+                            {new Date(g.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}
+                          </div>
+                        </div>
+                        <span style={{ fontSize:'.75rem',color:'#0096b7',fontWeight:700,flexShrink:0 }}>Read →</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )
+            )}
+
+            {/* SERVICES */}
+            {sec==='services' && (
+              services.length === 0 ? (
+                <div style={{ padding:'40px',textAlign:'center' as const,color:'#5a6a7a' }}>
+                  <div style={{ fontSize:'2rem',marginBottom:8 }}>🏛️</div>
+                  <div style={{ fontWeight:700 }}>No services yet</div>
+                </div>
+              ) : (
+                <div style={{ padding:'16px 20px',display:'flex',flexDirection:'column' as const,gap:10 }}>
+                  {services.map(s=>(
+                    <Link key={s.id} href={`/services/${s.slug}`} style={{ textDecoration:'none' }}>
+                      <div style={{ background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:11,padding:'14px 16px',display:'flex',gap:12,alignItems:'center',transition:'.18s' }}>
+                        <div style={{ width:40,height:40,borderRadius:9,background:'#f3e5f5',border:'1.5px solid #ce93d8',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.2rem',flexShrink:0 }}>{s.emoji}</div>
+                        <div style={{ flex:1,minWidth:0 }}>
+                          <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.88rem',color:'#1a1a2e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const }}>{s.title}</div>
+                          {s.description && <div style={{ fontSize:'.76rem',color:'#5a6a7a',marginTop:3,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const }}>{s.description}</div>}
+                          <div style={{ fontSize:'.72rem',color:'#5a6a7a',marginTop:3 }}>
+                            {s.category&&<span style={{ background:'#f3e5f5',color:'#8e44ad',padding:'1px 7px',borderRadius:99,fontWeight:700,marginRight:6 }}>{s.category}</span>}
+                            {new Date(s.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}
+                          </div>
+                        </div>
+                        <span style={{ fontSize:'.75rem',color:'#8e44ad',fontWeight:700,flexShrink:0 }}>View →</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )
             )}
           </div>
         </div>

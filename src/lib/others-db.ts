@@ -45,6 +45,23 @@ const KEYS = {
 } as const
 
 // ─── CRUD helpers ─────────────────────────────────────────────────────────────
+export async function getOthersPostsFromServer(type: OthersPost['type']): Promise<OthersPost[]> {
+  try {
+    const res = await fetch(`/api/data/${type === 'announcement' ? 'announcements' : type === 'guide' ? 'guides' : 'services'}`, {
+      cache: 'no-store', headers: { 'Cache-Control': 'no-cache' }
+    })
+    if (res.ok) {
+      const data = await res.json()
+      if (Array.isArray(data) && data.length > 0) return data
+    }
+  } catch {}
+  // fallback to localStorage
+  try {
+    const raw = localStorage.getItem(KEYS[type])
+    return raw ? JSON.parse(raw) : []
+  } catch { return [] }
+}
+
 export function getOthersPosts(type: OthersPost['type']): OthersPost[] {
   if (typeof window === 'undefined') return []
   try {
@@ -53,9 +70,19 @@ export function getOthersPosts(type: OthersPost['type']): OthersPost[] {
   } catch { return [] }
 }
 
-export function saveOthersPosts(type: OthersPost['type'], posts: OthersPost[]): void {
+export async function saveOthersPosts(type: OthersPost['type'], posts: OthersPost[]): Promise<void> {
   if (typeof window === 'undefined') return
+  // Save to localStorage
   localStorage.setItem(KEYS[type], JSON.stringify(posts))
+  // Also save to server
+  const collection = type === 'announcement' ? 'announcements' : type === 'guide' ? 'guides' : 'services'
+  try {
+    await fetch(`/api/data/${collection}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(posts)
+    })
+  } catch {}
 }
 
 export function getPostBySlug(type: OthersPost['type'], slug: string): OthersPost | null {
