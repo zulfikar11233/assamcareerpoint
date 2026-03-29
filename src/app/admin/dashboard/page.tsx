@@ -69,6 +69,8 @@ type Job = {
   selection?: string
   website?: string
   howToApply?: string
+  howToApplyImages?: string[]
+  detailsImages?: string[]
   youtubeLink?: string
   createdAt?: string
   // SEO & Description
@@ -139,6 +141,7 @@ type InfoItem = {
   title: string
   category: string
   description?: string
+  processImages?: string[]
   lastDate?: string
   process?: string
   officialLink?: string
@@ -295,7 +298,7 @@ export default function AdminDashboard() {
   const [editInfo, setEditInfo] = useState<InfoItem|null>(null)
 const [dataLoaded, setDataLoaded] = useState(false)
   // Job form
-  const BLANK_JF = { logo:'🏛️', title:'', org:'', category:'Govt Job', district:'All Districts', status:'Live' as Job['status'], fee:'', selection:'', website:'', howToApply:'', youtubeLink:'', description:'', advtNo:'', ageLimitDate:'', ageRelaxation:'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:'', lastDateTime:'23:59 Hrs', paymentLastDate:'', paymentLastDateTime:'23:59 Hrs', correctionWindow:'', applicationStart:'', helplineEmail:'', helplinePhone:'', selectionDetails:'', syllabusDetails:'', zoneWiseVacancy:'', titleAs:'', orgAs:'', descriptionAs:'', howToApplyAs:'', selectionAs:'' }
+  const BLANK_JF = { logo:'🏛️', title:'', org:'', category:'Govt Job', district:'All Districts', status:'Live' as Job['status'], fee:'', selection:'', website:'', howToApply:'',howToApplyImages: [], detailsImages: [], youtubeLink:'', description:'', advtNo:'', ageLimitDate:'', ageRelaxation:'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:'', lastDateTime:'23:59 Hrs', paymentLastDate:'', paymentLastDateTime:'23:59 Hrs', correctionWindow:'', applicationStart:'', helplineEmail:'', helplinePhone:'', selectionDetails:'', syllabusDetails:'', zoneWiseVacancy:'', titleAs:'', orgAs:'', descriptionAs:'', howToApplyAs:'', selectionAs:'' }
   const [jf, setJf] = useState(BLANK_JF)
   const [posts,       setPosts]       = useState<Post[]>([])
   const [advPdfs,     setAdvPdfs]     = useState<AdvPdf[]>([])
@@ -308,7 +311,7 @@ const [dataLoaded, setDataLoaded] = useState(false)
   const [ef, setEf] = useState(blankExam)
 
   // Info form
-  const blankInfo = { emoji:'🗳️', title:'', category:'Electoral', description:'', lastDate:'', process:'', officialLink:'', status:'Active' as InfoItem['status'], titleAs:'', descriptionAs:'', processAs:'' }
+  const blankInfo = { emoji:'🗳️', title:'', category:'Electoral', description:'', lastDate:'', process:'',processImages: [], officialLink:'', status:'Active' as InfoItem['status'], titleAs:'', descriptionAs:'', processAs:'' }
   const [inf, setInf]       = useState(blankInfo)
   const [infDates, setInfDates] = useState<{label:string;date:string;time:string}[]>([])
 
@@ -391,7 +394,7 @@ const [dataLoaded, setDataLoaded] = useState(false)
   }
   function openEditJob(j:Job) {
     setEditJob(j)
-    setJf({ logo:j.logo, title:j.title, org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'', youtubeLink:j.youtubeLink||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageRelaxation:j.ageRelaxation||'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:j.feeRefund||'', lastDateTime:j.lastDateTime||'23:59 Hrs', paymentLastDate:j.paymentLastDate||'', paymentLastDateTime:j.paymentLastDateTime||'23:59 Hrs', correctionWindow:j.correctionWindow||'', applicationStart:j.applicationStart||'', helplineEmail:j.helplineEmail||'', helplinePhone:j.helplinePhone||'', selectionDetails:j.selectionDetails||'', syllabusDetails:j.syllabusDetails||'', zoneWiseVacancy:j.zoneWiseVacancy||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
+    setJf({ logo:j.logo, title:j.title, org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'',howToApplyImages: (j as any).howToApplyImages || [], detailsImages: (j as any).detailsImages || [], youtubeLink:j.youtubeLink||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageRelaxation:j.ageRelaxation||'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:j.feeRefund||'', lastDateTime:j.lastDateTime||'23:59 Hrs', paymentLastDate:j.paymentLastDate||'', paymentLastDateTime:j.paymentLastDateTime||'23:59 Hrs', correctionWindow:j.correctionWindow||'', applicationStart:j.applicationStart||'', helplineEmail:j.helplineEmail||'', helplinePhone:j.helplinePhone||'', selectionDetails:j.selectionDetails||'', syllabusDetails:j.syllabusDetails||'', zoneWiseVacancy:j.zoneWiseVacancy||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
     setPosts(j.posts||[]); setAdvPdfs(j.advPdfs||[]); setJobAffiliates(j.jobAffiliates||[]); setDateHistory(j.dateHistory||[])
     setShowJobModal(true)
   }
@@ -466,7 +469,7 @@ const [dataLoaded, setDataLoaded] = useState(false)
 
   // ── INFO HELPERS ─────────────────────────────────────────────────────────
   function openAddInfo()  { setEditInfo(null); setInf(blankInfo); setInfDates([]); setShowInfoModal(true) }
-  function openEditInfo(i:InfoItem) { setEditInfo(i); setInf({ emoji:i.emoji, title:i.title, category:i.category, description:i.description||'', lastDate:i.lastDate||'', process:i.process||'', officialLink:i.officialLink||'', status:i.status, titleAs:i.titleAs||'', descriptionAs:i.descriptionAs||'', processAs:i.processAs||'' }); setInfDates((i.importantDates||[]).map(d=>({label:d.label,date:d.date,time:d.time||''}))); setShowInfoModal(true) }
+  function openEditInfo(i:InfoItem) { setEditInfo(i); setInf({ emoji:i.emoji, title:i.title, category:i.category, description:i.description||'', processImages: (i as any).processImages || [], lastDate:i.lastDate||'', process:i.process||'', officialLink:i.officialLink||'', status:i.status, titleAs:i.titleAs||'', descriptionAs:i.descriptionAs||'', processAs:i.processAs||'' }); setInfDates((i.importantDates||[]).map(d=>({label:d.label,date:d.date,time:d.time||''}))); setShowInfoModal(true) }
   function saveInfo(e:React.FormEvent) {
     e.preventDefault()
     if (!inf.title) { alert('Title required.'); return }
@@ -1028,7 +1031,17 @@ const [dataLoaded, setDataLoaded] = useState(false)
                 </div>
                 <div className="fg"><label style={lb}>Selection Process</label><input value={jf.selection} onChange={e=>setJf(p=>({...p,selection:e.target.value}))} style={si} placeholder="Written Test → PET → Medical Exam → Document Verification" /></div>
                 <div className="fg"><label style={lb}>How to Apply (steps)</label><textarea value={jf.howToApply} onChange={e=>setJf(p=>({...p,howToApply:e.target.value}))} style={{...si,minHeight:72,resize:'vertical' as const}} placeholder="1. Visit slprbassam.in&#10;2. Click Apply Online&#10;3. Register with mobile & email&#10;4. Fill application form&#10;5. Upload photo & signature&#10;6. Pay fee and submit" /></div>
-                <div className="fg"><label style={lb}>YouTube Video Link (optional)</label><input value={jf.youtubeLink} onChange={e=>setJf(p=>({...p,youtubeLink:e.target.value}))} style={si} placeholder="https://youtube.com/watch?v=..." /></div>
+                <div className="fg">
+  <label style={{...lb,color:T}}>🖼️ How to Apply Images <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>(shown in How to Apply tab — max 5, one URL per line)</span></label>
+  <textarea value={(jf as any).howToApplyImages?.join('\n')||''} onChange={e=>setJf((p:any)=>({...p,howToApplyImages:e.target.value.split('\n').filter(Boolean)}))}
+    style={{...si,minHeight:80,resize:'vertical' as const}} placeholder={'https://drive.google.com/file/d/...\nhttps://drive.google.com/file/d/...'}/>
+</div>
+<div className="fg">
+  <label style={{...lb,color:T}}>🖼️ Details Tab Images <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>(shown in Details tab — max 5, one URL per line)</span></label>
+  <textarea value={(jf as any).detailsImages?.join('\n')||''} onChange={e=>setJf((p:any)=>({...p,detailsImages:e.target.value.split('\n').filter(Boolean)}))}
+    style={{...si,minHeight:80,resize:'vertical' as const}} placeholder={'https://drive.google.com/file/d/...\nhttps://drive.google.com/file/d/...'}/>
+</div>
+<div className="fg"><label style={lb}>YouTube Video Link (optional)</label><input value={jf.youtubeLink} onChange={e=>setJf(p=>({...p,youtubeLink:e.target.value}))} style={si} placeholder="https://youtube.com/watch?v=..." /></div>
 
                 {/* ── Section: SEO Description & Advt No ── */}
                 <div className="sh">📝 Job Description & SEO</div>
@@ -1468,6 +1481,27 @@ const [dataLoaded, setDataLoaded] = useState(false)
                   <label style={{...lb,color:'#5d4037'}}>প্ৰক্ৰিয়া (Process/Steps in Assamese)</label>
                   <textarea value={inf.processAs||''} onChange={e=>setInf(p=>({...p,processAs:e.target.value}))} style={{...si,minHeight:72,resize:'vertical' as const,borderColor:'#ffe082'}} placeholder="১. ৱেবছাইটলৈ যাওক&#10;২. ফৰ্ম পূৰণ কৰক..." />
                 </div>
+<div className="fg">
+  <label style={{...lb,color:'#2a9d8f'}}>
+    🖼️ Process Images
+    <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>
+      (shown after steps — max 5, one URL per line)
+    </span>
+  </label>
+
+  <textarea
+    value={(inf as any).processImages?.join('\n') || ''}
+    onChange={e =>
+      setInf((p:any)=>({
+        ...p,
+        processImages: e.target.value.split('\n').filter(Boolean)
+      }))
+    }
+    style={{...si,minHeight:80,resize:'vertical'}}
+    placeholder={`https://drive.google.com/file/d/...
+https://drive.google.com/file/d/...`}
+  />
+</div>
 
               </div>
               <div style={{ padding:'14px 24px',borderTop:'1px solid #d4e0ec',display:'flex',justifyContent:'flex-end',gap:10 }}>
