@@ -25,6 +25,8 @@ type Job     = {
   syllabusDetails?:string; zoneWiseVacancy?:string
   jobAffiliates?:JobAffiliate[]
   titleAs?:string; orgAs?:string; descriptionAs?:string; howToApplyAs?:string; selectionAs?:string
+  howToApplyImages?:string[]   // ← optional images shown in How to Apply tab
+  detailsImages?:string[]      // ← optional images shown in Details tab
 }
 
 const fmt     = (d:string|undefined|null) => { if(!d) return '—'; try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) } catch { return d } }
@@ -626,7 +628,25 @@ if (!job) return (
                 )}
               </div>
             )}
-
+	    {/* Details Tab Images */}
+                {(job.detailsImages||[]).filter(Boolean).length > 0 && (
+                  <>
+                    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'22px 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>🖼️ Additional Images</h2>
+                    {(job.detailsImages||[]).filter(Boolean).map((imgUrl,idx)=>{
+                      const src = imgUrl.includes('drive.google.com')
+                        ? `https://lh3.googleusercontent.com/d/${(imgUrl.match(/\/d\/([a-zA-Z0-9_-]+)/)||[])[1]}`
+                        : imgUrl
+                      return (
+                        <div key={idx} style={{borderRadius:10,overflow:'hidden',border:'1.5px solid #d4e0ec',marginBottom:12,boxShadow:'0 2px 12px rgba(0,0,0,.06)'}}>
+                          <img src={src} alt={`Job image ${idx+1}`}
+                            style={{width:'100%',height:'auto',display:'block',maxHeight:500,objectFit:'contain',background:'#f8fbff'}}
+                            onError={e=>{(e.target as HTMLImageElement).parentElement!.style.display='none'}}
+                          />
+                        </div>
+                      )
+                    })}
+                  </>
+                )}
             {/* ── SYLLABUS TAB ── */}
             {activeTab==='syllabus'&&(
               <div className="tab-panel" style={{padding:'20px'}}>
@@ -690,7 +710,21 @@ if (!job) return (
                     ))}
                   </div>
                 )}
-                <div style={{display:'flex',gap:10,flexWrap:'wrap' as const,marginTop:18}}>
+                {/* How to Apply Images */}
+                {(job.howToApplyImages||[]).filter(Boolean).map((imgUrl,idx)=>{
+                  const src = imgUrl.includes('drive.google.com')
+                    ? `https://lh3.googleusercontent.com/d/${(imgUrl.match(/\/d\/([a-zA-Z0-9_-]+)/)||[])[1]}`
+                    : imgUrl
+                  return (
+                    <div key={idx} style={{borderRadius:10,overflow:'hidden',border:'1.5px solid #d4e0ec',marginBottom:12,boxShadow:'0 2px 12px rgba(0,0,0,.06)'}}>
+                      <img src={src} alt={`How to apply step ${idx+1}`}
+                        style={{width:'100%',height:'auto',display:'block',maxHeight:480,objectFit:'contain',background:'#f8fbff'}}
+                        onError={e=>{(e.target as HTMLImageElement).parentElement!.style.display='none'}}
+                      />
+                    </div>
+                  )
+                })}
+		<div style={{display:'flex',gap:10,flexWrap:'wrap' as const,marginTop:18}}>
                   {applyHrefMain ? (
                     <a href={applyHrefMain} target="_blank" rel="noopener noreferrer"
                       style={{flex:1,minWidth:0,maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'13px',borderRadius:11,background:T,color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif'}}>

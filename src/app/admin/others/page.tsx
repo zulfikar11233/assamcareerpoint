@@ -188,7 +188,51 @@ function SectionBuilder({
                 style={{ ...si, minHeight: 80, resize: 'vertical' }}
                 placeholder="Write the main content for this section. Supports line breaks." />
             </div>
-            {/* PDF Link */}
+            {/* Images */}
+            <div>
+              <label style={lb}>🖼️ Section Images (optional — shown after content)</label>
+              <div style={{ display:'flex',flexDirection:'column' as const,gap:8 }}>
+                {(sec.images||[]).map((imgUrl, imgIdx) => (
+                  <div key={imgIdx} style={{ display:'flex',gap:8,alignItems:'center' }}>
+                    <input
+                      value={imgUrl}
+                      onChange={e => {
+                        const imgs = [...(sec.images||[])]
+                        imgs[imgIdx] = e.target.value
+                        update(idx, { images: imgs })
+                      }}
+                      style={{...si, flex:1}}
+                      placeholder="https://drive.google.com/file/d/... or https://i.imgur.com/..."
+                    />
+                    {imgUrl && (
+                      <img
+                        src={imgUrl.includes('drive.google.com')
+                          ? `https://lh3.googleusercontent.com/d/${(imgUrl.match(/\/d\/([a-zA-Z0-9_-]+)/)||[])[1]}`
+                          : imgUrl}
+                        alt="preview"
+                        style={{ width:48,height:48,objectFit:'cover',borderRadius:6,border:'1.5px solid #d4e0ec',flexShrink:0 }}
+                        onError={e=>{(e.target as HTMLImageElement).style.display='none'}}
+                      />
+                    )}
+                    <button type="button" onClick={() => {
+                      const imgs = (sec.images||[]).filter((_,i)=>i!==imgIdx)
+                      update(idx, { images: imgs })
+                    }} style={{ ...bDanger,padding:'5px 10px',flexShrink:0 }}>✕</button>
+                  </div>
+                ))}
+                {(sec.images||[]).length < 5 && (
+                  <button type="button" onClick={() => update(idx, { images:[...(sec.images||[]),''] })}
+                    style={{ ...bS,fontSize:'.78rem',padding:'6px 14px',alignSelf:'flex-start' as const }}>
+                    + Add Image URL
+                  </button>
+                )}
+                <div style={{ fontSize:'.68rem',color:'#8fa3b8' }}>
+                  💡 Google Drive: Upload → Share → Anyone with link → Copy link → Paste above. Max 5 images per section.
+                </div>
+              </div>
+            </div>
+
+	     {/* PDF Link */}
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 10 }}>
               <div>
                 <label style={lb}>📄 Google Drive PDF Link</label>

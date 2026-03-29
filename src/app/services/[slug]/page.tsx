@@ -100,7 +100,38 @@ export default function ServiceDetail({ params }: { params: Promise<{ slug: stri
               </h2>
             </div>
             <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {sec.content && <div style={{ color: '#3a5068', fontSize: '.9rem', lineHeight: 1.8, whiteSpace: 'pre-line' }}>{sec.content}</div>}
+              {sec.content && (
+  <div style={{ color:'#3a5068',fontSize:'.9rem',lineHeight:1.8,whiteSpace:'pre-line' }}>
+    {sec.content}
+  </div>
+)}
+
+{/* Section Images */}
+{(sec.images||[]).filter(Boolean).map((imgUrl,imgIdx) => {
+  const src = imgUrl.includes('drive.google.com')
+    ? `https://lh3.googleusercontent.com/d/${(imgUrl.match(/\/d\/([a-zA-Z0-9_-]+)/)||[])[1]}`
+    : imgUrl
+
+  return (
+    <div key={imgIdx} style={{
+      borderRadius:10,overflow:'hidden',
+      border:'1.5px solid #e8eef4',
+      boxShadow:'0 2px 12px rgba(0,0,0,.06)'
+    }}>
+      <img
+        src={src}
+        alt={`${sec.title} image ${imgIdx+1}`}
+        style={{
+          width:'100%',
+          maxHeight:480,
+          objectFit:'contain',
+          background:'#f8fbff'
+        }}
+        onError={e=>{(e.target as HTMLImageElement).parentElement!.style.display='none'}}
+      />
+    </div>
+  )
+})}
               {sec.links.length > 0 && (
                 <div>
                   <div style={{ fontSize: '.78rem', fontWeight: 800, color: '#3a5068', marginBottom: 8, textTransform: 'uppercase', letterSpacing: .5 }}>🔗 Important Links</div>

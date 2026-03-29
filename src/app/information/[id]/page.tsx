@@ -32,6 +32,7 @@ type InfoItem = {
   importantDates?: { label: string; date: string; time?: string }[]
   status: 'Active' | 'Upcoming' | 'Expired'; createdAt?: string
   titleAs?:string; descriptionAs?:string; processAs?:string
+  processImages?:string[]   // ← optional images shown after process steps
 }
 
 const SC: Record<string,string> = { 'Active':'#22c55e', 'Upcoming':'#f59e0b', 'Expired':'#8fa3b8' }
@@ -189,7 +190,25 @@ export default function InfoDetail({ params }: { params: Promise<{ id: string }>
               )}
             </div>
           )}
-
+	  {/* Process Images */}
+          {(item.processImages||[]).filter(Boolean).length > 0 && (
+            <div className="card">
+              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:N,margin:'0 0 14px',paddingBottom:10,borderBottom:'2px solid #f0f4f8'}}>🖼️ Reference Images</h2>
+              {(item.processImages||[]).filter(Boolean).map((imgUrl,idx)=>{
+                const src = imgUrl.includes('drive.google.com')
+                  ? `https://lh3.googleusercontent.com/d/${(imgUrl.match(/\/d\/([a-zA-Z0-9_-]+)/)||[])[1]}`
+                  : imgUrl
+                return (
+                  <div key={idx} style={{borderRadius:10,overflow:'hidden',border:'1.5px solid #d4e0ec',marginBottom:12,boxShadow:'0 2px 12px rgba(0,0,0,.06)'}}>
+                    <img src={src} alt={`Reference image ${idx+1}`}
+                      style={{width:'100%',height:'auto',display:'block',maxHeight:500,objectFit:'contain',background:'#f8fbff'}}
+                      onError={e=>{(e.target as HTMLImageElement).parentElement!.style.display='none'}}
+                    />
+                  </div>
+                )
+              })}
+            </div>
+          )}
           {/* Official Link */}
           {item.officialLink && (
             <div className="card" style={{borderLeft:`5px solid ${T}`}}>

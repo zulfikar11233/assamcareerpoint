@@ -173,10 +173,30 @@ export default function AnnouncementDetail({ params }: { params: Promise<{ slug:
             <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 14 }}>
               {/* Content */}
               {sec.content && (
-                <div style={{ color: '#3a5068', fontSize: '.9rem', lineHeight: 1.8, whiteSpace: 'pre-line' }}>
+                <div style={{ color:'#3a5068',fontSize:'.9rem',lineHeight:1.8,whiteSpace:'pre-line' as const }}>
                   {sec.content}
                 </div>
               )}
+              {/* Section Images */}
+              {(sec.images||[]).filter(Boolean).map((imgUrl,imgIdx) => {
+                const src = imgUrl.includes('drive.google.com')
+                  ? `https://lh3.googleusercontent.com/d/${(imgUrl.match(/\/d\/([a-zA-Z0-9_-]+)/)||[])[1]}`
+                  : imgUrl
+                return (
+                  <div key={imgIdx} style={{
+                    borderRadius:10,overflow:'hidden',
+                    border:'1.5px solid #e8eef4',
+                    boxShadow:'0 2px 12px rgba(0,0,0,.06)'
+                  }}>
+                    <img
+                      src={src}
+                      alt={`${sec.title} image ${imgIdx+1}`}
+                      style={{ width:'100%',height:'auto',display:'block',maxHeight:480,objectFit:'contain',background:'#f8fbff' }}
+                      onError={e=>{(e.target as HTMLImageElement).parentElement!.style.display='none'}}
+                    />
+                  </div>
+                )
+              })}
 
               {/* Links table */}
               {sec.links.length > 0 && (

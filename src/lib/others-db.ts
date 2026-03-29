@@ -11,11 +11,11 @@ export type OthersSection = {
   id: string
   title: string
   content: string
-  pdfLink?: string    // Google Drive shareable link
-  pdfName?: string    // Display name for the PDF button
-  links: OthersLink[] // Up to 10 external links per section
+  pdfLink?: string
+  pdfName?: string
+  links: OthersLink[]
+  images?: string[]   // ← multiple image URLs per section
 }
-
 export type OthersPost = {
   id: number
   type: 'announcement' | 'guide' | 'service'
