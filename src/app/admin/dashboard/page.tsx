@@ -1037,7 +1037,7 @@ const [dataLoaded, setDataLoaded] = useState(false)
     style={{...si,minHeight:80,resize:'vertical' as const}} placeholder={'https://drive.google.com/file/d/...\nhttps://drive.google.com/file/d/...'}/>
 </div>
 <div className="fg">
-  <label style={{...lb,color:T}}>🖼️ Details Tab Images <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>(shown in Details tab — max 5, one URL per line)</span></label>
+  <label style={{...lb, color: '#00b4d8'}}>🖼️ Details Tab Images <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>(shown in Details tab — max 5, one URL per line)</span></label>
   <textarea value={(jf as any).detailsImages?.join('\n')||''} onChange={e=>setJf((p:any)=>({...p,detailsImages:e.target.value.split('\n').filter(Boolean)}))}
     style={{...si,minHeight:80,resize:'vertical' as const}} placeholder={'https://drive.google.com/file/d/...\nhttps://drive.google.com/file/d/...'}/>
 </div>
