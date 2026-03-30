@@ -399,7 +399,7 @@ if (!job) return (
           {/* Stats strip */}
           <div className="stats-strip" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:10,marginTop:18}}>
             {[
-              {l:'Total Vacancies',v:totalV.toLocaleString('en-IN'),c:G},
+              {l:'Total Vacancies',v:totalV>0?totalV.toLocaleString('en-IN'):'As per notification',c:G},
               {l:'Last Date',      v:`${fmtLong(job.lastDate)}${job.lastDateTime?` · ${job.lastDateTime}`:''}`,c:dl?.c||W},
               {l:'Age Limit',      v:posts.length?`${ageMin}–${ageMax} yrs${job.ageLimitDate?` (as on ${fmt(job.ageLimitDate)})`:''}`:job.ageLimit,c:T},
               {l:'App. Fee',       v:job.fee?job.fee.split('\n')[0].slice(0,32):'Check Notice',c:'#c0622a'},
@@ -529,7 +529,8 @@ if (!job) return (
                   <div style={{background:`${T}10`,border:`1.5px solid ${T}44`,borderRadius:10,padding:'14px'}}>
                     <div style={{fontSize:'.65rem',fontWeight:700,color:'#5a6a7a',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:6}}>Age Range</div>
                     <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'1.1rem',color:N}}>{posts.length?`${ageMin}–${ageMax} years`:job.ageLimit}</div>
-                    {job.ageLimitDate&&<div style={{fontSize:'.72rem',color:'#5a6a7a',marginTop:4}}>as on {fmtLong(job.ageLimitDate)}</div>}
+{job.ageLimitDate&&<div style={{fontSize:'.72rem',color:'#5a6a7a',marginTop:4}}>as on {fmtLong(job.ageLimitDate)}</div>}
+{(job as any).ageBirthRange&&<div style={{fontSize:'.78rem',color:'#e63946',fontWeight:700,marginTop:6}}>🎂 {(job as any).ageBirthRange}</div>}
                   </div>
                   {ageRows.length>0&&(
                     <div style={{background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'14px'}}>

@@ -504,7 +504,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
               background:'#fde8ea',color:'#e63946',
               padding:'4px 11px',borderRadius:99,fontSize:'.77rem',fontWeight:700
             }}>
-              {totalV.toLocaleString()} Posts
+              {totalV>0?`${totalV.toLocaleString()} Posts`:'See Notification'}
             </span>
 
             <span style={{

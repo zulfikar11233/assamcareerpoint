@@ -1,6 +1,5 @@
 'use client'
 export const dynamic = 'force-dynamic'
-import MigrateButton from '@/components/MigrateButton'
 // src/app/admin/dashboard/page.tsx — ACPI Admin v6
 // ✅ Portal: Assam Career Point & Info
 // ✅ Jobs: multi-post (Driver/Grade IV/Peon each with own vacancy/age/salary/date/link)
@@ -79,6 +78,7 @@ type Job = {
   // Age Details
   ageLimitDate?: string
   ageRelaxation?: string
+  ageBirthRange?: string   // ← e.g. "Born between 01-07-2005 to 01-07-2009"
   // Fee Details
   feeRefund?: string
   // Important Dates extras
@@ -298,7 +298,7 @@ export default function AdminDashboard() {
   const [editInfo, setEditInfo] = useState<InfoItem|null>(null)
 const [dataLoaded, setDataLoaded] = useState(false)
   // Job form
-  const BLANK_JF = { logo:'🏛️', title:'', org:'', category:'Govt Job', district:'All Districts', status:'Live' as Job['status'], fee:'', selection:'', website:'', howToApply:'',howToApplyImages: [], detailsImages: [], youtubeLink:'', description:'', advtNo:'', ageLimitDate:'', ageRelaxation:'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:'', lastDateTime:'23:59 Hrs', paymentLastDate:'', paymentLastDateTime:'23:59 Hrs', correctionWindow:'', applicationStart:'', helplineEmail:'', helplinePhone:'', selectionDetails:'', syllabusDetails:'', zoneWiseVacancy:'', titleAs:'', orgAs:'', descriptionAs:'', howToApplyAs:'', selectionAs:'' }
+  const BLANK_JF = { logo:'🏛️', title:'', org:'', category:'Govt Job', district:'All Districts', status:'Live' as Job['status'], fee:'', selection:'', website:'', howToApply:'',howToApplyImages: [], detailsImages: [], youtubeLink:'', description:'', advtNo:'', ageLimitDate:'',ageBirthRange:'', ageRelaxation:'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:'', lastDateTime:'23:59 Hrs', paymentLastDate:'', paymentLastDateTime:'23:59 Hrs', correctionWindow:'', applicationStart:'', helplineEmail:'', helplinePhone:'', selectionDetails:'', syllabusDetails:'', zoneWiseVacancy:'', titleAs:'', orgAs:'', descriptionAs:'', howToApplyAs:'', selectionAs:'' }
   const [jf, setJf] = useState(BLANK_JF)
   const [posts,       setPosts]       = useState<Post[]>([])
   const [advPdfs,     setAdvPdfs]     = useState<AdvPdf[]>([])
@@ -394,7 +394,7 @@ const [dataLoaded, setDataLoaded] = useState(false)
   }
   function openEditJob(j:Job) {
     setEditJob(j)
-    setJf({ logo:j.logo, title:j.title, org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'',howToApplyImages: (j as any).howToApplyImages || [], detailsImages: (j as any).detailsImages || [], youtubeLink:j.youtubeLink||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageRelaxation:j.ageRelaxation||'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:j.feeRefund||'', lastDateTime:j.lastDateTime||'23:59 Hrs', paymentLastDate:j.paymentLastDate||'', paymentLastDateTime:j.paymentLastDateTime||'23:59 Hrs', correctionWindow:j.correctionWindow||'', applicationStart:j.applicationStart||'', helplineEmail:j.helplineEmail||'', helplinePhone:j.helplinePhone||'', selectionDetails:j.selectionDetails||'', syllabusDetails:j.syllabusDetails||'', zoneWiseVacancy:j.zoneWiseVacancy||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
+    setJf({ logo:j.logo, title:j.title, org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'',howToApplyImages: (j as any).howToApplyImages || [], detailsImages: (j as any).detailsImages || [], youtubeLink:j.youtubeLink||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageBirthRange:(j as any).ageBirthRange||'', ageRelaxation:j.ageRelaxation||'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:j.feeRefund||'', lastDateTime:j.lastDateTime||'23:59 Hrs', paymentLastDate:j.paymentLastDate||'', paymentLastDateTime:j.paymentLastDateTime||'23:59 Hrs', correctionWindow:j.correctionWindow||'', applicationStart:j.applicationStart||'', helplineEmail:j.helplineEmail||'', helplinePhone:j.helplinePhone||'', selectionDetails:j.selectionDetails||'', syllabusDetails:j.syllabusDetails||'', zoneWiseVacancy:j.zoneWiseVacancy||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
     setPosts(j.posts||[]); setAdvPdfs(j.advPdfs||[]); setJobAffiliates(j.jobAffiliates||[]); setDateHistory(j.dateHistory||[])
     setShowJobModal(true)
   }
@@ -672,7 +672,7 @@ const [dataLoaded, setDataLoaded] = useState(false)
             {/* ── DASHBOARD ── */}
             {activeTab==='dashboard' && (
               <>
-                <MigrateButton />
+                {/* MigrateButton removed — migration complete */}
                 {/* Stats cards — 3 columns × 2 rows */}
                 <div style={{ display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:24 }}>
                   {[
@@ -1065,6 +1065,10 @@ const [dataLoaded, setDataLoaded] = useState(false)
                 <div className="g2">
                   <div className="fg"><label style={lb}>Age Limit (range)</label><input value={jf.ageLimitDate?`(as on ${jf.ageLimitDate})`:'as on date'} readOnly style={{...si,color:'#8fa3b8',cursor:'not-allowed'}} /></div>
                   <div className="fg"><label style={lb}>Age Limit "as on" Date</label><input type="date" value={jf.ageLimitDate} onChange={e=>setJf(p=>({...p,ageLimitDate:e.target.value}))} style={si} /></div>
+		<div className="fg">
+  <label style={lb}>Birth Date Range (if applicable)</label>
+  <input value={(jf as any).ageBirthRange||''} onChange={e=>setJf((p:any)=>({...p,ageBirthRange:e.target.value}))} style={si} placeholder="e.g. Born between 01-07-2005 to 01-07-2009" />
+</div>
                 </div>
                 <div className="fg"><label style={lb}>Age Relaxation (category-wise)</label><textarea value={jf.ageRelaxation} onChange={e=>setJf(p=>({...p,ageRelaxation:e.target.value}))} style={{...si,minHeight:90,resize:'vertical' as const}} placeholder={"SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years"} /></div>
 
