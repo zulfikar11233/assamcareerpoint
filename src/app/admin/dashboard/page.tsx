@@ -20,8 +20,8 @@ type Post = {
   dept: string
   vacancy: number
   qualification: string
-  ageMin: number
-  ageMax: number
+  ageMin: number | string
+  ageMax: number | string
   salary: string
   lastDate: string       // ISO date — each post has its OWN last date
   applyLink: string
@@ -53,7 +53,7 @@ type Job = {
   org: string
   category: string
   district: string
-  status: 'Live' | 'Draft' | 'Closing'
+  status: 'Live' | 'Draft' | 'Closing' | 'Upcoming'
   vacancy: string
   qualification: string
   ageLimit: string
@@ -98,6 +98,8 @@ type Job = {
   // Job-specific affiliate products
   jobAffiliates?: JobAffiliate[]
   // Bilingual — Assamese (all optional)
+  fullDescription?: string   // ← long 2000-3000 word optional field
+  fullDescTitle?: string     // ← optional title for the field
   titleAs?: string
   orgAs?: string
   descriptionAs?: string
@@ -131,6 +133,8 @@ type Exam = {
   descriptionAs?: string
   eligibilityAs?: string
   syllabusAs?: string
+  fullDescription?: string
+  fullDescTitle?: string
   examPdfs?:      { label: string; url: string }[]
   examAffiliates?: { id: string; title: string; link: string; img?: string; badge?: string }[]
 }
@@ -147,6 +151,8 @@ type InfoItem = {
   officialLink?: string
   importantDates?: { label: string; date: string; time?: string }[]
   status: 'Active' | 'Upcoming' | 'Expired'
+  fullDescription?: string
+  fullDescTitle?: string
   createdAt?: string
   titleAs?: string
   descriptionAs?: string
@@ -298,7 +304,7 @@ export default function AdminDashboard() {
   const [editInfo, setEditInfo] = useState<InfoItem|null>(null)
 const [dataLoaded, setDataLoaded] = useState(false)
   // Job form
-  const BLANK_JF = { logo:'🏛️', title:'', org:'', category:'Govt Job', district:'All Districts', status:'Live' as Job['status'], fee:'', selection:'', website:'', howToApply:'',howToApplyImages: [], detailsImages: [], youtubeLink:'', description:'', advtNo:'', ageLimitDate:'',ageBirthRange:'', ageRelaxation:'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:'', lastDateTime:'23:59 Hrs', paymentLastDate:'', paymentLastDateTime:'23:59 Hrs', correctionWindow:'', applicationStart:'', helplineEmail:'', helplinePhone:'', selectionDetails:'', syllabusDetails:'', zoneWiseVacancy:'', titleAs:'', orgAs:'', descriptionAs:'', howToApplyAs:'', selectionAs:'' }
+  const BLANK_JF = { logo:'🏛️', title:'', org:'', category:'Govt Job', district:'All Districts', status:'Live' as Job['status'], fee:'', selection:'', website:'', howToApply:'',howToApplyImages: [], detailsImages: [], youtubeLink:'', description:'', advtNo:'', ageLimitDate:'',ageBirthRange:'', ageRelaxation:'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:'', lastDateTime:'23:59 Hrs', paymentLastDate:'', paymentLastDateTime:'23:59 Hrs', correctionWindow:'', applicationStart:'', helplineEmail:'', helplinePhone:'', selectionDetails:'', syllabusDetails:'', zoneWiseVacancy:'', fullDescription:'', fullDescTitle:'', titleAs:'', orgAs:'', descriptionAs:'', howToApplyAs:'', selectionAs:'' }
   const [jf, setJf] = useState(BLANK_JF)
   const [posts,       setPosts]       = useState<Post[]>([])
   const [advPdfs,     setAdvPdfs]     = useState<AdvPdf[]>([])
@@ -307,11 +313,12 @@ const [dataLoaded, setDataLoaded] = useState(false)
   const [dateHistory, setDateHistory] = useState<DateExt[]>([])
 
   // Exam form
-  const blankExam = { emoji:'📚', title:'', conductedBy:'', category:'Teaching', description:'', applicationStart:'', applicationLastDate:'', paymentLastDate:'', examDate:'', examTime:'', admitCardDate:'', resultDate:'', fee:'', eligibility:'', syllabus:'', officialSite:'', applyLink:'', admitCardLink:'', status:'Upcoming' as Exam['status'], titleAs:'', descriptionAs:'', eligibilityAs:'', examPdfs:[] as {label:string;url:string}[], examAffiliates:[] as {id:string;title:string;link:string;img?:string;badge?:string}[] }
+  const blankExam = { emoji:'📚', title:'', conductedBy:'', category:'Teaching', description:'', applicationStart:'', applicationLastDate:'', paymentLastDate:'', examDate:'', examTime:'', admitCardDate:'', resultDate:'', fee:'', eligibility:'', fullDescription:'', fullDescTitle:'', syllabus:'', officialSite:'', applyLink:'', admitCardLink:'', status:'Upcoming' as Exam['status'], titleAs:'', descriptionAs:'', eligibilityAs:'', examPdfs:[] as {label:string;url:string}[], examAffiliates:[] as {id:string;title:string;link:string;img?:string;badge?:string}[] }
   const [ef, setEf] = useState(blankExam)
 
   // Info form
-  const blankInfo = { emoji:'🗳️', title:'', category:'Electoral', description:'', lastDate:'', process:'',processImages: [], officialLink:'', status:'Active' as InfoItem['status'], titleAs:'', descriptionAs:'', processAs:'' }
+  const blankInfo = { emoji:'🗳️', title:'', category:'Electoral', description:'', lastDate:'', process:'',processImages: [], officialLink:'', fullDescription:'',
+fullDescTitle:'', status:'Active' as InfoItem['status'], titleAs:'', descriptionAs:'', processAs:'' }
   const [inf, setInf]       = useState(blankInfo)
   const [infDates, setInfDates] = useState<{label:string;date:string;time:string}[]>([])
 
@@ -394,7 +401,7 @@ const [dataLoaded, setDataLoaded] = useState(false)
   }
   function openEditJob(j:Job) {
     setEditJob(j)
-    setJf({ logo:j.logo, title:j.title, org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'',howToApplyImages: (j as any).howToApplyImages || [], detailsImages: (j as any).detailsImages || [], youtubeLink:j.youtubeLink||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageBirthRange:(j as any).ageBirthRange||'', ageRelaxation:j.ageRelaxation||'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:j.feeRefund||'', lastDateTime:j.lastDateTime||'23:59 Hrs', paymentLastDate:j.paymentLastDate||'', paymentLastDateTime:j.paymentLastDateTime||'23:59 Hrs', correctionWindow:j.correctionWindow||'', applicationStart:j.applicationStart||'', helplineEmail:j.helplineEmail||'', helplinePhone:j.helplinePhone||'', selectionDetails:j.selectionDetails||'', syllabusDetails:j.syllabusDetails||'', zoneWiseVacancy:j.zoneWiseVacancy||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
+    setJf({ logo:j.logo, title:j.title, org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'',howToApplyImages: (j as any).howToApplyImages || [], detailsImages: (j as any).detailsImages || [], youtubeLink:j.youtubeLink||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageBirthRange:(j as any).ageBirthRange||'', ageRelaxation:j.ageRelaxation||'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:j.feeRefund||'', lastDateTime:j.lastDateTime||'23:59 Hrs', paymentLastDate:j.paymentLastDate||'', paymentLastDateTime:j.paymentLastDateTime||'23:59 Hrs', correctionWindow:j.correctionWindow||'', applicationStart:j.applicationStart||'', helplineEmail:j.helplineEmail||'', helplinePhone:j.helplinePhone||'', selectionDetails:j.selectionDetails||'', syllabusDetails:j.syllabusDetails||'', zoneWiseVacancy:j.zoneWiseVacancy||'', fullDescription:(j as any).fullDescription||'', fullDescTitle:(j as any).fullDescTitle||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
     setPosts(j.posts||[]); setAdvPdfs(j.advPdfs||[]); setJobAffiliates(j.jobAffiliates||[]); setDateHistory(j.dateHistory||[])
     setShowJobModal(true)
   }
@@ -450,7 +457,8 @@ const [dataLoaded, setDataLoaded] = useState(false)
 
   // ── EXAM HELPERS ─────────────────────────────────────────────────────────
   function openAddExam()  { setEditExam(null); setEf(blankExam); setShowExamModal(true) }
-  function openEditExam(x:Exam) { setEditExam(x); setEf({ emoji:x.emoji, title:x.title, conductedBy:x.conductedBy, category:x.category, description:x.description||'', applicationStart:x.applicationStart||'', applicationLastDate:x.applicationLastDate||'', paymentLastDate:x.paymentLastDate||'', examDate:x.examDate||'', examTime:x.examTime||'', admitCardDate:x.admitCardDate||'', resultDate:x.resultDate||'', fee:x.fee||'', eligibility:x.eligibility||'', syllabus:x.syllabus||'', officialSite:x.officialSite||'', applyLink:x.applyLink||'', admitCardLink:x.admitCardLink||'', status:x.status, titleAs:x.titleAs||'', descriptionAs:x.descriptionAs||'', eligibilityAs:x.eligibilityAs||'', examPdfs:x.examPdfs||[], examAffiliates:x.examAffiliates||[] }); setShowExamModal(true) }
+  function openEditExam(x:Exam) { setEditExam(x); setEf({ emoji:x.emoji, title:x.title, conductedBy:x.conductedBy, category:x.category, description:x.description||'', applicationStart:x.applicationStart||'', applicationLastDate:x.applicationLastDate||'', paymentLastDate:x.paymentLastDate||'', examDate:x.examDate||'', examTime:x.examTime||'', admitCardDate:x.admitCardDate||'', resultDate:x.resultDate||'', fee:x.fee||'', eligibility:x.eligibility||'', syllabus:x.syllabus||'', officialSite:x.officialSite||'', applyLink:x.applyLink||'', admitCardLink:x.admitCardLink||'', status:x.status, titleAs:x.titleAs||'', descriptionAs:x.descriptionAs||'', eligibilityAs:x.eligibilityAs||'', fullDescription:(x as any).fullDescription||'',
+fullDescTitle:(x as any).fullDescTitle||'', examPdfs:x.examPdfs||[], examAffiliates:x.examAffiliates||[] }); setShowExamModal(true) }
   function saveExam(e:React.FormEvent) {
     e.preventDefault()
     if (!ef.title) { alert('Title required.'); return }
@@ -469,7 +477,8 @@ const [dataLoaded, setDataLoaded] = useState(false)
 
   // ── INFO HELPERS ─────────────────────────────────────────────────────────
   function openAddInfo()  { setEditInfo(null); setInf(blankInfo); setInfDates([]); setShowInfoModal(true) }
-  function openEditInfo(i:InfoItem) { setEditInfo(i); setInf({ emoji:i.emoji, title:i.title, category:i.category, description:i.description||'', processImages: (i as any).processImages || [], lastDate:i.lastDate||'', process:i.process||'', officialLink:i.officialLink||'', status:i.status, titleAs:i.titleAs||'', descriptionAs:i.descriptionAs||'', processAs:i.processAs||'' }); setInfDates((i.importantDates||[]).map(d=>({label:d.label,date:d.date,time:d.time||''}))); setShowInfoModal(true) }
+  function openEditInfo(i:InfoItem) { setEditInfo(i); setInf({ emoji:i.emoji, title:i.title, category:i.category, description:i.description||'', processImages: (i as any).processImages || [], lastDate:i.lastDate||'', process:i.process||'', officialLink:i.officialLink||'', fullDescription:(i as any).fullDescription||'',
+fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||'', descriptionAs:i.descriptionAs||'', processAs:i.processAs||'' }); setInfDates((i.importantDates||[]).map(d=>({label:d.label,date:d.date,time:d.time||''}))); setShowInfoModal(true) }
   function saveInfo(e:React.FormEvent) {
     e.preventDefault()
     if (!inf.title) { alert('Title required.'); return }
@@ -1023,7 +1032,7 @@ const [dataLoaded, setDataLoaded] = useState(false)
                 <div className="g3">
                   <div className="fg"><label style={lb}>Category</label><select value={jf.category} onChange={e=>setJf(p=>({...p,category:e.target.value}))} style={{...si,cursor:'pointer'}}>{JOB_CATS.map(c=><option key={c}>{c}</option>)}</select></div>
                   <div className="fg"><label style={lb}>District</label><select value={jf.district} onChange={e=>setJf(p=>({...p,district:e.target.value}))} style={{...si,cursor:'pointer'}}>{DISTRICTS.map(d=><option key={d}>{d}</option>)}</select></div>
-                  <div className="fg"><label style={lb}>Status</label><select value={jf.status} onChange={e=>setJf(p=>({...p,status:e.target.value as Job['status']}))} style={{...si,cursor:'pointer'}}><option>Live</option><option>Draft</option><option>Closing</option></select></div>
+                  <div className="fg"><label style={lb}>Status</label><select value={jf.status} onChange={e=>setJf(p=>({...p,status:e.target.value as Job['status']}))} style={{...si,cursor:'pointer'}}><option>Live</option><option>Upcoming</option><option>Draft</option><option>Closing</option></select></div>
                 </div>
                 <div className="g2">
                   <div className="fg"><label style={lb}>Application Fee</label><input value={jf.fee} onChange={e=>setJf(p=>({...p,fee:e.target.value}))} style={si} placeholder="Gen ₹285 · SC/ST ₹185 · EWS ₹185" /></div>
@@ -1049,6 +1058,17 @@ const [dataLoaded, setDataLoaded] = useState(false)
                   💡 <strong>SEO Tip:</strong> Write a 2–3 sentence description using searchable phrases like "RRB Group D 2026 Assam", "10th pass railway jobs Northeast India". This appears on Google search previews.
                 </div>
                 <div className="fg"><label style={lb}>Job Description (SEO paragraph — optional but recommended)</label><textarea value={jf.description} onChange={e=>setJf(p=>({...p,description:e.target.value}))} style={{...si,minHeight:90,resize:'vertical' as const}} placeholder="e.g. Railway Recruitment Board (RRB) has released RRB Group D 2026 notification for 22195 Level-1 posts under various Railway zones including Northeast Frontier Railway (Guwahati) with 1776 vacancies. Eligible 10th pass / ITI candidates from Assam and Northeast India can apply online before 9 March 2026." /></div>
+		<div className="fg">
+  <label style={{...lb,color:'#457b9d'}}>📄 Full Details Title (optional)</label>
+  <input value={(jf as any).fullDescTitle||''} onChange={e=>setJf((p:any)=>({...p,fullDescTitle:e.target.value}))} style={si} placeholder="e.g. Complete Details About This Recruitment" />
+</div>
+<div className="fg">
+  <label style={{...lb,color:'#457b9d'}}>📄 Full Detailed Description (optional — 2000 to 3000 words) <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>Shown on detail page. Good for SEO.</span></label>
+  <textarea value={(jf as any).fullDescription||''} onChange={e=>setJf((p:any)=>({...p,fullDescription:e.target.value}))} style={{...si,minHeight:200,resize:'vertical' as const}} placeholder="Write full detailed description here — eligibility, important points, FAQ, etc. This helps with Google ranking."/>
+  <div style={{fontSize:'.7rem',color:'#8fa3b8',marginTop:4}}>
+    Characters: {((jf as any).fullDescription||'').length} / ~15000 recommended for 2000-3000 words
+  </div>
+</div>
                 <div className="g2">
                   <div className="fg"><label style={lb}>Advertisement / Notification No.</label><input value={jf.advtNo} onChange={e=>setJf(p=>({...p,advtNo:e.target.value}))} style={si} placeholder="CEN 09/2025" /></div>
                   <div className="fg"><label style={lb}>Application Opening Date</label><input type="date" value={jf.applicationStart} onChange={e=>setJf(p=>({...p,applicationStart:e.target.value}))} style={si} /></div>
@@ -1125,8 +1145,8 @@ const [dataLoaded, setDataLoaded] = useState(false)
                       <div className="fg"><label style={lb}>Department</label><input value={p.dept} onChange={e=>updPost(p.id,'dept',e.target.value)} style={si} placeholder="Police Transport" /></div>
                       <div className="fg"><label style={lb}>Vacancies</label><input type="number" min={0} value={p.vacancy||''} onChange={e=>updPost(p.id,'vacancy',parseInt(e.target.value)||0)} style={si} placeholder="120" /></div>
                       <div className="fg"><label style={lb}>Qualification</label><input value={p.qualification} onChange={e=>updPost(p.id,'qualification',e.target.value)} style={si} placeholder="HSLC + Driving Licence" /></div>
-                      <div className="fg"><label style={lb}>Age Min</label><input type="number" min={14} value={p.ageMin||''} onChange={e=>updPost(p.id,'ageMin',parseInt(e.target.value)||18)} style={si} placeholder="18" /></div>
-                      <div className="fg"><label style={lb}>Age Max</label><input type="number" min={18} value={p.ageMax||''} onChange={e=>updPost(p.id,'ageMax',parseInt(e.target.value)||38)} style={si} placeholder="43" /></div>
+                      <div className="fg"><label style={lb}>Age Min</label><input value={p.ageMin||''} onChange={e=>updPost(p.id,'ageMin',e.target.value)} style={si} placeholder="18 or 17.5" /></div>
+                      <div className="fg"><label style={lb}>Age Max</label><input value={p.ageMax||''} onChange={e=>updPost(p.id,'ageMax',e.target.value)} style={si} placeholder="38 or 22.5" /></div>
                       <div className="fg"><label style={lb}>Pay Scale / Salary</label><input value={p.salary} onChange={e=>updPost(p.id,'salary',e.target.value)} style={si} placeholder="₹14,000–60,500" /></div>
                       <div className="fg"><label style={lb}>Last Date</label><input type="date" value={p.lastDate} onChange={e=>updPost(p.id,'lastDate',e.target.value)} style={si} /></div>
                       <div className="fg"><label style={lb}>Apply Link</label><input type="url" value={p.applyLink} onChange={e=>updPost(p.id,'applyLink',e.target.value)} style={si} placeholder="https://slprbassam.in" /></div>
@@ -1306,6 +1326,15 @@ const [dataLoaded, setDataLoaded] = useState(false)
                   <div className="fg"><label style={lb}>Eligibility</label><input value={ef.eligibility} onChange={e=>setEf(p=>({...p,eligibility:e.target.value}))} style={si} placeholder="Graduation + B.Ed" /></div>
                 </div>
                 <div className="fg"><label style={lb}>Description</label><textarea value={ef.description} onChange={e=>setEf(p=>({...p,description:e.target.value}))} style={{...si,minHeight:60,resize:'vertical' as const}} placeholder="Brief description of the exam..." /></div>
+			<div className="fg">
+  <label style={{...lb,color:'#457b9d'}}>📄 Full Details Title (optional)</label>
+  <input value={(ef as any).fullDescTitle||''} onChange={e=>setEf((p:any)=>({...p,fullDescTitle:e.target.value}))} style={si} />
+</div>
+
+<div className="fg">
+  <label style={{...lb,color:'#457b9d'}}>📄 Full Detailed Description (optional)</label>
+  <textarea value={(ef as any).fullDescription||''} onChange={e=>setEf((p:any)=>({...p,fullDescription:e.target.value}))} style={{...si,minHeight:200}} />
+</div>
 
                 <div className="sh" style={{ marginTop:4 }}>📅 Important Dates</div>
                 <div className="g2">
@@ -1328,7 +1357,7 @@ const [dataLoaded, setDataLoaded] = useState(false)
                     <div style={{ fontSize:'.67rem',color:'#5a6a7a',marginTop:3 }}>Include both shifts if applicable</div>
                   </div>
                 </div>
-                <div className="fg"><label style={lb}>Expected Result Date</label><input type="date" value={ef.resultDate||''} onChange={e=>setEf(p=>({...p,resultDate:e.target.value}))} style={si} /></div>
+                <div className="fg"><label style={lb}>Expected Result Date</label><input value={ef.resultDate||''} onChange={e=>setEf(p=>({...p,resultDate:e.target.value}))} style={si} placeholder="e.g. 1st week July 2026 OR 2026-07-15"/></div>
 
                 <div className="sh" style={{ marginTop:4 }}>💰 Fee & Syllabus</div>
                 <div className="fg"><label style={lb}>Application Fee</label><input value={ef.fee} onChange={e=>setEf(p=>({...p,fee:e.target.value}))} style={si} placeholder="Gen ₹1,000 · OBC ₹800 · SC/ST ₹500 · PWD ₹0" /></div>
@@ -1444,7 +1473,17 @@ const [dataLoaded, setDataLoaded] = useState(false)
                   <div className="fg"><label style={lb}>Status</label><select value={inf.status} onChange={e=>setInf(p=>({...p,status:e.target.value as InfoItem['status']}))} style={{...si,cursor:'pointer'}}><option>Active</option><option>Upcoming</option><option>Expired</option></select></div>
                 </div>
                 <div className="fg"><label style={lb}>Title *</label><input required value={inf.title} onChange={e=>setInf(p=>({...p,title:e.target.value}))} style={si} placeholder="e.g. Voter ID Registration / Correction 2026" /></div>
-                <div className="fg"><label style={lb}>Description</label><textarea value={inf.description} onChange={e=>setInf(p=>({...p,description:e.target.value}))} style={{...si,minHeight:72,resize:'vertical' as const}} placeholder="What is this? Who needs to do it? Why is it important?" /></div>
+                <div className="fg"><label style={lb}>Description</label><textarea value={inf.description} onChange={e=>setInf(p=>({...p,description:e.target.value}))} style={{...si,minHeight:72,resize:'vertical' as const}} placeholder="What is this? Who needs to do it? Why is it important?" /> 
+		<div className="fg">
+  <label style={{...lb,color:'#457b9d'}}>📄 Full Details Title</label>
+  <input value={(inf as any).fullDescTitle||''} onChange={e=>setInf((p:any)=>({...p,fullDescTitle:e.target.value}))} style={si} />
+</div>
+
+<div className="fg">
+  <label style={{...lb,color:'#457b9d'}}>📄 Full Detailed Description</label>
+  <textarea value={(inf as any).fullDescription||''} onChange={e=>setInf((p:any)=>({...p,fullDescription:e.target.value}))} style={{...si,minHeight:200}} />
+</div>
+</div>
                 <div className="g2">
                   <div className="fg"><label style={lb}>Overall Deadline (optional)</label><input type="date" value={inf.lastDate||''} onChange={e=>setInf(p=>({...p,lastDate:e.target.value}))} style={si} /></div>
                   <div className="fg"><label style={lb}>Official Website</label><input type="url" value={inf.officialLink} onChange={e=>setInf(p=>({...p,officialLink:e.target.value}))} style={si} placeholder="https://voters.eci.gov.in" /></div>

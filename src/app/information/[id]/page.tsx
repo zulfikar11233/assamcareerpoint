@@ -221,6 +221,14 @@ export default function InfoDetail({ params }: { params: Promise<{ id: string }>
             </div>
           )}
 
+	{(info as any).fullDescription && (
+  <div style={{marginTop:22}}>
+    <h2>📄 {(info as any).fullDescTitle || 'Detailed Information'}</h2>
+    <div style={{whiteSpace:'pre-line'}}>
+      {(info as any).fullDescription}
+    </div>
+  </div>
+)}	
           {/* Disclaimer */}
           <div style={{background:'#fff8e1',border:'1.5px solid #ffe082',borderRadius:12,padding:'14px 18px',fontSize:'.82rem',color:'#5a3a00',lineHeight:1.8}}>
             <strong>⚠️ Disclaimer:</strong> This information is for awareness purposes only. Always verify from the official government website before taking any action. Assam Career Point & Info is not affiliated with any government body.

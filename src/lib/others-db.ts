@@ -26,6 +26,8 @@ export type OthersPost = {
   category?: string         // e.g. "Education", "Banking", "State Govt"
   description?: string      // Short description shown on listing page
   descriptionAs?: string    // Assamese description (optional)
+  fullDescription?: string
+  fullDescTitle?: string
   sections: OthersSection[] // Up to 10 content sections
   affiliateLink?: string    // Optional affiliate/promo link
   affiliateLinkText?: string

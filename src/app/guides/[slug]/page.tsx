@@ -164,7 +164,17 @@ export default function GuideDetail({ params }: { params: Promise<{ slug: string
             </a>
           </div>
         )}
-
+	{/* Full Description */}
+{(post as any).fullDescription && (
+  <div style={{marginTop:24}}>
+    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'1rem',color:N,marginBottom:10}}>
+      📄 {(post as any).fullDescTitle || 'Full Details'}
+    </h2>
+    <div style={{whiteSpace:'pre-line',lineHeight:1.9,color:'#3a5068'}}>
+      {(post as any).fullDescription}
+    </div>
+  </div>
+)}
         <div style={{ marginTop: 24 }}>
           <Link href={`/${PATH}`} style={{ color: T, fontWeight: 700, textDecoration: 'none', fontSize: '.88rem' }}>← Back to Guides</Link>
         </div>

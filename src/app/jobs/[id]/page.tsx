@@ -648,7 +648,18 @@ if (!job) return (
                     })}
                   </>
                 )}
-            {/* ── SYLLABUS TAB ── */}
+            	{/* Full Description */}
+{(job as any).fullDescription && (
+  <div style={{marginTop:22}}>
+    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>
+      📄 {(job as any).fullDescTitle || 'Detailed Information'}
+    </h2>
+    <div style={{fontSize:'.88rem',color:'#2a3a4a',lineHeight:1.9,whiteSpace:'pre-line' as const,background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'16px 18px'}}>
+      {(job as any).fullDescription}
+    </div>
+  </div>
+)}
+		{/* ── SYLLABUS TAB ── */}
             {activeTab==='syllabus'&&(
               <div className="tab-panel" style={{padding:'20px'}}>
                 {selSections.length>0&&(

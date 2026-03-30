@@ -401,6 +401,35 @@ export default function ExamDetail({ params }: { params: Promise<{ id: string }>
             </div>
           )}
 
+	  {/* Full Description */}
+{(exam as any).fullDescription && (
+  <div style={{marginTop:22}}>
+    <h2 style={{
+      fontFamily:'Sora,sans-serif',
+      fontWeight:700,
+      fontSize:'.93rem',
+      color:N,
+      margin:'0 0 12px',
+      paddingBottom:8,
+      borderBottom:`2px solid ${G}`
+    }}>
+      📄 {(exam as any).fullDescTitle || 'Detailed Information'}
+    </h2>
+
+    <div style={{
+      fontSize:'.88rem',
+      color:'#2a3a4a',
+      lineHeight:1.9,
+      whiteSpace:'pre-line',
+      background:'#f8fbff',
+      border:'1.5px solid #d4e0ec',
+      borderRadius:10,
+      padding:'16px 18px'
+    }}>
+      {(exam as any).fullDescription}
+    </div>
+  </div>
+)}
           {/* Related exams */}
           {otherExams.length > 0 && (
             <div>

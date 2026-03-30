@@ -411,8 +411,25 @@ function PostModal({
               <label style={lb}>Short Description (shown on listing page)</label>
               <textarea value={form.description || ''} onChange={e => p('description')(e.target.value)}
                 style={{ ...si, minHeight: 70, resize: 'vertical' }}
-                placeholder="2-3 sentences summarizing this post. Used for SEO and listing cards." />
+                placeholder="2-3 sentences summarizing this post. Used for SEO and listing cards." /> 
             </div>
+<div className="fg">
+  <label style={lb}>📄 Full Details Title</label>
+  <input 
+    value={form.fullDescTitle || ''} 
+    onChange={e => p('fullDescTitle')(e.target.value)} 
+    style={si}
+  />
+</div>
+
+<div className="fg">
+  <label style={lb}>📄 Full Detailed Description</label>
+  <textarea 
+    value={form.fullDescription || ''} 
+    onChange={e => p('fullDescription')(e.target.value)} 
+    style={{ ...si, minHeight: 150, resize: 'vertical' }}
+  />
+</div>
 
             {/* Assamese description */}
             <div>
