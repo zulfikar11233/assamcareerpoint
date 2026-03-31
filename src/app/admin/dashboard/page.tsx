@@ -437,7 +437,7 @@ fullDescTitle:'', status:'Active' as InfoItem['status'], titleAs:'', description
       lastDate:    finalLD,
       applyLink:   posts[0]?.applyLink || editJob?.applyLink || '',
       qualification: posts[0]?.qualification || editJob?.qualification || '',
-      ageLimit:    posts.length ? `${Math.min(...posts.map(p=>p.ageMin))}–${Math.max(...posts.map(p=>p.ageMax))}` : (editJob?.ageLimit||''),
+      ageLimit:    posts.length ? `${Math.min(...posts.map(p=>Number(p.ageMin)))}–${Math.max(...posts.map(p=>Number(p.ageMax)))}` : (editJob?.ageLimit||''),
       salary:      posts[0]?.salary || editJob?.salary || '',
     }
     if (editJob) setJobs(prev => prev.map(j => j.id===editJob.id ? {...editJob,...base} as Job : j))
