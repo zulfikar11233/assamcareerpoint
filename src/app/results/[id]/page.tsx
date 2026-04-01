@@ -235,7 +235,9 @@ export default function ResultDetail({ params }: { params: Promise<{ id: string 
                           borderBottom: li < sec.links.length - 1 ? '1px solid #f0f4f8' : 'none',
                           textDecoration: 'none', background: W,
                         }}>
-                        <span style={{ fontSize: '.9rem', fontWeight: 600, color: N }}>{lnk.label}</span>
+                        <span style={{ fontSize: '.9rem', fontWeight: 600, color: N }}>
+  {lnk.label || lnk.url}
+</span>
                         <span style={{ fontSize: '.78rem', fontWeight: 800, color: T, fontFamily: 'Arial Black,sans-serif', whiteSpace: 'nowrap' as const }}>
                           Click Here →
                         </span>
