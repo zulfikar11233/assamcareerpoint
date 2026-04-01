@@ -202,8 +202,8 @@ function SectionBuilder({ sections, onChange }: {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: '#eef3f9' }}>
-                      <th style={{ padding: '6px 8px', fontSize: '.72rem', color: '#3a5068', fontWeight: 700, textAlign: 'left', borderBottom: '1px solid #d4e0ec' }}>Label</th>
-                      <th style={{ padding: '6px 8px', fontSize: '.72rem', color: '#3a5068', fontWeight: 700, textAlign: 'left', borderBottom: '1px solid #d4e0ec' }}>URL</th>
+                      <th style={{ padding: '6px 8px', fontSize: '.72rem', color: '#3a5068', fontWeight: 700, textAlign: 'left', borderBottom: '1px solid #d4e0ec' }}>Label <span style={{fontWeight:400,color:'#8fa3b8'}}>(e.g. Official Website)</span></th>
+<th style={{ padding: '6px 8px', fontSize: '.72rem', color: '#3a5068', fontWeight: 700, textAlign: 'left', borderBottom: '1px solid #d4e0ec' }}>URL <span style={{fontWeight:400,color:'#8fa3b8'}}>(https://...)</span></th>
                       <th style={{ width: 40, borderBottom: '1px solid #d4e0ec' }} />
                     </tr>
                   </thead>
