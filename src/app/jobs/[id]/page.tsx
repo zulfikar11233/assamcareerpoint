@@ -629,8 +629,8 @@ if (!job) return (
                 )}
               </div>
             )}
-	    {/* Details Tab Images */}
-                {(job.detailsImages||[]).filter(Boolean).length > 0 && (
+	     {/* Details Tab Images */}
+            {activeTab==='details' && (job.detailsImages||[]).filter(Boolean).length > 0 && (
                   <>
                     <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'22px 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>🖼️ Additional Images</h2>
                     {(job.detailsImages||[]).filter(Boolean).map((imgUrl,idx)=>{
@@ -648,8 +648,9 @@ if (!job) return (
                     })}
                   </>
                 )}
+            )}
             	{/* Full Description */}
-{(job as any).fullDescription && (
+{activeTab==='details' && (job as any).fullDescription && (
   <div style={{marginTop:22}}>
     <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>
       📄 {(job as any).fullDescTitle || 'Detailed Information'}
