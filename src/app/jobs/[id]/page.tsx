@@ -629,7 +629,6 @@ if (!job) return (
                 )}
               </div>
             )}
-	     {/* Details Tab Images */}
             {activeTab==='details' && (job.detailsImages||[]).filter(Boolean).length > 0 && (
                   <>
                     <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'22px 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>🖼️ Additional Images</h2>
