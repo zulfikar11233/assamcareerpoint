@@ -635,8 +635,8 @@ if (!job) return (
                     <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'22px 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>🖼️ Additional Images</h2>
                     {(job.detailsImages||[]).filter(Boolean).map((imgUrl,idx)=>{
                       const src = imgUrl.includes('drive.google.com')
-                        ? `https://lh3.googleusercontent.com/d/${(imgUrl.match(/\/d\/([a-zA-Z0-9_-]+)/)||[])[1]}`
-                        : imgUrl
+  ? driveImgUrl(imgUrl)
+  : imgUrl
                       return (
                         <div key={idx} style={{borderRadius:10,overflow:'hidden',border:'1.5px solid #d4e0ec',marginBottom:12,boxShadow:'0 2px 12px rgba(0,0,0,.06)'}}>
                           <img src={src} alt={`Job image ${idx+1}`}
@@ -725,8 +725,8 @@ if (!job) return (
                 {/* How to Apply Images */}
                 {(job.howToApplyImages||[]).filter(Boolean).map((imgUrl,idx)=>{
                   const src = imgUrl.includes('drive.google.com')
-                    ? `https://lh3.googleusercontent.com/d/${(imgUrl.match(/\/d\/([a-zA-Z0-9_-]+)/)||[])[1]}`
-                    : imgUrl
+  ? driveImgUrl(imgUrl)
+  : imgUrl
                   return (
                     <div key={idx} style={{borderRadius:10,overflow:'hidden',border:'1.5px solid #d4e0ec',marginBottom:12,boxShadow:'0 2px 12px rgba(0,0,0,.06)'}}>
                       <img src={src} alt={`How to apply step ${idx+1}`}
