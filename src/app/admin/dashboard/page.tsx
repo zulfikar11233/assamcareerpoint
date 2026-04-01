@@ -1007,7 +1007,7 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
 
       {/* ════════════════════ ADD/EDIT JOB MODAL ════════════════════ */}
       {showJobModal && (
-        <div className="ovl" onClick={e=>{if(e.target===e.currentTarget&&window.confirm('Close without saving? All unsaved data will be lost.'))setShowJobModal(false)}}>
+        <div className="ovl">
           <div className="mdl">
             <div className="mhd">
               <h2>{editJob?'✏️ Edit Job Vacancy':'➕ Add Job Vacancy'}</h2>
@@ -1305,7 +1305,7 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
 
       {/* ════════════════════ ADD/EDIT EXAM MODAL ════════════════════ */}
       {showExamModal && (
-        <div className="ovl" onClick={e=>{if(e.target===e.currentTarget&&window.confirm('Close without saving? All unsaved data will be lost.'))setShowExamModal(false)}}>
+        <div className="ovl">
           <div className="mdl">
             <div className="mhd">
               <h2>{editExam?'✏️ Edit Exam':'📚 Add Competitive Exam'}</h2>
@@ -1457,7 +1457,7 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
 
       {/* ════════════════════ ADD/EDIT INFO MODAL ════════════════════ */}
       {showInfoModal && (
-        <div className="ovl" onClick={e=>{if(e.target===e.currentTarget&&window.confirm('Close without saving? All unsaved data will be lost.'))setShowInfoModal(false)}}>
+        <div className="ovl">
           <div className="mdl">
             <div className="mhd">
               <h2>{editInfo?'✏️ Edit Information':'ℹ️ Add Information'}</h2>
@@ -1557,7 +1557,7 @@ https://drive.google.com/file/d/...`}
 
       {/* ════════════════════ ADD PDF FORM MODAL ════════════════════ */}
       {showPdfModal && (
-        <div className="ovl" onClick={e=>{if(e.target===e.currentTarget&&window.confirm('Close without saving? All unsaved data will be lost.'))setShowPdfModal(false)}}>
+        <div className="ovl">
           <div style={{ background:'#fff',borderRadius:18,width:'100%',maxWidth:620,boxShadow:'0 30px 80px rgba(0,0,0,.35)',margin:'auto',maxHeight:'90vh',overflow:'auto' }}>
             <div className="mhd"><h2>📄 Add PDF Form to Library</h2><button onClick={()=>setShowPdfModal(false)} style={{ width:28,height:28,borderRadius:7,background:'#f0f4f8',border:'1.5px solid #d4e0ec',cursor:'pointer' }}>✕</button></div>
             <form onSubmit={savePdfForm} style={{ padding:'20px 24px' }}>
@@ -1613,7 +1613,7 @@ https://drive.google.com/file/d/...`}
 
       {/* ════ AFFILIATE ADD/EDIT MODAL ════ */}
       {showAffModal && (
-        <div className="ovl" onClick={e=>{if(e.target===e.currentTarget&&window.confirm('Close without saving? All unsaved data will be lost.'))setShowAffModal(false)}}>
+        <div className="ovl">
           <div style={{background:'#fff',borderRadius:18,width:'100%',maxWidth:640,boxShadow:'0 30px 80px rgba(0,0,0,.35)',margin:'auto',maxHeight:'90vh',overflow:'auto'}}>
             <div className="mhd">
               <h2>{editAff?'✏️ Edit Affiliate Item':'➕ Add Affiliate Item'}</h2>
