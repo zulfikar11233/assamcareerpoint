@@ -1557,7 +1557,7 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
     </div>
   </div>
 ))}
-<button type="button" onClick={()=>setEf(p=>({...p,examAffiliates:[...(p.examAffiliates||[]),{id:Date.now().toString(),title:'',link:'',badge:''}]}))} style={{...bT,fontSize:'.8rem',padding:'8px 16px',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:7,marginBottom:4}}>
+                <button type="button" onClick={()=>setEf(p=>({...p,examAffiliates:[...(p.examAffiliates||[]),{id:Date.now().toString(),title:'',link:'',badge:''}]}))} style={{...bT,fontSize:'.8rem',padding:'8px 16px',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:7,marginBottom:4}}>
                   🛒 Add Book/Course
                 </button>
                 {/* ── Section: Optional Sections ── */}
