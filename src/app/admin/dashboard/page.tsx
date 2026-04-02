@@ -1570,11 +1570,11 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
               <div style={{ padding:'14px 24px',borderTop:'1px solid #d4e0ec',display:'flex',justifyContent:'flex-end',gap:10 }}>
                 <button type="button" onClick={()=>setShowExamModal(false)} style={bS}>Cancel</button>
                 <button type="submit" style={bO}>💾 {editExam?'Update Exam':'Publish Exam'}</button>
-              </div>            </form>
+              </div>
+            </form>
           </div>
         </div>
       )}
-
       {/* ════════════════════ ADD/EDIT INFO MODAL ════════════════════ */}
       {showInfoModal && (
         <div className="ovl">
