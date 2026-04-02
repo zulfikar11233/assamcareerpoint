@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useEffect, useRef } from 'react'
 import { signOut } from 'next-auth/react'
-
+import { ContentSection, ContentSectionLink, newContentSectionId, newContentLinkId } from '@/lib/section-types'
 // ─── TYPES ────────────────────────────────────────────────────────────────────
 
 type Post = {
@@ -255,6 +255,103 @@ function driveImgUrl(url: string): string {
   if (m) return `https://lh3.googleusercontent.com/d/${m[1]}`
   return url  // not a Drive link, use as-is
 }
+// ── Shared Section Builder ────────────────────────────────────────────────────
+const sbSi: React.CSSProperties = { width:'100%',padding:'7px 11px',borderRadius:7,border:'1.5px solid #d4e0ec',fontSize:'.85rem',fontFamily:'Nunito,sans-serif',outline:'none',background:'#fafcff' }
+const sbLb: React.CSSProperties = { display:'block',fontSize:'.75rem',fontWeight:700,color:'#3a5068',marginBottom:4,fontFamily:'Nunito,sans-serif' }
+
+function SectionBuilder({ sections, onChange }: {
+  sections: ContentSection[]
+  onChange: (s: ContentSection[]) => void
+}) {
+  const update = (idx: number, patch: Partial<ContentSection>) =>
+    onChange(sections.map((s,i) => i===idx ? {...s,...patch} : s))
+  const addLink = (idx: number) => {
+    if (sections[idx].links.length >= 10) return
+    update(idx, { links: [...sections[idx].links, { id: newContentLinkId(), label:'', url:'' }] })
+  }
+  const updateLink = (si: number, li: number, patch: Partial<ContentSectionLink>) =>
+    update(si, { links: sections[si].links.map((l,i) => i===li ? {...l,...patch} : l) })
+  const removeLink = (si: number, li: number) =>
+    update(si, { links: sections[si].links.filter((_,i) => i!==li) })
+  const removeSection = (idx: number) => onChange(sections.filter((_,i) => i!==idx))
+  const moveUp = (idx: number) => {
+    if (idx===0) return
+    const a=[...sections]; [a[idx-1],a[idx]]=[a[idx],a[idx-1]]; onChange(a)
+  }
+  const moveDown = (idx: number) => {
+    if (idx===sections.length-1) return
+    const a=[...sections]; [a[idx],a[idx+1]]=[a[idx+1],a[idx]]; onChange(a)
+  }
+  return (
+    <div>
+      {sections.map((sec,idx) => (
+        <div key={sec.id} style={{border:'1.5px solid #d4e0ec',borderRadius:10,marginBottom:10,background:'#fafcff',overflow:'hidden'}}>
+          <div style={{background:'#eef3f9',padding:'7px 11px',display:'flex',alignItems:'center',gap:7,borderBottom:'1px solid #d4e0ec'}}>
+            <span style={{fontSize:'.76rem',fontWeight:800,color:'#3a5068',fontFamily:'Nunito,sans-serif'}}>Section {idx+1}</span>
+            <div style={{flex:1}}/>
+            <button type="button" onClick={()=>moveUp(idx)} style={{padding:'2px 7px',borderRadius:6,background:'#f0f4f8',border:'1.5px solid #d4e0ec',cursor:'pointer',fontSize:'.73rem',fontWeight:700}}>↑</button>
+            <button type="button" onClick={()=>moveDown(idx)} style={{padding:'2px 7px',borderRadius:6,background:'#f0f4f8',border:'1.5px solid #d4e0ec',cursor:'pointer',fontSize:'.73rem',fontWeight:700}}>↓</button>
+            <button type="button" onClick={()=>removeSection(idx)} style={{padding:'2px 9px',borderRadius:6,background:'#fff0f0',color:'#c0392b',border:'1.5px solid #f5c6c6',cursor:'pointer',fontSize:'.73rem',fontWeight:700}}>✕ Remove</button>
+          </div>
+          <div style={{padding:'11px 13px',display:'flex',flexDirection:'column' as const,gap:9}}>
+            <div>
+              <label style={sbLb}>Section Title *</label>
+              <input value={sec.title} onChange={e=>update(idx,{title:e.target.value})} style={sbSi} placeholder="e.g. How to Check Result / Important Instructions" />
+            </div>
+            <div>
+              <label style={sbLb}>Content / Details</label>
+              <textarea value={sec.content} onChange={e=>update(idx,{content:e.target.value})} style={{...sbSi,minHeight:75,resize:'vertical' as const}} placeholder="Write details here. Each line = one paragraph." />
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:9}}>
+              <div>
+                <label style={sbLb}>📄 PDF Link (Google Drive — optional)</label>
+                <input value={sec.pdfLink||''} onChange={e=>update(idx,{pdfLink:e.target.value})} style={sbSi} placeholder="https://drive.google.com/file/d/..." />
+              </div>
+              <div>
+                <label style={sbLb}>PDF Button Label</label>
+                <input value={sec.pdfName||''} onChange={e=>update(idx,{pdfName:e.target.value})} style={sbSi} placeholder="e.g. Download Notice" />
+              </div>
+            </div>
+            <div>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:5}}>
+                <label style={{...sbLb,marginBottom:0}}>🔗 Important Links ({sec.links.length}/10)</label>
+                {sec.links.length < 10 && (
+                  <button type="button" onClick={()=>addLink(idx)} style={{padding:'3px 11px',borderRadius:6,background:'#f0f4f8',border:'1.5px solid #d4e0ec',cursor:'pointer',fontSize:'.73rem',fontWeight:700,fontFamily:'Nunito,sans-serif'}}>+ Add Link</button>
+                )}
+              </div>
+              {sec.links.length > 0 && (
+                <table style={{width:'100%',borderCollapse:'collapse'}}>
+                  <thead>
+                    <tr style={{background:'#eef3f9'}}>
+                      <th style={{padding:'5px 7px',fontSize:'.7rem',color:'#3a5068',fontWeight:700,textAlign:'left' as const,borderBottom:'1px solid #d4e0ec'}}>Label <span style={{color:'#8fa3b8',fontWeight:400}}>(e.g. Official Website)</span></th>
+                      <th style={{padding:'5px 7px',fontSize:'.7rem',color:'#3a5068',fontWeight:700,textAlign:'left' as const,borderBottom:'1px solid #d4e0ec'}}>URL <span style={{color:'#8fa3b8',fontWeight:400}}>(https://...)</span></th>
+                      <th style={{width:36,borderBottom:'1px solid #d4e0ec'}}/>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sec.links.map((lnk,li) => (
+                      <tr key={lnk.id}>
+                        <td style={{padding:'4px 5px'}}><input value={lnk.label} onChange={e=>updateLink(idx,li,{label:e.target.value})} style={{...sbSi,padding:'5px 8px'}} placeholder="Official Website" /></td>
+                        <td style={{padding:'4px 5px'}}><input value={lnk.url} onChange={e=>updateLink(idx,li,{url:e.target.value})} style={{...sbSi,padding:'5px 8px'}} placeholder="https://example.gov.in" /></td>
+                        <td style={{padding:'4px 5px',textAlign:'center' as const}}><button type="button" onClick={()=>removeLink(idx,li)} style={{background:'none',border:'none',cursor:'pointer',color:'#c0392b',fontSize:'1rem'}}>✕</button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
+      {sections.length < 10 && (
+        <button type="button" onClick={()=>onChange([...sections,{id:newContentSectionId(),title:'',content:'',pdfLink:'',pdfName:'',links:[]}])}
+          style={{width:'100%',padding:'9px',borderRadius:8,background:'#f0f4f8',border:'1.5px dashed #d4e0ec',cursor:'pointer',fontSize:'.82rem',fontWeight:700,color:'#3a5068',fontFamily:'Nunito,sans-serif',textAlign:'center' as const}}>
+          ➕ Add Section {sections.length+1}
+        </button>
+      )}
+    </div>
+  )
+}
 
 export default function AdminDashboard() {
   // Auth handled by middleware — no useSession needed
@@ -311,6 +408,9 @@ const [dataLoaded, setDataLoaded] = useState(false)
   const [jobAffiliates, setJobAffiliates] = useState<JobAffiliate[]>([])
   const [jaImgRef] = useState<React.MutableRefObject<HTMLInputElement|null>>({current:null})
   const [dateHistory, setDateHistory] = useState<DateExt[]>([])
+  const [jobSections,  setJobSections]  = useState<ContentSection[]>([])
+  const [examSections, setExamSections] = useState<ContentSection[]>([])
+  const [infoSections, setInfoSections] = useState<ContentSection[]>([])
 
   // Exam form
   const blankExam = { emoji:'📚', title:'', conductedBy:'', category:'Teaching', description:'', applicationStart:'', applicationLastDate:'', paymentLastDate:'', examDate:'', examTime:'', admitCardDate:'', resultDate:'', fee:'', eligibility:'', fullDescription:'', fullDescTitle:'', syllabus:'', officialSite:'', applyLink:'', admitCardLink:'', status:'Upcoming' as Exam['status'], titleAs:'', descriptionAs:'', eligibilityAs:'', examPdfs:[] as {label:string;url:string}[], examAffiliates:[] as {id:string;title:string;link:string;img?:string;badge?:string}[] }
@@ -397,12 +497,14 @@ fullDescTitle:'', status:'Active' as InfoItem['status'], titleAs:'', description
     setEditJob(null)
     setJf(BLANK_JF)
     setPosts([]); setAdvPdfs([]); setJobAffiliates([]); setDateHistory([])
+    setJobSections([])
     setShowJobModal(true)
   }
   function openEditJob(j:Job) {
     setEditJob(j)
     setJf({ logo:j.logo, title:j.title, org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'',howToApplyImages: (j as any).howToApplyImages || [], detailsImages: (j as any).detailsImages || [], youtubeLink:j.youtubeLink||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageBirthRange:(j as any).ageBirthRange||'', ageRelaxation:j.ageRelaxation||'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:j.feeRefund||'', lastDateTime:j.lastDateTime||'23:59 Hrs', paymentLastDate:j.paymentLastDate||'', paymentLastDateTime:j.paymentLastDateTime||'23:59 Hrs', correctionWindow:j.correctionWindow||'', applicationStart:j.applicationStart||'', helplineEmail:j.helplineEmail||'', helplinePhone:j.helplinePhone||'', selectionDetails:j.selectionDetails||'', syllabusDetails:j.syllabusDetails||'', zoneWiseVacancy:j.zoneWiseVacancy||'', fullDescription:(j as any).fullDescription||'', fullDescTitle:(j as any).fullDescTitle||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
     setPosts(j.posts||[]); setAdvPdfs(j.advPdfs||[]); setJobAffiliates(j.jobAffiliates||[]); setDateHistory(j.dateHistory||[])
+setJobSections((j as any).sections||[])
     setShowJobModal(true)
   }
   function addPost() {
@@ -432,7 +534,7 @@ fullDescTitle:'', status:'Active' as InfoItem['status'], titleAs:'', description
     const latestLD = posts.length ? [...posts].sort((a,b)=>b.lastDate.localeCompare(a.lastDate))[0].lastDate : editJob?.lastDate||''
     const finalLD  = dateHistory.length ? dateHistory.at(-1)!.date : latestLD
     const base: Partial<Job> = {
-      ...jf, posts, advPdfs, jobAffiliates, dateHistory,
+      ...jf, posts, advPdfs, jobAffiliates, dateHistory, sections: jobSections,
       vacancy:     totalV ? String(totalV) : (editJob?.vacancy||'0'),
       lastDate:    finalLD,
       applyLink:   posts[0]?.applyLink || editJob?.applyLink || '',
@@ -1277,7 +1379,12 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                 <button type="button" onClick={()=>setJobAffiliates(p=>[...p,{id:Date.now().toString(),title:'',link:'',img:'',badge:''}])} style={{...bT,fontSize:'.8rem',padding:'8px 16px',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:7,marginBottom:4}}>
                   🛒 Add Product / Book
                 </button>
-
+		{/* ── Section: Optional Sections ── */}
+                <div className="sh">📦 Optional Sections (title + content + links + PDF)</div>
+                <div style={{background:'#e8f4fd',border:'1px solid #90caf9',borderRadius:9,padding:'9px 14px',marginBottom:12,fontSize:'.78rem',color:'#1a3a5c',lineHeight:1.75}}>
+                  Add extra sections with custom content, important links, and PDF downloads. These appear on the public job detail page below the main content.
+                </div>
+                <SectionBuilder sections={jobSections} onChange={setJobSections} />
               </div>
               <div style={{ padding:'14px 24px',borderTop:'1px solid #d4e0ec',display:'flex',justifyContent:'flex-end',gap:10 }}>
                 <button type="button" onClick={()=>setShowJobModal(false)} style={bS}>Cancel</button>
