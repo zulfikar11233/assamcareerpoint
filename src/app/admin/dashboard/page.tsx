@@ -125,6 +125,7 @@ type Exam = {
   fee?: string
   eligibility?: string
   syllabus?: string
+  sections?: ContentSection[]
   officialSite?: string
   applyLink?: string
   admitCardLink?: string
@@ -559,15 +560,20 @@ setJobSections((j as any).sections||[])
   }
 
   // ── EXAM HELPERS ─────────────────────────────────────────────────────────
-  function openAddExam()  { setEditExam(null); setEf(blankExam); setShowExamModal(true) }
+  function openAddExam()  { setEditExam(null); setEf(blankExam); setExamSections([]); setShowExamModal(true) }
   function openEditExam(x:Exam) { setEditExam(x); setEf({ emoji:x.emoji, title:x.title, conductedBy:x.conductedBy, category:x.category, description:x.description||'', applicationStart:x.applicationStart||'', applicationLastDate:x.applicationLastDate||'', paymentLastDate:x.paymentLastDate||'', examDate:x.examDate||'', examTime:x.examTime||'', admitCardDate:x.admitCardDate||'', resultDate:x.resultDate||'', fee:x.fee||'', eligibility:x.eligibility||'', syllabus:x.syllabus||'', officialSite:x.officialSite||'', applyLink:x.applyLink||'', admitCardLink:x.admitCardLink||'', status:x.status, titleAs:x.titleAs||'', descriptionAs:x.descriptionAs||'', eligibilityAs:x.eligibilityAs||'', fullDescription:(x as any).fullDescription||'',
-fullDescTitle:(x as any).fullDescTitle||'', examPdfs:x.examPdfs||[], examAffiliates:x.examAffiliates||[] }); setShowExamModal(true) }
+fullDescTitle:(x as any).fullDescTitle||'', examPdfs:x.examPdfs||[], examAffiliates:x.examAffiliates||[] }); setExamSections((x as any).sections || []); setShowExamModal(true) }
   function saveExam(e:React.FormEvent) {
     e.preventDefault()
     if (!ef.title) { alert('Title required.'); return }
-    if (editExam) setExams(prev => prev.map(x => x.id===editExam.id ? {...editExam,...ef} : x))
+    if (editExam) setExams(prev => prev.map(x => x.id===editExam.id ? {...editExam,...ef, sections: examSections} : x))
     else {
-      const newExam = {id:Date.now(),createdAt:new Date().toISOString(),...ef}
+      const newExam = {
+  id: Date.now(),
+  createdAt: new Date().toISOString(),
+  ...ef,
+  sections: examSections
+}
       setExams(prev => [newExam, ...prev])
       fetch('/api/notify', {
         method: 'POST',
@@ -1556,7 +1562,25 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
 </button>
               <div style={{ padding:'14px 24px',borderTop:'1px solid #d4e0ec',display:'flex',justifyContent:'flex-end',gap:10 }}>
                 <button type="button" onClick={()=>setShowExamModal(false)} style={bS}>Cancel</button>
-                <button type="submit" style={bO}>💾 {editExam?'Update Exam':'Publish Exam'}</button>
+{/* ── Section: Optional Sections ── */}
+<div className="sh">📦 Optional Sections (title + content + links + PDF)</div>
+
+<div style={{
+  background:'#e8f4fd',
+  border:'1px solid #90caf9',
+  borderRadius:9,
+  padding:'9px 14px',
+  marginBottom:12,
+  fontSize:'.78rem',
+  color:'#1a3a5c',
+  lineHeight:1.75
+}}>
+  Add extra sections with custom content, important links, and PDF downloads.
+  These will appear on the public exam detail page.
+</div>
+
+<SectionBuilder sections={examSections} onChange={setExamSections} />                
+<button type="submit" style={bO}>💾 {editExam?'Update Exam':'Publish Exam'}</button>
               </div>
             </form>
           </div>
