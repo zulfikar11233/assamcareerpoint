@@ -70,6 +70,7 @@ type Job = {
   howToApply?: string
   howToApplyImages?: string[]
   detailsImages?: string[]
+  sections?:ContentSection[]   // ← optional sections shown on detail page
   youtubeLink?: string
   createdAt?: string
   // SEO & Description
