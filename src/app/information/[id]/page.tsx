@@ -229,6 +229,42 @@ export default function InfoDetail({ params }: { params: Promise<{ id: string }>
     </div>
   </div>
 )}
+	  {/* ── Optional Sections ── */}
+          {((item as any).sections||[]).filter((s:any)=>s.title||s.content||s.links?.length||s.pdfLink).map((sec:any,idx:number)=>(
+            <div key={sec.id||idx} style={{background:'#fff',border:'1.5px solid #e8eef4',borderRadius:13,overflow:'hidden',marginBottom:18}}>
+              <div style={{background:`linear-gradient(90deg,${N},#102a45)`,padding:'13px 20px',display:'flex',alignItems:'center',gap:10}}>
+                <span style={{width:24,height:24,borderRadius:6,background:G,display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:'.75rem',fontWeight:800,color:N,flexShrink:0}}>{idx+1}</span>
+                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,color:W,fontSize:'1rem',margin:0}}>{sec.title}</h2>
+              </div>
+              <div style={{padding:'18px 20px',display:'flex',flexDirection:'column' as const,gap:14}}>
+                {sec.content&&(
+                  <div style={{color:'#3a5068',fontSize:'.9rem',lineHeight:1.85,whiteSpace:'pre-line' as const}}>{sec.content}</div>
+                )}
+                {sec.links?.length>0&&(
+                  <div>
+                    <div style={{fontSize:'.74rem',fontWeight:800,color:'#3a5068',marginBottom:7,textTransform:'uppercase' as const,letterSpacing:.5}}>🔗 Important Links</div>
+                    <div style={{border:'1.5px solid #e8eef4',borderRadius:10,overflow:'hidden'}}>
+                      {sec.links.map((lnk:any,li:number)=>(
+                        <a key={lnk.id||li} href={lnk.url} target="_blank" rel="noopener noreferrer"
+                          style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'11px 16px',borderBottom:li<sec.links.length-1?'1px solid #f0f4f8':'none',textDecoration:'none',background:'#fff'}}>
+                          <span style={{fontSize:'.88rem',fontWeight:600,color:N}}>{lnk.label||lnk.url}</span>
+                          <span style={{fontSize:'.76rem',fontWeight:800,color:T,fontFamily:'Arial Black,sans-serif',whiteSpace:'nowrap' as const}}>Click Here →</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {sec.pdfLink&&(
+                  <div>
+                    <a href={sec.pdfLink} target="_blank" rel="noopener noreferrer"
+                      style={{display:'inline-flex',alignItems:'center',gap:8,padding:'10px 20px',borderRadius:30,background:N,color:G,fontWeight:900,textDecoration:'none',fontSize:'.84rem',fontFamily:'Arial Black,sans-serif'}}>
+                      📄 {sec.pdfName||'Download PDF'}
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
           {/* Disclaimer */}
           <div style={{background:'#fff8e1',border:'1.5px solid #ffe082',borderRadius:12,padding:'14px 18px',fontSize:'.82rem',color:'#5a3a00',lineHeight:1.8}}>
             <strong>⚠️ Disclaimer:</strong> This information is for awareness purposes only. Always verify from the official government website before taking any action. Assam Career Point & Info is not affiliated with any government body.
