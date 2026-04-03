@@ -1501,7 +1501,7 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                   <input value={ef.eligibilityAs||''} onChange={e=>setEf(p=>({...p,eligibilityAs:e.target.value}))} style={{...si,borderColor:'#ffe082'}} placeholder="স্নাতক + বি.এড / ডি.এল.এড" />
                 </div>
 
-              </div> {/* ── Section: PDFs ── */}
+              {/* ── Section: PDFs ── */}
 <div className="sh">📄 Official PDFs / Documents (Google Drive Links)</div>
 <div style={{background:'#e3f2fd',border:'1px solid #90caf9',borderRadius:9,padding:'9px 13px',fontSize:'.78rem',color:'#0d47a1',marginBottom:10}}>
   Add notification PDF, syllabus, admit card etc. Enter a label and Google Drive share link for each.
