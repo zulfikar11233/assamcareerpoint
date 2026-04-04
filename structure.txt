@@ -16,6 +16,7 @@ C:.
 |   README.md
 |   structure.txt
 |   tsconfig.json
+|   tsconfig.tsbuildinfo
 |   
 +---.github
 |       copilot-instructions.md
@@ -32625,10 +32626,16 @@ C:.
     |   |   |   \---[...nextauth]
     |   |   |           route.ts
     |   |   |           
-    |   |   \---data
-    |   |       \---[collection]
-    |   |               route.ts
-    |   |               
+    |   |   +---data
+    |   |   |   \---[collection]
+    |   |   |           route.ts
+    |   |   |           
+    |   |   \---notify
+    |   |           route.ts
+    |   |           
+    |   +---as
+    |   |       page.tsx
+    |   |       
     |   +---contact
     |   |       page.tsx
     |   |       
@@ -32669,12 +32676,15 @@ C:.
     |   |   \---[id]
     |   |           page.tsx
     |   |           
-    |   \---services
-    |       |   page.tsx
-    |       |   
-    |       \---[slug]
-    |               page.tsx
-    |               
+    |   +---services
+    |   |   |   page.tsx
+    |   |   |   
+    |   |   \---[slug]
+    |   |           page.tsx
+    |   |           
+    |   \---sitemap.xml
+    |           route.ts
+    |           
     +---components
     |       MigrateButton.tsx
     |       
@@ -32685,4 +32695,5 @@ C:.
             mysql.ts
             others-db.ts
             results-db.ts
+            section-types.ts
             

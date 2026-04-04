@@ -205,15 +205,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             GOOGLE ANALYTICS 4
             Replace G-XXXXXXXXXX with your Measurement ID from analytics.google.com
             ════════════════════════════════════════════════════════════ */}
-        {/*
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX" />
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-KXLWVXBV4Q" />
         <script dangerouslySetInnerHTML={{ __html: `
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', 'G-XXXXXXXXXX');
+          gtag('config', 'G-KXLWVXBV4Q');
         `}} />
-        */}
       </head>
 
       <body style={{ margin: 0, padding: 0, fontFamily: 'Nunito, sans-serif' }}>
