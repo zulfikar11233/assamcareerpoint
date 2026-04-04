@@ -186,7 +186,33 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
     if (Array.isArray(list) && list.length > 0) {
       // ✅ Always update localStorage with fresh server data
       try { localStorage.setItem('acp_jobs_v6', JSON.stringify(list)) } catch {}
-      setJob(list.find(j => String(j.id) === String(id)) || null)
+      const found = list.find(j => String(j.id) === String(id)) || null
+setJob(found)
+if (found) {
+  // SEO meta tags
+  document.title = `${found.title} | Assam Career Point & Info`
+  const desc = found.description ||
+    `${found.title} — ${found.org}. Vacancy: ${found.vacancy} posts. Last date: ${found.lastDate}. Apply now on Assam Career Point.`
+  let metaDesc = document.querySelector('meta[name="description"]') as HTMLMetaElement|null
+  if (!metaDesc) { metaDesc = document.createElement('meta'); metaDesc.name='description'; document.head.appendChild(metaDesc) }
+  metaDesc.content = desc
+  // Open Graph
+  const ogTags: [string,string][] = [
+    ['og:title',       `${found.title} | Assam Career Point & Info`],
+    ['og:description', desc],
+    ['og:type',        'article'],
+    ['og:url',         `https://www.assamcareerpoint-info.com/jobs/${found.id}`],
+  ]
+  ogTags.forEach(([prop,content]) => {
+    let el = document.querySelector(`meta[property="${prop}"]`) as HTMLMetaElement|null
+    if (!el) { el=document.createElement('meta'); el.setAttribute('property',prop); document.head.appendChild(el) }
+    el.content = content
+  })
+  // Canonical
+  let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement|null
+  if (!canonical) { canonical=document.createElement('link'); canonical.rel='canonical'; document.head.appendChild(canonical) }
+  canonical.href = `https://www.assamcareerpoint-info.com/jobs/${found.id}`
+}
       setOthers(list.filter(j => String(j.id) !== String(id) && j.status !== 'Draft').slice(0,4))
     } else {
       // fallback to localStorage ONLY if server returns nothing

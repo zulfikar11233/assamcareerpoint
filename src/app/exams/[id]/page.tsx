@@ -99,7 +99,30 @@ export default function ExamDetail({ params }: { params: Promise<{ id: string }>
       .then((list: Exam[]) => {
         if (Array.isArray(list) && list.length > 0) {
           setAllExams(list)
-          setExam(list.find(e => String(e.id) === String(id)) || null)
+          const found = list.find(e => String(e.id) === String(id)) || null
+setExam(found)
+if (found) {
+  document.title = `${found.title} | Assam Career Point & Info`
+  const desc = found.description ||
+    `${found.title} — Conducted by ${found.conductedBy}. Apply by ${found.applicationLastDate}. Full details on Assam Career Point.`
+  let metaDesc = document.querySelector('meta[name="description"]') as HTMLMetaElement|null
+  if (!metaDesc) { metaDesc=document.createElement('meta'); metaDesc.name='description'; document.head.appendChild(metaDesc) }
+  metaDesc.content = desc
+  const ogTags: [string,string][] = [
+    ['og:title',       `${found.title} | Assam Career Point & Info`],
+    ['og:description', desc],
+    ['og:type',        'article'],
+    ['og:url',         `https://www.assamcareerpoint-info.com/exams/${found.id}`],
+  ]
+  ogTags.forEach(([prop,content]) => {
+    let el = document.querySelector(`meta[property="${prop}"]`) as HTMLMetaElement|null
+    if (!el) { el=document.createElement('meta'); el.setAttribute('property',prop); document.head.appendChild(el) }
+    el.content = content
+  })
+  let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement|null
+  if (!canonical) { canonical=document.createElement('link'); canonical.rel='canonical'; document.head.appendChild(canonical) }
+  canonical.href = `https://www.assamcareerpoint-info.com/exams/${found.id}`
+}
         } else {
           try {
             const saved = localStorage.getItem('acp_exams_v6')

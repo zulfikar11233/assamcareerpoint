@@ -51,7 +51,30 @@ export default function InfoDetail({ params }: { params: Promise<{ id: string }>
       .then(r => r.json())
       .then((list: InfoItem[]) => {
         if (Array.isArray(list) && list.length > 0) {
-          setItem(list.find(i => String(i.id) === String(id)) || null)
+          const found = list.find(i => String(i.id) === String(id)) || null
+setItem(found)
+if (found) {
+  document.title = `${found.title} | Assam Career Point & Info`
+  const desc = found.description ||
+    `${found.title} — ${found.category}. Important information for Assam residents on Assam Career Point.`
+  let metaDesc = document.querySelector('meta[name="description"]') as HTMLMetaElement|null
+  if (!metaDesc) { metaDesc=document.createElement('meta'); metaDesc.name='description'; document.head.appendChild(metaDesc) }
+  metaDesc.content = desc
+  const ogTags: [string,string][] = [
+    ['og:title',       `${found.title} | Assam Career Point & Info`],
+    ['og:description', desc],
+    ['og:type',        'article'],
+    ['og:url',         `https://www.assamcareerpoint-info.com/information/${found.id}`],
+  ]
+  ogTags.forEach(([prop,content]) => {
+    let el = document.querySelector(`meta[property="${prop}"]`) as HTMLMetaElement|null
+    if (!el) { el=document.createElement('meta'); el.setAttribute('property',prop); document.head.appendChild(el) }
+    el.content = content
+  })
+  let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement|null
+  if (!canonical) { canonical=document.createElement('link'); canonical.rel='canonical'; document.head.appendChild(canonical) }
+  canonical.href = `https://www.assamcareerpoint-info.com/information/${found.id}`
+}
           setOthers(list.filter(i => String(i.id) !== String(id) && i.status !== 'Expired').slice(0,4))
         } else {
           try {
