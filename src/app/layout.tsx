@@ -4,8 +4,22 @@
 // ✅ Google AdSense slot ready (replace ca-pub-XXXXXXXXXXXXXXXX with your Publisher ID)
 // ✅ Google Analytics 4 slot ready (replace G-XXXXXXXXXX with your Measurement ID)
 // ✅ robots, sitemap, manifest connected
-
+import { Sora, Nunito } from 'next/font/google';
 import type { Metadata, Viewport } from 'next'
+
+const sora = Sora({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-sora',
+  weight: ['700', '800'],
+});
+
+const nunito = Nunito({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-nunito',
+  weight: ['400', '600', '700'],
+});
 
 const SITE_URL  = 'https://www.assamcareerpoint-info.com'
 const SITE_NAME = 'Assam Career Point & Info'
@@ -155,20 +169,8 @@ function safeJsonLd(obj: object): string {
 // ─── LAYOUT COMPONENT ─────────────────────────────────────────────
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-IN" dir="ltr">
-      <head>
-        {/* ── Preconnect to speed up Google Fonts, AdSense, Analytics ── */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
-
-        {/* ── Fonts ── */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Nunito:wght@400;600;700&display=swap"
-          rel="stylesheet"
-        />
-
+    <html lang="en-IN" dir="ltr" className={`${sora.variable} ${nunito.variable}`}>
+      <head>   
         {/* ── Favicon set ── */}
         <link rel="icon"             type="image/x-icon"       href="/favicon.ico" />
         <link rel="icon"             type="image/png" sizes="32x32" href="/favicon-32x32.png" />
@@ -203,17 +205,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             GOOGLE ANALYTICS 4
             Replace G-XXXXXXXXXX with your Measurement ID from analytics.google.com
             ════════════════════════════════════════════════════════════ */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-KXLWVXBV4Q" />
-        <script dangerouslySetInnerHTML={{ __html: `
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-KXLWVXBV4Q');
-        `}} />
+        {/* Google Analytics (deferred) */}
+<script dangerouslySetInnerHTML={{ __html: `
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-KXLWVXBV4Q', { send_page_view: false });
+  window.addEventListener('load', function() {
+    var s = document.createElement('script');
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-KXLWVXBV4Q';
+    s.async = true;
+    s.onload = function() { gtag('event', 'page_view'); };
+    document.head.appendChild(s);
+  });
+`}} />
       </head>
 
-      <body style={{ margin: 0, padding: 0, fontFamily: 'Nunito, sans-serif' }}>
-        {children}
+      <body style={{ margin: 0, padding: 0, fontFamily: 'var(--font-nunito), sans-serif' }}>
+        <main>{children}</main>   {/* ← wrap in <main> */}
       </body>
     </html>
   )

@@ -210,8 +210,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
     <>
       <style>{`
         *, *::before, *::after { box-sizing: border-box; }
-        html, body { overflow-x: hidden; max-width: 100vw; margin: 0; font-family: Nunito, sans-serif; background: #f0f4f8; color: #1a1a2e; }
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Nunito:wght@400;600;700&display=swap');
+        html, body { overflow-x: hidden; max-width: 100vw; margin: 0; font-family: var(--font-nunito), sans-serif; background: #f0f4f8; color: #1a1a2e; }
         @keyframes ticker   { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
         @keyframes scroll   { 0%{transform:translateY(0)} 100%{transform:translateY(-50%)} }
         @keyframes pulse    { 0%,100%{opacity:1;background:#e8eef6} 50%{opacity:.7;background:#f5f7fa} }
@@ -235,7 +234,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
   border-radius:0 3px 3px 0;
 }
 .jr:hover::before { height:100%; }
-        .stab { padding:10px 16px;border:none;font-family:Nunito,sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:.15s;background:none;white-space:nowrap; }
+        .stab { padding:10px 16px;border:none;font-family:var(--font-nunito),sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:.15s;background:none;white-space:nowrap; }
         .stab.on  { color:#e63946; border-bottom:3px solid #e63946; }
         .stab.off { color:#5a6a7a; border-bottom:3px solid transparent; }
         .ec { background:#fff;border:1.5px solid #d4e0ec;border-radius:13px;padding:15px 17px;transition:.2s; }
@@ -245,7 +244,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
         .rc { background:#fff;border:1.5px solid #d4e0ec;border-radius:13px;padding:14px 16px;transition:.2s;text-decoration:none;color:inherit;display:flex;gap:10px;align-items:center; }
         .rc:hover { transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.08);border-color:#1dbfad; }
         .mob-menu { animation: slideDown .2s ease; }
-        .mob-nav-link { display:block;padding:13px 20px;color:rgba(255,255,255,.85);font-size:1rem;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.07);font-family:Nunito,sans-serif; }
+        .mob-nav-link { display:block;padding:13px 20px;color:rgba(255,255,255,.85);font-size:1rem;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.07);font-family:var(--font-nunito),sans-serif; }
         .mob-nav-link:hover { background:rgba(255,255,255,.06); }
         .desk-nav  { display:flex; }
         .desk-lang { display:flex; }
@@ -293,18 +292,18 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
                 <span style={{color:G}}>ASSAM </span><span style={{color:W}}>CAREER</span>
               </div>
               <div style={{ fontFamily:'Arial Black,sans-serif',fontWeight:900,fontSize:'.65rem',color:T,letterSpacing:'.14em' }}>◆ POINT ◆</div>
-              <div style={{ fontSize:'.5rem',color:'rgba(255,255,255,.25)' }}>assamcareerpoint-info.com</div>
+              <div style={{ fontSize:'.5rem',color:'rgba(255,255,255,.55)' }}>assamcareerpoint-info.com</div>
             </div>
           </Link>
           <nav className="desk-nav" style={{ gap:2 }}>
             {NAV_LINKS.map(([l,h])=>(
-              <Link key={h} href={h} style={{ color:'rgba(255,255,255,.7)',fontSize:'.86rem',fontWeight:600,padding:'7px 11px',borderRadius:8,textDecoration:'none',whiteSpace:'nowrap' }}>{l}</Link>
+              <Link key={h} href={h} style={{ color:'rgba(255,255,255,.85)',fontSize:'.86rem',fontWeight:600,padding:'7px 11px',borderRadius:8,textDecoration:'none',whiteSpace:'nowrap' }}>{l}</Link>
             ))}
           </nav>
           <div className="desk-lang" style={{ gap:11,alignItems:'center',flexShrink:0 }}>
             <div style={{ display:'flex',background:'rgba(255,255,255,.1)',borderRadius:99,padding:3 }}>
               {(['en','as'] as const).map(l=>(
-                <button key={l} onClick={()=>setLang(l)} style={{ padding:'5px 10px',borderRadius:99,fontSize:'.73rem',fontWeight:700,background:lang===l?'#00b4d8':'transparent',color:lang===l?'#fff':'rgba(255,255,255,.5)',border:'none',cursor:'pointer',fontFamily:'Nunito,sans-serif' }}>
+                <button key={l} onClick={()=>setLang(l)} style={{ padding:'5px 10px',borderRadius:99,fontSize:'.73rem',fontWeight:700,background:lang===l?'#00b4d8':'transparent',color:lang===l?'#fff':'rgba(255,255,255,.5)',border:'none',cursor:'pointer',fontFamily:'var(--font-nunito),sans-serif' }}>
                   {l==='en'?'EN':'অস'}
                 </button>
               ))}
@@ -324,7 +323,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
             ))}
             <div style={{ padding:'12px 20px',display:'flex',gap:8 }}>
               {(['en','as'] as const).map(l=>(
-                <button key={l} onClick={()=>{setLang(l);closeMenu()}} style={{ padding:'7px 18px',borderRadius:99,fontSize:'.82rem',fontWeight:700,background:lang===l?'#00b4d8':'rgba(255,255,255,.1)',color:lang===l?'#fff':'rgba(255,255,255,.6)',border:'none',cursor:'pointer',fontFamily:'Nunito,sans-serif' }}>
+                <button key={l} onClick={()=>{setLang(l);closeMenu()}} style={{ padding:'7px 18px',borderRadius:99,fontSize:'.82rem',fontWeight:700,background:lang===l?'#00b4d8':'rgba(255,255,255,.1)',color:lang===l?'#fff':'rgba(255,255,255,.6)',border:'none',cursor:'pointer',fontFamily:'var(--font-nunito),sans-serif' }}>
                   {l==='en'?'English':'অসমীয়া'}
                 </button>
               ))}
@@ -341,10 +340,10 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
               <div style={{ display:'inline-flex',alignItems:'center',gap:7,background:'rgba(0,180,216,.15)',border:'1px solid rgba(0,180,216,.3)',borderRadius:99,padding:'5px 14px',fontSize:'.78rem',fontWeight:700,color:'#00b4d8',marginBottom:16 }}>
                 🔴 Live — Jobs · Exams · Information
               </div>
-              <h1 style={{ fontFamily:"'Sora',sans-serif",fontSize:'clamp(1.9rem,4vw,2.9rem)',fontWeight:800,color:'#fff',lineHeight:1.15,marginBottom:14 }}>
+              <h1 style={{ fontFamily:'var(--font-sora), sans-serif',fontSize:'clamp(1.9rem,4vw,2.9rem)',fontWeight:800,color:'#fff',lineHeight:1.15,marginBottom:14, minHeight: '3.5rem' }}>
                 {TEXTS.headline}<br/><span style={{color:'#00b4d8'}}>{TEXTS.sub1}</span>
               </h1>
-              <p style={{ color:'rgba(255,255,255,.62)',fontSize:'1.05rem',marginBottom:26,lineHeight:1.7,maxWidth:430 }}>{TEXTS.tagline}</p>
+              <p style={{ color:'rgba(255,255,255,.75)',fontSize:'1.05rem',marginBottom:26,lineHeight:1.7,maxWidth:430 }}>{TEXTS.tagline}</p>
               <div style={{ display:'flex',gap:10,flexWrap:'wrap' as const }}>
                 <Link href="/govt-jobs"   style={{ display:'inline-flex',gap:6,alignItems:'center',padding:'12px 22px',borderRadius:99,background:'#e63946',color:'#fff',fontWeight:700,fontSize:'.92rem',textDecoration:'none' }}>🏛️ Govt Jobs</Link>
                 <Link href="/exams"       style={{ display:'inline-flex',gap:6,alignItems:'center',padding:'12px 22px',borderRadius:99,background:'#f4a261',color:'#0d1b2a',fontWeight:700,fontSize:'.92rem',textDecoration:'none' }}>📚 Exams</Link>
@@ -353,7 +352,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
               <div style={{ display:'flex',gap:28,marginTop:26,flexWrap:'wrap' as const }}>
                 {STATS.map(({num,label})=>(
                   <div key={label}>
-                    <div className="stat-num" style={{ fontFamily:"'Sora',sans-serif",fontWeight:800,fontSize:'1.35rem',color:'#00b4d8' }}>{num}</div>
+                    <div className="stat-num" style={{ fontFamily:'var(--font-sora), sans-serif',fontWeight:800,fontSize:'1.35rem',color:'#00b4d8' }}>{num}</div>
                     <div style={{ fontSize:'.75rem',color:'rgba(255,255,255,.5)',marginTop:2 }}>{label}</div>
                   </div>
                 ))}
@@ -363,11 +362,11 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
             {/* Latest Alerts — only shown on desktop, only real data */}
             <div className="alerts-box" style={{ background:'rgba(255,255,255,.06)',border:'1.5px solid rgba(255,255,255,.1)',borderRadius:16,overflow:'hidden' }}>
               <div style={{ padding:'11px 16px',borderBottom:'1px solid rgba(255,255,255,.08)',display:'flex',alignItems:'center',justifyContent:'space-between' }}>
-                <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.86rem',color:'rgba(255,255,255,.85)',display:'flex',alignItems:'center',gap:7 }}>
+                <div style={{ fontFamily:'var(--font-sora), sans-serif',fontWeight:700,fontSize:'.86rem',color:'rgba(255,255,255,.85)',display:'flex',alignItems:'center',gap:7 }}>
                   <span style={{ width:7,height:7,borderRadius:'50%',background:'#00b4d8',display:'inline-block',animation:'pulse 2s infinite' }} />
                   Latest Alerts
                 </div>
-                <span style={{ fontSize:'.66rem',color:'rgba(255,255,255,.3)',background:'rgba(255,255,255,.07)',padding:'2px 7px',borderRadius:99 }}>hover to pause</span>
+                <span style={{ fontSize:'.66rem',color:'rgba(255,255,255,.55)',background:'rgba(255,255,255,.07)',padding:'2px 7px',borderRadius:99 }}>hover to pause</span>
               </div>
               {alertItems.length > 0 ? (
                 <div className="alerts">
@@ -399,7 +398,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
       {/* CATEGORIES */}
       <section style={{ padding:'34px 0 26px' }}>
         <div style={{ maxWidth:1180,margin:'0 auto',padding:'0 20px' }}>
-          <h2 style={{ fontFamily:"'Sora',sans-serif",fontSize:'1.45rem',fontWeight:800,color:'#0d1b2a',marginBottom:5 }}>Browse by Category</h2>
+          <h2 style={{ fontFamily:'var(--font-sora), sans-serif',fontSize:'1.45rem',fontWeight:800,color:'#0d1b2a',marginBottom:5 }}>Browse by Category</h2>
           <p style={{ color:'#5a6a7a',fontSize:'.95rem',marginBottom:18 }}>Jobs, exams, information and documents — all in one place</p>
           <div className="cg" style={{ display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12 }}>
             {CATS.map(c=>(
@@ -407,7 +406,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
                 <div className="cc" style={{ background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:13,padding:'14px 16px',display:'flex',alignItems:'center',gap:11 }}>
                   <div style={{ width:42,height:42,borderRadius:9,background:`${c.color}15`,border:`1.5px solid ${c.color}30`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.3rem',flexShrink:0 }}>{c.emoji}</div>
                   <div>
-                    <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.91rem',color:'#0d1b2a' }}>{c.name}</div>
+                    <div style={{ fontFamily:'var(--font-sora), sans-serif',fontWeight:700,fontSize:'.91rem',color:'#0d1b2a' }}>{c.name}</div>
                     <div style={{ fontSize:'.76rem',color:c.color,fontWeight:700,marginTop:2 }}>{c.count}</div>
                   </div>
                 </div>
@@ -476,7 +475,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
 
           <div style={{ flex:1,minWidth:0 }}>
             <div style={{
-              fontFamily:"'Sora',sans-serif",
+              fontFamily:'var(--font-sora), sans-serif',
               fontWeight:700,fontSize:'.97rem',color:'#1a1a2e',
               overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'
             }}>
@@ -537,7 +536,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
                           <div style={{ display:'flex',gap:10,marginBottom:10 }}>
                             <div style={{ width:42,height:42,borderRadius:9,background:'#fff3e0',border:'1.5px solid #ffe0b2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.3rem',flexShrink:0 }}>{ex.emoji}</div>
                             <div>
-                              <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.92rem',color:'#1a1a2e',lineHeight:1.3 }}>{ex.title}</div>
+                              <div style={{ fontFamily:'var(--font-sora), sans-serif',fontWeight:700,fontSize:'.92rem',color:'#1a1a2e',lineHeight:1.3 }}>{ex.title}</div>
                               <div style={{ fontSize:'.78rem',color:'#5a6a7a',marginTop:2 }}>{ex.conductedBy}</div>
                             </div>
                           </div>
@@ -575,7 +574,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
                           <div style={{ display:'flex',gap:10,marginBottom:10 }}>
                             <div style={{ width:42,height:42,borderRadius:9,background:'#e8f5e9',border:'1.5px solid #a5d6a7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.3rem',flexShrink:0 }}>{item.emoji}</div>
                             <div>
-                              <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.92rem',color:'#1a1a2e',lineHeight:1.3 }}>{item.title}</div>
+                              <div style={{ fontFamily:'var(--font-sora), sans-serif',fontWeight:700,fontSize:'.92rem',color:'#1a1a2e',lineHeight:1.3 }}>{item.title}</div>
                               <span style={{ fontSize:'.74rem',background:'#e0f7fc',color:'#0096b7',padding:'2px 8px',borderRadius:99,fontWeight:700 }}>{item.category}</span>
                             </div>
                           </div>
@@ -607,7 +606,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
                     <Link key={r.id} href={`/results/${r.slug}`} className="rc">
                       <div style={{ width:42,height:42,borderRadius:9,background:'#e0f7fc',border:'1.5px solid #b2ebf5',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.3rem',flexShrink:0 }}>{r.emoji}</div>
                       <div style={{ flex:1,minWidth:0 }}>
-                        <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.88rem',color:'#1a1a2e',lineHeight:1.3 }}>{r.title}</div>
+                        <div style={{ fontFamily:'var(--font-sora), sans-serif',fontWeight:700,fontSize:'.88rem',color:'#1a1a2e',lineHeight:1.3 }}>{r.title}</div>
                         <div style={{ fontSize:'.75rem',color:'#5a6a7a',marginTop:3 }}>{r.org}{r.resultDate?` · ${fmt(r.resultDate)}`:''}</div>
                         <span style={{ fontSize:'.72rem',background:'#e8f5e9',color:'#2e7d32',padding:'2px 8px',borderRadius:99,fontWeight:700 }}>{r.category}</span>
                       </div>
@@ -626,7 +625,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
                     <div style={{ background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:11,padding:'14px 16px',display:'flex',gap:12,alignItems:'center',transition:'.18s' }}>
                       <div style={{ width:40,height:40,borderRadius:9,background:'#fde8ea',border:'1.5px solid #f7bcc0',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.2rem',flexShrink:0 }}>{a.emoji}</div>
                       <div style={{ flex:1,minWidth:0 }}>
-                        <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.88rem',color:'#1a1a2e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const }}>{a.title}</div>
+                        <div style={{ fontFamily:'var(--font-sora), sans-serif',fontWeight:700,fontSize:'.88rem',color:'#1a1a2e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const }}>{a.title}</div>
                         <div style={{ fontSize:'.74rem',color:'#5a6a7a',marginTop:3 }}>
                           {a.category&&<span style={{ background:'#fde8ea',color:'#e63946',padding:'1px 7px',borderRadius:99,fontWeight:700,marginRight:6 }}>{a.category}</span>}
                           {new Date(a.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}
@@ -653,7 +652,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
                       <div style={{ background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:11,padding:'14px 16px',display:'flex',gap:12,alignItems:'center',transition:'.18s' }}>
                         <div style={{ width:40,height:40,borderRadius:9,background:'#e0f7fc',border:'1.5px solid #b2ebf5',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.2rem',flexShrink:0 }}>{g.emoji}</div>
                         <div style={{ flex:1,minWidth:0 }}>
-                          <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.88rem',color:'#1a1a2e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const }}>{g.title}</div>
+                          <div style={{ fontFamily:'var(--font-sora), sans-serif',fontWeight:700,fontSize:'.88rem',color:'#1a1a2e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const }}>{g.title}</div>
                           {g.description && <div style={{ fontSize:'.76rem',color:'#5a6a7a',marginTop:3,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const }}>{g.description}</div>}
                           <div style={{ fontSize:'.72rem',color:'#5a6a7a',marginTop:3 }}>
                             {g.category&&<span style={{ background:'#e0f7fc',color:'#0096b7',padding:'1px 7px',borderRadius:99,fontWeight:700,marginRight:6 }}>{g.category}</span>}
@@ -682,7 +681,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
                       <div style={{ background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:11,padding:'14px 16px',display:'flex',gap:12,alignItems:'center',transition:'.18s' }}>
                         <div style={{ width:40,height:40,borderRadius:9,background:'#f3e5f5',border:'1.5px solid #ce93d8',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.2rem',flexShrink:0 }}>{s.emoji}</div>
                         <div style={{ flex:1,minWidth:0 }}>
-                          <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.88rem',color:'#1a1a2e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const }}>{s.title}</div>
+                          <div style={{ fontFamily:'var(--font-sora), sans-serif',fontWeight:700,fontSize:'.88rem',color:'#1a1a2e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const }}>{s.title}</div>
                           {s.description && <div style={{ fontSize:'.76rem',color:'#5a6a7a',marginTop:3,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const }}>{s.description}</div>}
                           <div style={{ fontSize:'.72rem',color:'#5a6a7a',marginTop:3 }}>
                             {s.category&&<span style={{ background:'#f3e5f5',color:'#8e44ad',padding:'1px 7px',borderRadius:99,fontWeight:700,marginRight:6 }}>{s.category}</span>}
@@ -711,7 +710,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
                   <span style={{color:G}}>ASSAM </span><span style={{color:W}}>CAREER </span><span style={{color:T}}>POINT</span>
                 </div>
               </div>
-              <p style={{ fontSize:'.77rem',color:'rgba(255,255,255,.38)',lineHeight:1.7 }}>Your trusted source for jobs, exams, and important information in Assam & NE India.</p>
+              <p style={{ fontSize:'.77rem',color:'rgba(255,255,255,.65)',lineHeight:1.7 }}>Your trusted source for jobs, exams, and important information in Assam & NE India.</p>
             </div>
             {[
               ['Quick Links',[['Govt Jobs','/govt-jobs'],['Exams','/exams'],['Information','/information'],['PDF Forms','/pdf-forms']]],
@@ -719,12 +718,12 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
               ['Legal & Info',[['About Us','/about-us'],['Contact Us','/contact'],['Privacy Policy','/privacy-policy'],['Affiliate','/affiliate']]],
             ].map(([title,links])=>(
               <div key={title as string}>
-                <h4 style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.80rem',color:'rgba(255,255,255,.55)',marginBottom:10,textTransform:'uppercase',letterSpacing:'.06em' }}>{title as string}</h4>
-                {(links as [string,string][]).map(([l,h])=><div key={l}><Link href={h} style={{ fontSize:'.79rem',color:'rgba(255,255,255,.38)',textDecoration:'none',display:'block',marginBottom:5 }}>{l}</Link></div>)}
+                <h4 style={{ fontFamily:'var(--font-sora), sans-serif',fontWeight:700,fontSize:'.80rem',color:'rgba(255,255,255,.55)',marginBottom:10,textTransform:'uppercase',letterSpacing:'.06em' }}>{title as string}</h4>
+                {(links as [string,string][]).map(([l,h])=><div key={l}><Link href={h} style={{ fontSize:'.79rem',color:'rgba(255,255,255,.65)',textDecoration:'none',display:'inline-block', padding:'6px 4px',marginBottom:5 }}>{l}</Link></div>)}
               </div>
             ))}
           </div>
-          <div style={{ borderTop:'1px solid rgba(255,255,255,.07)',paddingTop:14,display:'flex',justifyContent:'space-between',flexWrap:'wrap' as const,gap:8,fontSize:'.74rem',color:'rgba(255,255,255,.28)' }}>
+          <div style={{ borderTop:'1px solid rgba(255,255,255,.07)',paddingTop:14,display:'flex',justifyContent:'space-between',flexWrap:'wrap' as const,gap:8,fontSize:'.74rem',color:'rgba(255,255,255,.55)' }}>
             <div>© 2025–2026 Assam Career Point & Info. Informational portal only — verify from official sources.</div>
             <div style={{ display:'flex',gap:12,alignItems:'center',flexWrap:'wrap' }}>
               {[['Privacy Policy','/privacy-policy'],['About Us','/about-us'],['Contact','/contact'],['Affiliate','/affiliate']].map(([l,h])=>(
