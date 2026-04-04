@@ -33,10 +33,8 @@ export const metadata: Metadata = {
 
   // ── Canonical & Alternates ──
   alternates: {
-    canonical: SITE_URL,
     languages: {
       'en-IN': SITE_URL,
-      'as':    `${SITE_URL}/as`,      // Assamese version if you add it
     },
   },
 
