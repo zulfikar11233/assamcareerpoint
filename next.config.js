@@ -1,5 +1,4 @@
 // next.config.js — PROJECT ROOT (same level as package.json)
-
 /** @type {import('next').NextConfig} */
 
 const securityHeaders = [
@@ -28,10 +27,6 @@ const securityHeaders = [
     value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
   },
   {
-    // NOTE: 'unsafe-inline' and 'unsafe-eval' are REQUIRED by Next.js App Router.
-    // Next.js injects inline scripts for page hydration — removing these breaks
-    // ALL client-side JavaScript including login forms, buttons, React state, etc.
-    // Do NOT remove them without implementing nonces (an advanced setup).
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
@@ -40,7 +35,11 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https://lh3.googleusercontent.com https://drive.google.com https://www.google.com https://pagead2.googlesyndication.com",
       "frame-src https://drive.google.com https://www.google.com",
-      "connect-src 'self' https://www.assamcareerpoint-info.com https://assamcareerpoint-info.com https://www.google-analytics.com",      "frame-ancestors 'none'",
+
+      // ✅ FIXED: added https://www.googletagmanager.com
+      "connect-src 'self' https://www.assamcareerpoint-info.com https://assamcareerpoint-info.com https://www.google-analytics.com https://www.googletagmanager.com",
+
+      "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self' https://formspree.io",
     ].join('; '),
@@ -51,38 +50,49 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   compress: true,
+
   async redirects() {
-  return [
-    {
-      source: '/:path*',
-      has: [{ type: 'host', value: 'assamcareerpoint-info.com' }],
-      destination: 'https://www.assamcareerpoint-info.com/:path*',
-      permanent: true,
-    },
-  ]
-},
+    return [
+      {
+        source:      '/:path*',
+        has: [{ type: 'host', value: 'assamcareerpoint-info.com' }],
+        destination: 'https://www.assamcareerpoint-info.com/:path*',
+        permanent:    true,
+      },
+    ]
+  },
 
   async headers() {
-  return [
-    {
-  source: '/_next/static/:path*',
-  headers: [
-    { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
-  ],
-},
-    {
-      source: '/(.*)',
-      headers: securityHeaders,
-    },
-    {
-      source: '/admin/:path*',
-      headers: [
-        { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate' },
-        { key: 'Pragma',        value: 'no-cache' },
-      ],
-    },
-  ]
-},
+    return [
+      // 1. Static assets — cache forever (content-hashed filenames)
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      // 2. All HTML pages — never cache (prevents stale chunk 404s)
+      {
+        source: '/((?!_next/static|_next/image|favicon).*)',
+        headers: [
+          { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+        ],
+      },
+      // 3. Security headers — all routes
+      {
+        source: '/(.*)',
+        headers: securityHeaders,
+      },
+      // 4. Admin — extra no-cache
+      {
+        source: '/admin/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate' },
+          { key: 'Pragma',        value: 'no-cache' },
+        ],
+      },
+    ]
+  },
 
   images: {
     remotePatterns: [

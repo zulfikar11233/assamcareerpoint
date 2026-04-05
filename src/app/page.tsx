@@ -292,7 +292,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
                 <span style={{color:G}}>ASSAM </span><span style={{color:W}}>CAREER</span>
               </div>
               <div style={{ fontFamily:'Arial Black,sans-serif',fontWeight:900,fontSize:'.65rem',color:T,letterSpacing:'.14em' }}>◆ POINT ◆</div>
-              <div style={{ fontSize:'.5rem',color:'rgba(255,255,255,.55)' }}>assamcareerpoint-info.com</div>
+              <div style={{ fontSize:'.5rem',color:'rgba(255,255,255,.70)' }}>assamcareerpoint-info.com</div>
             </div>
           </Link>
           <nav className="desk-nav" style={{ gap:2 }}>
@@ -332,6 +332,9 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
         )}
       </header>
 
+	{/* MAIN CONTENT WRAPPER */}
+      <main id="main-content">
+
       {/* HERO */}
       <section className="hero-section" style={{ background:'linear-gradient(135deg,#0d1b2a 0%,#1b2f45 60%,#0a3050 100%)',padding:'50px 0 42px' }}>
         <div style={{ maxWidth:1180,margin:'0 auto',padding:'0 20px' }}>
@@ -340,9 +343,20 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
               <div style={{ display:'inline-flex',alignItems:'center',gap:7,background:'rgba(0,180,216,.15)',border:'1px solid rgba(0,180,216,.3)',borderRadius:99,padding:'5px 14px',fontSize:'.78rem',fontWeight:700,color:'#00b4d8',marginBottom:16 }}>
                 🔴 Live — Jobs · Exams · Information
               </div>
-              <h1 style={{ fontFamily:'var(--font-sora), sans-serif',fontSize:'clamp(1.9rem,4vw,2.9rem)',fontWeight:800,color:'#fff',lineHeight:1.15,marginBottom:14, minHeight: '3.5rem' }}>
-                {TEXTS.headline}<br/><span style={{color:'#00b4d8'}}>{TEXTS.sub1}</span>
-              </h1>
+              <h1
+  style={{
+    fontFamily: 'var(--font-sora), sans-serif',
+    fontSize: 'clamp(1.9rem,4vw,2.9rem)',
+    fontWeight: 800,
+    color: '#fff',
+    lineHeight: 1.15,
+    marginBottom: 14,
+    minHeight: '3.5rem'
+  }}
+>
+  Assam Career Point<br/>
+  <span style={{color:'#00b4d8'}}>& Info</span>
+</h1>
               <p style={{ color:'rgba(255,255,255,.75)',fontSize:'1.05rem',marginBottom:26,lineHeight:1.7,maxWidth:430 }}>{TEXTS.tagline}</p>
               <div style={{ display:'flex',gap:10,flexWrap:'wrap' as const }}>
                 <Link href="/govt-jobs"   style={{ display:'inline-flex',gap:6,alignItems:'center',padding:'12px 22px',borderRadius:99,background:'#e63946',color:'#fff',fontWeight:700,fontSize:'.92rem',textDecoration:'none' }}>🏛️ Govt Jobs</Link>
@@ -698,6 +712,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
           </div>
         </div>
       </section>
+	</main>
 
       {/* FOOTER */}
       <footer style={{ background:'#0d1b2a',padding:'30px 0 18px' }}>
@@ -718,8 +733,8 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
               ['Legal & Info',[['About Us','/about-us'],['Contact Us','/contact'],['Privacy Policy','/privacy-policy'],['Affiliate','/affiliate']]],
             ].map(([title,links])=>(
               <div key={title as string}>
-                <h4 style={{ fontFamily:'var(--font-sora), sans-serif',fontWeight:700,fontSize:'.80rem',color:'rgba(255,255,255,.55)',marginBottom:10,textTransform:'uppercase',letterSpacing:'.06em' }}>{title as string}</h4>
-                {(links as [string,string][]).map(([l,h])=><div key={l}><Link href={h} style={{ fontSize:'.79rem',color:'rgba(255,255,255,.65)',textDecoration:'none',display:'inline-block', padding:'6px 4px',marginBottom:5 }}>{l}</Link></div>)}
+                <h3 style={{ fontFamily:'var(--font-sora), sans-serif',fontWeight:700,fontSize:'.80rem',color:'rgba(255,255,255,.65)',marginBottom:10,textTransform:'uppercase' as const,letterSpacing:'.06em' }}>{title as string}</h3>
+                {(links as [string,string][]).map(([l,h])=><div key={l}><Link href={h} style={{ fontSize:'.875rem',color:'rgba(255,255,255,.75)',textDecoration:'none',display:'inline-block', padding:'10px 4px',minHeight: '44px',lineHeight: '1.4',marginBottom:2 }}>{l}</Link></div>)}
               </div>
             ))}
           </div>
@@ -727,8 +742,14 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
             <div>© 2025–2026 Assam Career Point & Info. Informational portal only — verify from official sources.</div>
             <div style={{ display:'flex',gap:12,alignItems:'center',flexWrap:'wrap' }}>
               {[['Privacy Policy','/privacy-policy'],['About Us','/about-us'],['Contact','/contact'],['Affiliate','/affiliate']].map(([l,h])=>(
-                <Link key={h} href={h} style={{ color:'#c9a22777',textDecoration:'none',fontWeight:700 }}>{l}</Link>
-              ))}
+  <Link key={h} href={h} style={{ 
+    color: '#d4aa2f',          // ← full opacity gold, slightly brighter for contrast
+    textDecoration: 'none',
+    fontWeight: 700,
+    padding: '8px 4px',       // ← touch target
+    display: 'inline-block'
+  }}>{l}</Link>
+))}
             </div>
           </div>
         </div>

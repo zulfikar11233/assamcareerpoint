@@ -12,6 +12,8 @@ const sora = Sora({
   display: 'swap',
   variable: '--font-sora',
   weight: ['700', '800'],
+  preload: true,                          // ← ADD
+  fallback: ['Arial Black', 'sans-serif'], // ← ADD: renders immediately
 });
 
 const nunito = Nunito({
@@ -19,6 +21,8 @@ const nunito = Nunito({
   display: 'swap',
   variable: '--font-nunito',
   weight: ['400', '600', '700'],
+  preload: true,           // ← ADD
+  fallback: ['system-ui', 'sans-serif'], // ← ADD
 });
 
 const SITE_URL  = 'https://www.assamcareerpoint-info.com'
@@ -205,25 +209,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             GOOGLE ANALYTICS 4
             Replace G-XXXXXXXXXX with your Measurement ID from analytics.google.com
             ════════════════════════════════════════════════════════════ */}
-        {/* Google Analytics (deferred) */}
+{/* GA4 — deferred 2s after load, does not block LCP */}
 <script dangerouslySetInnerHTML={{ __html: `
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-KXLWVXBV4Q', { send_page_view: false });
   window.addEventListener('load', function() {
-    var s = document.createElement('script');
-    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-KXLWVXBV4Q';
-    s.async = true;
-    s.onload = function() { gtag('event', 'page_view'); };
-    document.head.appendChild(s);
+    setTimeout(function() {
+      var s = document.createElement('script');
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=G-KXLWVXBV4Q';
+      s.async = true;
+      s.onload = function() {
+        gtag('js', new Date());
+        gtag('config', 'G-KXLWVXBV4Q');
+      };
+      document.head.appendChild(s);
+    }, 2000);
   });
 `}} />
       </head>
 
       <body style={{ margin: 0, padding: 0, fontFamily: 'var(--font-nunito), sans-serif' }}>
-        <main>{children}</main>   {/* ← wrap in <main> */}
-      </body>
+  {children}
+</body>
     </html>
   )
 }
