@@ -548,17 +548,9 @@ setJobSections((j as any).sections||[])
     else {
       const newJob = {id:Date.now(),createdAt:new Date().toISOString(),...base} as Job
       setJobs(prev => [newJob, ...prev])
-      if (newJob.status === 'Live') {
-        fetch('/api/notify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'job', data: newJob })
-        }).catch(() => {})
-      }
-    }
-    setShowJobModal(false); toast('✅ Job saved!')
-  }
-
+        }
+setShowJobModal(false); toast('✅ Job saved!')
+}
   // ── EXAM HELPERS ─────────────────────────────────────────────────────────
   function openAddExam()  { setEditExam(null); setEf(blankExam); setExamSections([]); setShowExamModal(true) }
   function openEditExam(x:Exam) { setEditExam(x); setEf({ emoji:x.emoji, title:x.title, conductedBy:x.conductedBy, category:x.category, description:x.description||'', applicationStart:x.applicationStart||'', applicationLastDate:x.applicationLastDate||'', paymentLastDate:x.paymentLastDate||'', examDate:x.examDate||'', examTime:x.examTime||'', admitCardDate:x.admitCardDate||'', resultDate:x.resultDate||'', fee:x.fee||'', eligibility:x.eligibility||'', syllabus:x.syllabus||'', officialSite:x.officialSite||'', applyLink:x.applyLink||'', admitCardLink:x.admitCardLink||'', status:x.status, titleAs:x.titleAs||'', descriptionAs:x.descriptionAs||'', eligibilityAs:x.eligibilityAs||'', fullDescription:(x as any).fullDescription||'',
@@ -575,12 +567,7 @@ fullDescTitle:(x as any).fullDescTitle||'', examPdfs:x.examPdfs||[], examAffilia
   sections: examSections
 }
       setExams(prev => [newExam, ...prev])
-      fetch('/api/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'exam', data: newExam })
-      }).catch(() => {})
-    }
+	}
     setShowExamModal(false); toast('✅ Exam saved!')
   }
 
