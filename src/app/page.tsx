@@ -24,9 +24,9 @@ function Logo({ size=38 }:{size?:number}) {
   )
 }
 
-type Job = { id:number; logo:string; title:string; org:string; category:string; district:string; status:string; vacancy:string; lastDate:string; description?:string; posts?:{vacancy:number}[] }
-type Exam   = { id:number; emoji:string; title:string; conductedBy:string; category:string; applicationLastDate:string; paymentLastDate:string; examDate:string; examTime:string; status:string }
-type Info   = { id:number; emoji:string; title:string; category:string; description:string; lastDate?:string; status:string; importantDates:{label:string;date:string;time?:string}[] }
+type Job = { id:number; logo:string; title:string; org:string; category:string; district:string; status:string; vacancy:string; lastDate:string; description?:string; posts?:{vacancy:number}[]; slug?:string }
+type Exam   = { id:number; emoji:string; title:string; conductedBy:string; category:string; applicationLastDate:string; paymentLastDate:string; examDate:string; examTime:string; status:string; slug?:string }
+type Info   = { id:number; emoji:string; title:string; category:string; description:string; lastDate?:string; status:string; importantDates:{label:string;date:string;time?:string}[]; slug?:string }
 type Result = { id:number; emoji:string; title:string; org:string; category:string; resultDate?:string; slug:string }
 type Announcement = { id:number; emoji:string; title:string; category?:string; description?:string; createdAt:string; slug:string; published:boolean }
 type Guide   = { id:number; emoji:string; title:string; category?:string; description?:string; createdAt:string; slug:string; published:boolean }
@@ -190,9 +190,9 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
 
   // Build Latest Alerts from REAL data only
   const alertItems = [
-    ...jobs.slice(0,4).map(j => ({ id:`j${j.id}`, icon: j.logo, title: j.title, sub: `${(j.posts?.reduce((a,p)=>a+p.vacancy,0)||parseInt(j.vacancy||'0')).toLocaleString()} posts`, tag:'JOB', tagBg:'#e63946', tagCl:'#fff', href:`/jobs/${j.id}`, subCl:'#e63946' })),
-    ...exams.slice(0,3).map(e => ({ id:`e${e.id}`, icon: e.emoji, title: e.title, sub: `Exam: ${fmt(e.examDate)}`, tag:'EXAM', tagBg:'#f4a261', tagCl:'#0d1b2a', href:`/exams/${e.id}`, subCl:'#f4a261' })),
-    ...info.slice(0,3).map(i  => ({ id:`i${i.id}`, icon: i.emoji, title: i.title, sub: i.lastDate?`Deadline: ${fmt(i.lastDate)}`:'Active', tag:'INFO', tagBg:'#2a9d8f', tagCl:'#fff', href:`/information/${i.id}`, subCl:'#2a9d8f' })),
+    ...jobs.slice(0,4).map(j => ({ id:`j${j.id}`, icon: j.logo, title: j.title, sub: `${(j.posts?.reduce((a,p)=>a+p.vacancy,0)||parseInt(j.vacancy||'0')).toLocaleString()} posts`, tag:'JOB', tagBg:'#e63946', tagCl:'#fff', href:`/jobs/${j.slug || j.id}`, subCl:'#e63946' })),
+    ...exams.slice(0,3).map(e => ({ id:`e${e.id}`, icon: e.emoji, title: e.title, sub: `Exam: ${fmt(e.examDate)}`, tag:'EXAM', tagBg:'#f4a261', tagCl:'#0d1b2a', href:`/exams/${e.slug || e.id}`, subCl:'#f4a261' })),
+    ...info.slice(0,3).map(i  => ({ id:`i${i.id}`, icon: i.emoji, title: i.title, sub: i.lastDate?`Deadline: ${fmt(i.lastDate)}`:'Active', tag:'INFO', tagBg:'#2a9d8f', tagCl:'#fff', href:`/information/${i.slug || i.id}`, subCl:'#2a9d8f' })),
   ]
 
   // Available tabs based on data
@@ -471,7 +471,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
     const d = days(j.lastDate)
 
     return (
-      <Link key={j.id} href={`/jobs/${j.id}`} style={{ textDecoration:'none' }}>
+      <Link key={j.id} href={`/jobs/${j.slug || j.id}`} style={{ textDecoration:'none' }}>
         <div className="jr" style={{
           display:'flex',alignItems:'center',gap:14,padding:'15px 22px',
           borderBottom:i<jobs.length-1?'1px solid #f0f4f8':'none',
@@ -545,7 +545,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
                 <div style={{ padding:'16px 20px' }}>
                   <div className="exam-grid">
                     {exams.map(ex=>(
-                      <Link key={ex.id} href={`/exams/${ex.id}`} style={{ textDecoration:'none' }}>
+                      <Link key={ex.id} href={`/exams/${ex.slug || ex.id}`} style={{ textDecoration:'none' }}>
                         <div className="ec">
                           <div style={{ display:'flex',gap:10,marginBottom:10 }}>
                             <div style={{ width:42,height:42,borderRadius:9,background:'#fff3e0',border:'1.5px solid #ffe0b2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.3rem',flexShrink:0 }}>{ex.emoji}</div>
@@ -583,7 +583,7 @@ const [sec,       setSec]       = useState<'jobs'|'exams'|'info'|'results'|'anno
                 <div style={{ padding:'16px 20px' }}>
                   <div className="info-grid">
                     {info.map(item=>(
-                      <Link key={item.id} href={`/information/${item.id}`} style={{ textDecoration:'none' }}>
+                      <Link key={item.id} href={`/information/${item.slug || item.id}`} style={{ textDecoration:'none' }}>
                         <div className="ic">
                           <div style={{ display:'flex',gap:10,marginBottom:10 }}>
                             <div style={{ width:42,height:42,borderRadius:9,background:'#e8f5e9',border:'1.5px solid #a5d6a7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.3rem',flexShrink:0 }}>{item.emoji}</div>

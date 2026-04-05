@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 // ✅ NEW: Information (Voter ID, PAN-Aadhaar, schemes — with dates+time)
 // ✅ PDF Forms library: SEPARATE from job/exam PDFs (Google Drive links supported)
 // ✅ NEW: Results CMS + Others CMS (Announcements, Guides, Services) — sidebar links added
-
+import { generateSlug } from '@/lib/dataHelper'
 import { useState, useEffect, useRef } from 'react'
 import { signOut } from 'next-auth/react'
 import { ContentSection, ContentSectionLink, newContentSectionId, newContentLinkId } from '@/lib/section-types'
@@ -52,6 +52,7 @@ type Job = {
   title: string
   org: string
   category: string
+  slug?: string
   district: string
   status: 'Live' | 'Draft' | 'Closing' | 'Upcoming'
   vacancy: string
@@ -114,6 +115,7 @@ type Exam = {
   title: string
   conductedBy: string
   category: string
+  slug?: string
   description?: string
   applicationStart?: string
   applicationLastDate?: string
@@ -146,6 +148,7 @@ type InfoItem = {
   emoji: string
   title: string
   category: string
+  slug?: string
   description?: string
   processImages?: string[]
   lastDate?: string
@@ -546,9 +549,15 @@ setJobSections((j as any).sections||[])
     }
     if (editJob) setJobs(prev => prev.map(j => j.id===editJob.id ? {...editJob,...base} as Job : j))
     else {
-      const newJob = {id:Date.now(),createdAt:new Date().toISOString(),...base} as Job
+      const newId  = Date.now()
+      const newJob = {
+        id:        newId,
+        slug:      generateSlug(jf.title, newId),   // ← ADD
+        createdAt: new Date().toISOString(),
+        ...base
+      } as Job
       setJobs(prev => [newJob, ...prev])
-        }
+    }
 setShowJobModal(false); toast('✅ Job saved!')
 }
   // ── EXAM HELPERS ─────────────────────────────────────────────────────────
@@ -560,12 +569,14 @@ fullDescTitle:(x as any).fullDescTitle||'', examPdfs:x.examPdfs||[], examAffilia
     if (!ef.title) { alert('Title required.'); return }
     if (editExam) setExams(prev => prev.map(x => x.id===editExam.id ? {...editExam,...ef, sections: examSections} : x))
     else {
+      const newId   = Date.now()
       const newExam = {
-  id: Date.now(),
-  createdAt: new Date().toISOString(),
-  ...ef,
-  sections: examSections
-}
+        id:        newId,
+        slug:      generateSlug(ef.title, newId),   // ← ADD
+        createdAt: new Date().toISOString(),
+        ...ef,
+        sections: examSections
+      }
       setExams(prev => [newExam, ...prev])
 	}
     setShowExamModal(false); toast('✅ Exam saved!')
@@ -580,7 +591,18 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
     if (!inf.title) { alert('Title required.'); return }
     const dates = infDates.filter(d=>d.label&&d.date).map(d => ({label:d.label,date:d.date,...(d.time?{time:d.time}:{})}))
     if (editInfo) setInfoList(prev => prev.map(x => x.id===editInfo.id ? {...editInfo,...inf,importantDates:dates,sections:infoSections} : x))
-    else          setInfoList(prev => [{id:Date.now(),createdAt:new Date().toISOString(),...inf,importantDates:dates,sections:infoSections}, ...prev])
+    else {
+  const newId = Date.now()
+  const newInfo = {
+    id: newId,
+    slug: generateSlug(inf.title, newId),   // ← ADD THIS
+    createdAt: new Date().toISOString(),
+    ...inf,
+    importantDates: dates,
+    sections: infoSections
+  }
+  setInfoList(prev => [newInfo, ...prev])
+}
     setShowInfoModal(false); toast('✅ Information saved!')
   }
 
@@ -818,46 +840,100 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
               </>
             )}
 
-            {/* ── JOBS TABLE ── */}
-            {activeTab==='jobs' && (
-              <div style={{ background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:12,overflow:'hidden' }}>
-                <div style={{ overflowX:'auto' }}>
-                  <table className="tbl">
-                    <thead><tr><th>Logo</th><th>Title</th><th>Posts</th><th>Vacancies</th><th>Last Date</th><th>Adv.PDFs</th><th>Status</th><th>Actions</th></tr></thead>
-                    <tbody>
-                      {filt(jobs).length===0
-                        ? <tr><td colSpan={8} style={{ textAlign:'center' as const,padding:40,color:'#5a6a7a' }}>No jobs. Click "Add Job".</td></tr>
-                        : filt(jobs).map(j => (
-                          <tr key={j.id}>
-                            <td style={{ fontSize:'1.3rem' }}>{j.logo}</td>
-                            <td><div style={{ fontWeight:700,maxWidth:190,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const }}>{j.title}</div><div style={{ fontSize:'.71rem',color:'#5a6a7a' }}>{j.org}</div></td>
-                            <td><span className="chip cT">{j.posts?.length||0} posts</span></td>
-                            <td style={{ fontWeight:700 }}>{(j.posts||[]).reduce((a,p)=>a+p.vacancy,0)||parseInt(j.vacancy||'0')}</td>
-                            <td style={{ fontSize:'.76rem',whiteSpace:'nowrap' as const }}>
-                              {fmt(j.lastDate)}
-                              {(j.dateHistory?.length||0)>0&&<span title={`Extended ${j.dateHistory.length}x`} style={{ marginLeft:5,fontSize:'.63rem',background:'#e8f5e9',color:'#2e7d32',padding:'1px 6px',borderRadius:99,fontWeight:700 }}>+{j.dateHistory.length} ext</span>}
-                            </td>
-                            <td><span className="chip cP">{j.advPdfs?.length||0} PDF{(j.advPdfs?.length||0)!==1?'s':''}</span></td>
-                            <td>
-                              <button onClick={()=>setJobs(p=>p.map(x=>x.id===j.id?{...x,status:x.status==='Live'?'Draft':'Live'}:x))} className={`chip ${j.status==='Live'?'cG':'cGr'}`} style={{ cursor:'pointer',border:'none' }}>
-                                {j.status==='Live'?'🟢 Live':'⚪ Draft'}
-                              </button>
-                            </td>
-                            <td>
-                              <div style={{ display:'flex',gap:5 }}>
-                                <button onClick={()=>openEditJob(j)} style={{ padding:'5px 9px',borderRadius:7,fontSize:'.72rem',fontWeight:700,cursor:'pointer',background:'#e0f7fc',color:'#0096b7',border:'1.5px solid #b2ebf5',fontFamily:'Nunito,sans-serif' }}>✏️</button>
-                                <button onClick={()=>{if(confirm('Delete?'))setJobs(p=>p.filter(x=>x.id!==j.id))}} style={{ padding:'5px 9px',borderRadius:7,fontSize:'.72rem',fontWeight:700,cursor:'pointer',background:'#fde8ea',color:'#e63946',border:'1.5px solid #f7bcc0',fontFamily:'Nunito,sans-serif' }}>🗑</button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
+		{/* ── JOBS TABLE ── */}
+{activeTab==='jobs' && (
+  <>
+    {/* Generate Slug Button */}
+    <button
+      onClick={() => {
+        const updated = jobs.map(j => ({
+          ...j,
+          slug: j.slug || generateSlug(j.title, j.id)
+        }))
+        setJobs(updated)
+        alert('Slugs generated! Save will happen automatically.')
+      }}
+      style={{
+        marginBottom: 12,
+        padding: '8px 14px',
+        background: '#0b1f33',
+        color: '#fff',
+        borderRadius: 6,
+        border: 'none',
+        cursor: 'pointer',
+        fontWeight: 600
+      }}
+    >
+      Generate Slugs for Existing Jobs
+    </button>
 
+    {/* Jobs Table */}
+    <div style={{ background:'#fff', border:'1.5px solid #d4e0ec', borderRadius:12, overflow:'hidden' }}>
+      <div style={{ overflowX:'auto' }}>
+        <table className="tbl">
+          <thead>
+            <tr>
+              <th>Logo</th>
+              <th>Title</th>
+              <th>Posts</th>
+              <th>Vacancies</th>
+              <th>Last Date</th>
+              <th>Adv.PDFs</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filt(jobs).length===0 ? (
+              <tr>
+                <td colSpan={8} style={{ textAlign:'center', padding:40, color:'#5a6a7a' }}>
+                  No jobs. Click "Add Job".
+                </td>
+              </tr>
+            ) : (
+              filt(jobs).map(j => (
+                <tr key={j.id}>
+                  <td style={{ fontSize:'1.3rem' }}>{j.logo}</td>
+                  <td>
+                    <div style={{ fontWeight:700, maxWidth:190, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                      {j.title}
+                    </div>
+                    <div style={{ fontSize:'.71rem', color:'#5a6a7a' }}>{j.org}</div>
+                  </td>
+                  <td><span className="chip cT">{j.posts?.length||0} posts</span></td>
+                  <td style={{ fontWeight:700 }}>
+                    {(j.posts||[]).reduce((a,p)=>a+p.vacancy,0) || parseInt(j.vacancy||'0')}
+                  </td>
+                  <td style={{ fontSize:'.76rem', whiteSpace:'nowrap' }}>
+                    {fmt(j.lastDate)}
+                  </td>
+                  <td><span className="chip cP">{j.advPdfs?.length||0} PDF</span></td>
+                  <td>
+                    <button
+                      onClick={() => setJobs(p => p.map(x => x.id===j.id ? {...x, status:x.status==='Live'?'Draft':'Live'} : x))}
+                      className={`chip ${j.status==='Live'?'cG':'cGr'}`}
+                      style={{ cursor:'pointer', border:'none' }}
+                    >
+                      {j.status==='Live'?'🟢 Live':'⚪ Draft'}
+                    </button>
+                  </td>
+                  <td>
+                    <div style={{ display:'flex', gap:5 }}>
+                      <button onClick={() => openEditJob(j)}>✏️</button>
+                      <button onClick={() => {
+                        if(confirm('Delete?')) setJobs(p => p.filter(x => x.id !== j.id))
+                      }}>🗑</button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </>
+)}
             {/* ── EXAMS TABLE ── */}
             {activeTab==='exams' && (
               <div style={{ background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:12,overflow:'hidden' }}>

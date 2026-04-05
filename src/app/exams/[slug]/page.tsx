@@ -1,9 +1,10 @@
 'use client'
-// src/app/exams/[id]/page.tsx
+// src/app/exams/[slug]/page.tsx
 // ✅ Multiple exam dates support
 // ✅ Multiple PDF links with labels
 // ✅ Affiliate links section
 // ✅ Mobile responsive
+// ✅ SEO slugs with fallback to numeric ID
 export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { useState, useEffect, use } from 'react'
@@ -35,22 +36,36 @@ type ExamPdf = { label: string; url: string }
 type ExamAffiliate = { id: string; title: string; link: string; img?: string; badge?: string }
 
 type Exam = {
-  id: number; emoji: string; title: string; conductedBy: string; category: string
-  description?: string; applicationStart?: string; applicationLastDate?: string
+  id: number
+  slug: string                    // ← ADDED for SEO
+  emoji: string
+  title: string
+  conductedBy: string
+  category: string
+  description?: string
+  applicationStart?: string
+  applicationLastDate?: string
   paymentLastDate?: string
-  // Multiple exam dates support — stored as text e.g. "27 Mar to 30 Mar" or "27 Mar, 29 Mar, 05 Apr"
-  examDate?: string; examTime?: string
-  // Multiple admit card dates support
+  examDate?: string
+  examTime?: string
   admitCardDate?: string
-  resultDate?: string; fee?: string; eligibility?: string
-  syllabus?: string; officialSite?: string; applyLink?: string; admitCardLink?: string
+  resultDate?: string
+  fee?: string
+  eligibility?: string
+  syllabus?: string
+  officialSite?: string
+  applyLink?: string
+  admitCardLink?: string
   status: 'Upcoming' | 'Registration Open' | 'Registration Closed' | 'Exam Ongoing' | 'Result Declared'
   createdAt?: string
-  titleAs?: string; descriptionAs?: string; eligibilityAs?: string
-  // ✅ Multiple PDFs with labels
+  titleAs?: string
+  descriptionAs?: string
+  eligibilityAs?: string
   examPdfs?: ExamPdf[]
-  // ✅ Affiliate links
   examAffiliates?: ExamAffiliate[]
+  fullDescription?: string
+  fullDescTitle?: string
+  sections?: any[]
 }
 
 const SC: Record<string, string> = {
@@ -73,7 +88,7 @@ function driveDownloadUrl(url: string): string {
 }
 
 const FALLBACK: Exam[] = [
-  { id:1, emoji:'📚', title:'CTET 2026 — Central Teacher Eligibility Test', conductedBy:'CBSE', category:'Teaching',
+  { id:1, slug:'ctet-2026-central-teacher-eligibility-test-1', emoji:'📚', title:'CTET 2026 — Central Teacher Eligibility Test', conductedBy:'CBSE', category:'Teaching',
     description:'The Central Teacher Eligibility Test (CTET) is a national level examination conducted by CBSE for teaching eligibility in central government schools.',
     applicationStart:'2026-02-15', applicationLastDate:'2026-03-15', paymentLastDate:'2026-03-17',
     examDate:'22 May 2026', examTime:'Paper I: 9:30 AM – 12:00 PM | Paper II: 2:30 PM – 5:00 PM',
@@ -85,13 +100,13 @@ const FALLBACK: Exam[] = [
     createdAt: new Date().toISOString(), examPdfs: [], examAffiliates: [] },
 ]
 
-export default function ExamDetail({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
-  const [exam,      setExam]      = useState<Exam | null>(null)
-  const [allExams,  setAllExams]  = useState<Exam[]>([])
+export default function ExamDetail({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params)                     // ← slug from URL (can be slug or numeric ID)
+  const [exam, setExam] = useState<Exam | null>(null)
+  const [allExams, setAllExams] = useState<Exam[]>([])
   const [countdown, setCountdown] = useState({ d:0, h:0, m:0, s:0 })
-  const [activeDate,setActiveDate]= useState<'apply'|'exam'>('apply')
-  const [timerOn,   setTimerOn]   = useState<boolean>(true)
+  const [activeDate, setActiveDate] = useState<'apply'|'exam'>('apply')
+  const [timerOn, setTimerOn] = useState<boolean>(true)
 
   useEffect(() => {
     fetch('/api/data/exams', { cache: 'no-store' })
@@ -99,36 +114,38 @@ export default function ExamDetail({ params }: { params: Promise<{ id: string }>
       .then((list: Exam[]) => {
         if (Array.isArray(list) && list.length > 0) {
           setAllExams(list)
-          const found = list.find(e => String(e.id) === String(id)) || null
-setExam(found)
-if (found) {
-  document.title = `${found.title} | Assam Career Point & Info`
-  const desc = found.description ||
-    `${found.title} — Conducted by ${found.conductedBy}. Apply by ${found.applicationLastDate}. Full details on Assam Career Point.`
-  let metaDesc = document.querySelector('meta[name="description"]') as HTMLMetaElement|null
-  if (!metaDesc) { metaDesc=document.createElement('meta'); metaDesc.name='description'; document.head.appendChild(metaDesc) }
-  metaDesc.content = desc
-  const ogTags: [string,string][] = [
-    ['og:title',       `${found.title} | Assam Career Point & Info`],
-    ['og:description', desc],
-    ['og:type',        'article'],
-    ['og:url',         `https://www.assamcareerpoint-info.com/exams/${found.id}`],
-  ]
-  ogTags.forEach(([prop,content]) => {
-    let el = document.querySelector(`meta[property="${prop}"]`) as HTMLMetaElement|null
-    if (!el) { el=document.createElement('meta'); el.setAttribute('property',prop); document.head.appendChild(el) }
-    el.content = content
-  })
-  let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement|null
-  if (!canonical) { canonical=document.createElement('link'); canonical.rel='canonical'; document.head.appendChild(canonical) }
-  canonical.href = `https://www.assamcareerpoint-info.com/exams/${found.id}`
-}
+          // ✅ Try slug first, fall back to numeric ID
+          const found = list.find(e => e.slug === slug || String(e.id) === slug) || null
+          setExam(found)
+          if (found) {
+            document.title = `${found.title} | Assam Career Point & Info`
+            const desc = found.description ||
+              `${found.title} — Conducted by ${found.conductedBy}. Apply by ${found.applicationLastDate}. Full details on Assam Career Point.`
+            let metaDesc = document.querySelector('meta[name="description"]') as HTMLMetaElement|null
+            if (!metaDesc) { metaDesc=document.createElement('meta'); metaDesc.name='description'; document.head.appendChild(metaDesc) }
+            metaDesc.content = desc
+            const ogTags: [string,string][] = [
+              ['og:title',       `${found.title} | Assam Career Point & Info`],
+              ['og:description', desc],
+              ['og:type',        'article'],
+              ['og:url',         `https://www.assamcareerpoint-info.com/exams/${found.slug || found.id}`],
+            ]
+            ogTags.forEach(([prop,content]) => {
+              let el = document.querySelector(`meta[property="${prop}"]`) as HTMLMetaElement|null
+              if (!el) { el=document.createElement('meta'); el.setAttribute('property',prop); document.head.appendChild(el) }
+              el.content = content
+            })
+            let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement|null
+            if (!canonical) { canonical=document.createElement('link'); canonical.rel='canonical'; document.head.appendChild(canonical) }
+            canonical.href = `https://www.assamcareerpoint-info.com/exams/${found.slug || found.id}`
+          }
         } else {
           try {
             const saved = localStorage.getItem('acp_exams_v6')
             const local: Exam[] = saved ? JSON.parse(saved) : FALLBACK
             setAllExams(local)
-            setExam(local.find(e => String(e.id) === String(id)) || null)
+            const found = local.find(e => e.slug === slug || String(e.id) === slug) || null
+            setExam(found)
           } catch { setAllExams(FALLBACK); setExam(null) }
         }
       })
@@ -137,14 +154,15 @@ if (found) {
           const saved = localStorage.getItem('acp_exams_v6')
           const local: Exam[] = saved ? JSON.parse(saved) : FALLBACK
           setAllExams(local)
-          setExam(local.find(e => String(e.id) === String(id)) || null)
+          const found = local.find(e => e.slug === slug || String(e.id) === slug) || null
+          setExam(found)
         } catch { setAllExams(FALLBACK); setExam(null) }
       })
     try {
       const s = localStorage.getItem('acp_settings_v1')
       setTimerOn(s ? JSON.parse(s).timerEnabled !== false : true)
     } catch {}
-  }, [id])
+  }, [slug])   // ← dependency on slug, not id
 
   // Countdown — only if applicationLastDate is a valid ISO date
   useEffect(() => {
@@ -168,14 +186,13 @@ if (found) {
     return () => clearInterval(t)
   }, [exam, activeDate])
 
-  // fmt: try ISO date first, else return as-is (supports text like "22 May to 25 May 2026")
   const fmt = (d?: string) => {
     if (!d) return '—'
     const parsed = new Date(d)
     if (!isNaN(parsed.getTime())) {
       return parsed.toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' })
     }
-    return d // return text as-is for multi-date strings
+    return d
   }
 
   if (!exam) return (
@@ -190,8 +207,6 @@ if (found) {
   const otherExams = allExams.filter(e => e.id !== exam.id && e.status !== 'Result Declared').slice(0, 4)
   const pdfs = exam.examPdfs?.filter(p => p.url && p.label) || []
   const affiliates = exam.examAffiliates?.filter(a => a.title && a.link) || []
-
-  // Check if applicationLastDate is a valid future ISO date for countdown
   const canCountdown = !!exam.applicationLastDate && !isNaN(new Date(exam.applicationLastDate).getTime()) && new Date(exam.applicationLastDate).getTime() > Date.now()
 
   return (
@@ -281,10 +296,8 @@ if (found) {
 
       <div className="layout" style={{maxWidth:1180,margin:'0 auto',padding:'20px 20px 60px',display:'flex',gap:20,alignItems:'flex-start'}}>
 
-        {/* ── MAIN ── */}
+        {/* MAIN */}
         <div style={{flex:1,minWidth:0}}>
-
-          {/* About */}
           {exam.description && (
             <div className="card">
               <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📋 About This Exam</h2>
@@ -293,7 +306,6 @@ if (found) {
             </div>
           )}
 
-          {/* Important Dates — supports text dates */}
           <div className="card">
             <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📅 Important Dates & Schedule</h2>
             <div className="dates-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:11,marginBottom:14}}>
@@ -318,7 +330,6 @@ if (found) {
             )}
           </div>
 
-          {/* Fee */}
           {exam.fee && (
             <div className="card">
               <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>💳 Application Fee</h2>
@@ -328,7 +339,6 @@ if (found) {
             </div>
           )}
 
-          {/* Eligibility */}
           {exam.eligibility && (
             <div className="card">
               <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>✅ Eligibility Criteria</h2>
@@ -341,7 +351,6 @@ if (found) {
             </div>
           )}
 
-          {/* Syllabus */}
           {exam.syllabus && (
             <div className="card">
               <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📚 Exam Syllabus / Pattern</h2>
@@ -349,7 +358,6 @@ if (found) {
             </div>
           )}
 
-          {/* ✅ PDF Links with labels */}
           {pdfs.length > 0 && (
             <div className="card">
               <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📄 Official Documents & PDFs</h2>
@@ -366,7 +374,6 @@ if (found) {
             </div>
           )}
 
-          {/* Apply buttons */}
           <div className="apply-btns" style={{display:'flex',gap:12,flexWrap:'wrap' as const,marginBottom:18}}>
             {exam.applyLink && (
               <a href={exam.applyLink} target="_blank" rel="noopener noreferrer"
@@ -388,7 +395,6 @@ if (found) {
             )}
           </div>
 
-          {/* ✅ Affiliate links for exam */}
           {affiliates.length > 0 && (
             <div className="card">
               <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📚 Recommended Books & Study Material</h2>
@@ -396,7 +402,6 @@ if (found) {
                 {affiliates.map(aff => (
                   <a key={aff.id} href={aff.link} target="_blank" rel="noopener noreferrer sponsored"
                     style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:12,overflow:'hidden',textDecoration:'none',color:'inherit',display:'flex',flexDirection:'column',transition:'.18s',boxShadow:'0 2px 8px rgba(0,0,0,.06)'}}>
-                    {/* Image box — same style as job vacancies */}
                     <div style={{position:'relative',width:'100%',paddingBottom:'70%',overflow:'hidden',background:`linear-gradient(135deg,#0d1b2a,#0a3050)`}}>
                       {aff.img
                         ? <img src={aff.img} alt={aff.title} style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',objectFit:'cover',display:'block'}}/>
@@ -408,7 +413,6 @@ if (found) {
                         </span>
                       )}
                     </div>
-                    {/* Content */}
                     <div style={{padding:'10px 11px',flex:1,display:'flex',flexDirection:'column',gap:6}}>
                       <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.78rem',color:'#0b1f33',lineHeight:1.4}}>{aff.title}</div>
                       <div style={{marginTop:'auto',background:'#1dbfad',color:'#0b1f33',borderRadius:7,padding:'7px',textAlign:'center',fontWeight:900,fontSize:'.72rem',fontFamily:'Arial Black,sans-serif'}}>
@@ -424,36 +428,17 @@ if (found) {
             </div>
           )}
 
-	  {/* Full Description */}
-{(exam as any).fullDescription && (
-  <div style={{marginTop:22}}>
-    <h2 style={{
-      fontFamily:'Sora,sans-serif',
-      fontWeight:700,
-      fontSize:'.93rem',
-      color:N,
-      margin:'0 0 12px',
-      paddingBottom:8,
-      borderBottom:`2px solid ${G}`
-    }}>
-      📄 {(exam as any).fullDescTitle || 'Detailed Information'}
-    </h2>
+          {(exam as any).fullDescription && (
+            <div style={{marginTop:22}}>
+              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>
+                📄 {(exam as any).fullDescTitle || 'Detailed Information'}
+              </h2>
+              <div style={{fontSize:'.88rem',color:'#2a3a4a',lineHeight:1.9,whiteSpace:'pre-line',background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'16px 18px'}}>
+                {(exam as any).fullDescription}
+              </div>
+            </div>
+          )}
 
-    <div style={{
-      fontSize:'.88rem',
-      color:'#2a3a4a',
-      lineHeight:1.9,
-      whiteSpace:'pre-line',
-      background:'#f8fbff',
-      border:'1.5px solid #d4e0ec',
-      borderRadius:10,
-      padding:'16px 18px'
-    }}>
-      {(exam as any).fullDescription}
-    </div>
-  </div>
-)}
-	  {/* ── Optional Sections ── */}
           {((exam as any).sections||[]).filter((s:any)=>s.title||s.content||s.links?.length||s.pdfLink).map((sec:any,idx:number)=>(
             <div key={sec.id||idx} style={{background:'#fff',border:'1.5px solid #e8eef4',borderRadius:13,overflow:'hidden',marginBottom:18}}>
               <div style={{background:`linear-gradient(90deg,${N},#102a45)`,padding:'13px 20px',display:'flex',alignItems:'center',gap:10}}>
@@ -489,13 +474,13 @@ if (found) {
               </div>
             </div>
           ))}
-          {/* Related exams */}
+
           {otherExams.length > 0 && (
             <div>
               <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'1rem',color:N,marginBottom:12}}>📋 Other Exams</h2>
               <div style={{display:'flex',flexDirection:'column' as const,gap:9}}>
                 {otherExams.map(e=>(
-                  <Link key={e.id} href={`/exams/${e.id}`} className="re-card">
+                  <Link key={e.id} href={`/exams/${e.slug || e.id}`} className="re-card">
                     <div style={{width:42,height:42,borderRadius:10,background:`${SC[e.status]||'#8fa3b8'}18`,border:`1.5px solid ${SC[e.status]||'#8fa3b8'}44`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.3rem',flexShrink:0}}>{e.emoji}</div>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.84rem',color:N,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const}}>{e.title}</div>
@@ -509,19 +494,15 @@ if (found) {
           )}
         </div>
 
-        {/* ── SIDEBAR ── */}
+        {/* SIDEBAR */}
         <div style={{width:290,flexShrink:0,minWidth:0}}>
-
-          {/* Countdown */}
           {timerOn && canCountdown && (
             <div style={{background:N,border:`2px solid ${G}`,borderRadius:16,padding:'18px',marginBottom:16}}>
               <h3 style={{fontFamily:'Arial Black,sans-serif',color:G,fontSize:'.76rem',letterSpacing:'.06em',marginBottom:12}}>⏳ TIME REMAINING</h3>
               <div style={{display:'flex',gap:6,marginBottom:12}}>
-                {(['apply'] as const).map(t=>(
-                  <div key={t} style={{flex:1,padding:'6px',borderRadius:7,background:`${G}22`,border:`1px solid ${G}55`,color:G,fontWeight:700,fontSize:'.72rem',textAlign:'center' as const}}>
-                    Apply Deadline
-                  </div>
-                ))}
+                <div style={{flex:1,padding:'6px',borderRadius:7,background:`${G}22`,border:`1px solid ${G}55`,color:G,fontWeight:700,fontSize:'.72rem',textAlign:'center' as const}}>
+                  Apply Deadline
+                </div>
               </div>
               <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:5}}>
                 {([['d','Days'],['h','Hours'],['m','Mins'],['s','Secs']] as [keyof typeof countdown,string][]).map(([k,l])=>(
@@ -534,7 +515,6 @@ if (found) {
             </div>
           )}
 
-          {/* Quick info */}
           <div style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:14,padding:'16px',marginBottom:14}}>
             <h3 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.87rem',color:N,marginBottom:12}}>📌 Quick Info</h3>
             {[
@@ -555,7 +535,6 @@ if (found) {
             ))}
           </div>
 
-          {/* Apply CTA */}
           {exam.applyLink && exam.status === 'Registration Open' && (
             <a href={exam.applyLink} target="_blank" rel="noopener noreferrer"
               style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,width:'100%',padding:'13px',borderRadius:11,background:G,color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif',marginBottom:10,boxSizing:'border-box' as const}}>
@@ -569,13 +548,12 @@ if (found) {
             </a>
           )}
 
-          {/* Share */}
           <div style={{background:'#f8fbff',border:'1px solid #d4e0ec',borderRadius:12,padding:'13px',textAlign:'center' as const}}>
             <div style={{fontSize:'.74rem',color:'#5a6a7a',fontWeight:700,marginBottom:10}}>📢 Share with friends</div>
             <div style={{display:'flex',gap:8,justifyContent:'center'}}>
               {[
-                {l:'WhatsApp',c:'#25d366',ico:'💬',href:`https://wa.me/?text=${encodeURIComponent(`${exam.title}\nApply by: ${fmt(exam.applicationLastDate)}\n\nhttps://www.assamcareerpoint-info.com/exams/${exam.id}`)}`},
-                {l:'Telegram',c:'#0088cc',ico:'✈️',href:`https://t.me/share/url?url=${encodeURIComponent(`https://www.assamcareerpoint-info.com/exams/${exam.id}`)}&text=${encodeURIComponent(exam.title)}`},
+                {l:'WhatsApp',c:'#25d366',ico:'💬',href:`https://wa.me/?text=${encodeURIComponent(`${exam.title}\nApply by: ${fmt(exam.applicationLastDate)}\n\nhttps://www.assamcareerpoint-info.com/exams/${exam.slug || exam.id}`)}`},
+                {l:'Telegram',c:'#0088cc',ico:'✈️',href:`https://t.me/share/url?url=${encodeURIComponent(`https://www.assamcareerpoint-info.com/exams/${exam.slug || exam.id}`)}&text=${encodeURIComponent(exam.title)}`},
               ].map(s=>(
                 <a key={s.l} href={s.href} target="_blank" rel="noopener noreferrer"
                   style={{display:'flex',alignItems:'center',gap:6,padding:'7px 12px',borderRadius:8,background:s.c,color:W,fontSize:'.74rem',fontWeight:700,textDecoration:'none'}}>

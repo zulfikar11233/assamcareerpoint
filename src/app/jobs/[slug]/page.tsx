@@ -1,5 +1,5 @@
 'use client'
-// src/app/jobs/[id]/page.tsx — Full Job Detail Page with all fields
+// src/app/jobs/[slug]/page.tsx — Full Job Detail Page with all fields
 // Reads from localStorage 'acp_jobs_v6'
 export const dynamic = 'force-dynamic'
 import Link from 'next/link'
@@ -170,8 +170,8 @@ const SAMPLES: Job[] = [{
   youtubeLink:'', createdAt:'2026-01-31T00:00:00Z',
 }]
 
-export default function JobDetail({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function JobDetail({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params)
   const [job,       setJob]       = useState<Job|null>(null)
   const [timerOn,   setTimerOn]   = useState<boolean>(true)
   const [now,       setNow]       = useState<number>(Date.now())
@@ -186,7 +186,9 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
     if (Array.isArray(list) && list.length > 0) {
       // ✅ Always update localStorage with fresh server data
       try { localStorage.setItem('acp_jobs_v6', JSON.stringify(list)) } catch {}
-      const found = list.find(j => String(j.id) === String(id)) || null
+      const found = list.find(j =>
+  j.slug === slug || String(j.id) === slug
+) || null
 setJob(found)
 if (found) {
   // SEO meta tags
@@ -201,7 +203,7 @@ if (found) {
     ['og:title',       `${found.title} | Assam Career Point & Info`],
     ['og:description', desc],
     ['og:type',        'article'],
-    ['og:url',         `https://www.assamcareerpoint-info.com/jobs/${found.id}`],
+    ['og:url', `https://www.assamcareerpoint-info.com/jobs/${found.slug || found.id}`],
   ]
   ogTags.forEach(([prop,content]) => {
     let el = document.querySelector(`meta[property="${prop}"]`) as HTMLMetaElement|null
@@ -211,16 +213,16 @@ if (found) {
   // Canonical
   let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement|null
   if (!canonical) { canonical=document.createElement('link'); canonical.rel='canonical'; document.head.appendChild(canonical) }
-  canonical.href = `https://www.assamcareerpoint-info.com/jobs/${found.id}`
+  canonical.href = `https://www.assamcareerpoint-info.com/jobs/${found.slug || found.id}`
 }
-      setOthers(list.filter(j => String(j.id) !== String(id) && j.status !== 'Draft').slice(0,4))
+      setOthers(list.filter(j => String(j.id) !== String(slug) && j.status !== 'Draft').slice(0,4))
     } else {
       // fallback to localStorage ONLY if server returns nothing
       try {
         const saved = localStorage.getItem('acp_jobs_v6')
         const local: Job[] = saved ? JSON.parse(saved) : SAMPLES
-        setJob(local.find(j => String(j.id) === String(id)) || null)
-        setOthers(local.filter(j => String(j.id) !== String(id) && j.status !== 'Draft').slice(0,4))
+        setJob(local.find(j => j.slug === slug || String(j.id) === slug) || null)
+        setOthers(local.filter(j => String(j.id) !== String(slug) && j.status !== 'Draft').slice(0,4))
       } catch { setJob(null) }
     }
     setLoading(false)
@@ -229,8 +231,9 @@ if (found) {
         try {
           const saved = localStorage.getItem('acp_jobs_v6')
           const local: Job[] = saved ? JSON.parse(saved) : SAMPLES
-          setJob(local.find(j => String(j.id) === String(id)) || null)
-          setOthers(local.filter(j => String(j.id) !== String(id) && j.status !== 'Draft').slice(0,4))
+          setJob(local.find(j => j.slug === slug || String(j.id) === slug
+) || null)
+          setOthers(local.filter(j => String(j.id) !== String(slug) && j.status !== 'Draft').slice(0,4))
         } catch { setJob(null) }
         setLoading(false)
       })
@@ -239,7 +242,7 @@ if (found) {
       const s = localStorage.getItem('acp_settings_v1')
       setTimerOn(s ? JSON.parse(s).timerEnabled !== false : true)
     } catch {}
-  }, [id])
+  }, [slug])
 
   // Live clock for countdown
   useEffect(() => {

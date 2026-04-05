@@ -1,7 +1,18 @@
 // src/lib/dataHelper.ts
 // Helper functions to save and load data from the server
 // Use these in admin pages to save, and in public pages to load
-
+// Add this function — generates SEO slug from any title
+export function generateSlug(title: string, id: number): string {
+  const slug = title
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')      // remove special chars like &, *, #
+    .replace(/[\s_]+/g, '-')       // spaces → hyphens
+    .replace(/-+/g, '-')           // multiple hyphens → single
+    .replace(/^-+|-+$/g, '')       // trim leading/trailing hyphens
+    .slice(0, 80)                  // max 80 chars
+  return `${slug}-${id}`           // append ID to guarantee uniqueness
+}
 // ── Save data to server ───────────────────────────────────────────
 export async function saveToServer(collection: string, data: unknown[]): Promise<boolean> {
   try {

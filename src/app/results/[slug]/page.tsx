@@ -1,5 +1,6 @@
 'use client'
-// src/app/results/[id]/page.tsx  ← NEW FILE (folder [id] does not exist yet — create it)
+// src/app/results/[slug]/page.tsx
+// ✅ SEO slugs with fallback to numeric ID
 import { use, useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
@@ -19,12 +20,13 @@ function catColor(cat: string) {
   return map[cat] || '#3a5068'
 }
 
-export default function ResultDetail({ params }: { params: Promise<{ id: string }> }) {
-  // NOTE: The URL param is named [id] but we store a slug in it — this is fine
-  const { id: slug } = use(params)
+export default function ResultDetail({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params)                     // ← slug from URL (can be slug or numeric ID)
   const [post, setPost] = useState<ResultPost | null | undefined>(undefined)
 
   useEffect(() => {
+    // getResultBySlug should already handle both slug and numeric ID fallback
+    // If not, you can modify that function to also check String(result.id) === slug
     const found = getResultBySlug(slug)
     setPost(found)
 
@@ -46,7 +48,7 @@ export default function ResultDetail({ params }: { params: Promise<{ id: string 
         ['og:title',       getResultMetaTitle(found)],
         ['og:description', getResultMetaDesc(found)],
         ['og:type',        'article'],
-        ['og:url',         `https://assamcareerpoint-info.com/results/${found.slug}`],
+        ['og:url',         `https://assamcareerpoint-info.com/results/${found.slug || found.id}`],
         ['og:site_name',   'Assam Career Point & Info'],
       ]
       ogTags.forEach(([prop, content]) => {
@@ -70,7 +72,7 @@ export default function ResultDetail({ params }: { params: Promise<{ id: string 
     }
   }, [slug])
 
-  // ── Loading state ──────────────────────────────────────────────────────────
+  // Loading state
   if (post === undefined) {
     return (
       <>
@@ -85,7 +87,7 @@ export default function ResultDetail({ params }: { params: Promise<{ id: string 
     )
   }
 
-  // ── Not found ──────────────────────────────────────────────────────────────
+  // Not found
   if (!post) {
     return (
       <>
@@ -106,7 +108,6 @@ export default function ResultDetail({ params }: { params: Promise<{ id: string 
 
   const color = catColor(post.category)
 
-  // ── Main detail page ───────────────────────────────────────────────────────
   return (
     <>
       <style>{`
@@ -201,7 +202,6 @@ export default function ResultDetail({ params }: { params: Promise<{ id: string 
         {/* Sections */}
         {post.sections.map((sec, idx) => (
           <div key={sec.id} className="sec-card">
-            {/* Section title bar */}
             <div style={{ background: `linear-gradient(90deg, ${N}, #102a45)`, padding: '13px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ width: 24, height: 24, borderRadius: 6, background: color, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '.75rem', fontWeight: 800, color: W, flexShrink: 0 }}>
                 {idx + 1}
@@ -212,17 +212,15 @@ export default function ResultDetail({ params }: { params: Promise<{ id: string 
             </div>
 
             <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {/* Content text */}
               {sec.content && (
                 <div style={{ color: '#3a5068', fontSize: '.92rem', lineHeight: 1.85, whiteSpace: 'pre-line' }}>
                   {sec.content}
                 </div>
               )}
 
-              {/* Links table */}
               {sec.links.length > 0 && (
                 <div>
-                  <div style={{ fontSize: '.76rem', fontWeight: 800, color: '#3a5068', marginBottom: 8, textTransform: 'uppercase' as const, letterSpacing: .5 }}>
+                  <div style={{ fontSize: '.76rem', fontWeight: 800, color: '#3a5068', marginBottom: 8, textTransform: 'uppercase', letterSpacing: .5 }}>
                     🔗 Important Links
                   </div>
                   <div style={{ border: '1.5px solid #e8eef4', borderRadius: 10, overflow: 'hidden' }}>
@@ -236,9 +234,9 @@ export default function ResultDetail({ params }: { params: Promise<{ id: string 
                           textDecoration: 'none', background: W,
                         }}>
                         <span style={{ fontSize: '.9rem', fontWeight: 600, color: N }}>
-  {lnk.label || lnk.url}
-</span>
-                        <span style={{ fontSize: '.78rem', fontWeight: 800, color: T, fontFamily: 'Arial Black,sans-serif', whiteSpace: 'nowrap' as const }}>
+                          {lnk.label || lnk.url}
+                        </span>
+                        <span style={{ fontSize: '.78rem', fontWeight: 800, color: T, fontFamily: 'Arial Black,sans-serif', whiteSpace: 'nowrap' }}>
                           Click Here →
                         </span>
                       </a>
@@ -247,7 +245,6 @@ export default function ResultDetail({ params }: { params: Promise<{ id: string 
                 </div>
               )}
 
-              {/* PDF download button */}
               {sec.pdfLink && (
                 <div>
                   <a href={sec.pdfLink} target="_blank" rel="noopener noreferrer" style={{

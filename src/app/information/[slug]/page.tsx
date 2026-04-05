@@ -1,5 +1,6 @@
 'use client'
-// src/app/information/[id]/page.tsx — Public Information Detail Page
+// src/app/information/[slug]/page.tsx — Public Information Detail Page
+// ✅ SEO slugs with fallback to numeric ID
 export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { useState, useEffect, use } from 'react'
@@ -26,23 +27,43 @@ function Logo({ size = 38 }: { size?: number }) {
   )
 }
 
+// ── Updated type with slug field ─────────────────────────────────
 type InfoItem = {
-  id: number; emoji: string; title: string; category: string; description?: string
-  lastDate?: string; process?: string; officialLink?: string
+  id: number
+  slug: string                    // ← ADDED for SEO
+  emoji: string
+  title: string
+  category: string
+  description?: string
+  lastDate?: string
+  process?: string
+  officialLink?: string
   importantDates?: { label: string; date: string; time?: string }[]
-  status: 'Active' | 'Upcoming' | 'Expired'; createdAt?: string
-  titleAs?:string; descriptionAs?:string; processAs?:string
-  processImages?:string[]   // ← optional images shown after process steps
+  status: 'Active' | 'Upcoming' | 'Expired'
+  createdAt?: string
+  titleAs?: string
+  descriptionAs?: string
+  processAs?: string
+  processImages?: string[]
+  fullDescription?: string
+  fullDescTitle?: string
+  sections?: any[]
 }
 
 const SC: Record<string,string> = { 'Active':'#22c55e', 'Upcoming':'#f59e0b', 'Expired':'#8fa3b8' }
 
 const FALLBACK: InfoItem[] = [
-  {id:1,emoji:'🗳️',title:'Voter ID Registration / Correction 2026',category:'Electoral',description:'Register as a new voter or correct existing voter ID details via Form 6/6A/8 online or offline. All Indian citizens above 18 years can register to vote.',lastDate:'2026-04-30',process:'1. Visit voters.eci.gov.in\n2. Click "Register as New Voter"\n3. Fill Form 6 with your details\n4. Upload Aadhaar, address proof, photo\n5. Submit and note acknowledgement number\n6. BLO will verify at your address\n7. Voter ID will be sent within 30 days',officialLink:'https://voters.eci.gov.in',importantDates:[{label:'Registration Opens',date:'2026-01-01'},{label:'Last Date to Apply',date:'2026-04-30',time:'11:59 PM'}],status:'Active',createdAt:new Date().toISOString()},
+  { id:1, slug:'voter-id-registration-correction-2026-1', emoji:'🗳️', title:'Voter ID Registration / Correction 2026', category:'Electoral',
+    description:'Register as a new voter or correct existing voter ID details via Form 6/6A/8 online or offline. All Indian citizens above 18 years can register to vote.',
+    lastDate:'2026-04-30',
+    process:'1. Visit voters.eci.gov.in\n2. Click "Register as New Voter"\n3. Fill Form 6 with your details\n4. Upload Aadhaar, address proof, photo\n5. Submit and note acknowledgement number\n6. BLO will verify at your address\n7. Voter ID will be sent within 30 days',
+    officialLink:'https://voters.eci.gov.in',
+    importantDates:[{label:'Registration Opens',date:'2026-01-01'},{label:'Last Date to Apply',date:'2026-04-30',time:'11:59 PM'}],
+    status:'Active', createdAt:new Date().toISOString() },
 ]
 
-export default function InfoDetail({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function InfoDetail({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params)                     // ← slug from URL (can be slug or numeric ID)
   const [item, setItem] = useState<InfoItem | null>(null)
   const [others, setOthers] = useState<InfoItem[]>([])
 
@@ -51,37 +72,39 @@ export default function InfoDetail({ params }: { params: Promise<{ id: string }>
       .then(r => r.json())
       .then((list: InfoItem[]) => {
         if (Array.isArray(list) && list.length > 0) {
-          const found = list.find(i => String(i.id) === String(id)) || null
-setItem(found)
-if (found) {
-  document.title = `${found.title} | Assam Career Point & Info`
-  const desc = found.description ||
-    `${found.title} — ${found.category}. Important information for Assam residents on Assam Career Point.`
-  let metaDesc = document.querySelector('meta[name="description"]') as HTMLMetaElement|null
-  if (!metaDesc) { metaDesc=document.createElement('meta'); metaDesc.name='description'; document.head.appendChild(metaDesc) }
-  metaDesc.content = desc
-  const ogTags: [string,string][] = [
-    ['og:title',       `${found.title} | Assam Career Point & Info`],
-    ['og:description', desc],
-    ['og:type',        'article'],
-    ['og:url',         `https://www.assamcareerpoint-info.com/information/${found.id}`],
-  ]
-  ogTags.forEach(([prop,content]) => {
-    let el = document.querySelector(`meta[property="${prop}"]`) as HTMLMetaElement|null
-    if (!el) { el=document.createElement('meta'); el.setAttribute('property',prop); document.head.appendChild(el) }
-    el.content = content
-  })
-  let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement|null
-  if (!canonical) { canonical=document.createElement('link'); canonical.rel='canonical'; document.head.appendChild(canonical) }
-  canonical.href = `https://www.assamcareerpoint-info.com/information/${found.id}`
-}
-          setOthers(list.filter(i => String(i.id) !== String(id) && i.status !== 'Expired').slice(0,4))
+          // ✅ Try slug first, fall back to numeric ID
+          const found = list.find(i => i.slug === slug || String(i.id) === slug) || null
+          setItem(found)
+          if (found) {
+            document.title = `${found.title} | Assam Career Point & Info`
+            const desc = found.description ||
+              `${found.title} — ${found.category}. Important information for Assam residents on Assam Career Point.`
+            let metaDesc = document.querySelector('meta[name="description"]') as HTMLMetaElement|null
+            if (!metaDesc) { metaDesc=document.createElement('meta'); metaDesc.name='description'; document.head.appendChild(metaDesc) }
+            metaDesc.content = desc
+            const ogTags: [string,string][] = [
+              ['og:title',       `${found.title} | Assam Career Point & Info`],
+              ['og:description', desc],
+              ['og:type',        'article'],
+              ['og:url',         `https://www.assamcareerpoint-info.com/information/${found.slug || found.id}`],
+            ]
+            ogTags.forEach(([prop,content]) => {
+              let el = document.querySelector(`meta[property="${prop}"]`) as HTMLMetaElement|null
+              if (!el) { el=document.createElement('meta'); el.setAttribute('property',prop); document.head.appendChild(el) }
+              el.content = content
+            })
+            let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement|null
+            if (!canonical) { canonical=document.createElement('link'); canonical.rel='canonical'; document.head.appendChild(canonical) }
+            canonical.href = `https://www.assamcareerpoint-info.com/information/${found.slug || found.id}`
+          }
+          setOthers(list.filter(i => (i.slug !== slug && String(i.id) !== slug) && i.status !== 'Expired').slice(0,4))
         } else {
           try {
             const saved = localStorage.getItem('acp_info_v6')
             const local: InfoItem[] = saved ? JSON.parse(saved) : FALLBACK
-            setItem(local.find(i => String(i.id) === String(id)) || null)
-            setOthers(local.filter(i => String(i.id) !== String(id) && i.status !== 'Expired').slice(0,4))
+            const found = local.find(i => i.slug === slug || String(i.id) === slug) || null
+            setItem(found)
+            setOthers(local.filter(i => (i.slug !== slug && String(i.id) !== slug) && i.status !== 'Expired').slice(0,4))
           } catch { setItem(null) }
         }
       })
@@ -89,11 +112,12 @@ if (found) {
         try {
           const saved = localStorage.getItem('acp_info_v6')
           const local: InfoItem[] = saved ? JSON.parse(saved) : FALLBACK
-          setItem(local.find(i => String(i.id) === String(id)) || null)
-          setOthers(local.filter(i => String(i.id) !== String(id) && i.status !== 'Expired').slice(0,4))
+          const found = local.find(i => i.slug === slug || String(i.id) === slug) || null
+          setItem(found)
+          setOthers(local.filter(i => (i.slug !== slug && String(i.id) !== slug) && i.status !== 'Expired').slice(0,4))
         } catch { setItem(null) }
       })
-  }, [id])
+  }, [slug])   // ← dependency on slug, not id
 
   const fmt = (d?: string) => { if(!d) return '—'; try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}) } catch { return d } }
 
@@ -190,7 +214,6 @@ if (found) {
               <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:N,margin:'0 0 16px',paddingBottom:10,borderBottom:'2px solid #f0f4f8'}}>📋 Step-by-Step Process</h2>
               <div>
                 {steps.map((step, i) => {
-                  // Remove leading number like "1." or "Step 1:"
                   const clean = step.replace(/^[\d]+[\.\)]\s*/, '').replace(/^Step\s*\d+:?\s*/i,'')
                   return (
                     <div key={i} style={{display:'flex',gap:14,padding:'12px 0',borderBottom:i<steps.length-1?'1px solid #f0f4f8':'none',alignItems:'flex-start'}}>
@@ -213,7 +236,8 @@ if (found) {
               )}
             </div>
           )}
-	  {/* Process Images */}
+
+          {/* Process Images */}
           {(item.processImages||[]).filter(Boolean).length > 0 && (
             <div className="card">
               <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:N,margin:'0 0 14px',paddingBottom:10,borderBottom:'2px solid #f0f4f8'}}>🖼️ Reference Images</h2>
@@ -232,6 +256,7 @@ if (found) {
               })}
             </div>
           )}
+
           {/* Official Link */}
           {item.officialLink && (
             <div className="card" style={{borderLeft:`5px solid ${T}`}}>
@@ -244,15 +269,18 @@ if (found) {
             </div>
           )}
 
-	{item && (item as any).fullDescription && (
-  <div style={{marginTop:22}}>
-    <h2>📄 {(item as any).fullDescTitle || 'Detailed Information'}</h2>
-    <div style={{whiteSpace:'pre-line'}}>
-      {(item as any).fullDescription}
-    </div>
-  </div>
-)}
-	  {/* ── Optional Sections ── */}
+          {item && (item as any).fullDescription && (
+            <div style={{marginTop:22}}>
+              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>
+                📄 {(item as any).fullDescTitle || 'Detailed Information'}
+              </h2>
+              <div style={{fontSize:'.88rem',color:'#2a3a4a',lineHeight:1.9,whiteSpace:'pre-line',background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'16px 18px'}}>
+                {(item as any).fullDescription}
+              </div>
+            </div>
+          )}
+
+          {/* Optional Sections */}
           {((item as any).sections||[]).filter((s:any)=>s.title||s.content||s.links?.length||s.pdfLink).map((sec:any,idx:number)=>(
             <div key={sec.id||idx} style={{background:'#fff',border:'1.5px solid #e8eef4',borderRadius:13,overflow:'hidden',marginBottom:18}}>
               <div style={{background:`linear-gradient(90deg,${N},#102a45)`,padding:'13px 20px',display:'flex',alignItems:'center',gap:10}}>
@@ -288,6 +316,7 @@ if (found) {
               </div>
             </div>
           ))}
+
           {/* Disclaimer */}
           <div style={{background:'#fff8e1',border:'1.5px solid #ffe082',borderRadius:12,padding:'14px 18px',fontSize:'.82rem',color:'#5a3a00',lineHeight:1.8}}>
             <strong>⚠️ Disclaimer:</strong> This information is for awareness purposes only. Always verify from the official government website before taking any action. Assam Career Point & Info is not affiliated with any government body.
@@ -299,7 +328,7 @@ if (found) {
               <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'1rem',color:N,marginBottom:14}}>📋 Related Information</h2>
               <div style={{display:'flex',flexDirection:'column' as const,gap:10}}>
                 {others.map(o=>(
-                  <Link key={o.id} href={`/information/${o.id}`} className="re-card">
+                  <Link key={o.id} href={`/information/${o.slug || o.id}`} className="re-card">
                     <div style={{width:42,height:42,borderRadius:10,background:`${T}18`,border:`1.5px solid ${T}44`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.3rem',flexShrink:0}}>{o.emoji}</div>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.84rem',color:N,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const}}>{o.title}</div>
@@ -345,8 +374,8 @@ if (found) {
             <div style={{fontSize:'.75rem',color:'#5a6a7a',fontWeight:700,marginBottom:10}}>📢 Share this info</div>
             <div style={{display:'flex',gap:8,justifyContent:'center'}}>
               {[
-                {l:'WhatsApp',c:'#25d366',ico:'💬',href:`https://wa.me/?text=${encodeURIComponent(`${item.title}\n\nhttps://www.assamcareerpoint-info.com/information/${item.id}`)}`},
-                {l:'Telegram',c:'#0088cc',ico:'✈️',href:`https://t.me/share/url?url=${encodeURIComponent(`https://www.assamcareerpoint-info.com/information/${item.id}`)}&text=${encodeURIComponent(item.title)}`},
+                {l:'WhatsApp',c:'#25d366',ico:'💬',href:`https://wa.me/?text=${encodeURIComponent(`${item.title}\n\nhttps://www.assamcareerpoint-info.com/information/${item.slug || item.id}`)}`},
+                {l:'Telegram',c:'#0088cc',ico:'✈️',href:`https://t.me/share/url?url=${encodeURIComponent(`https://www.assamcareerpoint-info.com/information/${item.slug || item.id}`)}&text=${encodeURIComponent(item.title)}`},
               ].map(s=>(
                 <a key={s.l} href={s.href} target="_blank" rel="noopener noreferrer"
                   style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:8,background:s.c,color:W,fontSize:'.75rem',fontWeight:700,textDecoration:'none'}}>
