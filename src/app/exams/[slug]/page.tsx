@@ -37,7 +37,7 @@ type ExamAffiliate = { id: string; title: string; link: string; img?: string; ba
 
 type Exam = {
   id: number
-  slug: string                    // ← ADDED for SEO
+  slug?: string                    // ← ADDED for SEO
   emoji: string
   title: string
   conductedBy: string

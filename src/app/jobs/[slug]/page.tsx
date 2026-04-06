@@ -12,7 +12,7 @@ type Post    = { id:string; name:string; dept:string; vacancy:number; qualificat
 type AdvPdf  = { name:string; url:string; size?:string; label?:string; type?:string }
 type DateExt = { date:string; note:string; extendedOn:string }
 type Job     = {
-  id:number; logo:string; title:string; org:string; category:string
+  id:number; slug?: string; logo:string; title:string; org:string; category:string
   district:string; status:string; vacancy:string; qualification:string; ageLimit:string
   salary:string; lastDate:string; applyLink:string
   posts?:Post[]; advPdfs?:AdvPdf[]; dateHistory?:DateExt[]

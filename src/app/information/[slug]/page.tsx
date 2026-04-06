@@ -30,7 +30,7 @@ function Logo({ size = 38 }: { size?: number }) {
 // ── Updated type with slug field ─────────────────────────────────
 type InfoItem = {
   id: number
-  slug: string                    // ← ADDED for SEO
+  slug?: string                    // ← ADDED for SEO
   emoji: string
   title: string
   category: string
