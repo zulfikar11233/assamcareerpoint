@@ -241,7 +241,7 @@ export default function InfoDetail({ params }: { params: Promise<{ slug: string 
           {(item.processImages||[]).filter(Boolean).length > 0 && (
             <div className="card">
               <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:N,margin:'0 0 14px',paddingBottom:10,borderBottom:'2px solid #f0f4f8'}}>🖼️ Reference Images</h2>
-              {(item.processImages||[]).filter(Boolean).map((imgUrl,idx)=>{
+              {(item.processImages||[]).map((u:string)=>u.trim()).filter(Boolean).map((imgUrl,idx)=>{
                 const src = imgUrl.includes('drive.google.com')
                   ? `https://lh3.googleusercontent.com/d/${(imgUrl.match(/\/d\/([a-zA-Z0-9_-]+)/)||[])[1]}`
                   : imgUrl

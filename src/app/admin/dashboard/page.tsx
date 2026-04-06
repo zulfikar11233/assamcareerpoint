@@ -1778,11 +1778,11 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
   <textarea
     value={(inf as any).processImages?.join('\n') || ''}
     onChange={e =>
-      setInf((p:any)=>({
-        ...p,
-        processImages: e.target.value.split('\n').filter(Boolean)
-      }))
-    }
+  setInf((p:any)=>({
+    ...p,
+    processImages: e.target.value.split('\n').map((s:string) => s.trim()).filter(Boolean)
+  }))
+}
     style={{...si,minHeight:80,resize:'vertical'}}
     placeholder={`https://drive.google.com/file/d/...
 https://drive.google.com/file/d/...`}

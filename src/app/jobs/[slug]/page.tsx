@@ -662,7 +662,7 @@ if (!job) return (
             {activeTab==='details' && (job.detailsImages||[]).filter(Boolean).length > 0 && (
                   <>
                     <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'22px 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>🖼️ Additional Images</h2>
-                    {(job.detailsImages||[]).filter(Boolean).map((imgUrl,idx)=>{
+                    {(job.detailsImages||[]).map((u:string)=>u.trim()).filter(Boolean).map((imgUrl,idx)=>{
                       const src = imgUrl.includes('drive.google.com')
   ? driveImgUrl(imgUrl)
   : imgUrl
@@ -752,7 +752,7 @@ if (!job) return (
                   </div>
                 )}
                 {/* How to Apply Images */}
-                {(job.howToApplyImages||[]).filter(Boolean).map((imgUrl,idx)=>{
+                {(job.howToApplyImages||[]).map((u:string)=>u.trim()).filter(Boolean).map((imgUrl,idx)=>{
                   const src = imgUrl.includes('drive.google.com')
   ? driveImgUrl(imgUrl)
   : imgUrl
