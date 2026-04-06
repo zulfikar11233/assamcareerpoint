@@ -1215,12 +1215,12 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                 <div className="fg"><label style={lb}>How to Apply (steps)</label><textarea value={jf.howToApply} onChange={e=>setJf(p=>({...p,howToApply:e.target.value}))} style={{...si,minHeight:72,resize:'vertical' as const}} placeholder="1. Visit slprbassam.in&#10;2. Click Apply Online&#10;3. Register with mobile & email&#10;4. Fill application form&#10;5. Upload photo & signature&#10;6. Pay fee and submit" /></div>
                 <div className="fg">
   <label style={{...lb, color: '#00b4d8'}}>🖼️ How to Apply Images <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>(shown in How to Apply tab — max 5, one URL per line)</span></label>
-  <textarea value={(jf as any).howToApplyImages?.join('\n')||''} onChange={e=>setJf((p:any)=>({...p,howToApplyImages:e.target.value.split('\n').map(s=>s.trim()).filter(Boolean)}))}
+  <textarea value={(jf as any).howToApplyImages?.join('\n')||''} onChange={e=>setJf((p:any)=>({...p,howToApplyImages:e.target.value.split(/[\n\s]+/).map((s:string)=>s.trim()).filter(Boolean)}))}
     style={{...si,minHeight:80,resize:'vertical' as const}} placeholder={'https://drive.google.com/file/d/...\nhttps://drive.google.com/file/d/...'}/>
 </div>
 <div className="fg">
   <label style={{...lb, color: '#00b4d8'}}>🖼️ Details Tab Images <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>(shown in Details tab — max 5, one URL per line)</span></label>
-  <textarea value={(jf as any).detailsImages?.join('\n')||''} onChange={e=>setJf((p:any)=>({...p,detailsImages:e.target.value.split('\n').map(s=>s.trim()).filter(Boolean)}))}    style={{...si,minHeight:80,resize:'vertical' as const}} placeholder={'https://drive.google.com/file/d/...\nhttps://drive.google.com/file/d/...'}/>
+  <textarea value={(jf as any).detailsImages?.join('\n')||''} onChange={e=>setJf((p:any)=>({...p,detailsImages:e.target.value.split(/[\n\s]+/).map((s:string)=>s.trim()).filter(Boolean)}))}    style={{...si,minHeight:80,resize:'vertical' as const}} placeholder={'https://drive.google.com/file/d/...\nhttps://drive.google.com/file/d/...'}/>
 </div>
 <div className="fg"><label style={lb}>YouTube Video Link (optional)</label><input value={jf.youtubeLink} onChange={e=>setJf(p=>({...p,youtubeLink:e.target.value}))} style={si} placeholder="https://youtube.com/watch?v=..." /></div>
 
@@ -1777,12 +1777,7 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
 
   <textarea
     value={(inf as any).processImages?.join('\n') || ''}
-    onChange={e =>
-  setInf((p:any)=>({
-    ...p,
-    processImages: e.target.value.split('\n').map((s:string) => s.trim()).filter(Boolean)
-  }))
-}
+    onChange={e=>setInf((p:any)=>({...p,processImages:e.target.value.split(/[\n\s]+/).map((s:string)=>s.trim()).filter(Boolean)}))}
     style={{...si,minHeight:80,resize:'vertical'}}
     placeholder={`https://drive.google.com/file/d/...
 https://drive.google.com/file/d/...`}
