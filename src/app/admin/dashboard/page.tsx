@@ -8,7 +8,6 @@ export const dynamic = 'force-dynamic'
 // ✅ NEW: Information (Voter ID, PAN-Aadhaar, schemes — with dates+time)
 // ✅ PDF Forms library: SEPARATE from job/exam PDFs (Google Drive links supported)
 // ✅ NEW: Results CMS + Others CMS (Announcements, Guides, Services) — sidebar links added
-import { generateSlug } from '@/lib/dataHelper'
 import { useState, useEffect, useRef } from 'react'
 import { signOut } from 'next-auth/react'
 import { ContentSection, ContentSectionLink, newContentSectionId, newContentLinkId } from '@/lib/section-types'
@@ -843,29 +842,6 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
 		{/* ── JOBS TABLE ── */}
 {activeTab==='jobs' && (
   <>
-    {/* Generate Slug Button */}
-    <button
-      onClick={() => {
-        const updated = jobs.map(j => ({
-          ...j,
-          slug: j.slug || generateSlug(j.title, j.id)
-        }))
-        setJobs(updated)
-        alert('Slugs generated! Save will happen automatically.')
-      }}
-      style={{
-        marginBottom: 12,
-        padding: '8px 14px',
-        background: '#0b1f33',
-        color: '#fff',
-        borderRadius: 6,
-        border: 'none',
-        cursor: 'pointer',
-        fontWeight: 600
-      }}
-    >
-      Generate Slugs for Existing Jobs
-    </button>
 
     {/* Jobs Table */}
     <div style={{ background:'#fff', border:'1.5px solid #d4e0ec', borderRadius:12, overflow:'hidden' }}>
