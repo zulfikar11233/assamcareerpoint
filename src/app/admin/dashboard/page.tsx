@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic'
 // ✅ NEW: Information (Voter ID, PAN-Aadhaar, schemes — with dates+time)
 // ✅ PDF Forms library: SEPARATE from job/exam PDFs (Google Drive links supported)
 // ✅ NEW: Results CMS + Others CMS (Announcements, Guides, Services) — sidebar links added
+import { generateSlug } from '@/lib/dataHelper'
 import { useState, useEffect, useRef } from 'react'
 import { signOut } from 'next-auth/react'
 import { ContentSection, ContentSectionLink, newContentSectionId, newContentLinkId } from '@/lib/section-types'
