@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic'
 // ✅ NEW: Information (Voter ID, PAN-Aadhaar, schemes — with dates+time)
 // ✅ PDF Forms library: SEPARATE from job/exam PDFs (Google Drive links supported)
 // ✅ NEW: Results CMS + Others CMS (Announcements, Guides, Services) — sidebar links added
+import Link from 'next/link'
 import { generateSlug } from '@/lib/dataHelper'
 import { useState, useEffect, useRef } from 'react'
 import { signOut } from 'next-auth/react'
@@ -772,29 +773,57 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
         </aside>
 
         {/* ══════ MAIN ══════ */}
-        <main style={{ marginLeft:200,flex:1,minWidth:0,overflowX:'hidden' }}>
+<main style={{ marginLeft:200, flex:1, minWidth:0, overflowX:'hidden' }}>
 
-          {/* Top bar */}
-          <div style={{ background:'#fff',borderBottom:'1px solid #d4e0ec',padding:'12px 26px',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:50,gap:12 }}>
-            <div>
-              <h1 style={{ fontFamily:"'Sora',sans-serif",fontSize:'1.05rem',fontWeight:700,color:'#1a1a2e' }}>
-                {activeTab==='dashboard'&&'🏠 Dashboard'}{activeTab==='jobs'&&'💼 Job Vacancies'}{activeTab==='exams'&&'📚 Competitive Exams'}{activeTab==='info'&&'ℹ️ Information'}{activeTab==='pdfforms'&&'📄 PDF Forms Library'}{activeTab==='affiliate'&&'🤝 Affiliate Partners'}{activeTab==='settings'&&'⚙️ Settings'}
-              </h1>
-              <p style={{ fontSize:'.74rem',color:'#5a6a7a',marginTop:1 }}>Assam Career Point & Info — Admin</p>
-            </div>
-            <div style={{ display:'flex',gap:9,alignItems:'center',flexWrap:'wrap' as const }}>
-              {activeTab!=='dashboard'&&activeTab!=='settings' && (
-                <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 Search..." style={{ ...si,width:190,padding:'7px 12px' }} />
-              )}
-              {activeTab==='jobs'     && <button onClick={openAddJob}            style={bR}>➕ Add Job</button>}
-              {activeTab==='exams'    && <button onClick={openAddExam}           style={bO}>➕ Add Exam</button>}
-              {activeTab==='info'     && <button onClick={openAddInfo}           style={bG}>➕ Add Info</button>}
-              {activeTab==='pdfforms' && <button onClick={()=>setShowPdfModal(true)} style={bP}>➕ Add PDF Form</button>}
-              {activeTab==='affiliate' && <button onClick={()=>{setEditAff(null);setAf({category:'Exam Preparation',title:'',description:'',badge:'',logo:'📚',price:'',originalPrice:'',commission:'',link:'',h1:'',h2:'',h3:'',h4:'',buttonText:'Start Free Trial →',tag:'',active:true});setShowAffModal(true)}} style={{padding:'8px 16px',borderRadius:8,background:'#c9a227',color:'#0b1f33',fontWeight:900,fontSize:'.82rem',border:'none',cursor:'pointer',fontFamily:'Nunito,sans-serif'}}>➕ Add Affiliate</button>}
-            </div>
-          </div>
+  {/* Top bar */}
+  <div style={{ background:'#fff', borderBottom:'1px solid #d4e0ec', padding:'12px 26px', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50, gap:12 }}>
+    <div>
+      <h1 style={{ fontFamily:"'Sora',sans-serif", fontSize:'1.05rem', fontWeight:700, color:'#1a1a2e' }}>
+        {activeTab==='dashboard' && '🏠 Dashboard'}
+        {activeTab==='jobs' && '💼 Job Vacancies'}
+        {activeTab==='exams' && '📚 Competitive Exams'}
+        {activeTab==='info' && 'ℹ️ Information'}
+        {activeTab==='pdfforms' && '📄 PDF Forms Library'}
+        {activeTab==='affiliate' && '🤝 Affiliate Partners'}
+        {activeTab==='settings' && '⚙️ Settings'}
+      </h1>
+      <p style={{ fontSize:'.74rem', color:'#5a6a7a', marginTop:1 }}>Assam Career Point & Info — Admin</p>
+    </div>
+    <div style={{ display:'flex', gap:9, alignItems:'center', flexWrap:'wrap' as const }}>
+      {activeTab !== 'dashboard' && activeTab !== 'settings' && (
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 Search..." style={{ ...si, width:190, padding:'7px 12px' }} />
+      )}
+      {activeTab === 'jobs' && <button onClick={openAddJob} style={bR}>➕ Add Job</button>}
+      {activeTab === 'exams' && <button onClick={openAddExam} style={bO}>➕ Add Exam</button>}
+      {activeTab === 'info' && <button onClick={openAddInfo} style={bG}>➕ Add Info</button>}
+      {activeTab === 'pdfforms' && <button onClick={() => setShowPdfModal(true)} style={bP}>➕ Add PDF Form</button>}
+      {activeTab === 'affiliate' && <button onClick={() => { setEditAff(null); setAf({ category: 'Exam Preparation', title: '', description: '', badge: '', logo: '📚', price: '', originalPrice: '', commission: '', link: '', h1: '', h2: '', h3: '', h4: '', buttonText: 'Start Free Trial →', tag: '', active: true }); setShowAffModal(true); }} style={{ padding: '8px 16px', borderRadius: 8, background: '#c9a227', color: '#0b1f33', fontWeight: 900, fontSize: '.82rem', border: 'none', cursor: 'pointer', fontFamily: 'Nunito, sans-serif' }}>➕ Add Affiliate</button>}
 
-          <div style={{ padding:24 }}>
+      {/* ✅ Bulk Upload Link – visible on all tabs */}
+      <Link
+        href="/admin/bulk-upload"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '8px 16px',
+          borderRadius: 10,
+          background: '#c9a22722',
+          color: '#c9a227',
+          border: '1.5px solid #c9a22744',
+          textDecoration: 'none',
+          fontWeight: 700,
+          fontSize: '.82rem',
+          fontFamily: 'Nunito, sans-serif'
+        }}
+      >
+        📤 Bulk Upload
+      </Link>
+    </div>
+  </div>
+
+  {/* Main content area */}
+  <div style={{ padding: 24 }}>
 
             {/* ── DASHBOARD ── */}
             {activeTab==='dashboard' && (
