@@ -406,7 +406,7 @@ export default function AdminDashboard() {
   const [editInfo, setEditInfo] = useState<InfoItem|null>(null)
 const [dataLoaded, setDataLoaded] = useState(false)
   // Job form
-  const BLANK_JF = { logo:'🏛️', title:'', org:'', category:'Govt Job', district:'All Districts', status:'Live' as Job['status'], fee:'', selection:'', website:'', howToApply:'',howToApplyImages: [], detailsImages: [], youtubeLink:'', description:'', advtNo:'', ageLimitDate:'',ageBirthRange:'', ageRelaxation:'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:'', lastDateTime:'23:59 Hrs', paymentLastDate:'', paymentLastDateTime:'23:59 Hrs', correctionWindow:'', applicationStart:'', helplineEmail:'', helplinePhone:'', selectionDetails:'', syllabusDetails:'', zoneWiseVacancy:'', fullDescription:'', fullDescTitle:'', titleAs:'', orgAs:'', descriptionAs:'', howToApplyAs:'', selectionAs:'' }
+  const BLANK_JF = { logo:'🏛️', title:'', slug:'', org:'', category:'Govt Job', district:'All Districts', status:'Live' as Job['status'], fee:'', selection:'', website:'', howToApply:'',howToApplyImages: [], detailsImages: [], youtubeLink:'', description:'', advtNo:'', ageLimitDate:'',ageBirthRange:'', ageRelaxation:'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:'', lastDateTime:'23:59 Hrs', paymentLastDate:'', paymentLastDateTime:'23:59 Hrs', correctionWindow:'', applicationStart:'', helplineEmail:'', helplinePhone:'', selectionDetails:'', syllabusDetails:'', zoneWiseVacancy:'', fullDescription:'', fullDescTitle:'', titleAs:'', orgAs:'', descriptionAs:'', howToApplyAs:'', selectionAs:'' }
   const [jf, setJf] = useState(BLANK_JF)
   const [posts,       setPosts]       = useState<Post[]>([])
   const [advPdfs,     setAdvPdfs]     = useState<AdvPdf[]>([])
@@ -418,11 +418,11 @@ const [dataLoaded, setDataLoaded] = useState(false)
   const [infoSections, setInfoSections] = useState<ContentSection[]>([])
 
   // Exam form
-  const blankExam = { emoji:'📚', title:'', conductedBy:'', category:'Teaching', description:'', applicationStart:'', applicationLastDate:'', paymentLastDate:'', examDate:'', examTime:'', admitCardDate:'', resultDate:'', fee:'', eligibility:'', fullDescription:'', fullDescTitle:'', syllabus:'', officialSite:'', applyLink:'', admitCardLink:'', status:'Upcoming' as Exam['status'], titleAs:'', descriptionAs:'', eligibilityAs:'', examPdfs:[] as {label:string;url:string}[], examAffiliates:[] as {id:string;title:string;link:string;img?:string;badge?:string}[] }
+  const blankExam = { emoji:'📚', title:'', slug: '', conductedBy:'', category:'Teaching', description:'', applicationStart:'', applicationLastDate:'', paymentLastDate:'', examDate:'', examTime:'', admitCardDate:'', resultDate:'', fee:'', eligibility:'', fullDescription:'', fullDescTitle:'', syllabus:'', officialSite:'', applyLink:'', admitCardLink:'', status:'Upcoming' as Exam['status'], titleAs:'', descriptionAs:'', eligibilityAs:'', examPdfs:[] as {label:string;url:string}[], examAffiliates:[] as {id:string;title:string;link:string;img?:string;badge?:string}[] }
   const [ef, setEf] = useState(blankExam)
 
   // Info form
-  const blankInfo = { emoji:'🗳️', title:'', category:'Electoral', description:'', lastDate:'', process:'',processImages: [], officialLink:'', fullDescription:'',
+  const blankInfo = { emoji:'🗳️', title:'', slug:'', category:'Electoral', description:'', lastDate:'', process:'',processImages: [], officialLink:'', fullDescription:'',
 fullDescTitle:'', status:'Active' as InfoItem['status'], titleAs:'', descriptionAs:'', processAs:'' }
   const [inf, setInf]       = useState(blankInfo)
   const [infDates, setInfDates] = useState<{label:string;date:string;time:string}[]>([])
@@ -507,7 +507,7 @@ fullDescTitle:'', status:'Active' as InfoItem['status'], titleAs:'', description
   }
   function openEditJob(j:Job) {
     setEditJob(j)
-    setJf({ logo:j.logo, title:j.title, org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'',howToApplyImages: (j as any).howToApplyImages || [], detailsImages: (j as any).detailsImages || [], youtubeLink:j.youtubeLink||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageBirthRange:(j as any).ageBirthRange||'', ageRelaxation:j.ageRelaxation||'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:j.feeRefund||'', lastDateTime:j.lastDateTime||'23:59 Hrs', paymentLastDate:j.paymentLastDate||'', paymentLastDateTime:j.paymentLastDateTime||'23:59 Hrs', correctionWindow:j.correctionWindow||'', applicationStart:j.applicationStart||'', helplineEmail:j.helplineEmail||'', helplinePhone:j.helplinePhone||'', selectionDetails:j.selectionDetails||'', syllabusDetails:j.syllabusDetails||'', zoneWiseVacancy:j.zoneWiseVacancy||'', fullDescription:(j as any).fullDescription||'', fullDescTitle:(j as any).fullDescTitle||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
+    setJf({ logo:j.logo, title:j.title, slug: j.slug || '', org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'',howToApplyImages: (j as any).howToApplyImages || [], detailsImages: (j as any).detailsImages || [], youtubeLink:j.youtubeLink||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageBirthRange:(j as any).ageBirthRange||'', ageRelaxation:j.ageRelaxation||'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:j.feeRefund||'', lastDateTime:j.lastDateTime||'23:59 Hrs', paymentLastDate:j.paymentLastDate||'', paymentLastDateTime:j.paymentLastDateTime||'23:59 Hrs', correctionWindow:j.correctionWindow||'', applicationStart:j.applicationStart||'', helplineEmail:j.helplineEmail||'', helplinePhone:j.helplinePhone||'', selectionDetails:j.selectionDetails||'', syllabusDetails:j.syllabusDetails||'', zoneWiseVacancy:j.zoneWiseVacancy||'', fullDescription:(j as any).fullDescription||'', fullDescTitle:(j as any).fullDescTitle||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
     setPosts(j.posts||[]); setAdvPdfs(j.advPdfs||[]); setJobAffiliates(j.jobAffiliates||[]); setDateHistory(j.dateHistory||[])
 setJobSections((j as any).sections||[])
     setShowJobModal(true)
@@ -562,7 +562,7 @@ setShowJobModal(false); toast('✅ Job saved!')
 }
   // ── EXAM HELPERS ─────────────────────────────────────────────────────────
   function openAddExam()  { setEditExam(null); setEf(blankExam); setExamSections([]); setShowExamModal(true) }
-  function openEditExam(x:Exam) { setEditExam(x); setEf({ emoji:x.emoji, title:x.title, conductedBy:x.conductedBy, category:x.category, description:x.description||'', applicationStart:x.applicationStart||'', applicationLastDate:x.applicationLastDate||'', paymentLastDate:x.paymentLastDate||'', examDate:x.examDate||'', examTime:x.examTime||'', admitCardDate:x.admitCardDate||'', resultDate:x.resultDate||'', fee:x.fee||'', eligibility:x.eligibility||'', syllabus:x.syllabus||'', officialSite:x.officialSite||'', applyLink:x.applyLink||'', admitCardLink:x.admitCardLink||'', status:x.status, titleAs:x.titleAs||'', descriptionAs:x.descriptionAs||'', eligibilityAs:x.eligibilityAs||'', fullDescription:(x as any).fullDescription||'',
+  function openEditExam(x:Exam) { setEditExam(x); setEf({ emoji:x.emoji, title:x.title, slug: x.slug || '', conductedBy:x.conductedBy, category:x.category, description:x.description||'', applicationStart:x.applicationStart||'', applicationLastDate:x.applicationLastDate||'', paymentLastDate:x.paymentLastDate||'', examDate:x.examDate||'', examTime:x.examTime||'', admitCardDate:x.admitCardDate||'', resultDate:x.resultDate||'', fee:x.fee||'', eligibility:x.eligibility||'', syllabus:x.syllabus||'', officialSite:x.officialSite||'', applyLink:x.applyLink||'', admitCardLink:x.admitCardLink||'', status:x.status, titleAs:x.titleAs||'', descriptionAs:x.descriptionAs||'', eligibilityAs:x.eligibilityAs||'', fullDescription:(x as any).fullDescription||'',
 fullDescTitle:(x as any).fullDescTitle||'', examPdfs:x.examPdfs||[], examAffiliates:x.examAffiliates||[] }); setExamSections((x as any).sections || []); setShowExamModal(true) }
   function saveExam(e:React.FormEvent) {
     e.preventDefault()
@@ -584,7 +584,7 @@ fullDescTitle:(x as any).fullDescTitle||'', examPdfs:x.examPdfs||[], examAffilia
 
   // ── INFO HELPERS ─────────────────────────────────────────────────────────
   function openAddInfo()  { setEditInfo(null); setInf(blankInfo); setInfDates([]); setInfoSections([]); setShowInfoModal(true) }
-  function openEditInfo(i:InfoItem) { setEditInfo(i); setInf({ emoji:i.emoji, title:i.title, category:i.category, description:i.description||'', processImages: (i as any).processImages || [], lastDate:i.lastDate||'', process:i.process||'', officialLink:i.officialLink||'', fullDescription:(i as any).fullDescription||'',
+  function openEditInfo(i:InfoItem) { setEditInfo(i); setInf({ emoji:i.emoji, title:i.title, slug: i.slug || '', category:i.category, description:i.description||'', processImages: (i as any).processImages || [], lastDate:i.lastDate||'', process:i.process||'', officialLink:i.officialLink||'', fullDescription:(i as any).fullDescription||'',
 fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||'', descriptionAs:i.descriptionAs||'', processAs:i.processAs||'' }); setInfDates((i.importantDates||[]).map(d=>({label:d.label,date:d.date,time:d.time||''}))); setInfoSections((i as any).sections||[]); setShowInfoModal(true) }
   function saveInfo(e:React.FormEvent) {
     e.preventDefault()
@@ -1198,8 +1198,32 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                 </div>
 
                 <div className="g2">
-                  <div className="fg"><label style={lb}>Job Title *</label><input required value={jf.title} onChange={e=>setJf(p=>({...p,title:e.target.value}))} style={si} placeholder="e.g. Assam Police Recruitment 2026" /></div>
+                  <div className="fg"><label style={lb}>Job Title *</label><input required value={jf.title} onChange={e=>{const title = e.target.value; setJf(p=>({...p, title, slug: p.slug ? p.slug : generateSlug(title, Date.now())}))}} style={si} placeholder="e.g. Assam Police Recruitment 2026" /></div>
                   <div className="fg"><label style={lb}>Organization</label><input value={jf.org} onChange={e=>setJf(p=>({...p,org:e.target.value}))} style={si} placeholder="e.g. SLPRB Assam" /></div>
+                </div>
+                {/* Slug field for Job */}
+                <div>
+                  <label style={{ ...lb, color: '#c9a227' }}>
+                    SEO Slug
+                    <span style={{ color: '#8fa3b8', fontWeight: 400, fontSize: '.7rem', marginLeft: 6 }}>
+                      (auto-filled from title — do not change after publishing)
+                    </span>
+                  </label>
+                  <input
+                    value={jf.slug || ''}
+                    onChange={e => setJf(f => ({...f, slug: e.target.value
+                      .toLowerCase()
+                      .replace(/[^\w\s-]/g, '')
+                      .replace(/[\s_]+/g, '-')
+                      .replace(/-+/g, '-')
+                      .trim()
+                    }))}
+                    style={si}
+                    placeholder="assam-police-recruitment-2026"
+                  />
+                  <div style={{ fontSize: '.68rem', color: '#8fa3b8', marginTop: 3 }}>
+                    Public URL: assamcareerpoint-info.com/jobs/{jf.slug || '...'}
+                  </div>
                 </div>
                 <div className="g3">
                   <div className="fg"><label style={lb}>Category</label><select value={jf.category} onChange={e=>setJf(p=>({...p,category:e.target.value}))} style={{...si,cursor:'pointer'}}>{JOB_CATS.map(c=><option key={c}>{c}</option>)}</select></div>
@@ -1496,7 +1520,37 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                   <div className="fg"><label style={lb}>Category</label><select value={ef.category} onChange={e=>setEf(p=>({...p,category:e.target.value}))} style={{...si,cursor:'pointer'}}>{EXAM_CATS.map(c=><option key={c}>{c}</option>)}</select></div>
                   <div className="fg"><label style={lb}>Status</label><select value={ef.status} onChange={e=>setEf(p=>({...p,status:e.target.value as Exam['status']}))} style={{...si,cursor:'pointer'}}>{EXAM_STATUS.map(s=><option key={s}>{s}</option>)}</select></div>
                 </div>
-                <div className="fg"><label style={lb}>Exam Full Title *</label><input required value={ef.title} onChange={e=>setEf(p=>({...p,title:e.target.value}))} style={si} placeholder="CTET 2026 — Central Teacher Eligibility Test" /></div>
+                <div className="fg"><label style={lb}>Exam Full Title *</label><input required value={ef.title} onChange={e => { const title = e.target.value
+  setEf(f => ({
+    ...f,
+    title,
+    slug: f.slug ? f.slug : generateSlug(title, Date.now())
+  }))
+}} style={si} placeholder="CTET 2026 — Central Teacher Eligibility Test" /></div>
+                {/* Slug field for Exam */}
+                <div>
+                  <label style={{ ...lb, color: '#c9a227' }}>
+                    SEO Slug
+                    <span style={{ color: '#8fa3b8', fontWeight: 400, fontSize: '.7rem', marginLeft: 6 }}>
+                      (auto-filled from title — do not change after publishing)
+                    </span>
+                  </label>
+                  <input
+                    value={ef.slug || ''}
+                    onChange={e => setEf(f => ({...f, slug: e.target.value
+                      .toLowerCase()
+                      .replace(/[^\w\s-]/g, '')
+                      .replace(/[\s_]+/g, '-')
+                      .replace(/-+/g, '-')
+                      .trim()
+                    }))}
+                    style={si}
+                    placeholder="ctet-2026"
+                  />
+                  <div style={{ fontSize: '.68rem', color: '#8fa3b8', marginTop: 3 }}>
+                    Public URL: assamcareerpoint-info.com/exams/{ef.slug || '...'}
+                  </div>
+                </div>
                 <div className="g2">
                   <div className="fg"><label style={lb}>Conducted By *</label><input required value={ef.conductedBy} onChange={e=>setEf(p=>({...p,conductedBy:e.target.value}))} style={si} placeholder="CBSE / NTA / UPSC / State Board" /></div>
                   <div className="fg"><label style={lb}>Eligibility</label><input value={ef.eligibility} onChange={e=>setEf(p=>({...p,eligibility:e.target.value}))} style={si} placeholder="Graduation + B.Ed" /></div>
@@ -1654,7 +1708,37 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                   <div className="fg"><label style={lb}>Category</label><select value={inf.category} onChange={e=>setInf(p=>({...p,category:e.target.value}))} style={{...si,cursor:'pointer'}}>{INFO_CATS.map(c=><option key={c}>{c}</option>)}</select></div>
                   <div className="fg"><label style={lb}>Status</label><select value={inf.status} onChange={e=>setInf(p=>({...p,status:e.target.value as InfoItem['status']}))} style={{...si,cursor:'pointer'}}><option>Active</option><option>Upcoming</option><option>Expired</option></select></div>
                 </div>
-                <div className="fg"><label style={lb}>Title *</label><input required value={inf.title} onChange={e=>setInf(p=>({...p,title:e.target.value}))} style={si} placeholder="e.g. Voter ID Registration / Correction 2026" /></div>
+                <div className="fg"><label style={lb}>Title *</label><input required value={inf.title} onChange={e => { const title = e.target.value
+  setInf(f => ({
+    ...f,
+    title,
+    slug: f.slug ? f.slug : generateSlug(title, Date.now())
+  }))
+}} style={si} placeholder="e.g. Voter ID Registration / Correction 2026" /></div>
+                {/* Slug field for Info */}
+                <div>
+                  <label style={{ ...lb, color: '#c9a227' }}>
+                    SEO Slug
+                    <span style={{ color: '#8fa3b8', fontWeight: 400, fontSize: '.7rem', marginLeft: 6 }}>
+                      (auto-filled from title — do not change after publishing)
+                    </span>
+                  </label>
+                  <input
+                    value={inf.slug || ''}
+                    onChange={e => setInf(f => ({...f, slug: e.target.value
+                      .toLowerCase()
+                      .replace(/[^\w\s-]/g, '')
+                      .replace(/[\s_]+/g, '-')
+                      .replace(/-+/g, '-')
+                      .trim()
+                    }))}
+                    style={si}
+                    placeholder="voter-id-registration-2026"
+                  />
+                  <div style={{ fontSize: '.68rem', color: '#8fa3b8', marginTop: 3 }}>
+                    Public URL: assamcareerpoint-info.com/information/{inf.slug || '...'}
+                  </div>
+                </div>
                 <div className="fg"><label style={lb}>Description</label><textarea value={inf.description} onChange={e=>setInf(p=>({...p,description:e.target.value}))} style={{...si,minHeight:72,resize:'vertical' as const}} placeholder="What is this? Who needs to do it? Why is it important?" /> 
 		<div className="fg">
   <label style={{...lb,color:'#457b9d'}}>📄 Full Details Title</label>
