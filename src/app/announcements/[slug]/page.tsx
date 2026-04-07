@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!post) return { title: 'Announcement Not Found' }
   return {
     title: getMetaTitle(post),
-    description: getMetaDescription(post),
+    description: getMetaDesc(post),
     alternates: {
       canonical: `https://www.assamcareerpoint-info.com/${PATH}/${post.slug}`,
     },
