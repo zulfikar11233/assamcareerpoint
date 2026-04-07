@@ -1,7 +1,7 @@
 // src/app/announcements/[slug]/page.tsx
 // ✅ SERVER COMPONENT – fetches data on the server, passes to client component
 import { notFound } from 'next/navigation'
-import { getPostBySlug, getMetaTitle, getMetaDescription, OthersPost } from '@/lib/others-db'
+import { getPostBySlug, getMetaTitle, getMetaDesc, OthersPost } from '@/lib/others-db'
 import AnnouncementDetail from './AnnouncementDetail'
 
 export const dynamic = 'force-dynamic'

@@ -32916,6 +32916,7 @@ C:.
     |   |   |   page.tsx
     |   |   |   
     |   |   \---[slug]
+    |   |           AnnouncementDetail.tsx.tsx
     |   |           page.tsx
     |   |           
     |   +---api
@@ -32937,25 +32938,30 @@ C:.
     |   |   |   page.tsx
     |   |   |   
     |   |   \---[slug]
+    |   |           ExamDetail.tsx
     |   |           page.tsx
     |   |           
     |   +---govt-jobs
+    |   |       GovtJobsList.tsx
     |   |       page.tsx
     |   |       
     |   +---guides
     |   |   |   page.tsx
     |   |   |   
     |   |   \---[slug]
+    |   |           GuideDetail.tsx.tsx
     |   |           page.tsx
     |   |           
     |   +---information
     |   |   |   page.tsx
     |   |   |   
     |   |   \---[slug]
+    |   |           InfoDetail.tsx
     |   |           page.tsx
     |   |           
     |   +---jobs
     |   |   \---[slug]
+    |   |           JobDetail.tsx.tsx
     |   |           page.tsx
     |   |           
     |   +---pdf-forms
@@ -32969,12 +32975,14 @@ C:.
     |   |   |   
     |   |   \---[slug]
     |   |           page.tsx
+    |   |           ResultDetail.tsx.tsx
     |   |           
     |   +---services
     |   |   |   page.tsx
     |   |   |   
     |   |   \---[slug]
     |   |           page.tsx
+    |   |           ServiceDetail.tsx.tsx
     |   |           
     |   \---sitemap.xml
     |           route.ts
