@@ -5758,6 +5758,9 @@ C:.
 |   |       browserslist
 |   |       browserslist.cmd
 |   |       browserslist.ps1
+|   |       crc32
+|   |       crc32.cmd
+|   |       crc32.ps1
 |   |       esbuild
 |   |       esbuild.cmd
 |   |       esbuild.ps1
@@ -5821,6 +5824,9 @@ C:.
 |   |       uuid
 |   |       uuid.cmd
 |   |       uuid.ps1
+|   |       xlsx
+|   |       xlsx.cmd
+|   |       xlsx.ps1
 |   |       
 |   +---@alloc
 |   |   \---quick-lru
@@ -10074,6 +10080,17 @@ C:.
 |   |       README.md
 |   |       xhtml.js
 |   |       
+|   +---adler-32
+|   |   |   adler32.js
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   \---types
+|   |           index.d.ts
+|   |           tsconfig.json
+|   |           tslint.json
+|   |           
 |   +---ajv
 |   |   |   .tonic_example.js
 |   |   |   LICENSE
@@ -11940,6 +11957,24 @@ C:.
 |   |               index.js
 |   |               region.js
 |   |               
+|   +---cfb
+|   |   |   cfb.js
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   xlscfb.flow.js
+|   |   |   
+|   |   +---dist
+|   |   |       cfb.js
+|   |   |       cfb.min.js
+|   |   |       cfb.min.map
+|   |   |       LICENSE
+|   |   |       xlscfb.js
+|   |   |       
+|   |   \---types
+|   |           index.d.ts
+|   |           tsconfig.json
+|   |           
 |   +---chalk
 |   |   |   index.d.ts
 |   |   |   license
@@ -11962,6 +11997,169 @@ C:.
 |   |       index.js
 |   |       package.json
 |   |       
+|   +---codepage
+|   |   |   cptable.js
+|   |   |   cputils.js
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---bits
+|   |   |       10000.js
+|   |   |       10001.js
+|   |   |       10002.js
+|   |   |       10003.js
+|   |   |       10004.js
+|   |   |       10005.js
+|   |   |       10006.js
+|   |   |       10007.js
+|   |   |       10008.js
+|   |   |       10010.js
+|   |   |       10017.js
+|   |   |       10021.js
+|   |   |       10029.js
+|   |   |       10079.js
+|   |   |       10081.js
+|   |   |       10082.js
+|   |   |       1010.js
+|   |   |       1026.js
+|   |   |       1047.js
+|   |   |       1132.js
+|   |   |       1140.js
+|   |   |       1141.js
+|   |   |       1142.js
+|   |   |       1143.js
+|   |   |       1144.js
+|   |   |       1145.js
+|   |   |       1146.js
+|   |   |       1147.js
+|   |   |       1148.js
+|   |   |       1149.js
+|   |   |       1250.js
+|   |   |       1251.js
+|   |   |       1252.js
+|   |   |       1253.js
+|   |   |       1254.js
+|   |   |       1255.js
+|   |   |       1256.js
+|   |   |       1257.js
+|   |   |       1258.js
+|   |   |       1361.js
+|   |   |       20000.js
+|   |   |       20001.js
+|   |   |       20002.js
+|   |   |       20003.js
+|   |   |       20004.js
+|   |   |       20005.js
+|   |   |       20105.js
+|   |   |       20106.js
+|   |   |       20107.js
+|   |   |       20108.js
+|   |   |       20261.js
+|   |   |       20269.js
+|   |   |       20273.js
+|   |   |       20277.js
+|   |   |       20278.js
+|   |   |       20280.js
+|   |   |       20284.js
+|   |   |       20285.js
+|   |   |       20290.js
+|   |   |       20297.js
+|   |   |       20420.js
+|   |   |       20423.js
+|   |   |       20424.js
+|   |   |       20833.js
+|   |   |       20838.js
+|   |   |       20866.js
+|   |   |       20871.js
+|   |   |       20880.js
+|   |   |       20905.js
+|   |   |       20924.js
+|   |   |       20932.js
+|   |   |       20936.js
+|   |   |       20949.js
+|   |   |       21025.js
+|   |   |       21027.js
+|   |   |       21866.js
+|   |   |       28591.js
+|   |   |       28592.js
+|   |   |       28593.js
+|   |   |       28594.js
+|   |   |       28595.js
+|   |   |       28596.js
+|   |   |       28597.js
+|   |   |       28598.js
+|   |   |       28599.js
+|   |   |       28600.js
+|   |   |       28601.js
+|   |   |       28603.js
+|   |   |       28604.js
+|   |   |       28605.js
+|   |   |       28606.js
+|   |   |       29001.js
+|   |   |       37.js
+|   |   |       38598.js
+|   |   |       437.js
+|   |   |       47451.js
+|   |   |       500.js
+|   |   |       50220.js
+|   |   |       50221.js
+|   |   |       50222.js
+|   |   |       50225.js
+|   |   |       50227.js
+|   |   |       51932.js
+|   |   |       51936.js
+|   |   |       51949.js
+|   |   |       52936.js
+|   |   |       54936.js
+|   |   |       57002.js
+|   |   |       57003.js
+|   |   |       57004.js
+|   |   |       57005.js
+|   |   |       57006.js
+|   |   |       57007.js
+|   |   |       57008.js
+|   |   |       57009.js
+|   |   |       57010.js
+|   |   |       57011.js
+|   |   |       620.js
+|   |   |       708.js
+|   |   |       720.js
+|   |   |       737.js
+|   |   |       775.js
+|   |   |       808.js
+|   |   |       850.js
+|   |   |       852.js
+|   |   |       855.js
+|   |   |       857.js
+|   |   |       858.js
+|   |   |       860.js
+|   |   |       861.js
+|   |   |       862.js
+|   |   |       863.js
+|   |   |       864.js
+|   |   |       865.js
+|   |   |       866.js
+|   |   |       869.js
+|   |   |       870.js
+|   |   |       872.js
+|   |   |       874.js
+|   |   |       875.js
+|   |   |       895.js
+|   |   |       932.js
+|   |   |       936.js
+|   |   |       949.js
+|   |   |       950.js
+|   |   |       
+|   |   +---dist
+|   |   |       cpexcel.full.js
+|   |   |       sbcs.full.js
+|   |   |       
+|   |   \---types
+|   |           index.d.ts
+|   |           tsconfig.json
+|   |           tslint.json
+|   |           
 |   +---color-convert
 |   |       CHANGELOG.md
 |   |       conversions.js
@@ -12009,6 +12207,21 @@ C:.
 |   |       README.md
 |   |       SECURITY.md
 |   |       
+|   +---crc-32
+|   |   |   crc32.js
+|   |   |   crc32c.js
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---bin
+|   |   |       crc32.njs
+|   |   |       
+|   |   \---types
+|   |           index.d.ts
+|   |           tsconfig.json
+|   |           tslint.json
+|   |           
 |   +---cross-spawn
 |   |   |   index.js
 |   |   |   LICENSE
@@ -17233,6 +17446,23 @@ C:.
 |   |   |       
 |   |   \---test
 |   |           test.js
+|   |           
+|   +---frac
+|   |   |   frac.js
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---dist
+|   |   |       frac.js
+|   |   |       frac.min.js
+|   |   |       frac.min.map
+|   |   |       LICENSE
+|   |   |       
+|   |   \---types
+|   |           index.d.ts
+|   |           tsconfig.json
+|   |           tslint.json
 |   |           
 |   +---fs-constants
 |   |       browser.js
@@ -30582,6 +30812,17 @@ C:.
 |   |           types.d.ts
 |   |           types.js
 |   |           
+|   +---ssf
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   ssf.flow.js
+|   |   |   ssf.js
+|   |   |   
+|   |   \---types
+|   |           index.d.ts
+|   |           tsconfig.json
+|   |           
 |   +---stable-hash
 |   |   |   package.json
 |   |   |   README.md
@@ -31772,6 +32013,24 @@ C:.
 |   |   \---test
 |   |           index.js
 |   |           
+|   +---wmf
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   \---dist
+|   |           wmf.js
+|   |           wmf.js.map
+|   |           wmf.node.js
+|   |           wmf.node.js.map
+|   |           
+|   +---word
+|   |       CONTRIBUTING.md
+|   |       LICENSE
+|   |       package.json
+|   |       README.md
+|   |       word.js
+|   |       
 |   +---word-wrap
 |   |       index.d.ts
 |   |       index.js
@@ -31785,6 +32044,40 @@ C:.
 |   |       README.md
 |   |       wrappy.js
 |   |       
+|   +---xlsx
+|   |   |   bower.json
+|   |   |   CHANGELOG.md
+|   |   |   formats.png
+|   |   |   legend.png
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   xlsx.js
+|   |   |   xlsx.mjs
+|   |   |   xlsxworker.js
+|   |   |   
+|   |   +---bin
+|   |   |       xlsx.njs
+|   |   |       
+|   |   +---dist
+|   |   |       cpexcel.full.mjs
+|   |   |       cpexcel.js
+|   |   |       LICENSE
+|   |   |       shim.min.js
+|   |   |       xlsx.core.min.js
+|   |   |       xlsx.core.min.map
+|   |   |       xlsx.extendscript.js
+|   |   |       xlsx.full.min.js
+|   |   |       xlsx.full.min.map
+|   |   |       xlsx.mini.min.js
+|   |   |       xlsx.mini.min.map
+|   |   |       xlsx.zahl.js
+|   |   |       xlsx.zahl.mjs
+|   |   |       
+|   |   \---types
+|   |           index.d.ts
+|   |           tsconfig.json
+|   |           
 |   +---yallist
 |   |       iterator.js
 |   |       LICENSE
@@ -32576,6 +32869,7 @@ C:.
 |               index.mjs.map
 |               
 +---public
+|       bulk-upload-template.xlsx
 |       file.svg
 |       globe.svg
 |       manifest.json
@@ -32597,6 +32891,9 @@ C:.
     |   |       page.tsx
     |   |       
     |   +---admin
+    |   |   +---bulk-upload
+    |   |   |       page.tsx
+    |   |   |       
     |   |   +---clear-storage
     |   |   |       page.tsx
     |   |   |       
@@ -32626,13 +32923,10 @@ C:.
     |   |   |   \---[...nextauth]
     |   |   |           route.ts
     |   |   |           
-    |   |   +---data
-    |   |   |   \---[collection]
-    |   |   |           route.ts
-    |   |   |           
-    |   |   \---notify
-    |   |           route.ts
-    |   |           
+    |   |   \---data
+    |   |       \---[collection]
+    |   |               route.ts
+    |   |               
     |   +---as
     |   |       page.tsx
     |   |       
@@ -32642,7 +32936,7 @@ C:.
     |   +---exams
     |   |   |   page.tsx
     |   |   |   
-    |   |   \---[id]
+    |   |   \---[slug]
     |   |           page.tsx
     |   |           
     |   +---govt-jobs
@@ -32657,11 +32951,11 @@ C:.
     |   +---information
     |   |   |   page.tsx
     |   |   |   
-    |   |   \---[id]
+    |   |   \---[slug]
     |   |           page.tsx
     |   |           
     |   +---jobs
-    |   |   \---[id]
+    |   |   \---[slug]
     |   |           page.tsx
     |   |           
     |   +---pdf-forms
@@ -32673,7 +32967,7 @@ C:.
     |   +---results
     |   |   |   page.tsx
     |   |   |   
-    |   |   \---[id]
+    |   |   \---[slug]
     |   |           page.tsx
     |   |           
     |   +---services
