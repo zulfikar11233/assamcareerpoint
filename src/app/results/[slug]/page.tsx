@@ -31,5 +31,5 @@ export default async function ResultPage({ params }: { params: Promise<{ slug: s
 
   if (!post) notFound()
 
-  return <ResultDetail post={post} />
+  return <ResultDetail post={post as any} />
 }

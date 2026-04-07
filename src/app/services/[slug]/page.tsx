@@ -29,5 +29,5 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
 
   if (!post) notFound()
 
-  return <ServiceDetail post={post} />
+  return <ServiceDetail post={post as any} />
 }

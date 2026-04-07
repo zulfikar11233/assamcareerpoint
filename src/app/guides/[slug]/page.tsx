@@ -29,5 +29,5 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
 
   if (!post) notFound()
 
-  return <GuideDetail post={post} />
+  return <GuideDetail post={post as any} />
 }

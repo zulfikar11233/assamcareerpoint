@@ -29,5 +29,5 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ s
 
   if (!post) notFound()
 
-  return <AnnouncementDetail post={post} />
+  return <AnnouncementDetail post={post as any} />
 }
