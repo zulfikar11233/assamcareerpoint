@@ -1,5 +1,4 @@
 // src/app/exams/[slug]/page.tsx
-// ✅ SERVER COMPONENT – fetches data on the server, passes to client component
 import { notFound } from 'next/navigation'
 import { getCollection } from '@/lib/mysql'
 import ExamDetail from './ExamDetail'
@@ -7,10 +6,10 @@ import ExamDetail from './ExamDetail'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params   // ✅ was { id } — folder is [slug] so must be slug
   const list = await getCollection('exams') as any[]
-  const exam = list.find(e => e.slug === id || String(e.id) === id)
+  const exam = list.find(e => e.slug === slug || String(e.id) === slug)
   if (!exam) return { title: 'Exam Not Found' }
   return {
     title: `${exam.title} | Assam Career Point & Info`,
@@ -26,10 +25,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 }
 
-export default async function ExamPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+export default async function ExamPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params   // ✅ was { id }
   const list = await getCollection('exams') as any[]
-  const exam = list.find(e => e.slug === id || String(e.id) === id)
+  const exam = list.find(e => e.slug === slug || String(e.id) === slug)
 
   if (!exam) notFound()
 

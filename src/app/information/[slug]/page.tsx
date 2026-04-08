@@ -6,10 +6,10 @@ import InfoDetail from './InfoDetail'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
-  const { id }  = await params
-  const list    = await getCollection('info') as any[]
-  const item    = list.find(i => i.slug === id || String(i.id) === id)
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params   // ✅ was { id }
+  const list     = await getCollection('info') as any[]
+  const item     = list.find(i => i.slug === slug || String(i.id) === slug)
   if (!item) return { title: 'Not Found' }
   return {
     title:       `${item.title} | Assam Career Point & Info`,
@@ -18,10 +18,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 }
 
-export default async function InfoPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const list   = await getCollection('info') as any[]
-  const item   = list.find(i => i.slug === id || String(i.id) === id)
+export default async function InfoPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params   // ✅ was { id }
+  const list     = await getCollection('info') as any[]
+  const item     = list.find(i => i.slug === slug || String(i.id) === slug)
 
   if (!item) notFound()
 
