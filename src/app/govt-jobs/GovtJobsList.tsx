@@ -148,7 +148,7 @@ export default function GovtJobsList({ initialJobs }: { initialJobs: Job[] }) {
             const sc = STATUS_COLOR[job.status] || '#8fa3b8'
             const vac = job.posts?.reduce((s,p)=>s+p.vacancy,0) || Number(job.vacancy) || 0
             return (
-              <Link key={job.id} href={`/jobs/${job.id}`} className="jcard">
+              <Link key={job.id} href={`/jobs/${job.slug || job.id}`} className="jcard">
                 <div style={{display:'flex',gap:14,padding:'16px 20px',alignItems:'flex-start'}}>
                   <div style={{width:54,height:54,borderRadius:13,background:`${sc}18`,border:`2px solid ${sc}44`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.7rem',flexShrink:0}}>{job.logo}</div>
                   <div style={{flex:1,minWidth:0}}>
