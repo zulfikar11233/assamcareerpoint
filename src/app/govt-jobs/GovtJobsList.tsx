@@ -25,7 +25,7 @@ function Logo({ size = 38 }: { size?: number }) {
   )
 }
 
-type Job = { id:number; logo:string; title:string; org:string; category:string; district:string; status:string; vacancy:string; lastDate:string; fee:string; salary:string; createdAt:string; posts?:{vacancy:number}[] }
+type Job = { id:number; logo:string; title:string; org:string; category:string; district:string; status:string; vacancy:string; lastDate:string; fee:string; salary:string; slug?:string; createdAt:string; posts?:{vacancy:number}[] }
 
 const CATS = ['All','Govt Job','Central Govt','State Govt','Banking','Teaching','Railway','Defence','PSC','Private Job']
 const DISTRICTS = ['All Districts','Kamrup','Kamrup (Metro)','Dibrugarh','Jorhat','Kokrajhar','Nagaon','Sonitpur','Silchar','Lakhimpur','Barpeta','Dhubri','Tinsukia','Sivasagar','All India']
