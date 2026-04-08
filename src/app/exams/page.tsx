@@ -1,7 +1,5 @@
 'use client'
 // src/app/exams/page.tsx — Public Exams Listing
-// Reads from localStorage key 'acp_exams_v6' (same key admin saves to)
-
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
@@ -34,7 +32,7 @@ type Exam = {
   admitCardDate?: string; resultDate?: string; fee: string; eligibility: string
   syllabus: string; officialSite: string; applyLink: string; admitCardLink?: string
   status: 'Upcoming' | 'Registration Open' | 'Registration Closed' | 'Exam Ongoing' | 'Result Declared'
-  createdAt: string
+  createdAt: string; slug?: string  // ✅ slug added
 }
 
 const STATUS_COLOR: Record<string, string> = {
@@ -47,36 +45,41 @@ const STATUS_COLOR: Record<string, string> = {
 
 const CATS = ['All', 'Teaching', 'Engineering', 'Medical', 'Civil Services', 'Banking', 'Railway', 'Defence', 'State PSC', 'Insurance', 'Other']
 
+// ✅ NAV LINKS — same as homepage for consistency
+const NAV_LINKS: [string, string][] = [
+  ['🏠 Home', '/'],
+  ['💼 Jobs', '/govt-jobs'],
+  ['📚 Exams', '/exams'],
+  ['ℹ️ Info', '/information'],
+  ['📄 PDF Forms', '/pdf-forms'],
+  ['📊 Results', '/results'],
+]
+
 const FALLBACK: Exam[] = [
   { id:1, emoji:'📚', title:'CTET 2026 — Central Teacher Eligibility Test', conductedBy:'CBSE', category:'Teaching', description:'National eligibility test for teachers for Class 1–8.', applicationStart:'2026-02-15', applicationLastDate:'2026-03-15', paymentLastDate:'2026-03-17', examDate:'2026-05-22', examTime:'9:30 AM – 12:00 PM', admitCardDate:'2026-05-10', resultDate:'2026-06-30', fee:'1 Paper: Gen ₹1,000 | Both: Gen ₹1,200', eligibility:'Graduation + B.Ed / D.El.Ed', syllabus:'Child Dev., Language I & II, Maths / Science / Social', officialSite:'ctet.nic.in', applyLink:'https://ctet.nic.in', status:'Registration Open', createdAt: new Date().toISOString() },
   { id:2, emoji:'🏥', title:'NEET UG 2026 – Medical Entrance', conductedBy:'NTA', category:'Medical', description:'National Eligibility cum Entrance Test for MBBS, BDS, BAMS.', applicationStart:'2026-02-01', applicationLastDate:'2026-03-31', paymentLastDate:'2026-04-01', examDate:'2026-05-04', examTime:'2:00 PM – 5:20 PM', admitCardDate:'2026-04-20', resultDate:'2026-06-14', fee:'Gen ₹1,700 · SC/ST ₹1,000', eligibility:'10+2 with PCB (min 50%)', syllabus:'Physics, Chemistry, Biology (Class 11 & 12)', officialSite:'neet.nta.nic.in', applyLink:'https://neet.nta.nic.in', status:'Registration Open', createdAt: new Date().toISOString() },
 ]
 
 export default function ExamsPage() {
-  const [exams, setExams] = useState<Exam[]>([])
-  const [cat,   setCat]   = useState('All')
-  const [q,     setQ]     = useState('')
+  const [exams,  setExams]  = useState<Exam[]>([])
+  const [cat,    setCat]    = useState('All')
+  const [q,      setQ]      = useState('')
   const [loaded, setLoaded] = useState(false)
 
-useEffect(() => {
+  useEffect(() => {
     fetch('/api/data/exams', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          setExams(data)
-        } else {
-          try {
-            const saved = localStorage.getItem('acp_exams_v6')
-            setExams(saved ? JSON.parse(saved) : FALLBACK)
-          } catch { setExams(FALLBACK) }
+        if (Array.isArray(data) && data.length > 0) setExams(data)
+        else {
+          try { const s = localStorage.getItem('acp_exams_v6'); setExams(s ? JSON.parse(s) : FALLBACK) }
+          catch { setExams(FALLBACK) }
         }
         setLoaded(true)
       })
       .catch(() => {
-        try {
-          const saved = localStorage.getItem('acp_exams_v6')
-          setExams(saved ? JSON.parse(saved) : FALLBACK)
-        } catch { setExams(FALLBACK) }
+        try { const s = localStorage.getItem('acp_exams_v6'); setExams(s ? JSON.parse(s) : FALLBACK) }
+        catch { setExams(FALLBACK) }
         setLoaded(true)
       })
   }, [])
@@ -91,9 +94,9 @@ useEffect(() => {
   const daysLeft = (d: string) => {
     try {
       const diff = Math.ceil((new Date(d).getTime() - Date.now()) / 86400000)
-      if (diff < 0) return null
+      if (diff < 0)  return null
       if (diff === 0) return '⚠️ Today!'
-      if (diff <= 3) return `⚠️ ${diff}d left`
+      if (diff <= 3)  return `⚠️ ${diff}d left`
       return `${diff} days left`
     } catch { return null }
   }
@@ -104,8 +107,29 @@ useEffect(() => {
         @import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Nunito:wght@400;600;700&display=swap');
         *,*::before,*::after{box-sizing:border-box}
         html,body{margin:0;font-family:Nunito,sans-serif;background:#f0f4f8;color:#1a1a2e;overflow-x:hidden}
-        .nav-a{color:rgba(255,255,255,.6);font-size:.82rem;font-weight:700;padding:7px 11px;border-radius:8px;text-decoration:none;white-space:nowrap}
-        .nav-a:hover,.nav-a.on{color:${G}}
+
+        /* ✅ NAV LINKS — bordered pill style on ALL, gold highlight on active */
+        .nav-a{
+          color:rgba(255,255,255,.65);
+          font-size:.82rem;font-weight:700;
+          padding:6px 13px;
+          border-radius:99px;
+          border:1.5px solid rgba(255,255,255,.15);
+          text-decoration:none;
+          white-space:nowrap;
+          transition:.15s;
+        }
+        .nav-a:hover{
+          color:${G};
+          border-color:${G}88;
+          background:rgba(201,162,39,.08);
+        }
+        .nav-a.on{
+          color:${G};
+          border-color:${G};
+          background:rgba(201,162,39,.12);
+        }
+
         .cat-btn{padding:7px 14px;border-radius:99px;font-size:.76rem;font-weight:700;cursor:pointer;border:1.5px solid #d4e0ec;background:#fff;color:#5a6a7a;font-family:Nunito,sans-serif;transition:.15s;white-space:nowrap}
         .cat-btn.on{background:${N};color:${G};border-color:${G}}
         .cat-btn:hover:not(.on){border-color:${T};color:${T}}
@@ -130,9 +154,10 @@ useEffect(() => {
               <div style={{fontFamily:'Arial Black,sans-serif',fontSize:'.65rem',color:T,letterSpacing:'.12em'}}>◆ POINT ◆</div>
             </div>
           </Link>
-          <nav style={{display:'flex',gap:2,flexWrap:'wrap' as const}}>
-            {([['🏠 Home','/'],['💼 Jobs','/govt-jobs'],['📚 Exams','/exams'],['ℹ️ Info','/information'],['📄 PDF Forms','/pdf-forms']] as [string,string][]).map(([l,h])=>(
-              <Link key={h} href={h} className={`nav-a${h==='/exams'?' on':''}`}>{l}</Link>
+          {/* ✅ CONSISTENT NAV — same links as homepage */}
+          <nav style={{display:'flex',gap:6,flexWrap:'wrap' as const}}>
+            {NAV_LINKS.map(([l, h]) => (
+              <Link key={h} href={h} className={`nav-a${h === '/exams' ? ' on' : ''}`}>{l}</Link>
             ))}
           </nav>
         </div>
@@ -147,13 +172,11 @@ useEffect(() => {
         <p style={{color:'rgba(255,255,255,.55)',fontSize:'.92rem',marginBottom:18,maxWidth:520,margin:'0 auto 18px'}}>
           CTET, NEET, JEE, UPSC, APSC, SSC, Railway & all major exams — registration dates, admit cards, results
         </p>
-        {/* Search */}
         <div style={{maxWidth:480,margin:'0 auto',position:'relative' as const}}>
           <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search exams (e.g. CTET, NEET, UPSC...)"
             style={{width:'100%',padding:'12px 44px 12px 16px',borderRadius:99,border:`2px solid ${G}`,background:'rgba(255,255,255,.08)',color:W,fontFamily:'Nunito,sans-serif',fontSize:'.9rem',outline:'none'}}/>
           <span style={{position:'absolute' as const,right:15,top:'50%',transform:'translateY(-50%)',fontSize:'1.1rem'}}>🔍</span>
         </div>
-        {/* Stats */}
         <div style={{display:'flex',justifyContent:'center',gap:20,marginTop:18,flexWrap:'wrap' as const}}>
           {[
             {v:exams.filter(e=>e.status==='Registration Open').length, l:'Registration Open', c:'#22c55e'},
@@ -169,20 +192,16 @@ useEffect(() => {
       </div>
 
       <div style={{maxWidth:1180,margin:'0 auto',padding:'22px 20px 60px'}}>
-
-        {/* Category filter */}
         <div style={{display:'flex',gap:8,flexWrap:'wrap' as const,marginBottom:22,overflowX:'auto' as const,paddingBottom:4}}>
           {CATS.map(c=>(
             <button key={c} className={`cat-btn${cat===c?' on':''}`} onClick={()=>setCat(c)}>{c}</button>
           ))}
         </div>
 
-        {/* Results count */}
         <div style={{fontSize:'.82rem',color:'#5a6a7a',marginBottom:14,fontWeight:700}}>
           {loaded ? `Showing ${filtered.length} exam${filtered.length!==1?'s':''}${cat!=='All'?` in ${cat}`:''}${q?` matching "${q}"`:''}` : 'Loading exams...'}
         </div>
 
-        {/* Skeleton loading */}
         {!loaded && (
           <div className="grid">
             {[1,2,3,4,5,6].map(i=>(
@@ -193,19 +212,16 @@ useEffect(() => {
           </div>
         )}
 
-        {/* Exams grid */}
         {loaded && (
           <div className="grid">
             {filtered.map(exam=>{
               const dl = daysLeft(exam.applicationLastDate)
               const sc = STATUS_COLOR[exam.status] || '#8fa3b8'
               return (
-                <Link key={exam.id} href={`/exams/${exam.id}`} className="ecard">
-                  {/* Top colour bar */}
+                // ✅ FIX — use slug || id (was exam.id only before)
+                <Link key={exam.id} href={`/exams/${exam.slug || exam.id}`} className="ecard">
                   <div style={{height:4,background:`linear-gradient(90deg,${sc},${sc}88)`}}/>
-
                   <div style={{padding:'18px 20px',flex:1,display:'flex',flexDirection:'column' as const,gap:12}}>
-                    {/* Header row */}
                     <div style={{display:'flex',gap:12,alignItems:'flex-start'}}>
                       <div style={{width:52,height:52,borderRadius:12,background:`${sc}18`,border:`2px solid ${sc}44`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.6rem',flexShrink:0}}>
                         {exam.emoji}
@@ -221,12 +237,10 @@ useEffect(() => {
                         <div style={{fontSize:'.76rem',color:'#5a6a7a',marginTop:4}}>by {exam.conductedBy}</div>
                       </div>
                     </div>
-
-                    {/* Key dates */}
                     <div style={{background:'#f8fbff',borderRadius:10,padding:'10px 12px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
                       {[
-                        {l:'Apply By',   v:exam.applicationLastDate, urgent: dl !== null && dl.includes('⚠️')},
-                        {l:'Exam Date',  v:exam.examDate,             urgent: false},
+                        {l:'Apply By',  v:exam.applicationLastDate, urgent: dl !== null && dl.includes('⚠️')},
+                        {l:'Exam Date', v:exam.examDate,             urgent: false},
                         ...(exam.admitCardDate ? [{l:'Admit Card', v:exam.admitCardDate, urgent:false}] : []),
                         ...(exam.resultDate    ? [{l:'Result',     v:exam.resultDate,    urgent:false}] : []),
                       ].slice(0,4).map(d=>(
@@ -236,8 +250,6 @@ useEffect(() => {
                         </div>
                       ))}
                     </div>
-
-                    {/* Fee + deadline chip */}
                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap' as const,gap:6,marginTop:'auto'}}>
                       <div style={{fontSize:'.76rem',color:'#5a6a7a'}}><span style={{fontWeight:700,color:N}}>Fee:</span> {exam.fee.slice(0,40)}{exam.fee.length>40?'…':''}</div>
                       {dl && (
@@ -247,8 +259,6 @@ useEffect(() => {
                       )}
                     </div>
                   </div>
-
-                  {/* Footer */}
                   <div style={{padding:'10px 20px',background:`${N}08`,borderTop:'1px solid #e8eef6',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                     <span style={{fontSize:'.75rem',color:'#5a6a7a'}}>{exam.officialSite}</span>
                     <span style={{fontSize:'.75rem',fontWeight:700,color:T}}>View Details →</span>
@@ -259,7 +269,6 @@ useEffect(() => {
           </div>
         )}
 
-        {/* Empty state */}
         {loaded && filtered.length === 0 && (
           <div style={{textAlign:'center' as const,padding:'60px 20px',color:'#8fa3b8'}}>
             <div style={{fontSize:'3rem',marginBottom:14}}>📭</div>
@@ -270,10 +279,8 @@ useEffect(() => {
             </button>
           </div>
         )}
-
       </div>
 
-      {/* FOOTER */}
       <footer style={{background:N,borderTop:`3px solid ${G}`,padding:'18px',textAlign:'center' as const}}>
         <div style={{fontSize:'.72rem',color:'rgba(255,255,255,.3)'}}>
           © 2025–2026 Assam Career Point & Info ·{' '}

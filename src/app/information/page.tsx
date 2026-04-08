@@ -1,7 +1,5 @@
 'use client'
 // src/app/information/page.tsx — Public Information Listing
-// Reads from localStorage 'acp_info_v6'
-
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
@@ -27,7 +25,21 @@ function Logo({ size = 38 }: { size?: number }) {
   )
 }
 
-type InfoItem = { id:number; emoji:string; title:string; category:string; description:string; lastDate?:string; importantDates:{label:string;date:string;time?:string}[]; status:'Active'|'Upcoming'|'Expired'; createdAt:string }
+type InfoItem = {
+  id:number; emoji:string; title:string; category:string; description:string
+  lastDate?:string; importantDates:{label:string;date:string;time?:string}[]
+  status:'Active'|'Upcoming'|'Expired'; createdAt:string; slug?:string  // ✅ slug added
+}
+
+// ✅ NAV LINKS — same as homepage for consistency
+const NAV_LINKS: [string, string][] = [
+  ['🏠 Home', '/'],
+  ['💼 Jobs', '/govt-jobs'],
+  ['📚 Exams', '/exams'],
+  ['ℹ️ Info', '/information'],
+  ['📄 PDF Forms', '/pdf-forms'],
+  ['📊 Results', '/results'],
+]
 
 const CATS = ['All','Electoral','ID & Documents','Government Scheme','Finance','Health','Education','Legal','Other']
 const STATUS_COLOR: Record<string,string> = { 'Active':'#22c55e', 'Upcoming':'#f59e0b', 'Expired':'#8fa3b8' }
@@ -47,21 +59,16 @@ export default function InformationPage() {
     fetch('/api/data/info', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          setItems(data)
-        } else {
-          try {
-            const saved = localStorage.getItem('acp_info_v6')
-            setItems(saved ? JSON.parse(saved) : FALLBACK)
-          } catch { setItems(FALLBACK) }
+        if (Array.isArray(data) && data.length > 0) setItems(data)
+        else {
+          try { const s = localStorage.getItem('acp_info_v6'); setItems(s ? JSON.parse(s) : FALLBACK) }
+          catch { setItems(FALLBACK) }
         }
         setLoaded(true)
       })
       .catch(() => {
-        try {
-          const saved = localStorage.getItem('acp_info_v6')
-          setItems(saved ? JSON.parse(saved) : FALLBACK)
-        } catch { setItems(FALLBACK) }
+        try { const s = localStorage.getItem('acp_info_v6'); setItems(s ? JSON.parse(s) : FALLBACK) }
+        catch { setItems(FALLBACK) }
         setLoaded(true)
       })
   }, [])
@@ -80,8 +87,29 @@ export default function InformationPage() {
         @import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Nunito:wght@400;600;700&display=swap');
         *,*::before,*::after{box-sizing:border-box}
         html,body{margin:0;font-family:Nunito,sans-serif;background:#f0f4f8;color:#1a1a2e;overflow-x:hidden}
-        .nav-a{color:rgba(255,255,255,.6);font-size:.82rem;font-weight:700;padding:7px 11px;border-radius:8px;text-decoration:none;white-space:nowrap}
-        .nav-a:hover,.nav-a.on{color:${G}}
+
+        /* ✅ NAV LINKS — bordered pill style on ALL, gold highlight on active */
+        .nav-a{
+          color:rgba(255,255,255,.65);
+          font-size:.82rem;font-weight:700;
+          padding:6px 13px;
+          border-radius:99px;
+          border:1.5px solid rgba(255,255,255,.15);
+          text-decoration:none;
+          white-space:nowrap;
+          transition:.15s;
+        }
+        .nav-a:hover{
+          color:${G};
+          border-color:${G}88;
+          background:rgba(201,162,39,.08);
+        }
+        .nav-a.on{
+          color:${G};
+          border-color:${G};
+          background:rgba(201,162,39,.12);
+        }
+
         .cat-btn{padding:6px 13px;border-radius:99px;font-size:.74rem;font-weight:700;cursor:pointer;border:1.5px solid #d4e0ec;background:#fff;color:#5a6a7a;font-family:Nunito,sans-serif;transition:.15s;white-space:nowrap}
         .cat-btn.on{background:${N};color:${G};border-color:${G}}
         .icard{background:#fff;border:1.5px solid #d4e0ec;border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:.2s}
@@ -93,14 +121,16 @@ export default function InformationPage() {
       <header style={{background:N,borderBottom:`2px solid ${G}`,position:'sticky',top:0,zIndex:100,boxShadow:'0 2px 20px rgba(0,0,0,.4)'}}>
         <div style={{maxWidth:1180,margin:'0 auto',padding:'10px 20px',display:'flex',alignItems:'center',gap:14,flexWrap:'wrap' as const}}>
           <Link href="/" style={{display:'flex',alignItems:'center',gap:10,textDecoration:'none',flexShrink:0}}>
-            <Logo size={40}/><div>
+            <Logo size={40}/>
+            <div>
               <div style={{fontFamily:'Arial Black,sans-serif',fontSize:'.78rem'}}><span style={{color:G}}>ASSAM </span><span style={{color:W}}>CAREER</span></div>
               <div style={{fontFamily:'Arial Black,sans-serif',fontSize:'.65rem',color:T,letterSpacing:'.12em'}}>◆ POINT ◆</div>
             </div>
           </Link>
-          <nav style={{display:'flex',gap:2,flexWrap:'wrap' as const}}>
-            {([['🏠 Home','/'],['💼 Jobs','/govt-jobs'],['📚 Exams','/exams'],['ℹ️ Info','/information'],['📄 PDF Forms','/pdf-forms']] as [string,string][]).map(([l,h])=>(
-              <Link key={h} href={h} className={`nav-a${h==='/information'?' on':''}`}>{l}</Link>
+          {/* ✅ CONSISTENT NAV — same links as homepage */}
+          <nav style={{display:'flex',gap:6,flexWrap:'wrap' as const}}>
+            {NAV_LINKS.map(([l, h]) => (
+              <Link key={h} href={h} className={`nav-a${h === '/information' ? ' on' : ''}`}>{l}</Link>
             ))}
           </nav>
         </div>
@@ -131,7 +161,8 @@ export default function InformationPage() {
             const sc = STATUS_COLOR[item.status] || '#8fa3b8'
             const nextDate = item.importantDates?.[0]
             return (
-              <Link key={item.id} href={`/information/${item.id}`} className="icard">
+              // ✅ FIX — use slug || id (was item.id only before)
+              <Link key={item.id} href={`/information/${item.slug || item.id}`} className="icard">
                 <div style={{height:4,background:`linear-gradient(90deg,${T},${G})`}}/>
                 <div style={{padding:'18px 20px',flex:1,display:'flex',flexDirection:'column' as const,gap:12}}>
                   <div style={{display:'flex',gap:12,alignItems:'flex-start'}}>
