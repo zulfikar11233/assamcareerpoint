@@ -1,6 +1,6 @@
-// src\app\admin\bulk-upload
 'use client'
-export const dynamic = 'force-dynamic'
+// ✅ Removed: export const dynamic = 'force-dynamic'
+//src/app/admin/bulk-upload/page.tsx
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
@@ -103,7 +103,7 @@ const SKIP_PREVIEW = ['id','slug','createdAt','posts','advPdfs','jobAffiliates',
   'processImages','howToApplyImages','detailsImages']
 
 export default function BulkUploadPage() {
-  // ── FIX: safe destructure — useSession may return undefined during SSR ──
+  // Safe destructuring for useSession (avoids SSR issues)
   const sessionResult = useSession()
   const session = sessionResult?.data
   const status  = sessionResult?.status ?? 'loading'
@@ -122,8 +122,17 @@ export default function BulkUploadPage() {
   const [previewPage,   setPreviewPage]   = useState(1)
   const PAGE_SIZE = 10
 
+  // ── FIX: Redirect after timeout if still loading ─────────────
   useEffect(() => {
-    if (status === 'unauthenticated') router.push('/admin/login')
+    if (status === 'loading') {
+      const timer = setTimeout(() => {
+        router.push('/admin/login')
+      }, 4000)
+      return () => clearTimeout(timer)
+    }
+    if (status === 'unauthenticated') {
+      router.push('/admin/login')
+    }
   }, [status, router])
 
   if (status === 'loading') return (
@@ -150,7 +159,6 @@ export default function BulkUploadPage() {
           const filtered = rawRows.filter(r => Object.values(r).some(v => String(v).trim() !== ''))
           if (filtered.length === 0) continue
           const rows = filtered.map((r,i) => parseRow(r, collection, i))
-          // Visible headers for preview (original Excel column names, skip internal)
           const headers = Object.keys(filtered[0] || {})
           results.push({ sheetName, collection, rows, headers, status:'pending', message:'', count:rows.length })
         }
@@ -510,7 +518,7 @@ export default function BulkUploadPage() {
                               </td>
                             )
                           })}
-                        </tr>
+                        </td>
                       )
                     })}
                   </tbody>

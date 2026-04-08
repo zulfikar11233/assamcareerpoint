@@ -1,19 +1,15 @@
 // src/app/layout.tsx
-// ✅ Complete SEO: title, description, Open Graph, Twitter Cards, canonical
-// ✅ Structured Data (JSON-LD): WebSite + Organization schema
-// ✅ Google AdSense slot ready (replace ca-pub-XXXXXXXXXXXXXXXX with your Publisher ID)
-// ✅ Google Analytics 4 slot ready (replace G-XXXXXXXXXX with your Measurement ID)
-// ✅ robots, sitemap, manifest connected
 import { Sora, Nunito } from 'next/font/google';
 import type { Metadata, Viewport } from 'next'
+import Providers from '@/components/Providers'   // ← NEW IMPORT
 
 const sora = Sora({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-sora',
   weight: ['700', '800'],
-  preload: true,                          // ← ADD
-  fallback: ['Arial Black', 'sans-serif'], // ← ADD: renders immediately
+  preload: true,
+  fallback: ['Arial Black', 'sans-serif'],
 });
 
 const nunito = Nunito({
@@ -21,20 +17,18 @@ const nunito = Nunito({
   display: 'swap',
   variable: '--font-nunito',
   weight: ['400', '600', '700'],
-  preload: true,           // ← ADD
-  fallback: ['system-ui', 'sans-serif'], // ← ADD
+  preload: true,
+  fallback: ['system-ui', 'sans-serif'],
 });
 
 const SITE_URL  = 'https://www.assamcareerpoint-info.com'
 const SITE_NAME = 'Assam Career Point & Info'
 const SITE_DESC = 'Latest Govt Jobs in Assam, Competitive Exams (CTET, NEET, UPSC), and important information like Voter ID, PAN-Aadhaar linking, government schemes — updated daily for Assam & North East India.'
 
-// ─── GLOBAL METADATA ─────────────────────────────────────────────
 export const metadata: Metadata = {
-  // ── Basic ──
   title: {
     default:  `${SITE_NAME} — Govt Jobs, Exams & Information`,
-    template: `%s | ${SITE_NAME}`,   // page titles become: "Assam Police Jobs | Assam Career Point & Info"
+    template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESC,
   keywords: [
@@ -44,19 +38,13 @@ export const metadata: Metadata = {
     'voter ID registration Assam', 'PAN Aadhaar linking',
     'govt schemes Assam', 'NE India jobs', 'assamcareerpoint-info.com',
   ],
-  authors: [{ name: 'Assam Career Point & Info', url: SITE_URL }],
-  creator:  'Assam Career Point & Info',
-  publisher:'Assam Career Point & Info',
-  category: 'Government Jobs & Information Portal',
-
-  // ── Canonical & Alternates ──
+  authors:     [{ name: 'Assam Career Point & Info', url: SITE_URL }],
+  creator:      'Assam Career Point & Info',
+  publisher:    'Assam Career Point & Info',
+  category:     'Government Jobs & Information Portal',
   alternates: {
-    languages: {
-      'en-IN': SITE_URL,
-    },
+    languages: { 'en-IN': SITE_URL },
   },
-
-  // ── Open Graph (Facebook, WhatsApp, Telegram previews) ──
   openGraph: {
     type:        'website',
     url:          SITE_URL,
@@ -65,27 +53,23 @@ export const metadata: Metadata = {
     description:  SITE_DESC,
     locale:      'en_IN',
     images: [{
-      url:    `${SITE_URL}/og-image.png`,   // create a 1200×630 banner image
+      url:    `${SITE_URL}/og-image.png`,
       width:   1200,
       height:  630,
       alt:    `${SITE_NAME} — Govt Jobs, Exams & Information Portal`,
     }],
   },
-
-  // ── Twitter / X Cards ──
   twitter: {
     card:        'summary_large_image',
-    site:        '@AssamCareerPt',          // replace with your Twitter handle
+    site:        '@AssamCareerPt',
     creator:     '@AssamCareerPt',
     title:       `${SITE_NAME} — Govt Jobs & Exams`,
     description:  SITE_DESC,
     images:      [`${SITE_URL}/og-image.png`],
   },
-
-  // ── Robots ──
   robots: {
-    index:          true,
-    follow:         true,
+    index:  true,
+    follow: true,
     googleBot: {
       index:               true,
       follow:              true,
@@ -94,19 +78,13 @@ export const metadata: Metadata = {
       'max-snippet':       -1,
     },
   },
-
-  // ── Verification (add your codes when you verify) ──
   verification: {
-    google: 'QTg9Okvs2Ox9fTAxT4emmHEcPHrD0apfqn8xxRZ4mkQ',  // from Google Search Console
-    // yandex: 'xxx',
-    // bing: 'xxx',
+    google: 'QTg9Okvs2Ox9fTAxT4emmHEcPHrD0apfqn8xxRZ4mkQ',
   },
-
-  // ── PWA / App ──
-  manifest: '/manifest.json',
+  manifest:    '/manifest.json',
   appleWebApp: {
-    capable:    true,
-    title:      SITE_NAME,
+    capable:        true,
+    title:          SITE_NAME,
     statusBarStyle: 'black-translucent',
   },
   applicationName: SITE_NAME,
@@ -120,8 +98,6 @@ export const viewport: Viewport = {
   themeColor:   '#0b1f33',
 }
 
-// ─── STRUCTURED DATA (JSON-LD) ────────────────────────────────────
-// Google reads this to show rich results in search — VERY important for job portals
 const websiteSchema = {
   '@context':   'https://schema.org',
   '@type':      'WebSite',
@@ -147,21 +123,19 @@ const orgSchema = {
   logo:        `${SITE_URL}/logo.png`,
   description:  SITE_DESC,
   sameAs: [
-    'https://t.me/assamcareerpoint',         // replace with your Telegram
-    'https://wa.me/your-whatsapp-channel',   // replace with your WhatsApp
-    'https://youtube.com/@assamcareerpoint', // replace with your YouTube
+    'https://t.me/assamcareerpoint',
+    'https://wa.me/your-whatsapp-channel',
+    'https://youtube.com/@assamcareerpoint',
   ],
   contactPoint: {
-    '@type':       'ContactPoint',
-    contactType:   'customer support',
-    email:         'admin@assamcareerpoint-info.com',
-    areaServed:    'IN',
+    '@type':           'ContactPoint',
+    contactType:       'customer support',
+    email:             'admin@assamcareerpoint-info.com',
+    areaServed:        'IN',
     availableLanguage: ['English', 'Assamese'],
   },
 }
 
-// ─── SAFE JSON-LD SERIALISER (prevents XSS via structured data) ──
-// Escapes <, >, &, ' to Unicode escapes — safe inside <script> tags
 function safeJsonLd(obj: object): string {
   return JSON.stringify(obj)
     .replace(/</g,  '\\u003c')
@@ -170,18 +144,15 @@ function safeJsonLd(obj: object): string {
     .replace(/'/g,  '\\u0027')
 }
 
-// ─── LAYOUT COMPONENT ─────────────────────────────────────────────
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-IN" dir="ltr" className={`${sora.variable} ${nunito.variable}`}>
-      <head>   
-        {/* ── Favicon set ── */}
-        <link rel="icon"             type="image/x-icon"       href="/favicon.ico" />
+      <head>
+        <link rel="icon"             type="image/x-icon"            href="/favicon.ico" />
         <link rel="icon"             type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon"             type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="apple-touch-icon" sizes="180x180"             href="/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="180x180"                href="/apple-touch-icon.png" />
 
-        {/* ── Structured Data ── */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: safeJsonLd(websiteSchema) }}
@@ -191,46 +162,29 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: safeJsonLd(orgSchema) }}
         />
 
-        {/* ════════════════════════════════════════════════════════════
-            GOOGLE ADSENSE
-            Step 1: Replace ca-pub-XXXXXXXXXXXXXXXX with your Publisher ID
-            Step 2: This auto-ads script shows ads automatically across the site
-            Step 3: You can ALSO place manual ad units in specific spots (see AdSlot component below)
-            ════════════════════════════════════════════════════════════ */}
-        {/*
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
-          crossOrigin="anonymous"
-        />
-        */}
-
-        {/* ════════════════════════════════════════════════════════════
-            GOOGLE ANALYTICS 4
-            Replace G-XXXXXXXXXX with your Measurement ID from analytics.google.com
-            ════════════════════════════════════════════════════════════ */}
-{/* GA4 — deferred 2s after load, does not block LCP */}
-<script dangerouslySetInnerHTML={{ __html: `
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      var s = document.createElement('script');
-      s.src = 'https://www.googletagmanager.com/gtag/js?id=G-KXLWVXBV4Q';
-      s.async = true;
-      s.onload = function() {
-        gtag('js', new Date());
-        gtag('config', 'G-KXLWVXBV4Q');
-      };
-      document.head.appendChild(s);
-    }, 2000);
-  });
-`}} />
+        <script dangerouslySetInnerHTML={{ __html: `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.addEventListener('load', function() {
+            setTimeout(function() {
+              var s = document.createElement('script');
+              s.src = 'https://www.googletagmanager.com/gtag/js?id=G-KXLWVXBV4Q';
+              s.async = true;
+              s.onload = function() {
+                gtag('js', new Date());
+                gtag('config', 'G-KXLWVXBV4Q');
+              };
+              document.head.appendChild(s);
+            }, 2000);
+          });
+        `}} />
       </head>
 
       <body style={{ margin: 0, padding: 0, fontFamily: 'var(--font-nunito), sans-serif' }}>
-  {children}
-</body>
+        <Providers>       {/* ← THIS IS THE FIX — wraps all pages with SessionProvider */}
+          {children}
+        </Providers>
+      </body>
     </html>
   )
 }

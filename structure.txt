@@ -5,6 +5,7 @@ C:.
 |   .env.local.example
 |   .gitignore
 |   debug.js
+|   e.slug
 |   eslint.config.mjs
 |   fix-standalone.js
 |   fix.js
@@ -14,6 +15,7 @@ C:.
 |   package.json
 |   postcss.config.mjs
 |   README.md
+|   String(e.id)
 |   structure.txt
 |   tsconfig.json
 |   tsconfig.tsbuildinfo
@@ -32916,7 +32918,7 @@ C:.
     |   |   |   page.tsx
     |   |   |   
     |   |   \---[slug]
-    |   |           AnnouncementDetail.tsx.tsx
+    |   |           AnnouncementDetail.tsx
     |   |           page.tsx
     |   |           
     |   +---api
@@ -32949,7 +32951,7 @@ C:.
     |   |   |   page.tsx
     |   |   |   
     |   |   \---[slug]
-    |   |           GuideDetail.tsx.tsx
+    |   |           GuideDetail.tsx
     |   |           page.tsx
     |   |           
     |   +---information
@@ -32961,7 +32963,7 @@ C:.
     |   |           
     |   +---jobs
     |   |   \---[slug]
-    |   |           JobDetail.tsx.tsx
+    |   |           JobDetail.tsx
     |   |           page.tsx
     |   |           
     |   +---pdf-forms
@@ -32975,14 +32977,14 @@ C:.
     |   |   |   
     |   |   \---[slug]
     |   |           page.tsx
-    |   |           ResultDetail.tsx.tsx
+    |   |           ResultDetail.tsx
     |   |           
     |   +---services
     |   |   |   page.tsx
     |   |   |   
     |   |   \---[slug]
     |   |           page.tsx
-    |   |           ServiceDetail.tsx.tsx
+    |   |           ServiceDetail.tsx
     |   |           
     |   \---sitemap.xml
     |           route.ts

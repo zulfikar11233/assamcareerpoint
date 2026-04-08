@@ -7,11 +7,11 @@ import JobDetail from './JobDetail'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-// ── Server-side metadata generation ──────────────────────────
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  // ✅ FIX: was { id: string } — folder is [slug] so param name must be "slug"
+  const { slug } = await params
   const list = await getCollection('jobs') as any[]
-  const job  = list.find(j => j.slug === id || String(j.id) === id)
+  const job  = list.find(j => j.slug === slug || String(j.id) === slug)
   if (!job) return { title: 'Job Not Found' }
   return {
     title:       `${job.title} | Assam Career Point & Info`,
@@ -27,14 +27,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 }
 
-export default async function JobPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const list   = await getCollection('jobs') as any[]
-  const job    = list.find(j => j.slug === id || String(j.id) === id)
+export default async function JobPage({ params }: { params: Promise<{ slug: string }> }) {
+  // ✅ FIX: was { id: string } — folder is [slug] so param name must be "slug"
+  const { slug } = await params
+  const list     = await getCollection('jobs') as any[]
+  const job      = list.find(j => j.slug === slug || String(j.id) === slug)
 
   if (!job) notFound()
 
-  // Pass other jobs for "Related" sidebar (excluding current)
   const others = list
     .filter(j => String(j.id) !== String(job.id) && j.status !== 'Draft')
     .slice(0, 4)
