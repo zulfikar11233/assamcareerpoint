@@ -518,7 +518,7 @@ export default function BulkUploadPage() {
                               </td>
                             )
                           })}
-                        </td>
+                        </tr>
                       )
                     })}
                   </tbody>
