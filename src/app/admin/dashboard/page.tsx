@@ -798,27 +798,6 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
       {activeTab === 'info' && <button onClick={openAddInfo} style={bG}>➕ Add Info</button>}
       {activeTab === 'pdfforms' && <button onClick={() => setShowPdfModal(true)} style={bP}>➕ Add PDF Form</button>}
       {activeTab === 'affiliate' && <button onClick={() => { setEditAff(null); setAf({ category: 'Exam Preparation', title: '', description: '', badge: '', logo: '📚', price: '', originalPrice: '', commission: '', link: '', h1: '', h2: '', h3: '', h4: '', buttonText: 'Start Free Trial →', tag: '', active: true }); setShowAffModal(true); }} style={{ padding: '8px 16px', borderRadius: 8, background: '#c9a227', color: '#0b1f33', fontWeight: 900, fontSize: '.82rem', border: 'none', cursor: 'pointer', fontFamily: 'Nunito, sans-serif' }}>➕ Add Affiliate</button>}
-
-      {/* ✅ Bulk Upload Link – visible on all tabs */}
-      <Link
-        href="/admin/bulk-upload"
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 6,
-          padding: '8px 16px',
-          borderRadius: 10,
-          background: '#c9a22722',
-          color: '#c9a227',
-          border: '1.5px solid #c9a22744',
-          textDecoration: 'none',
-          fontWeight: 700,
-          fontSize: '.82rem',
-          fontFamily: 'Nunito, sans-serif'
-        }}
-      >
-        📤 Bulk Upload
-      </Link>
     </div>
   </div>
 
