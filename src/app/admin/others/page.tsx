@@ -565,9 +565,9 @@ useEffect(() => {
   }
 
   const filtered = posts.filter(p =>
-    p.title.toLowerCase().includes(search.toLowerCase()) ||
-    (p.category || '').toLowerCase().includes(search.toLowerCase())
-  )
+  (p.title || '').toLowerCase().includes(search.toLowerCase()) ||
+  (p.category || '').toLowerCase().includes(search.toLowerCase())
+)
 
   const activeCfg = TABS.find(t => t.type === activeType)!
 

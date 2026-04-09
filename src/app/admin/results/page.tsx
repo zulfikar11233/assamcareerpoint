@@ -529,12 +529,12 @@ export default function ResultsAdmin() {
   }
 
   const filtered = posts.filter(p => {
-    const matchSearch = !search ||
-      p.title.toLowerCase().includes(search.toLowerCase()) ||
-      p.org.toLowerCase().includes(search.toLowerCase())
-    const matchCat = filterCat === 'All' || p.category === filterCat
-    return matchSearch && matchCat
-  })
+  const matchSearch = !search ||
+    (p.title || '').toLowerCase().includes(search.toLowerCase()) ||
+    (p.org || '').toLowerCase().includes(search.toLowerCase())
+  const matchCat = filterCat === 'All' || p.category === filterCat
+  return matchSearch && matchCat
+})
 
   const published = posts.filter(p => p.published).length
 

@@ -21,6 +21,7 @@ type Job     = {
   correctionWindow?:string; applicationStart?:string
   helplineEmail?:string; helplinePhone?:string; selectionDetails?:string
   syllabusDetails?:string; zoneWiseVacancy?:string
+  ageBirthRange?:string
   jobAffiliates?:JobAffiliate[]
   titleAs?:string; orgAs?:string; descriptionAs?:string; howToApplyAs?:string; selectionAs?:string
   howToApplyImages?:string[]
