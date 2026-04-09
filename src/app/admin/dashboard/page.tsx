@@ -643,7 +643,7 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
     { icon:'⚙️', label:'Settings',     tab:'settings'  as Tab, active: '#8fa3b8' },
   ]
 
-  const filt = <T extends {title:string}>(arr: T[]) => arr.filter(x => x.title.toLowerCase().includes(search.toLowerCase()))
+  const filt = <T extends {title?: string}>(arr: T[]) => arr.filter(x => (x.title || '').toLowerCase().includes(search.toLowerCase()))
 
   return (
     <>

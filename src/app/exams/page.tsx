@@ -85,9 +85,10 @@ export default function ExamsPage() {
   }, [])
 
   const filtered = exams.filter(e =>
-    (cat === 'All' || e.category === cat) &&
-    (!q || e.title.toLowerCase().includes(q.toLowerCase()) || e.conductedBy.toLowerCase().includes(q.toLowerCase()))
-  )
+  (cat === 'All' || e.category === cat) &&
+  (!q || (e.title||'').toLowerCase().includes(q.toLowerCase()) || 
+   (e.conductedBy||'').toLowerCase().includes(q.toLowerCase()))
+)
 
   const fmt = (d: string) => { try { return new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) } catch { return d } }
 
@@ -251,7 +252,9 @@ export default function ExamsPage() {
                       ))}
                     </div>
                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap' as const,gap:6,marginTop:'auto'}}>
-                      <div style={{fontSize:'.76rem',color:'#5a6a7a'}}><span style={{fontWeight:700,color:N}}>Fee:</span> {exam.fee.slice(0,40)}{exam.fee.length>40?'…':''}</div>
+                      <div style={{fontSize:'.76rem',color:'#5a6a7a'}}>
+  <span style={{fontWeight:700,color:N}}>Fee:</span> {(exam.fee||'').slice(0,40)}{(exam.fee||'').length>40?'…':''}
+</div>
                       {dl && (
                         <span style={{background:dl.includes('⚠️')?'#fde8ea':'#e8f5e9',color:dl.includes('⚠️')?'#ef4444':'#22c55e',border:`1px solid ${dl.includes('⚠️')?'#f7bcc0':'#a5d6a7'}`,padding:'3px 9px',borderRadius:99,fontSize:'.68rem',fontWeight:800}}>
                           {dl}
