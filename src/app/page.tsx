@@ -24,7 +24,7 @@ function Logo({ size=38 }:{size?:number}) {
   )
 }
 
-type Job          = { id:number; logo:string; title:string; org:string; category:string; district:string; status:string; vacancy:string; lastDate:string; description?:string; posts?:{vacancy:number}[]; slug?:string }
+type Job = { id:number; logo:string; title:string; org:string; category:string; district:string; status:string; vacancy:string; lastDate:string; description?:string; posts?:{vacancy:number}[]; slug?:string; createdAt?:string }
 type Exam         = { id:number; emoji:string; title:string; conductedBy:string; category:string; applicationLastDate:string; paymentLastDate:string; examDate:string; examTime:string; status:string; slug?:string }
 type Info         = { id:number; emoji:string; title:string; category:string; description:string; lastDate?:string; status:string; importantDates:{label:string;date:string;time?:string}[]; slug?:string }
 type Result       = { id:number; emoji?:string; title:string; org?:string; category?:string; resultDate?:string; slug?:string }
