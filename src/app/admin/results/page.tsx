@@ -203,7 +203,7 @@ function SectionBuilder({ sections, onChange }: {
                   <thead>
                     <tr style={{ background: '#eef3f9' }}>
                       <th style={{ padding: '6px 8px', fontSize: '.72rem', color: '#3a5068', fontWeight: 700, textAlign: 'left', borderBottom: '1px solid #d4e0ec' }}>Label <span style={{fontWeight:400,color:'#8fa3b8'}}>(e.g. Official Website)</span></th>
-<th style={{ padding: '6px 8px', fontSize: '.72rem', color: '#3a5068', fontWeight: 700, textAlign: 'left', borderBottom: '1px solid #d4e0ec' }}>URL <span style={{fontWeight:400,color:'#8fa3b8'}}>(https://...)</span></th>
+                      <th style={{ padding: '6px 8px', fontSize: '.72rem', color: '#3a5068', fontWeight: 700, textAlign: 'left', borderBottom: '1px solid #d4e0ec' }}>URL <span style={{fontWeight:400,color:'#8fa3b8'}}>(https://...)</span></th>
                       <th style={{ width: 40, borderBottom: '1px solid #d4e0ec' }} />
                     </tr>
                   </thead>
@@ -457,15 +457,83 @@ function PostModal({ initial, onSave, onClose }: {
           {/* Save buttons */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 6, paddingTop: 12, borderTop: '1px solid #eef3f9' }}>
             <button type="button" onClick={onClose} style={bS}>Cancel</button>
+
+            {/* 🖨️ PRINT BUTTON (Results) */}
+            <button type="button" onClick={() => {
+              const w = window.open('', '_blank')
+              if (!w) return
+              w.document.write(`
+<html><head><title>Preview — ${form.title || 'Result Preview'}</title>
+<style>
+  body{font-family:Arial,sans-serif;padding:28px;color:#1a1a2e;max-width:800px;margin:0 auto;font-size:.9rem}
+  h1{font-size:1.4rem;margin:0 0 4px}
+  h2{font-size:1rem;margin:18px 0 8px;padding:6px 10px;background:#0b1f33;color:#c9a227;border-radius:6px}
+  .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;gap:12px}
+  .label{color:#555;font-weight:600;flex-shrink:0}
+  .val{font-weight:700;text-align:right}
+  .badge{display:inline-block;padding:3px 12px;border-radius:99px;font-size:.75rem;font-weight:700;background:#0b1f33;color:#c9a227}
+  @media print{button{display:none!important}}
+</style></head><body>
+
+<h1>${form.title || '—'}</h1>
+<p style="color:#555;margin-bottom:16px">
+  ${form.org || '—'} &nbsp;·&nbsp; <span class="badge">${form.category}</span>
+  ${form.published ? '' : ' · Draft'}
+</p>
+
+<h2>📋 Basic Information</h2>
+<div class="row"><span class="label">Organization</span><span class="val">${form.org || '—'}</span></div>
+<div class="row"><span class="label">Total Posts / Vacancies</span><span class="val">${form.totalPosts || '—'}</span></div>
+<div class="row"><span class="label">Result Date</span><span class="val">${form.resultDate || '—'}</span></div>
+
+<h2>📝 Description</h2>
+<div style="padding:8px 0;line-height:1.6">${(form.description || '—').replace(/\n/g,'<br/>')}</div>
+
+${form.affiliateLink ? `
+<h2>🤝 Recommended Resource</h2>
+<div class="row"><span class="label">${form.affiliateLinkText || 'Affiliate Link'}</span><span class="val"><a href="${form.affiliateLink}" target="_blank">Click to Visit →</a></span></div>
+` : ''}
+
+${form.sections && form.sections.length > 0 ? `
+<h2>📦 Detailed Sections (${form.sections.length})</h2>
+${form.sections.map((sec, idx) => `
+  <div style="margin-bottom:18px;border-left:3px solid #c9a227;padding-left:14px">
+    <h3 style="margin:6px 0 8px;font-size:.95rem;color:#0b1f33">${sec.title || `Section ${idx+1}`}</h3>
+    <div style="margin:6px 0;line-height:1.6">${(sec.content || '').replace(/\n/g,'<br/>')}</div>
+    ${sec.pdfLink ? `<div class="row"><span class="label">📄 PDF</span><span class="val"><a href="${sec.pdfLink}" target="_blank">${sec.pdfName || 'Download'}</a></span></div>` : ''}
+    ${sec.links && sec.links.length > 0 ? `
+      <div><strong>🔗 Important Links:</strong></div>
+      ${sec.links.map(lnk => `<div class="row"><span class="label">${lnk.label || 'Link'}</span><span class="val"><a href="${lnk.url}" target="_blank">Open →</a></span></div>`).join('')}
+    ` : ''}
+  </div>
+`).join('')}
+` : ''}
+
+<br/>
+<p style="color:#888;font-size:.75rem;border-top:1px solid #eee;padding-top:10px">
+  Generated from Assam Career Point & Info Admin Panel · assamcareerpoint-info.com
+</p>
+<button onclick="window.print()" style="padding:10px 22px;background:#0b1f33;color:#c9a227;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:8px">
+  🖨️ Print / Save as PDF
+</button>
+
+</body></html>
+              `)
+              w.document.close()
+            }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
+              🖨️ Preview & Print
+            </button>
+
             <button type="button" onClick={handleSave} style={bP}>
               {initial ? '💾 Update Result' : '➕ Add Result'}
             </button>
           </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+
+        </div> {/* closes the padding div (flex column) */}
+      </div> {/* closes the modal content div */}
+    </div> {/* closes the overlay div */}
+  ) // closes PostModal function
+} // closes PostModal component
 
 // ─── Category badge color ─────────────────────────────────────────────────────
 function catColor(cat: string) {
@@ -507,7 +575,6 @@ export default function ResultsAdmin() {
     })
   }
 
-
   const handleSave = (post: ResultPost) => {
     const updated = editPost
       ? posts.map(p => p.id === editPost.id ? post : p)
@@ -529,12 +596,12 @@ export default function ResultsAdmin() {
   }
 
   const filtered = posts.filter(p => {
-  const matchSearch = !search ||
-    (p.title || '').toLowerCase().includes(search.toLowerCase()) ||
-    (p.org || '').toLowerCase().includes(search.toLowerCase())
-  const matchCat = filterCat === 'All' || p.category === filterCat
-  return matchSearch && matchCat
-})
+    const matchSearch = !search ||
+      (p.title || '').toLowerCase().includes(search.toLowerCase()) ||
+      (p.org || '').toLowerCase().includes(search.toLowerCase())
+    const matchCat = filterCat === 'All' || p.category === filterCat
+    return matchSearch && matchCat
+  })
 
   const published = posts.filter(p => p.published).length
 

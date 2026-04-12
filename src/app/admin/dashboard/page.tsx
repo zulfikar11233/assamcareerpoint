@@ -1469,32 +1469,108 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                 <button type="button" onClick={()=>setShowJobModal(false)} style={bS}>Cancel</button>
                 {/* 🖨️ PRINT PREVIEW BUTTON FOR JOBS */}
                 <button type="button" onClick={() => {
-                  const w = window.open('', '_blank')
-                  if (!w) return
-                  const totalVac = posts.reduce((a,p)=>a+Number(p.vacancy||0),0)
                   w.document.write(`
-                    <html><head><title>Preview — ${jf.title || 'Job Preview'}</title>
-                    <style>
-                      body { font-family: Arial, sans-serif; padding: 28px; color: #1a1a2e; max-width: 750px; margin: 0 auto; }
-                      h1 { font-size: 1.3rem; margin-bottom: 4px; }
-                      .row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eee; font-size: .88rem; }
-                      .label { color: #666; font-weight: 600; }
-                      .val { font-weight: 700; text-align: right; max-width: 60%; }
-                      .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: .75rem; font-weight: 700; background: #0b1f33; color: #c9a227; }
-                      @media print { button { display: none; } }
-                    </style></head><body>
-                    <h1>${jf.title || '—'}</h1>
-                    <p style="color:#666;margin-bottom:16px">${jf.org || '—'} · <span class="badge">${jf.status}</span></p>
-                    <div class="row"><span class="label">Category</span><span class="val">${jf.category}</span></div>
-                    <div class="row"><span class="label">District</span><span class="val">${jf.district}</span></div>
-                    <div class="row"><span class="label">Vacancy</span><span class="val">${totalVac.toLocaleString()}</span></div>
-                    <div class="row"><span class="label">Last Date</span><span class="val">${posts[0]?.lastDate || '—'}</span></div>
-<div class="row"><span class="label">Fee</span><span class="val">${jf.fee || '—'}</span></div>
-<div class="row"><span class="label">Salary</span><span class="val">${posts[0]?.salary || '—'}</span></div>
-<div class="row"><span class="label">Selection</span><span class="val">${jf.selection || '—'}</span></div>
-                    <br/><button onclick="window.print()">🖨️ Print / Save as PDF</button>
-                    </body></html>
-                  `)
+<html><head><title>Preview — ${jf.title || 'Job Preview'}</title>
+<style>
+  body{font-family:Arial,sans-serif;padding:28px;color:#1a1a2e;max-width:800px;margin:0 auto;font-size:.9rem}
+  h1{font-size:1.4rem;margin:0 0 4px}
+  h2{font-size:1rem;margin:18px 0 8px;padding:6px 10px;background:#0b1f33;color:#c9a227;border-radius:6px}
+  .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;gap:12px}
+  .label{color:#555;font-weight:600;flex-shrink:0}
+  .val{font-weight:700;text-align:right}
+  .badge{display:inline-block;padding:3px 12px;border-radius:99px;font-size:.75rem;font-weight:700;background:#0b1f33;color:#c9a227}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.82rem}
+  th{background:#0b1f33;color:#c9a227;padding:7px 10px;text-align:left}
+  td{padding:7px 10px;border-bottom:1px solid #eee}
+  .step{display:flex;gap:10px;padding:5px 0;border-bottom:1px dashed #eee}
+  .num{width:22px;height:22px;border-radius:50%;background:#0b1f33;color:#c9a227;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:.75rem;flex-shrink:0}
+  @media print{button{display:none!important}}
+</style></head><body>
+
+<h1>${jf.title || '—'}</h1>
+<p style="color:#555;margin-bottom:16px">
+  ${jf.org || '—'} &nbsp;·&nbsp; <span class="badge">${jf.status}</span>
+  ${jf.advtNo ? `&nbsp;·&nbsp; Advt No: <strong>${jf.advtNo}</strong>` : ''}
+</p>
+
+<h2>📋 Basic Information</h2>
+<div class="row"><span class="label">Category</span><span class="val">${jf.category}</span></div>
+<div class="row"><span class="label">District</span><span class="val">${jf.district}</span></div>
+<div class="row"><span class="label">Total Vacancy</span><span class="val">${totalVac.toLocaleString()}</span></div>
+<div class="row"><span class="label">Salary / Pay Scale</span><span class="val">${posts[0]?.salary || '—'}</span></div>
+<div class="row"><span class="label">Age Limit</span><span class="val">${jf.ageLimit || (posts.length ? `${Math.min(...posts.map((p:any)=>Number(p.ageMin)||0))}–${Math.max(...posts.map((p:any)=>Number(p.ageMax)||0))} years` : '—')}</span></div>
+<div class="row"><span class="label">Qualification</span><span class="val">${jf.qualification || posts[0]?.qualification || '—'}</span></div>
+<div class="row"><span class="label">Official Website</span><span class="val">${jf.website || '—'}</span></div>
+
+<h2>📅 Important Dates</h2>
+${jf.applicationStart ? `<div class="row"><span class="label">Application Start</span><span class="val">${jf.applicationStart}</span></div>` : ''}
+<div class="row"><span class="label">Last Date to Apply</span><span class="val">${posts[0]?.lastDate || '—'}</span></div>
+${jf.paymentLastDate ? `<div class="row"><span class="label">Fee Payment Last Date</span><span class="val">${jf.paymentLastDate}</span></div>` : ''}
+${jf.correctionWindow ? `<div class="row"><span class="label">Correction Window</span><span class="val">${jf.correctionWindow}</span></div>` : ''}
+
+<h2>💳 Application Fee</h2>
+<div style="padding:8px 0;line-height:1.8">${(jf.fee || 'Check official notification').replace(/\n/g,'<br/>')}</div>
+
+${posts.length > 0 ? `
+<h2>📋 Post-wise Vacancy</h2>
+<table>
+  <thead><tr><th>Post</th><th>Dept</th><th>Vacancy</th><th>Qualification</th><th>Age</th><th>Salary</th></tr></thead>
+  <tbody>
+    ${posts.map((p:any) => `
+      <tr>
+        <td><strong>${p.name||'—'}</strong></td>
+        <td>${p.dept||'—'}</td>
+        <td style="text-align:center;font-weight:700">${Number(p.vacancy||0).toLocaleString()}</td>
+        <td>${p.qualification||'—'}</td>
+        <td style="text-align:center">${p.ageMin||0}–${p.ageMax||0} yrs</td>
+        <td>${p.salary||'—'}</td>
+      </tr>
+    `).join('')}
+    <tr style="background:#f0f4f8">
+      <td colspan="2"><strong>TOTAL</strong></td>
+      <td style="text-align:center;font-weight:900">${totalVac.toLocaleString()}</td>
+      <td colspan="3"></td>
+    </tr>
+  </tbody>
+</table>` : ''}
+
+<h2>🏆 Selection Process</h2>
+<div style="padding:8px 0">${(jf.selection || '—').replace(/→/g,' → ')}</div>
+${jf.selectionDetails ? `<div style="padding:8px 0;line-height:1.8;color:#444">${jf.selectionDetails.replace(/\n/g,'<br/>')}</div>` : ''}
+
+${jf.howToApply ? `
+<h2>✅ How to Apply</h2>
+<div>
+  ${jf.howToApply.split('\n').filter((s:string)=>s.trim()).map((step:string, i:number) => `
+    <div class="step">
+      <span class="num">${i+1}</span>
+      <span>${step.replace(/^[\d]+[\.\)]\s*/,'')}</span>
+    </div>
+  `).join('')}
+</div>` : ''}
+
+${(jf as any).advPdfs?.length > 0 ? `
+<h2>📄 Official PDFs</h2>
+${(jf as any).advPdfs.map((pdf:any) => `
+  <div class="row"><span class="label">📄 ${pdf.name||'PDF'}</span><span class="val">${pdf.url||'—'}</span></div>
+`).join('')}` : ''}
+
+${jf.helplineEmail || jf.helplinePhone ? `
+<h2>📞 Helpline</h2>
+${jf.helplineEmail ? `<div class="row"><span class="label">Email</span><span class="val">${jf.helplineEmail}</span></div>` : ''}
+${jf.helplinePhone ? `<div class="row"><span class="label">Phone</span><span class="val">${jf.helplinePhone}</span></div>` : ''}
+` : ''}
+
+<br/>
+<p style="color:#888;font-size:.75rem;border-top:1px solid #eee;padding-top:10px">
+  Generated from Assam Career Point & Info Admin Panel · assamcareerpoint-info.com
+</p>
+<button onclick="window.print()" style="padding:10px 22px;background:#0b1f33;color:#c9a227;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:8px">
+  🖨️ Print / Save as PDF
+</button>
+
+</body></html>
+`)
                   w.document.close()
                 }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
                   🖨️ Preview & Print
@@ -1708,26 +1784,62 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                   const w = window.open('', '_blank')
                   if (!w) return
                   w.document.write(`
-                    <html><head><title>Preview — ${ef.title || 'Exam Preview'}</title>
-                    <style>
-                      body { font-family: Arial, sans-serif; padding: 28px; color: #1a1a2e; max-width: 750px; margin: 0 auto; }
-                      h1 { font-size: 1.3rem; margin-bottom: 4px; }
-                      .row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eee; font-size: .88rem; }
-                      .label { color: #666; font-weight: 600; }
-                      .val { font-weight: 700; text-align: right; max-width: 60%; }
-                      .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: .75rem; font-weight: 700; background: #0b1f33; color: #c9a227; }
-                      @media print { button { display: none; } }
-                    </style></head><body>
-                    <h1>${ef.title || '—'}</h1>
-                    <p style="color:#666;margin-bottom:16px">${ef.conductedBy || '—'} · <span class="badge">${ef.status}</span></p>
-                    <div class="row"><span class="label">Category</span><span class="val">${ef.category}</span></div>
-                    <div class="row"><span class="label">Apply Last Date</span><span class="val">${ef.applicationLastDate || '—'}</span></div>
-                    <div class="row"><span class="label">Payment Last Date</span><span class="val">${ef.paymentLastDate || '—'}</span></div>
-                    <div class="row"><span class="label">Exam Date</span><span class="val">${ef.examDate || '—'}</span></div>
-                    <div class="row"><span class="label">Fee</span><span class="val">${ef.fee || '—'}</span></div>
-                    <br/><button onclick="window.print()">🖨️ Print / Save as PDF</button>
-                    </body></html>
-                  `)
+<html><head><title>Preview — ${ef.title || 'Exam Preview'}</title>
+<style>
+  body{font-family:Arial,sans-serif;padding:28px;color:#1a1a2e;max-width:800px;margin:0 auto;font-size:.9rem}
+  h1{font-size:1.4rem;margin:0 0 4px}
+  h2{font-size:1rem;margin:18px 0 8px;padding:6px 10px;background:#0b1f33;color:#c9a227;border-radius:6px}
+  .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;gap:12px}
+  .label{color:#555;font-weight:600;flex-shrink:0}
+  .val{font-weight:700;text-align:right}
+  .badge{display:inline-block;padding:3px 12px;border-radius:99px;font-size:.75rem;font-weight:700;background:#0b1f33;color:#c9a227}
+  @media print{button{display:none!important}}
+</style></head><body>
+
+<h1>${ef.title || '—'}</h1>
+<p style="color:#555;margin-bottom:16px">
+  ${ef.conductedBy || '—'} &nbsp;·&nbsp; <span class="badge">${ef.status}</span>
+  ${ef.category ? `&nbsp;·&nbsp; ${ef.category}` : ''}
+</p>
+
+<h2>📅 Important Dates</h2>
+${ef.applicationStart ? `<div class="row"><span class="label">Application Opens</span><span class="val">${ef.applicationStart}</span></div>` : ''}
+<div class="row"><span class="label">Application Last Date</span><span class="val">${ef.applicationLastDate || '—'}</span></div>
+<div class="row"><span class="label">Payment Last Date</span><span class="val">${ef.paymentLastDate || '—'}</span></div>
+<div class="row"><span class="label">Exam Date</span><span class="val">${ef.examDate || '—'} ${ef.examTime ? `at ${ef.examTime}` : ''}</span></div>
+${ef.admitCardDate ? `<div class="row"><span class="label">Admit Card Date</span><span class="val">${ef.admitCardDate}</span></div>` : ''}
+${ef.resultDate ? `<div class="row"><span class="label">Result Date</span><span class="val">${ef.resultDate}</span></div>` : ''}
+
+<h2>📝 Description</h2>
+<div style="padding:8px 0;line-height:1.6">${(ef.description || '—').replace(/\n/g,'<br/>')}</div>
+
+<h2>💰 Fee & Eligibility</h2>
+<div class="row"><span class="label">Application Fee</span><span class="val">${ef.fee || '—'}</span></div>
+<div class="row"><span class="label">Eligibility</span><span class="val">${ef.eligibility || '—'}</span></div>
+
+<h2>📚 Syllabus (brief)</h2>
+<div style="padding:8px 0">${ef.syllabus || '—'}</div>
+
+<h2>🔗 Important Links</h2>
+${ef.officialSite ? `<div class="row"><span class="label">Official Website</span><span class="val"><a href="${ef.officialSite}" target="_blank">${ef.officialSite}</a></span></div>` : ''}
+${ef.applyLink ? `<div class="row"><span class="label">Apply Online</span><span class="val"><a href="${ef.applyLink}" target="_blank">Apply Link</a></span></div>` : ''}
+${ef.admitCardLink ? `<div class="row"><span class="label">Admit Card</span><span class="val"><a href="${ef.admitCardLink}" target="_blank">Download</a></span></div>` : ''}
+
+${(ef.examPdfs && ef.examPdfs.length > 0) ? `
+<h2>📄 Official PDFs</h2>
+${ef.examPdfs.map(pdf => `<div class="row"><span class="label">${pdf.label || 'PDF'}</span><span class="val"><a href="${pdf.url}" target="_blank">Open in Drive</a></span></div>`).join('')}
+` : ''}
+
+<br/>
+<p style="color:#888;font-size:.75rem;border-top:1px solid #eee;padding-top:10px">
+  Generated from Assam Career Point & Info Admin Panel · assamcareerpoint-info.com
+</p>
+<button onclick="window.print()" style="padding:10px 22px;background:#0b1f33;color:#c9a227;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:8px">
+  🖨️ Print / Save as PDF
+</button>
+
+</body></html>
+`)
                   w.document.close()
                 }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
                   🖨️ Preview & Print
@@ -1867,23 +1979,56 @@ https://drive.google.com/file/d/...`}
                   if (!w) return
                   const datesHtml = infDates.map(d => `<div class="row"><span class="label">${d.label}</span><span class="val">${d.date}${d.time ? ' at ' + d.time : ''}</span></div>`).join('')
                   w.document.write(`
-                    <html><head><title>Preview — ${inf.title || 'Info Preview'}</title>
-                    <style>
-                      body { font-family: Arial, sans-serif; padding: 28px; color: #1a1a2e; max-width: 750px; margin: 0 auto; }
-                      h1 { font-size: 1.3rem; margin-bottom: 4px; }
-                      .row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eee; font-size: .88rem; }
-                      .label { color: #666; font-weight: 600; }
-                      .val { font-weight: 700; text-align: right; max-width: 60%; }
-                      .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: .75rem; font-weight: 700; background: #0b1f33; color: #c9a227; }
-                      @media print { button { display: none; } }
-                    </style></head><body>
-                    <h1>${inf.title || '—'}</h1>
-                    <p style="color:#666;margin-bottom:16px">${inf.category || '—'} · <span class="badge">${inf.status}</span></p>
-                    <div class="row"><span class="label">Description</span><span class="val">${inf.description || '—'}</span></div>
-                    ${datesHtml}
-                    <br/><button onclick="window.print()">🖨️ Print / Save as PDF</button>
-                    </body></html>
-                  `)
+<html><head><title>Preview — ${inf.title || 'Information Preview'}</title>
+<style>
+  body{font-family:Arial,sans-serif;padding:28px;color:#1a1a2e;max-width:800px;margin:0 auto;font-size:.9rem}
+  h1{font-size:1.4rem;margin:0 0 4px}
+  h2{font-size:1rem;margin:18px 0 8px;padding:6px 10px;background:#0b1f33;color:#c9a227;border-radius:6px}
+  .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;gap:12px}
+  .label{color:#555;font-weight:600;flex-shrink:0}
+  .val{font-weight:700;text-align:right}
+  .badge{display:inline-block;padding:3px 12px;border-radius:99px;font-size:.75rem;font-weight:700;background:#0b1f33;color:#c9a227}
+  .step{display:flex;gap:10px;padding:5px 0;border-bottom:1px dashed #eee}
+  .num{width:22px;height:22px;border-radius:50%;background:#0b1f33;color:#c9a227;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:.75rem;flex-shrink:0}
+  @media print{button{display:none!important}}
+</style></head><body>
+
+<h1>${inf.title || '—'}</h1>
+<p style="color:#555;margin-bottom:16px">
+  ${inf.category || '—'} &nbsp;·&nbsp; <span class="badge">${inf.status}</span>
+</p>
+
+<h2>📋 Description</h2>
+<div style="padding:8px 0;line-height:1.6">${(inf.description || '—').replace(/\n/g,'<br/>')}</div>
+
+${inf.process ? `
+<h2>✅ Process / Steps</h2>
+${inf.process.split('\n').filter(s=>s.trim()).map((step, i) => `
+  <div class="step">
+    <span class="num">${i+1}</span>
+    <span>${step.replace(/^[\d]+[\.\)]\s*/,'')}</span>
+  </div>
+`).join('')}
+` : ''}
+
+${inf.importantDates && inf.importantDates.length > 0 ? `
+<h2>📅 Important Dates</h2>
+${inf.importantDates.map(d => `<div class="row"><span class="label">${d.label}</span><span class="val">${d.date}${d.time ? ` at ${d.time}` : ''}</span></div>`).join('')}
+` : ''}
+
+${inf.lastDate ? `<div class="row"><span class="label">Overall Deadline</span><span class="val">${inf.lastDate}</span></div>` : ''}
+${inf.officialLink ? `<div class="row"><span class="label">Official Website</span><span class="val"><a href="${inf.officialLink}" target="_blank">${inf.officialLink}</a></span></div>` : ''}
+
+<br/>
+<p style="color:#888;font-size:.75rem;border-top:1px solid #eee;padding-top:10px">
+  Generated from Assam Career Point & Info Admin Panel · assamcareerpoint-info.com
+</p>
+<button onclick="window.print()" style="padding:10px 22px;background:#0b1f33;color:#c9a227;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:8px">
+  🖨️ Print / Save as PDF
+</button>
+
+</body></html>
+`)
                   w.document.close()
                 }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
                   🖨️ Preview & Print
@@ -1949,23 +2094,48 @@ https://drive.google.com/file/d/...`}
                   const w = window.open('', '_blank')
                   if (!w) return
                   w.document.write(`
-                    <html><head><title>Preview — ${pf.title || 'PDF Form Preview'}</title>
-                    <style>
-                      body { font-family: Arial, sans-serif; padding: 28px; color: #1a1a2e; max-width: 750px; margin: 0 auto; }
-                      h1 { font-size: 1.3rem; margin-bottom: 4px; }
-                      .row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eee; font-size: .88rem; }
-                      .label { color: #666; font-weight: 600; }
-                      .val { font-weight: 700; text-align: right; max-width: 60%; }
-                      @media print { button { display: none; } }
-                    </style></head><body>
-                    <h1>${pf.title || '—'}</h1>
-                    <div class="row"><span class="label">Category</span><span class="val">${pf.category}</span></div>
-                    <div class="row"><span class="label">Language</span><span class="val">${pf.language}</span></div>
-                    <div class="row"><span class="label">Google Drive Link</span><span class="val"><a href="${pf.driveLink}" target="_blank">Open in Drive</a></span></div>
-                    <div class="row"><span class="label">Description</span><span class="val">${pf.description || '—'}</span></div>
-                    <br/><button onclick="window.print()">🖨️ Print / Save as PDF</button>
-                    </body></html>
-                  `)
+<html><head><title>Preview — ${pf.title || 'PDF Form Preview'}</title>
+<style>
+  body{font-family:Arial,sans-serif;padding:28px;color:#1a1a2e;max-width:800px;margin:0 auto;font-size:.9rem}
+  h1{font-size:1.4rem;margin:0 0 4px}
+  h2{font-size:1rem;margin:18px 0 8px;padding:6px 10px;background:#0b1f33;color:#c9a227;border-radius:6px}
+  .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;gap:12px}
+  .label{color:#555;font-weight:600;flex-shrink:0}
+  .val{font-weight:700;text-align:right}
+  @media print{button{display:none!important}}
+</style></head><body>
+
+<h1>📄 ${pf.title || '—'}</h1>
+<p style="color:#555;margin-bottom:16px">PDF Document</p>
+
+<h2>📋 Document Details</h2>
+<div class="row"><span class="label">Category</span><span class="val">${pf.category}</span></div>
+<div class="row"><span class="label">Language</span><span class="val">${pf.language}</span></div>
+${pf.fileSize ? `<div class="row"><span class="label">File Size</span><span class="val">${pf.fileSize}</span></div>` : ''}
+${pf.pages ? `<div class="row"><span class="label">Pages</span><span class="val">${pf.pages}</span></div>` : ''}
+${pf.source ? `<div class="row"><span class="label">Official Source</span><span class="val">${pf.source}</span></div>` : ''}
+<div class="row"><span class="label">Google Drive Link</span><span class="val"><a href="${pf.driveLink}" target="_blank">Open in Drive ↗</a></span></div>
+
+${pf.description ? `
+<h2>📝 Description</h2>
+<div style="padding:8px 0;line-height:1.6">${pf.description.replace(/\n/g,'<br/>')}</div>
+` : ''}
+
+${pf.keywords ? `
+<h2>🔍 Keywords (for search engines)</h2>
+<div style="padding:8px 0;color:#555">${pf.keywords}</div>
+` : ''}
+
+<br/>
+<p style="color:#888;font-size:.75rem;border-top:1px solid #eee;padding-top:10px">
+  Generated from Assam Career Point & Info Admin Panel · assamcareerpoint-info.com
+</p>
+<button onclick="window.print()" style="padding:10px 22px;background:#0b1f33;color:#c9a227;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:8px">
+  🖨️ Print / Save as PDF
+</button>
+
+</body></html>
+`)
                   w.document.close()
                 }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
                   🖨️ Preview & Print
@@ -2092,23 +2262,51 @@ https://drive.google.com/file/d/...`}
                   const w = window.open('', '_blank')
                   if (!w) return
                   w.document.write(`
-                    <html><head><title>Preview — ${af.title || 'Affiliate Item'}</title>
-                    <style>
-                      body { font-family: Arial, sans-serif; padding: 28px; color: #1a1a2e; max-width: 750px; margin: 0 auto; }
-                      h1 { font-size: 1.3rem; margin-bottom: 4px; }
-                      .row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eee; font-size: .88rem; }
-                      .label { color: #666; font-weight: 600; }
-                      .val { font-weight: 700; text-align: right; max-width: 60%; }
-                      @media print { button { display: none; } }
-                    </style></head><body>
-                    <h1>${af.title || '—'}</h1>
-                    <div class="row"><span class="label">Category</span><span class="val">${af.category}</span></div>
-                    <div class="row"><span class="label">Price</span><span class="val">${af.price}</span></div>
-                    <div class="row"><span class="label">Commission</span><span class="val">${af.commission}</span></div>
-                    <div class="row"><span class="label">Affiliate Link</span><span class="val"><a href="${af.link}" target="_blank">Open link</a></span></div>
-                    <br/><button onclick="window.print()">🖨️ Print / Save as PDF</button>
-                    </body></html>
-                  `)
+<html><head><title>Preview — ${af.title || 'Affiliate Item'}</title>
+<style>
+  body{font-family:Arial,sans-serif;padding:28px;color:#1a1a2e;max-width:800px;margin:0 auto;font-size:.9rem}
+  h1{font-size:1.4rem;margin:0 0 4px}
+  h2{font-size:1rem;margin:18px 0 8px;padding:6px 10px;background:#0b1f33;color:#c9a227;border-radius:6px}
+  .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;gap:12px}
+  .label{color:#555;font-weight:600;flex-shrink:0}
+  .val{font-weight:700;text-align:right}
+  .badge{display:inline-block;padding:3px 12px;border-radius:99px;font-size:.75rem;font-weight:700;background:#0b1f33;color:#c9a227}
+  .hl{display:inline-block;background:#e8f5e9;padding:4px 12px;border-radius:99px;font-size:.75rem;margin:3px}
+  @media print{button{display:none!important}}
+</style></head><body>
+
+<h1>🤝 ${af.title || '—'}</h1>
+<p style="color:#555;margin-bottom:16px">
+  ${af.category || '—'} &nbsp;·&nbsp; <span class="badge">${af.badge || 'Recommended'}</span>
+  ${af.tag ? `&nbsp;·&nbsp; <span style="background:#e63946;color:#fff;padding:2px 8px;border-radius:99px;font-size:.7rem">${af.tag}</span>` : ''}
+</p>
+
+<h2>📝 Description</h2>
+<div style="padding:8px 0;line-height:1.6">${af.description || '—'}</div>
+
+<h2>💰 Pricing & Commission</h2>
+<div class="row"><span class="label">Price</span><span class="val">${af.price}</span></div>
+${af.originalPrice ? `<div class="row"><span class="label">Original Price</span><span class="val"><del>${af.originalPrice}</del></span></div>` : ''}
+<div class="row"><span class="label">You Earn</span><span class="val" style="color:#2e7d32">${af.commission}</span></div>
+
+<h2>✨ Key Highlights</h2>
+<div style="padding:8px 0">
+  ${[af.h1, af.h2, af.h3, af.h4].filter(h=>h.trim()).map(h => `<span class="hl">✓ ${h}</span>`).join(' ')}
+</div>
+
+<h2>🔗 Affiliate Link</h2>
+<div class="row"><span class="label">Your Special Link</span><span class="val"><a href="${af.link}" target="_blank">Click to Visit →</a></span></div>
+
+<br/>
+<p style="color:#888;font-size:.75rem;border-top:1px solid #eee;padding-top:10px">
+  Generated from Assam Career Point & Info Admin Panel · assamcareerpoint-info.com
+</p>
+<button onclick="window.print()" style="padding:10px 22px;background:#0b1f33;color:#c9a227;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:8px">
+  🖨️ Print / Save as PDF
+</button>
+
+</body></html>
+`)
                   w.document.close()
                 }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
                   🖨️ Preview & Print

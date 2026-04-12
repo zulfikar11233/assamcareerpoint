@@ -232,7 +232,7 @@ function SectionBuilder({
               </div>
             </div>
 
-	     {/* PDF Link */}
+            {/* PDF Link */}
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 10 }}>
               <div>
                 <label style={lb}>📄 Google Drive PDF Link</label>
@@ -413,23 +413,23 @@ function PostModal({
                 style={{ ...si, minHeight: 70, resize: 'vertical' }}
                 placeholder="2-3 sentences summarizing this post. Used for SEO and listing cards." /> 
             </div>
-<div className="fg">
-  <label style={lb}>📄 Full Details Title</label>
-  <input 
-    value={form.fullDescTitle || ''} 
-    onChange={e => p('fullDescTitle')(e.target.value)} 
-    style={si}
-  />
-</div>
+            <div className="fg">
+              <label style={lb}>📄 Full Details Title</label>
+              <input 
+                value={form.fullDescTitle || ''} 
+                onChange={e => p('fullDescTitle')(e.target.value)} 
+                style={si}
+              />
+            </div>
 
-<div className="fg">
-  <label style={lb}>📄 Full Detailed Description</label>
-  <textarea 
-    value={form.fullDescription || ''} 
-    onChange={e => p('fullDescription')(e.target.value)} 
-    style={{ ...si, minHeight: 150, resize: 'vertical' }}
-  />
-</div>
+            <div className="fg">
+              <label style={lb}>📄 Full Detailed Description</label>
+              <textarea 
+                value={form.fullDescription || ''} 
+                onChange={e => p('fullDescription')(e.target.value)} 
+                style={{ ...si, minHeight: 150, resize: 'vertical' }}
+              />
+            </div>
 
             {/* Assamese description */}
             <div>
@@ -497,10 +497,79 @@ function PostModal({
           {/* Save buttons */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 6, paddingTop: 12, borderTop: '1px solid #eef3f9' }}>
             <button type="button" onClick={onClose} style={bS}>Cancel</button>
+
+            {/* 🖨️ PRINT BUTTON (Announcements/Guides/Services) */}
+            <button type="button" onClick={() => {
+              const w = window.open('', '_blank')
+              if (!w) return
+              w.document.write(`
+<html><head><title>Preview — ${form.title || 'Post Preview'}</title>
+<style>
+  body{font-family:Arial,sans-serif;padding:28px;color:#1a1a2e;max-width:800px;margin:0 auto;font-size:.9rem}
+  h1{font-size:1.4rem;margin:0 0 4px}
+  h2{font-size:1rem;margin:18px 0 8px;padding:6px 10px;background:#0b1f33;color:#c9a227;border-radius:6px}
+  .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;gap:12px}
+  .label{color:#555;font-weight:600;flex-shrink:0}
+  .val{font-weight:700;text-align:right}
+  .badge{display:inline-block;padding:3px 12px;border-radius:99px;font-size:.75rem;font-weight:700;background:#0b1f33;color:#c9a227}
+  .step{display:flex;gap:10px;padding:5px 0;border-bottom:1px dashed #eee}
+  .num{width:22px;height:22px;border-radius:50%;background:#0b1f33;color:#c9a227;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:.75rem;flex-shrink:0}
+  @media print{button{display:none!important}}
+</style></head><body>
+
+<h1>${form.title || '—'}</h1>
+<p style="color:#555;margin-bottom:16px">
+  ${form.category || '—'} &nbsp;·&nbsp; <span class="badge">${form.published ? 'Published' : 'Draft'}</span>
+</p>
+
+<h2>📋 Description</h2>
+<div style="padding:8px 0;line-height:1.6">${(form.description || '—').replace(/\n/g,'<br/>')}</div>
+
+${form.fullDescription ? `
+<h2>📄 Full Details</h2>
+<div style="padding:8px 0;line-height:1.6">${form.fullDescription.replace(/\n/g,'<br/>')}</div>
+` : ''}
+
+${form.affiliateLink ? `
+<h2>🤝 Recommended Resource</h2>
+<div class="row"><span class="label">${form.affiliateLinkText || 'Affiliate Link'}</span><span class="val"><a href="${form.affiliateLink}" target="_blank">Click to Visit →</a></span></div>
+` : ''}
+
+${form.sections && form.sections.length > 0 ? `
+<h2>📦 Sections (${form.sections.length})</h2>
+${form.sections.map((sec, idx) => `
+  <div style="margin-bottom:18px;border-left:3px solid #c9a227;padding-left:14px">
+    <h3 style="margin:6px 0 8px;font-size:.95rem;color:#0b1f33">${sec.title || `Section ${idx+1}`}</h3>
+    <div style="margin:6px 0;line-height:1.6">${(sec.content || '').replace(/\n/g,'<br/>')}</div>
+    ${sec.pdfLink ? `<div class="row"><span class="label">📄 PDF</span><span class="val"><a href="${sec.pdfLink}" target="_blank">${sec.pdfName || 'Download'}</a></span></div>` : ''}
+    ${sec.links && sec.links.length > 0 ? `
+      <div><strong>🔗 Important Links:</strong></div>
+      ${sec.links.map(lnk => `<div class="row"><span class="label">${lnk.label || 'Link'}</span><span class="val"><a href="${lnk.url}" target="_blank">Open →</a></span></div>`).join('')}
+    ` : ''}
+  </div>
+`).join('')}
+` : ''}
+
+<br/>
+<p style="color:#888;font-size:.75rem;border-top:1px solid #eee;padding-top:10px">
+  Generated from Assam Career Point & Info Admin Panel · assamcareerpoint-info.com
+</p>
+<button onclick="window.print()" style="padding:10px 22px;background:#0b1f33;color:#c9a227;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:8px">
+  🖨️ Print / Save as PDF
+</button>
+
+</body></html>
+              `)
+              w.document.close()
+            }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
+              🖨️ Preview & Print
+            </button>
+
             <button type="button" onClick={handleSave} style={bP}>
               {initial ? '💾 Update' : '➕ Add'} {getTypeLabel(type).split(' ')[0]}
             </button>
           </div>
+
         </div>
       </div>
     </div>
@@ -517,7 +586,7 @@ export default function OthersAdmin() {
   const { msg: toastMsg, toast } = useToast()
 
   // Load from localStorage
-useEffect(() => {
+  useEffect(() => {
     const collection = activeType === 'announcement' ? 'announcements'
       : activeType === 'guide' ? 'guides'
       : 'services'
@@ -565,9 +634,9 @@ useEffect(() => {
   }
 
   const filtered = posts.filter(p =>
-  (p.title || '').toLowerCase().includes(search.toLowerCase()) ||
-  (p.category || '').toLowerCase().includes(search.toLowerCase())
-)
+    (p.title || '').toLowerCase().includes(search.toLowerCase()) ||
+    (p.category || '').toLowerCase().includes(search.toLowerCase())
+  )
 
   const activeCfg = TABS.find(t => t.type === activeType)!
 
@@ -690,7 +759,7 @@ useEffect(() => {
                           background: post.published ? '#eafaf1' : '#fef9e7',
                           color: post.published ? '#27ae60' : '#e67e22',
                         }}>{post.published ? '✅ Published' : '⏸ Draft'}</button>
-                      </td>
+                       </td>
                       <td style={{ padding: '12px 16px' }}>
                         <div style={{ display: 'flex', gap: 6 }}>
                           <button onClick={() => { setEditPost(post); setShowModal(true) }} style={{ ...bS, padding: '5px 12px', fontSize: '.78rem' }}>✏️ Edit</button>
@@ -700,8 +769,8 @@ useEffect(() => {
                               style={{ ...bS, padding: '5px 10px', fontSize: '.78rem', textDecoration: 'none' }}>↗</Link>
                           )}
                         </div>
-                      </td>
-                    </tr>
+                       </td>
+                     </tr>
                   ))}
                 </tbody>
               </table>
