@@ -109,7 +109,7 @@ export default function HomePage() {
       fetchWithRetry('/api/data/announcements'),
       fetchWithRetry('/api/data/guides'),
       fetchWithRetry('/api/data/services'),
-    ]).then(([jobsData, examsData, infoData, resultsData, announcementsData, guidesData, servicesData]) => {
+        ]).then(([jobsData, examsData, infoData, resultsData, announcementsData, guidesData, servicesData]) => {
       try {
         if (Array.isArray(jobsData)          && jobsData.length > 0)          localStorage.setItem('acp_jobs_v6',       JSON.stringify(jobsData))
         if (Array.isArray(examsData)         && examsData.length > 0)         localStorage.setItem('acp_exams_v6',      JSON.stringify(examsData))
@@ -120,27 +120,50 @@ export default function HomePage() {
         if (Array.isArray(servicesData)      && servicesData.length > 0)      localStorage.setItem('acp_services',      JSON.stringify(servicesData))
       } catch {}
 
-      if (Array.isArray(jobsData) && jobsData.length > 0) {
-        setTotalJobs(jobsData.length)
-        const live = jobsData.filter((j:Job) => j.status === 'Live')
-        setJobs(live.length ? live.slice(0,8) : jobsData.slice(0,8))
-      }
-      if (Array.isArray(examsData) && examsData.length > 0) {
-        setTotalExams(examsData.length)
-        setExams(examsData.slice(0,6))
-      }
-      if (Array.isArray(infoData) && infoData.length > 0) {
-        setTotalInfo(infoData.length)
-        const active = infoData.filter((i:Info) => i.status === 'Active')
-        setInfo(active.length ? active.slice(0,6) : infoData.slice(0,6))
-      }
-      if (Array.isArray(resultsData)       && resultsData.length > 0)       setResults(resultsData.slice(0,5))
-      if (Array.isArray(announcementsData) && announcementsData.length > 0) {
-        const pub = announcementsData.filter((a:Announcement) => a.published !== false)
-        setAnnouncements(pub.slice(0,5))
-      }
-      if (Array.isArray(guidesData)   && guidesData.length > 0)   setGuides(guidesData.filter((g:Guide) => g.published !== false).slice(0,5))
-      if (Array.isArray(servicesData) && servicesData.length > 0) setServices(servicesData.filter((s:Service) => s.published !== false).slice(0,5))
+      // ✅ JOBS — sort by createdAt newest first BEFORE slice
+      const sortedJobs = [...jobsData].sort((a:any,b:any) =>
+        new Date(b.createdAt||0).getTime() - new Date(a.createdAt||0).getTime()
+      )
+      const live = sortedJobs.filter((j:Job) => j.status === 'Live')
+      setJobs(live.length ? live.slice(0,8) : sortedJobs.slice(0,8))
+
+      // ✅ EXAMS — same
+      const sortedExams = [...examsData].sort((a:any,b:any) =>
+        new Date(b.createdAt||0).getTime() - new Date(a.createdAt||0).getTime()
+      )
+      setExams(sortedExams.slice(0,6))
+
+      // ✅ INFO — same
+      const sortedInfo = [...infoData].sort((a:any,b:any) =>
+        new Date(b.createdAt||0).getTime() - new Date(a.createdAt||0).getTime()
+      )
+      const active = sortedInfo.filter((i:Info) => i.status === 'Active')
+      setInfo(active.length ? active.slice(0,6) : sortedInfo.slice(0,6))
+
+      // ✅ RESULTS — sort before slice
+      const sortedResults = [...resultsData].sort((a:any,b:any) =>
+        new Date(b.createdAt||0).getTime() - new Date(a.createdAt||0).getTime()
+      )
+      setResults(sortedResults.slice(0,5))
+
+      // ✅ ANNOUNCEMENTS — sort before slice
+      const sortedAnnouncements = [...announcementsData].sort((a:any,b:any) =>
+        new Date(b.createdAt||0).getTime() - new Date(a.createdAt||0).getTime()
+      )
+      const pub = sortedAnnouncements.filter((a:Announcement) => a.published !== false)
+      setAnnouncements(pub.slice(0,5))
+
+      // ✅ GUIDES — sort before slice
+      const sortedGuides = [...guidesData].sort((a:any,b:any) =>
+        new Date(b.createdAt||0).getTime() - new Date(a.createdAt||0).getTime()
+      )
+      setGuides(sortedGuides.filter((g:Guide) => g.published !== false).slice(0,5))
+
+      // ✅ SERVICES — sort before slice
+      const sortedServices = [...servicesData].sort((a:any,b:any) =>
+        new Date(b.createdAt||0).getTime() - new Date(a.createdAt||0).getTime()
+      )
+      setServices(sortedServices.filter((s:Service) => s.published !== false).slice(0,5))
 
       const tickers: string[] = []
       if (Array.isArray(jobsData)) {
@@ -167,7 +190,7 @@ export default function HomePage() {
 
   const closeMenu = () => setMenuOpen(false)
 
-  // ── Build ALL POSTS unified list with desc & meta ─────────────────
+    // ── Build ALL POSTS unified list with desc & meta ─────────────────
   const allPosts: AnyPost[] = [
     ...jobs.map(j => ({
       id: `j${j.id}`,
@@ -189,7 +212,8 @@ export default function HomePage() {
       tag: 'EXAM', tagBg: '#f4a261', tagCl: '#0d1b2a',
       href: `/exams/${e.slug || e.id}`,
       subCl: '#f4a261',
-      date: new Date(e.applicationLastDate||'').getTime() || 0,
+      // ✅ FIX: use createdAt, fallback to applicationLastDate, then 0
+      date: new Date((e as any).createdAt || e.applicationLastDate || '').getTime() || 0,
       desc: `Apply by: ${fmt(e.applicationLastDate)} · Exam: ${fmt(e.examDate)}`,
       meta: `Conducted by ${e.conductedBy || ''}`,
     })),
