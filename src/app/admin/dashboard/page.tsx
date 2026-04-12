@@ -2014,9 +2014,9 @@ ${inf.process.split('\n').filter(s=>s.trim()).map((step, i) => `
 `).join('')}
 ` : ''}
 
-${inf.importantDates && inf.importantDates.length > 0 ? `
+${infDates && infDates.length > 0 ? `
 <h2>📅 Important Dates</h2>
-${inf.importantDates.map(d => `<div class="row"><span class="label">${d.label}</span><span class="val">${d.date}${d.time ? ` at ${d.time}` : ''}</span></div>`).join('')}
+${infDates.map(d => `<div class="row"><span class="label">${d.label}</span><span class="val">${d.date}${d.time ? ` at ${d.time}` : ''}</span></div>`).join('')}
 ` : ''}
 
 ${inf.lastDate ? `<div class="row"><span class="label">Overall Deadline</span><span class="val">${inf.lastDate}</span></div>` : ''}
