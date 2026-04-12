@@ -1471,7 +1471,7 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                 <button type="button" onClick={() => {
                   const w = window.open('', '_blank')
                   if (!w) return
-                  const totalVac = posts.reduce((a,p)=>a+p.vacancy,0) || parseInt(jf.vacancy||'0')
+                  const totalVac = posts.reduce((a,p)=>a+Number(p.vacancy||0),0)
                   w.document.write(`
                     <html><head><title>Preview — ${jf.title || 'Job Preview'}</title>
                     <style>
