@@ -529,11 +529,11 @@ ${form.sections.map((sec, idx) => `
             </button>
           </div>
 
-        </div> {/* closes the padding div (flex column) */}
+        </div> {/* closes the inner padding div */}
       </div> {/* closes the modal content div */}
-    </div> {/* closes the overlay div */}
-  ) // closes PostModal function
-} // closes PostModal component
+    </div> /* closes the overlay div */
+  )
+}
 
 // ─── Category badge color ─────────────────────────────────────────────────────
 function catColor(cat: string) {
