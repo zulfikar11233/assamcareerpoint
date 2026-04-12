@@ -168,7 +168,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
   return (
     <div className="job-detail-root" style={{overflowX:'hidden',maxWidth:'100vw'}}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Nunito:wght@400;600;700&display=swap');
+        
         *,*::before,*::after{box-sizing:border-box}
         html,body{margin:0;font-family:Nunito,sans-serif;background:#f0f4f8;color:#1a1a2e;overflow-x:hidden;max-width:100%}
         .job-detail-root{width:100%;max-width:100%;overflow-x:hidden;position:relative}
@@ -244,11 +244,13 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
         </div>
       </header>
 
+      {/* ✅ FIX: main landmark for accessibility */}
+      <main id="main-content">
       {/* Breadcrumb */}
       <div className="breadcrumb-bar" style={{background:'#fff',borderBottom:'1px solid #e8eef6',padding:'9px 20px',fontSize:'.77rem',color:'#5a6a7a'}}>
         <div style={{maxWidth:1200,margin:'0 auto',display:'flex',gap:6,alignItems:'center',flexWrap:'wrap' as const}}>
-          <Link href="/" style={{color:T,textDecoration:'none'}}>Home</Link> <span>›</span>
-          <Link href="/govt-jobs" style={{color:T,textDecoration:'none'}}>Govt Jobs</Link> <span>›</span>
+          <Link href="/" style={{color:'#0e8a7e',textDecoration:'none',fontWeight:600}}>Home</Link> <span>›</span>
+          <Link href="/govt-jobs" style={{color:'#0e8a7e',textDecoration:'none',fontWeight:600}}>Govt Jobs</Link> <span>›</span>
           {/* ✅ FIX 1 — was job.title.slice() which crashes when title is undefined */}
           <span style={{color:N,fontWeight:700}}>{safeTitle.slice(0,55)}{safeTitle.length>55?'…':''}</span>
         </div>
@@ -301,7 +303,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
 
           {/* Countdown Timer */}
           {timerOn && job.lastDate && new Date(job.lastDate).getTime() > Date.now() && (
-            <div style={{marginTop:16,background:'rgba(0,0,0,.25)',border:'1px solid rgba(201,162,39,.3)',borderRadius:10,padding:'10px 16px',display:'flex',alignItems:'center',gap:16,flexWrap:'wrap' as const}}>
+            <div suppressHydrationWarning style={{marginTop:16,background:'rgba(0,0,0,.25)',border:'1px solid rgba(201,162,39,.3)',borderRadius:10,padding:'10px 16px',display:'flex',alignItems:'center',gap:16,flexWrap:'wrap' as const}}>
               <span style={{fontSize:'.72rem',color:'rgba(255,255,255,.45)',fontWeight:700,textTransform:'uppercase' as const,letterSpacing:'.06em',flexShrink:0}}>⏱ Time Remaining</span>
               <CountdownInline target={job.lastDate} now={now} />
             </div>
@@ -340,7 +342,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                     ...(job.correctionWindow?[{l:'Correction Window',v:job.correctionWindow,hi:false,d:false}]:[]),
                   ].map((item:any,i:number)=>(
                     <div key={i} style={{background:item.hi?`${G}14`:'#f8fbff',border:`1.5px solid ${item.hi?G+'55':'#d4e0ec'}`,borderRadius:10,padding:'11px 14px'}}>
-                      <div style={{fontSize:'.62rem',fontWeight:700,color:'#8fa3b8',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:5}}>{item.l}</div>
+                      <div style={{fontSize:'.62rem',fontWeight:700,color:'#5a6a7a',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:5}}>{item.l}</div>
                       <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.87rem',color:item.hi?G:N}}>{item.d?fmtLong(item.v):item.v}</div>
                     </div>
                   ))}
@@ -779,11 +781,13 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
         </div>
       </div>
 
+      </main>{/* ✅ end main landmark */}
+
       <footer style={{background:N,borderTop:`3px solid ${G}`,padding:'18px',textAlign:'center' as const}}>
         <div style={{fontSize:'.72rem',color:'rgba(255,255,255,.3)'}}>
           © 2025–2026 Assam Career Point & Info ·{' '}
           {([['Privacy','/privacy-policy'],['About','/about-us'],['Contact','/contact'],['Home','/']] as [string,string][]).map(([l,h])=>(
-            <span key={h}><Link href={h} style={{color:'#c9a22788',textDecoration:'none'}}>{l}</Link> · </span>
+            <span key={h}><Link href={h} style={{color:'#c9a227',textDecoration:'none'}}>{l}</Link> · </span>
           ))}
         </div>
       </footer>
