@@ -26,13 +26,13 @@ function Logo({ size=38 }:{size?:number}) {
 
 type Job = { id:number; logo:string; title:string; org:string; category:string; district:string; status:string; vacancy:string; lastDate:string; description?:string; posts?:{vacancy:number}[]; slug?:string; createdAt?:string }
 type Exam         = { id:number; emoji:string; title:string; conductedBy:string; category:string; applicationLastDate:string; paymentLastDate:string; examDate:string; examTime:string; status:string; slug?:string }
-type Info         = { id:number; emoji:string; title:string; category:string; description:string; lastDate?:string; status:string; importantDates:{label:string;date:string;time?:string}[]; slug?:string;  createdAt?:string }
+type Info         = { id:number; emoji:string; title:string; category:string; description:string; lastDate?:string; status:string; importantDates:{label:string;date:string;time?:string}[]; slug?:string; createdAt?:string }
 type Result       = { id:number; emoji?:string; title:string; org?:string; category?:string; resultDate?:string; slug?:string }
 type Announcement = { id:number; emoji?:string; title:string; category?:string; description?:string; createdAt:string; slug?:string; published?:boolean }
 type Guide        = { id:number; emoji?:string; title:string; category?:string; description?:string; createdAt:string; slug?:string; published?:boolean }
 type Service      = { id:number; emoji?:string; title:string; category?:string; description?:string; createdAt:string; slug?:string; published?:boolean }
 
-// ── All-Posts unified type ─────────────────────────────────────
+// ── All-Posts unified type with extra preview fields ─────────────────
 type AnyPost = {
   id: string
   icon: string
@@ -43,18 +43,19 @@ type AnyPost = {
   tagCl: string
   href: string
   subCl: string
-  date: number // timestamp for sorting
+  date: number
+  desc?: string   // description preview (2 lines)
+  meta?: string   // extra info: org / conductedBy / category
 }
 
+// ✅ Updated CATS array (6 boxes, one line)
 const CATS = [
-  {name:'Govt Jobs',   emoji:'🏛️',href:'/govt-jobs',  count:'Assam & India', color:'#e63946'},
-  {name:'Central Govt',emoji:'🇮🇳',href:'/govt-jobs',  count:'All India Jobs', color:'#c1121f'},
-  {name:'Exams',       emoji:'📚',href:'/exams',      count:'Open Now',      color:'#f4a261'},
-  {name:'Information', emoji:'ℹ️', href:'/information',count:'Schemes & Info', color:'#2a9d8f'},
-  {name:'Banking',     emoji:'🏦',href:'/govt-jobs',  count:'Bank Jobs',     color:'#0096b7'},
-  {name:'Teaching',    emoji:'🎓',href:'/govt-jobs',  count:'Teacher Jobs',  color:'#6a0dad'},
-  {name:'PDF Forms',   emoji:'📄',href:'/pdf-forms',  count:'Govt Docs',     color:'#00b4d8'},
-  {name:'Results',     emoji:'📊',href:'/results',    count:'Latest Results', color:'#457b9d'},
+  { name:'Govt & Private Jobs', emoji:'🏛️', href:'/govt-jobs',   count:'All Job Types',   color:'#e63946' },
+  { name:'Exams',               emoji:'📚', href:'/exams',        count:'Open Now',        color:'#f4a261' },
+  { name:'Information',         emoji:'ℹ️',  href:'/information',  count:'Schemes & Docs',  color:'#2a9d8f' },
+  { name:'PDF Forms',           emoji:'📄', href:'/pdf-forms',    count:'Govt Documents',  color:'#00b4d8' },
+  { name:'Results',             emoji:'📊', href:'/results',      count:'Latest Results',  color:'#457b9d' },
+  { name:'More',                emoji:'📢', href:'/announcements',count:'News & Guides',   color:'#6a0dad' },
 ]
 
 const NAV_LINKS = [
@@ -166,7 +167,7 @@ export default function HomePage() {
 
   const closeMenu = () => setMenuOpen(false)
 
-  // ── Build ALL POSTS unified list ────────────────────────────
+  // ── Build ALL POSTS unified list with desc & meta ─────────────────
   const allPosts: AnyPost[] = [
     ...jobs.map(j => ({
       id: `j${j.id}`,
@@ -177,6 +178,8 @@ export default function HomePage() {
       href: `/jobs/${j.slug || j.id}`,
       subCl: '#e63946',
       date: new Date(j.createdAt||'').getTime() || 0,
+      desc: j.description || '',
+      meta: `${j.org || ''} · ${j.district || ''}`,
     })),
     ...exams.map(e => ({
       id: `e${e.id}`,
@@ -187,6 +190,8 @@ export default function HomePage() {
       href: `/exams/${e.slug || e.id}`,
       subCl: '#f4a261',
       date: new Date(e.applicationLastDate||'').getTime() || 0,
+      desc: `Apply by: ${fmt(e.applicationLastDate)} · Exam: ${fmt(e.examDate)}`,
+      meta: `Conducted by ${e.conductedBy || ''}`,
     })),
     ...info.map(i => ({
       id: `i${i.id}`,
@@ -197,6 +202,8 @@ export default function HomePage() {
       href: `/information/${i.slug || i.id}`,
       subCl: '#2a9d8f',
       date: new Date(i.createdAt||'').getTime() || 0,
+      desc: i.description || '',
+      meta: i.category || '',
     })),
     ...results.map(r => ({
       id: `r${r.id}`,
@@ -207,6 +214,8 @@ export default function HomePage() {
       href: `/results/${r.slug || r.id}`,
       subCl: '#457b9d',
       date: new Date(r.resultDate||'').getTime() || 0,
+      desc: r.resultDate ? `Result declared: ${fmt(r.resultDate)}` : '',
+      meta: r.org || '',
     })),
     ...announcements.map(a => ({
       id: `a${a.id}`,
@@ -217,6 +226,8 @@ export default function HomePage() {
       href: `/announcements/${a.slug || a.id}`,
       subCl: '#6a0dad',
       date: new Date(a.createdAt||'').getTime() || 0,
+      desc: a.description || '',
+      meta: a.category || '',
     })),
     ...services.map(s => ({
       id: `s${s.id}`,
@@ -227,6 +238,8 @@ export default function HomePage() {
       href: `/services/${s.slug || s.id}`,
       subCl: '#8e44ad',
       date: new Date(s.createdAt||'').getTime() || 0,
+      desc: s.description || '',
+      meta: s.category || '',
     })),
     ...guides.map(g => ({
       id: `g${g.id}`,
@@ -237,6 +250,8 @@ export default function HomePage() {
       href: `/guides/${g.slug || g.id}`,
       subCl: '#0096b7',
       date: new Date(g.createdAt||'').getTime() || 0,
+      desc: g.description || '',
+      meta: g.category || '',
     })),
   ].sort((a, b) => b.date - a.date)
 
@@ -281,7 +296,6 @@ export default function HomePage() {
         .sc  { animation: scroll 22s linear infinite; }
         .sc:hover { animation-play-state:paused; }
         .alerts { height:280px; overflow:hidden; }
-        /* ✅ Category card — rounded border */
         .cc  {
           transition:.18s;
           border: 1.5px solid #d4e0ec;
@@ -316,18 +330,26 @@ export default function HomePage() {
         .exam-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; }
         .info-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:12px; }
         .res-grid  { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:11px; }
-        /* ── Responsive ── */
+
+        /* ✅ Updated category grid: 6 columns desktop, 3 tablet, 2 mobile */
+        .cg {
+          display: grid;
+          grid-template-columns: repeat(6, 1fr);
+          gap: 10px;
+        }
+
+        /* Responsive */
         @media(max-width:900px) {
           .hg { grid-template-columns:1fr !important; }
           .alerts-box { display:none !important; }
-          .cg { grid-template-columns:repeat(2,1fr) !important; }
+          .cg { grid-template-columns: repeat(3, 1fr) !important; }
           .exam-grid,.info-grid,.res-grid { grid-template-columns:1fr !important; }
           .desk-nav  { display:none !important; }
           .desk-lang { display:none !important; }
           .ham-btn   { display:flex !important; }
         }
         @media(max-width:480px) {
-          .cg { grid-template-columns:repeat(2,1fr) !important; }
+          .cg { grid-template-columns: repeat(2, 1fr) !important; }
           .stat-num { font-size:1rem !important; }
           .jr { flex-wrap:wrap !important; padding:11px 12px !important; }
           .job-badges { width:100% !important; justify-content:flex-start !important; flex-direction:row !important; }
@@ -347,7 +369,7 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* HEADER */}
+      {/* HEADER with pill borders on nav links */}
       <header style={{background:'#0d1b2a',position:'sticky',top:0,zIndex:200,boxShadow:'0 2px 16px rgba(0,0,0,.28)'}}>
         <div style={{maxWidth:1180,margin:'0 auto',padding:'10px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:14}}>
           <Link href="/" style={{display:'flex',alignItems:'center',gap:10,textDecoration:'none',flexShrink:0}}>
@@ -360,9 +382,21 @@ export default function HomePage() {
               <div style={{fontSize:'.48rem',color:'rgba(255,255,255,.6)'}}>assamcareerpoint-info.com</div>
             </div>
           </Link>
-          <nav className="desk-nav" style={{gap:2}}>
+          {/* ✅ Desktop nav — pill borders */}
+          <nav className="desk-nav" style={{gap:6}}>
             {NAV_LINKS.map(([l,h])=>(
-              <Link key={h} href={h} style={{color:'rgba(255,255,255,.8)',fontSize:'.84rem',fontWeight:600,padding:'6px 10px',borderRadius:7,textDecoration:'none',whiteSpace:'nowrap'}}>{l}</Link>
+              <Link key={h} href={h} style={{
+                color:'rgba(255,255,255,.7)',
+                fontSize:'.82rem', fontWeight:700,
+                padding:'6px 13px',
+                borderRadius:'99px',
+                border:'1.5px solid rgba(255,255,255,.18)',
+                textDecoration:'none',
+                whiteSpace:'nowrap' as const,
+                transition:'.15s',
+              }}>
+                {l}
+              </Link>
             ))}
           </nav>
           <div className="desk-lang" style={{gap:10,alignItems:'center',flexShrink:0}}>
@@ -399,30 +433,25 @@ export default function HomePage() {
 
       <main id="main-content">
 
-        {/* ✅ HERO — compact, no wasted space */}
+        {/* HERO section unchanged */}
         <section style={{background:'linear-gradient(135deg,#0d1b2a 0%,#1b2f45 60%,#0a3050 100%)',padding:'22px 0 18px'}}>
           <div style={{maxWidth:1180,margin:'0 auto',padding:'0 20px'}}>
             <div className="hg" style={{display:'grid',gridTemplateColumns:'1fr 320px',gap:28,alignItems:'center'}}>
-
-              {/* Left — headline */}
               <div>
                 <div style={{display:'inline-flex',alignItems:'center',gap:7,background:'rgba(0,180,216,.15)',border:'1px solid rgba(0,180,216,.3)',borderRadius:99,padding:'4px 12px',fontSize:'.74rem',fontWeight:700,color:'#00b4d8',marginBottom:12}}>
                   🔴 Live — Jobs · Exams · Information
                 </div>
-                {/* ✅ Smaller headline */}
                 <h1 style={{fontFamily:'var(--font-sora),Sora,Arial Black,sans-serif',fontSize:'clamp(1.5rem,3.2vw,2.2rem)',fontWeight:800,color:'#fff',lineHeight:1.18,marginBottom:10}}>
                   {lang==='en' ? <>Assam Career Point<br/><span style={{color:'#00b4d8'}}>& Info</span></> : <>অসম কেৰিয়াৰ পইণ্ট<br/><span style={{color:'#00b4d8'}}>আৰু তথ্য</span></>}
                 </h1>
                 <p style={{color:'rgba(255,255,255,.7)',fontSize:'.92rem',marginBottom:18,lineHeight:1.65,maxWidth:420}}>
                   {lang==='en' ? 'Jobs · Exams · Information — updated daily for Assam & NE India' : 'চাকৰি · পৰীক্ষা · তথ্য — প্ৰতিদিন আপডেট'}
                 </p>
-                {/* CTA buttons */}
                 <div className="hero-btns" style={{display:'flex',gap:9,flexWrap:'wrap' as const}}>
                   <Link href="/govt-jobs"   style={{display:'inline-flex',gap:6,alignItems:'center',padding:'10px 20px',borderRadius:99,background:'#e63946',color:'#fff',fontWeight:700,fontSize:'.88rem',textDecoration:'none'}}>🏛️ Govt Jobs</Link>
                   <Link href="/exams"       style={{display:'inline-flex',gap:6,alignItems:'center',padding:'10px 20px',borderRadius:99,background:'#f4a261',color:'#0d1b2a',fontWeight:700,fontSize:'.88rem',textDecoration:'none'}}>📚 Exams</Link>
                   <Link href="/information" style={{display:'inline-flex',gap:6,alignItems:'center',padding:'10px 20px',borderRadius:99,background:'transparent',color:'#fff',fontWeight:700,fontSize:'.88rem',border:'1.5px solid rgba(255,255,255,.28)',textDecoration:'none'}}>ℹ️ Info</Link>
                 </div>
-                {/* Stats row */}
                 <div style={{display:'flex',gap:22,marginTop:16,flexWrap:'wrap' as const}}>
                   {STATS.map(({num,label})=>(
                     <div key={label}>
@@ -433,7 +462,6 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Right — Latest Alerts (desktop only) */}
               <div className="alerts-box" style={{background:'rgba(255,255,255,.06)',border:'1.5px solid rgba(255,255,255,.1)',borderRadius:14,overflow:'hidden'}}>
                 <div style={{padding:'10px 14px',borderBottom:'1px solid rgba(255,255,255,.08)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                   <div style={{fontFamily:'var(--font-sora),Sora,sans-serif',fontWeight:700,fontSize:'.84rem',color:'rgba(255,255,255,.85)',display:'flex',alignItems:'center',gap:7}}>
@@ -467,15 +495,14 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ✅ BROWSE BY CATEGORY — rounded borders on each card */}
+        {/* ✅ BROWSE BY CATEGORY — updated CATS and grid */}
         <section style={{padding:'24px 0 18px'}}>
           <div style={{maxWidth:1180,margin:'0 auto',padding:'0 20px'}}>
             <h2 style={{fontFamily:'var(--font-sora),Sora,sans-serif',fontSize:'1.25rem',fontWeight:800,color:'#0d1b2a',marginBottom:4}}>Browse by Category</h2>
             <p style={{color:'#5a6a7a',fontSize:'.88rem',marginBottom:16}}>Jobs, exams, information and documents — all in one place</p>
-            <div className="cg" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10}}>
+            <div className="cg" style={{display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:10}}>
               {CATS.map(c=>(
                 <Link key={c.name} href={c.href} style={{textDecoration:'none'}}>
-                  {/* ✅ cc class now has border + rounded corners */}
                   <div className="cc" style={{padding:'13px 14px',display:'flex',alignItems:'center',gap:10}}>
                     <div style={{width:40,height:40,borderRadius:9,background:`${c.color}15`,border:`1.5px solid ${c.color}30`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.25rem',flexShrink:0}}>{c.emoji}</div>
                     <div style={{minWidth:0}}>
@@ -489,7 +516,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ✅ TABS — All Posts first, then individual types */}
+        {/* TABS section */}
         <section style={{padding:'4px 0 44px'}}>
           <div style={{maxWidth:1180,margin:'0 auto',padding:'0 20px'}}>
             <div style={{background:'#fff',borderRadius:14,border:'1.5px solid #d4e0ec',overflow:'hidden'}}>
@@ -505,7 +532,7 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* ── ALL POSTS TAB ── */}
+              {/* ── ALL POSTS TAB with rich preview (desc + meta) ── */}
               {sec==='all' && (
                 loading ? (
                   <div style={{padding:'18px'}}>
@@ -528,20 +555,60 @@ export default function HomePage() {
                   <div>
                     {allPosts.map((item, i) => (
                       <Link key={item.id} href={item.href} style={{textDecoration:'none'}}>
-                        <div className="jr" style={{display:'flex',alignItems:'center',gap:12,padding:'13px 20px',borderBottom:i<allPosts.length-1?'1px solid #f0f4f8':'none',cursor:'pointer'}}>
-                          <div style={{width:42,height:42,borderRadius:9,background:`${item.tagBg}18`,border:`1.5px solid ${item.tagBg}33`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.2rem',flexShrink:0}}>
+                        <div className="jr" style={{
+                          display:'flex', gap:12, padding:'14px 20px',
+                          borderBottom: i<allPosts.length-1 ? '1px solid #f0f4f8' : 'none',
+                          cursor:'pointer', alignItems:'flex-start',
+                        }}>
+                          {/* Icon */}
+                          <div style={{width:44,height:44,borderRadius:10,
+                            background:`${item.tagBg}18`, border:`1.5px solid ${item.tagBg}33`,
+                            display:'flex',alignItems:'center',justifyContent:'center',
+                            fontSize:'1.25rem', flexShrink:0, marginTop:2}}>
                             {item.icon}
                           </div>
-                          <div style={{flex:1,minWidth:0}}>
-                            <div style={{fontFamily:'var(--font-sora),Sora,sans-serif',fontWeight:700,fontSize:'.92rem',color:'#1a1a2e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const}}>
-                              {item.title}
+
+                          {/* Content */}
+                          <div style={{flex:1, minWidth:0}}>
+                            {/* Title row */}
+                            <div style={{display:'flex', gap:8, alignItems:'flex-start', flexWrap:'wrap' as const}}>
+                              <div style={{fontFamily:'Sora,sans-serif', fontWeight:700,
+                                fontSize:'.92rem', color:'#1a1a2e', lineHeight:1.3, flex:1, minWidth:0}}>
+                                {item.title}
+                              </div>
+                              {/* Type badge */}
+                              <span style={{background:item.tagBg, color:item.tagCl,
+                                fontSize:'.62rem', fontWeight:700, padding:'3px 8px',
+                                borderRadius:99, flexShrink:0, marginTop:2}}>
+                                {item.tag}
+                              </span>
                             </div>
-                            <div style={{fontSize:'.76rem',color:item.subCl,fontWeight:700,marginTop:2}}>{item.sub}</div>
+
+                            {/* Meta — org / conductedBy */}
+                            {item.meta && (
+                              <div style={{fontSize:'.75rem', color:'#5a6a7a', marginTop:3}}>
+                                {item.meta}
+                              </div>
+                            )}
+
+                            {/* Description preview — 2 lines */}
+                            {item.desc && (
+                              <div style={{
+                                fontSize:'.8rem', color:'#4a5a6a', marginTop:5,
+                                lineHeight:1.65,
+                                overflow:'hidden', display:'-webkit-box',
+                                WebkitLineClamp:2, WebkitBoxOrient:'vertical' as const,
+                              }}>
+                                {item.desc}
+                              </div>
+                            )}
+
+                            {/* Sub — posts count / deadline */}
+                            <div style={{fontSize:'.74rem', color:item.subCl,
+                              fontWeight:700, marginTop:5}}>
+                              {item.sub}
+                            </div>
                           </div>
-                          {/* Type badge */}
-                          <span style={{background:item.tagBg,color:item.tagCl,fontSize:'.65rem',fontWeight:700,padding:'3px 9px',borderRadius:99,flexShrink:0}}>
-                            {item.tag}
-                          </span>
                         </div>
                       </Link>
                     ))}
@@ -549,7 +616,7 @@ export default function HomePage() {
                 )
               )}
 
-              {/* ── JOBS TAB ── */}
+              {/* JOBS TAB (unchanged) */}
               {sec==='jobs' && (
                 loading ? (
                   <div style={{padding:'18px'}}>
@@ -598,7 +665,7 @@ export default function HomePage() {
                 })
               )}
 
-              {/* ── EXAMS TAB ── */}
+              {/* EXAMS TAB (unchanged) */}
               {sec==='exams' && (
                 exams.length === 0 ? (
                   <div style={{padding:'40px',textAlign:'center' as const,color:'#5a6a7a'}}>
@@ -634,7 +701,7 @@ export default function HomePage() {
                 )
               )}
 
-              {/* ── INFO TAB ── */}
+              {/* INFO TAB (unchanged) */}
               {sec==='info' && (
                 info.length === 0 ? (
                   <div style={{padding:'40px',textAlign:'center' as const,color:'#5a6a7a'}}>
@@ -673,7 +740,7 @@ export default function HomePage() {
                 )
               )}
 
-              {/* ── RESULTS TAB ── */}
+              {/* RESULTS TAB (unchanged) */}
               {sec==='results' && (
                 <div style={{padding:'14px 18px'}}>
                   <div className="res-grid">
@@ -691,7 +758,7 @@ export default function HomePage() {
                 </div>
               )}
 
-              {/* ── ANNOUNCEMENTS TAB ── */}
+              {/* ANNOUNCEMENTS TAB (unchanged) */}
               {sec==='announcements' && (
                 <div style={{padding:'14px 18px',display:'flex',flexDirection:'column' as const,gap:9}}>
                   {announcements.map(a=>(
@@ -712,7 +779,7 @@ export default function HomePage() {
                 </div>
               )}
 
-              {/* ── SERVICES TAB ── */}
+              {/* SERVICES TAB (unchanged) */}
               {sec==='services' && (
                 services.length === 0 ? (
                   <div style={{padding:'40px',textAlign:'center' as const,color:'#5a6a7a'}}><div style={{fontSize:'2rem',marginBottom:8}}>🏛️</div><div style={{fontWeight:700}}>No services yet</div></div>
@@ -734,7 +801,7 @@ export default function HomePage() {
                 )
               )}
 
-              {/* ── GUIDES TAB ── */}
+              {/* GUIDES TAB (unchanged) */}
               {sec==='guides' && (
                 guides.length === 0 ? (
                   <div style={{padding:'40px',textAlign:'center' as const,color:'#5a6a7a'}}><div style={{fontSize:'2rem',marginBottom:8}}>📖</div><div style={{fontWeight:700}}>No guides yet</div></div>
@@ -762,7 +829,7 @@ export default function HomePage() {
 
       </main>
 
-      {/* FOOTER */}
+      {/* FOOTER unchanged */}
       <footer style={{background:'#0d1b2a',padding:'26px 0 16px'}}>
         <div style={{maxWidth:1180,margin:'0 auto',padding:'0 20px'}}>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:22,marginBottom:20}}>

@@ -1467,6 +1467,38 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
               </div>
               <div style={{ padding:'14px 24px',borderTop:'1px solid #d4e0ec',display:'flex',justifyContent:'flex-end',gap:10 }}>
                 <button type="button" onClick={()=>setShowJobModal(false)} style={bS}>Cancel</button>
+                {/* 🖨️ PRINT PREVIEW BUTTON FOR JOBS */}
+                <button type="button" onClick={() => {
+                  const w = window.open('', '_blank')
+                  if (!w) return
+                  const totalVac = posts.reduce((a,p)=>a+p.vacancy,0) || parseInt(jf.vacancy||'0')
+                  w.document.write(`
+                    <html><head><title>Preview — ${jf.title || 'Job Preview'}</title>
+                    <style>
+                      body { font-family: Arial, sans-serif; padding: 28px; color: #1a1a2e; max-width: 750px; margin: 0 auto; }
+                      h1 { font-size: 1.3rem; margin-bottom: 4px; }
+                      .row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eee; font-size: .88rem; }
+                      .label { color: #666; font-weight: 600; }
+                      .val { font-weight: 700; text-align: right; max-width: 60%; }
+                      .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: .75rem; font-weight: 700; background: #0b1f33; color: #c9a227; }
+                      @media print { button { display: none; } }
+                    </style></head><body>
+                    <h1>${jf.title || '—'}</h1>
+                    <p style="color:#666;margin-bottom:16px">${jf.org || '—'} · <span class="badge">${jf.status}</span></p>
+                    <div class="row"><span class="label">Category</span><span class="val">${jf.category}</span></div>
+                    <div class="row"><span class="label">District</span><span class="val">${jf.district}</span></div>
+                    <div class="row"><span class="label">Vacancy</span><span class="val">${totalVac.toLocaleString()}</span></div>
+                    <div class="row"><span class="label">Last Date</span><span class="val">${jf.lastDate}</span></div>
+                    <div class="row"><span class="label">Fee</span><span class="val">${jf.fee || '—'}</span></div>
+                    <div class="row"><span class="label">Salary</span><span class="val">${posts[0]?.salary || jf.salary || '—'}</span></div>
+                    <div class="row"><span class="label">Selection</span><span class="val">${jf.selection || '—'}</span></div>
+                    <br/><button onclick="window.print()">🖨️ Print / Save as PDF</button>
+                    </body></html>
+                  `)
+                  w.document.close()
+                }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
+                  🖨️ Preview & Print
+                </button>
                 <button type="submit" style={bR}>💾 {editJob?'Update Job':'Publish Job'}</button>
               </div>
             </form>
@@ -1671,6 +1703,35 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
               </div>
               <div style={{ padding:'14px 24px',borderTop:'1px solid #d4e0ec',display:'flex',justifyContent:'flex-end',gap:10 }}>
                 <button type="button" onClick={()=>setShowExamModal(false)} style={bS}>Cancel</button>
+                {/* 🖨️ PRINT PREVIEW BUTTON FOR EXAMS */}
+                <button type="button" onClick={() => {
+                  const w = window.open('', '_blank')
+                  if (!w) return
+                  w.document.write(`
+                    <html><head><title>Preview — ${ef.title || 'Exam Preview'}</title>
+                    <style>
+                      body { font-family: Arial, sans-serif; padding: 28px; color: #1a1a2e; max-width: 750px; margin: 0 auto; }
+                      h1 { font-size: 1.3rem; margin-bottom: 4px; }
+                      .row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eee; font-size: .88rem; }
+                      .label { color: #666; font-weight: 600; }
+                      .val { font-weight: 700; text-align: right; max-width: 60%; }
+                      .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: .75rem; font-weight: 700; background: #0b1f33; color: #c9a227; }
+                      @media print { button { display: none; } }
+                    </style></head><body>
+                    <h1>${ef.title || '—'}</h1>
+                    <p style="color:#666;margin-bottom:16px">${ef.conductedBy || '—'} · <span class="badge">${ef.status}</span></p>
+                    <div class="row"><span class="label">Category</span><span class="val">${ef.category}</span></div>
+                    <div class="row"><span class="label">Apply Last Date</span><span class="val">${ef.applicationLastDate || '—'}</span></div>
+                    <div class="row"><span class="label">Payment Last Date</span><span class="val">${ef.paymentLastDate || '—'}</span></div>
+                    <div class="row"><span class="label">Exam Date</span><span class="val">${ef.examDate || '—'}</span></div>
+                    <div class="row"><span class="label">Fee</span><span class="val">${ef.fee || '—'}</span></div>
+                    <br/><button onclick="window.print()">🖨️ Print / Save as PDF</button>
+                    </body></html>
+                  `)
+                  w.document.close()
+                }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
+                  🖨️ Preview & Print
+                </button>
                 <button type="submit" style={bO}>💾 {editExam?'Update Exam':'Publish Exam'}</button>
               </div>
             </form>
@@ -1800,6 +1861,33 @@ https://drive.google.com/file/d/...`}
               </div>
               <div style={{ padding:'14px 24px',borderTop:'1px solid #d4e0ec',display:'flex',justifyContent:'flex-end',gap:10 }}>
                 <button type="button" onClick={()=>setShowInfoModal(false)} style={bS}>Cancel</button>
+                {/* 🖨️ PRINT PREVIEW BUTTON FOR INFO */}
+                <button type="button" onClick={() => {
+                  const w = window.open('', '_blank')
+                  if (!w) return
+                  const datesHtml = infDates.map(d => `<div class="row"><span class="label">${d.label}</span><span class="val">${d.date}${d.time ? ' at ' + d.time : ''}</span></div>`).join('')
+                  w.document.write(`
+                    <html><head><title>Preview — ${inf.title || 'Info Preview'}</title>
+                    <style>
+                      body { font-family: Arial, sans-serif; padding: 28px; color: #1a1a2e; max-width: 750px; margin: 0 auto; }
+                      h1 { font-size: 1.3rem; margin-bottom: 4px; }
+                      .row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eee; font-size: .88rem; }
+                      .label { color: #666; font-weight: 600; }
+                      .val { font-weight: 700; text-align: right; max-width: 60%; }
+                      .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: .75rem; font-weight: 700; background: #0b1f33; color: #c9a227; }
+                      @media print { button { display: none; } }
+                    </style></head><body>
+                    <h1>${inf.title || '—'}</h1>
+                    <p style="color:#666;margin-bottom:16px">${inf.category || '—'} · <span class="badge">${inf.status}</span></p>
+                    <div class="row"><span class="label">Description</span><span class="val">${inf.description || '—'}</span></div>
+                    ${datesHtml}
+                    <br/><button onclick="window.print()">🖨️ Print / Save as PDF</button>
+                    </body></html>
+                  `)
+                  w.document.close()
+                }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
+                  🖨️ Preview & Print
+                </button>
                 <button type="submit" style={bG}>💾 {editInfo?'Update Info':'Publish Info'}</button>
               </div>
             </form>
@@ -1856,6 +1944,32 @@ https://drive.google.com/file/d/...`}
 
               <div style={{ display:'flex',justifyContent:'flex-end',gap:10,marginTop:14 }}>
                 <button type="button" onClick={()=>setShowPdfModal(false)} style={bS}>Cancel</button>
+                {/* 🖨️ PRINT PREVIEW BUTTON FOR PDF FORMS */}
+                <button type="button" onClick={() => {
+                  const w = window.open('', '_blank')
+                  if (!w) return
+                  w.document.write(`
+                    <html><head><title>Preview — ${pf.title || 'PDF Form Preview'}</title>
+                    <style>
+                      body { font-family: Arial, sans-serif; padding: 28px; color: #1a1a2e; max-width: 750px; margin: 0 auto; }
+                      h1 { font-size: 1.3rem; margin-bottom: 4px; }
+                      .row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eee; font-size: .88rem; }
+                      .label { color: #666; font-weight: 600; }
+                      .val { font-weight: 700; text-align: right; max-width: 60%; }
+                      @media print { button { display: none; } }
+                    </style></head><body>
+                    <h1>${pf.title || '—'}</h1>
+                    <div class="row"><span class="label">Category</span><span class="val">${pf.category}</span></div>
+                    <div class="row"><span class="label">Language</span><span class="val">${pf.language}</span></div>
+                    <div class="row"><span class="label">Google Drive Link</span><span class="val"><a href="${pf.driveLink}" target="_blank">Open in Drive</a></span></div>
+                    <div class="row"><span class="label">Description</span><span class="val">${pf.description || '—'}</span></div>
+                    <br/><button onclick="window.print()">🖨️ Print / Save as PDF</button>
+                    </body></html>
+                  `)
+                  w.document.close()
+                }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
+                  🖨️ Preview & Print
+                </button>
                 <button type="submit" style={bP}>➕ Add to Library</button>
               </div>
             </form>
@@ -1973,6 +2087,32 @@ https://drive.google.com/file/d/...`}
               {/* Save buttons */}
               <div style={{display:'flex',justifyContent:'flex-end',gap:10,marginTop:8}}>
                 <button type="button" onClick={()=>setShowAffModal(false)} style={bS}>Cancel</button>
+                {/* 🖨️ PRINT PREVIEW BUTTON FOR AFFILIATE */}
+                <button type="button" onClick={() => {
+                  const w = window.open('', '_blank')
+                  if (!w) return
+                  w.document.write(`
+                    <html><head><title>Preview — ${af.title || 'Affiliate Item'}</title>
+                    <style>
+                      body { font-family: Arial, sans-serif; padding: 28px; color: #1a1a2e; max-width: 750px; margin: 0 auto; }
+                      h1 { font-size: 1.3rem; margin-bottom: 4px; }
+                      .row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eee; font-size: .88rem; }
+                      .label { color: #666; font-weight: 600; }
+                      .val { font-weight: 700; text-align: right; max-width: 60%; }
+                      @media print { button { display: none; } }
+                    </style></head><body>
+                    <h1>${af.title || '—'}</h1>
+                    <div class="row"><span class="label">Category</span><span class="val">${af.category}</span></div>
+                    <div class="row"><span class="label">Price</span><span class="val">${af.price}</span></div>
+                    <div class="row"><span class="label">Commission</span><span class="val">${af.commission}</span></div>
+                    <div class="row"><span class="label">Affiliate Link</span><span class="val"><a href="${af.link}" target="_blank">Open link</a></span></div>
+                    <br/><button onclick="window.print()">🖨️ Print / Save as PDF</button>
+                    </body></html>
+                  `)
+                  w.document.close()
+                }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
+                  🖨️ Preview & Print
+                </button>
                 <button type="button" onClick={()=>{
                   const highlights=[af.h1,af.h2,af.h3,af.h4].filter(h=>h.trim())
                   const item: AffItem = {
