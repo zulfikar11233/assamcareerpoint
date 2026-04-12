@@ -1488,10 +1488,10 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                     <div class="row"><span class="label">Category</span><span class="val">${jf.category}</span></div>
                     <div class="row"><span class="label">District</span><span class="val">${jf.district}</span></div>
                     <div class="row"><span class="label">Vacancy</span><span class="val">${totalVac.toLocaleString()}</span></div>
-                    <div class="row"><span class="label">Last Date</span><span class="val">${jf.lastDate}</span></div>
-                    <div class="row"><span class="label">Fee</span><span class="val">${jf.fee || '—'}</span></div>
-                    <div class="row"><span class="label">Salary</span><span class="val">${posts[0]?.salary || jf.salary || '—'}</span></div>
-                    <div class="row"><span class="label">Selection</span><span class="val">${jf.selection || '—'}</span></div>
+                    <div class="row"><span class="label">Last Date</span><span class="val">${posts[0]?.lastDate || '—'}</span></div>
+<div class="row"><span class="label">Fee</span><span class="val">${jf.fee || '—'}</span></div>
+<div class="row"><span class="label">Salary</span><span class="val">${posts[0]?.salary || '—'}</span></div>
+<div class="row"><span class="label">Selection</span><span class="val">${jf.selection || '—'}</span></div>
                     <br/><button onclick="window.print()">🖨️ Print / Save as PDF</button>
                     </body></html>
                   `)
