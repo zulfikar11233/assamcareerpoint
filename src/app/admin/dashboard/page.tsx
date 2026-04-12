@@ -1469,6 +1469,9 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                 <button type="button" onClick={()=>setShowJobModal(false)} style={bS}>Cancel</button>
                 {/* 🖨️ PRINT PREVIEW BUTTON FOR JOBS */}
                 <button type="button" onClick={() => {
+		const w = window.open('', '_blank')
+  		if (!w) return 
+  const totalVac = posts.reduce((a:number,p:any)=>a+Number(p.vacancy||0),0)
                   w.document.write(`
 <html><head><title>Preview — ${jf.title || 'Job Preview'}</title>
 <style>
