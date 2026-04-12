@@ -1501,8 +1501,8 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
 <div class="row"><span class="label">District</span><span class="val">${jf.district}</span></div>
 <div class="row"><span class="label">Total Vacancy</span><span class="val">${totalVac.toLocaleString()}</span></div>
 <div class="row"><span class="label">Salary / Pay Scale</span><span class="val">${posts[0]?.salary || '—'}</span></div>
-<div class="row"><span class="label">Age Limit</span><span class="val">${jf.ageLimit || (posts.length ? `${Math.min(...posts.map((p:any)=>Number(p.ageMin)||0))}–${Math.max(...posts.map((p:any)=>Number(p.ageMax)||0))} years` : '—')}</span></div>
-<div class="row"><span class="label">Qualification</span><span class="val">${jf.qualification || posts[0]?.qualification || '—'}</span></div>
+<div class="row"><span class="label">Age Limit</span><span class="val">${posts.length ? `${Math.min(...posts.map((p:any)=>Number(p.ageMin)||0))}–${Math.max(...posts.map((p:any)=>Number(p.ageMax)||0))} years` : '—'}</span></div>
+<div class="row"><span class="label">Qualification</span><span class="val">${posts[0]?.qualification || '—'}</span></div>
 <div class="row"><span class="label">Official Website</span><span class="val">${jf.website || '—'}</span></div>
 
 <h2>📅 Important Dates</h2>
