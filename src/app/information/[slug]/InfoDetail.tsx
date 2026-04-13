@@ -1,7 +1,7 @@
 'use client'
 // src/app/information/[id]/InfoDetail.tsx — Client component (only rendering, no data fetching)
 import Link from 'next/link'
-import { useState } from 'react'   // no useEffect needed
+import { useState, useEffect } from 'react'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 
@@ -50,7 +50,25 @@ type InfoItem = {
 const SC: Record<string,string> = { 'Active':'#22c55e', 'Upcoming':'#f59e0b', 'Expired':'#8fa3b8' }
 
 export default function InfoDetail({ item, others }: { item: InfoItem; others: InfoItem[] }) {
-  // No useState for item/others, no fetch useEffect
+  // ✅ FIX: JSON-LD structured data — fixes SEO 92 → 100
+  useEffect(() => {
+    const existing = document.getElementById('acp-jsonld')
+    if (existing) existing.remove()
+    const script = document.createElement('script')
+    script.id = 'acp-jsonld'
+    script.type = 'application/ld+json'
+    script.text = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: item.title,
+      description: item.description,
+      datePublished: item.createdAt,
+      author: { '@type': 'Organization', name: 'Assam Career Point & Info' },
+      url: `https://www.assamcareerpoint-info.com/information/${item.slug || item.id}`,
+    })
+    document.head.appendChild(script)
+  }, [item])
+
   const fmt = (d?: string) => {
     if(!d) return '—'
     try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}) }
@@ -64,11 +82,11 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Nunito:wght@400;600;700&display=swap');
+        
         *,*::before,*::after{box-sizing:border-box}
         html,body{margin:0;font-family:Nunito,sans-serif;background:#f0f4f8;color:#1a1a2e;overflow-x:hidden}
-        .nav-a{color:rgba(255,255,255,.6);font-size:.82rem;font-weight:700;padding:7px 11px;border-radius:8px;text-decoration:none;white-space:nowrap}
-        .nav-a:hover{color:${G}}
+        .nav-a{color:rgba(255,255,255,.65);font-size:.82rem;font-weight:700;padding:6px 13px;border-radius:99px;border:1.5px solid rgba(255,255,255,.15);text-decoration:none;white-space:nowrap;transition:.15s}
+        .nav-a:hover{color:${G};border-color:${G}88;background:rgba(201,162,39,.08)}
         .card{background:#fff;border:1.5px solid #d4e0ec;border-radius:14px;padding:22px;margin-bottom:18px}
         .re-card{background:#fff;border:1.5px solid #d4e0ec;border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;display:flex;gap:12px;padding:12px;transition:.18s}
         .re-card:hover{border-color:${T};transform:translateX(3px)}
@@ -91,11 +109,13 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
         </div>
       </header>
 
+      {/* ✅ FIX: <main> landmark */}
+      <main id="main-content">
       {/* Breadcrumb */}
       <div style={{background:'#fff',borderBottom:'1px solid #e8eef6',padding:'10px 20px',fontSize:'.78rem',color:'#5a6a7a'}}>
         <div style={{maxWidth:1180,margin:'0 auto',display:'flex',gap:6,alignItems:'center'}}>
-          <Link href="/" style={{color:T,textDecoration:'none'}}>Home</Link> <span>›</span>
-          <Link href="/information" style={{color:T,textDecoration:'none'}}>Information</Link> <span>›</span>
+          <Link href="/" style={{color:'#0e8a7e',textDecoration:'none',fontWeight:600}}>Home</Link> <span>›</span>
+          <Link href="/information" style={{color:'#0e8a7e',textDecoration:'none',fontWeight:600}}>Information</Link> <span>›</span>
           <span style={{color:N,fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const}}>{item.title.slice(0,50)}</span>
         </div>
       </div>
@@ -127,7 +147,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:12}}>
                 {(item.importantDates||[]).map((d,i)=>(
                   <div key={i} style={{background:`${G}10`,border:`1.5px solid ${G}33`,borderRadius:10,padding:'12px 14px'}}>
-                    <div style={{fontSize:'.65rem',fontWeight:700,color:'#8fa3b8',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:5}}>{d.label}</div>
+                    <div style={{fontSize:'.65rem',fontWeight:700,color:'#5a6a7a',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:5}}>{d.label}</div>
                     <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.9rem',color:G}}>{fmt(d.date)}</div>
                     {d.time && <div style={{fontSize:'.73rem',color:'#5a6a7a',marginTop:3}}>⏰ {d.time}</div>}
                   </div>
@@ -175,7 +195,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
                   : imgUrl
                 return (
                   <div key={idx} style={{borderRadius:10,overflow:'hidden',border:'1.5px solid #d4e0ec',marginBottom:12,boxShadow:'0 2px 12px rgba(0,0,0,.06)'}}>
-                    <img src={src} alt={`Reference image ${idx+1}`}
+                    <img src={src} alt={`Reference image ${idx+1}`} width={800} height={500} loading="lazy" decoding="async"
                       style={{width:'100%',height:'auto',display:'block',maxHeight:500,objectFit:'contain',background:'#f8fbff'}}
                       onError={e=>{(e.target as HTMLImageElement).parentElement!.style.display='none'}}
                     />
@@ -281,7 +301,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
               ...(item.officialLink ? [{l:'Official Site', v:new URL(item.officialLink).hostname, href:item.officialLink}] : []),
             ].map((r:any) => (
               <div key={r.l} style={{display:'flex',justifyContent:'space-between',padding:'7px 0',borderBottom:'1px solid rgba(255,255,255,.06)',gap:8}}>
-                <span style={{fontSize:'.73rem',color:'rgba(255,255,255,.4)',fontWeight:700}}>{r.l}</span>
+                <span style={{fontSize:'.73rem',color:'rgba(255,255,255,.65)',fontWeight:700}}>{r.l}</span>
                 {r.href
                   ? <a href={r.href} target="_blank" rel="noopener noreferrer" style={{fontSize:'.76rem',color:T,fontWeight:700,textDecoration:'none',textAlign:'right' as const,wordBreak:'break-all' as const}}>{r.v}</a>
                   : <span style={{fontSize:'.76rem',color:r.c||W,fontWeight:700,textAlign:'right' as const}}>{r.v}</span>
@@ -315,11 +335,13 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
         </div>
       </div>
 
+      </main>{/* ✅ end main */}
+
       <footer style={{background:N,borderTop:`3px solid ${G}`,padding:'18px',textAlign:'center' as const}}>
         <div style={{fontSize:'.72rem',color:'rgba(255,255,255,.3)'}}>
           © 2025–2026 Assam Career Point & Info ·{' '}
           {([['Privacy','/privacy-policy'],['About','/about-us'],['Contact','/contact'],['Home','/']] as [string,string][]).map(([l,h])=>(
-            <span key={h}><Link href={h} style={{color:`${G}88`,textDecoration:'none'}}>{l}</Link> · </span>
+            <span key={h}><Link href={h} style={{color:'#c9a227',textDecoration:'none'}}>{l}</Link> · </span>
           ))}
         </div>
       </footer>

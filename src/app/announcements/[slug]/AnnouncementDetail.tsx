@@ -59,9 +59,11 @@ export default function AnnouncementDetail({ post }: { post: OthersPost }) {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Nunito:wght@400;600;700&display=swap');
+        
         * { box-sizing: border-box }
         body { margin: 0; font-family: Nunito, sans-serif; background: #f0f4f8 }
+        .nav-a{color:rgba(255,255,255,.65);font-size:.82rem;font-weight:700;padding:6px 13px;border-radius:99px;border:1.5px solid rgba(255,255,255,.15);text-decoration:none;white-space:nowrap;transition:.15s}
+        .nav-a:hover{color:;border-color:88;background:rgba(201,162,39,.08)}
         .sec-card { background: #fff; border-radius: 12px; border: 1.5px solid #e8eef4; overflow: hidden; margin-bottom: 18px; }
         .link-row:hover { background: #f0faf9 !important; }
       `}</style>
@@ -73,17 +75,19 @@ export default function AnnouncementDetail({ post }: { post: OthersPost }) {
         </Link>
         <nav style={{ display: 'flex', gap: 16 }}>
           {[['/', 'Home'], ['/govt-jobs', 'Jobs'], ['/exams', 'Exams'], [`/${PATH}`, 'Announcements']].map(([href, label]) => (
-            <Link key={href} href={href} style={{ color: '#b0c4d8', textDecoration: 'none', fontSize: '.82rem', fontWeight: 700 }}>{label}</Link>
+            <Link key={href} href={href} className="nav-a">{label}</Link>
           ))}
         </nav>
       </header>
 
+      {/* ✅ FIX: <main> landmark */}
+      <main id="main-content">
       {/* Breadcrumb */}
       <div style={{ background: '#fff', borderBottom: '1px solid #e8eef4', padding: '10px 20px' }}>
         <div style={{ maxWidth: 860, margin: '0 auto', fontSize: '.78rem', color: '#8fa3b8', display: 'flex', gap: 6, alignItems: 'center' }}>
-          <Link href="/" style={{ color: '#8fa3b8', textDecoration: 'none' }}>Home</Link>
+          <Link href="/" style={{ color: '#5a6a7a', textDecoration: 'none', fontWeight: 600 }}>Home</Link>
           <span>›</span>
-          <Link href={`/${PATH}`} style={{ color: '#8fa3b8', textDecoration: 'none' }}>Announcements</Link>
+          <Link href={`/${PATH}`} style={{ color: '#5a6a7a', textDecoration: 'none', fontWeight: 600 }}>Announcements</Link>
           <span>›</span>
           <span style={{ color: N }}>{post.title}</span>
         </div>
@@ -156,7 +160,7 @@ export default function AnnouncementDetail({ post }: { post: OthersPost }) {
                     border: '1.5px solid #e8eef4',
                     boxShadow: '0 2px 12px rgba(0,0,0,.06)'
                   }}>
-                    <img
+                    <img width={800} height={480} loading="lazy" decoding="async"
                       src={src}
                       alt={`${sec.title} image ${imgIdx + 1}`}
                       style={{ width: '100%', height: 'auto', display: 'block', maxHeight: 480, objectFit: 'contain', background: '#f8fbff' }}
@@ -235,15 +239,17 @@ export default function AnnouncementDetail({ post }: { post: OthersPost }) {
 
         {/* Back button */}
         <div style={{ marginTop: 24 }}>
-          <Link href={`/${PATH}`} style={{ color: T, fontWeight: 700, textDecoration: 'none', fontSize: '.88rem' }}>
+          <Link href={`/${PATH}`} style={{ color: '#0e8a7e', fontWeight: 700, textDecoration: 'none', fontSize: '.88rem' }}>
             ← Back to Announcements
           </Link>
         </div>
       </div>
 
+      </main>{/* ✅ end main */}
+
       {/* Footer */}
       <footer style={{ background: N, color: '#8fa3b8', textAlign: 'center', padding: '20px', fontSize: '.78rem' }}>
-        <div>© 2025–2026 Assam Career Point &amp; Info — <Link href="/privacy-policy" style={{ color: '#8fa3b8' }}>Privacy Policy</Link></div>
+        <div>© 2025–2026 Assam Career Point &amp; Info — <Link href="/privacy-policy" style={{ color: '#b0c4d8' }}>Privacy Policy</Link></div>
       </footer>
     </>
   )
