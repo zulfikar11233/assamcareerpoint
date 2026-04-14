@@ -1,617 +1,351 @@
 'use client'
-
 import { useState, useRef, useCallback, useEffect } from 'react'
-import Link from 'next/link'
+import { C, S, ToolHeader, TabBtn, Divider } from '../_shared'
 
-/* ─── helpers ─── */
-const countWords = (t: string) => t.trim() === '' ? 0 : t.trim().split(/\s+/).length
-const countSentences = (t: string) => t.trim() === '' ? 0 : (t.match(/[^.!?]*[.!?]+/g) || []).length
-const countParagraphs = (t: string) => t.trim() === '' ? 0 : t.split(/\n\s*\n/).filter(p => p.trim()).length
-const countSyllables = (w: string) => {
-  w = w.toLowerCase().replace(/[^a-z]/g, '')
-  if (w.length <= 3) return 1
-  w = w.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '').replace(/^y/, '')
-  const m = w.match(/[aeiouy]{1,2}/g)
-  return m ? m.length : 1
-}
-const readingLevel = (words: number, sentences: number, syllables: number): string => {
-  if (words === 0 || sentences === 0) return '—'
-  const asl = words / sentences
-  const asw = syllables / words
-  const score = 206.835 - 1.015 * asl - 84.6 * asw
-  if (score >= 90) return 'Very Easy (Grade 5)'
-  if (score >= 80) return 'Easy (Grade 6)'
-  if (score >= 70) return 'Fairly Easy (Grade 7)'
-  if (score >= 60) return 'Standard (Grade 8–9)'
-  if (score >= 50) return 'Fairly Difficult (Grade 10–12)'
-  if (score >= 30) return 'Difficult (College)'
-  return 'Very Difficult (Professional)'
-}
-const topKeywords = (text: string, n = 10): { word: string; count: number; pct: string }[] => {
-  const stopWords = new Set(['the','a','an','and','or','but','in','on','at','to','for','of','with','by','from','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','shall','i','you','he','she','it','we','they','this','that','these','those','my','your','his','her','its','our','their','not','no','nor','so','yet','as','if','then','than','also','just','more','some','can','all','been','its','into','up','out','about','after','before','over','under','again','further','once','very','too','also','both','each','few','more','most','other','some','such','other','own','same','than','too','very','just','because','while','although','though','since','unless','until','when','where','which','who','whom','whose','what','how','why'])
-  const words = text.toLowerCase().match(/\b[a-z]{3,}\b/g) || []
-  const freq: Record<string, number> = {}
-  words.forEach(w => { if (!stopWords.has(w)) freq[w] = (freq[w] || 0) + 1 })
-  const total = Object.values(freq).reduce((a, b) => a + b, 0)
-  return Object.entries(freq)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, n)
-    .map(([word, count]) => ({ word, count, pct: total > 0 ? ((count / total) * 100).toFixed(1) : '0' }))
-}
-const toTitleCase = (t: string) => t.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-const toSentenceCase = (t: string) => t.replace(/(^\s*\w|[.!?]\s*\w)/g, c => c.toUpperCase())
+const countWords     = (t:string) => t.trim()==='' ? 0 : t.trim().split(/\s+/).length
+const countSentences = (t:string) => t.trim()==='' ? 0 : (t.match(/[^.!?]*[.!?]+/g)||[]).length
+const countParagraphs= (t:string) => t.trim()==='' ? 0 : t.split(/\n\s*\n/).filter(p=>p.trim()).length
+const countSyllables = (w:string) => { w=w.toLowerCase().replace(/[^a-z]/g,''); if(w.length<=3) return 1; w=w.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/,'').replace(/^y/,''); const m=w.match(/[aeiouy]{1,2}/g); return m?m.length:1 }
+const readingLevel   = (words:number,sentences:number,syllables:number) => { if(!words||!sentences) return '—'; const sc=206.835-1.015*(words/sentences)-84.6*(syllables/words); if(sc>=90) return 'Very Easy (Grade 5)'; if(sc>=80) return 'Easy (Grade 6)'; if(sc>=70) return 'Fairly Easy (Grade 7)'; if(sc>=60) return 'Standard (Grade 8–9)'; if(sc>=50) return 'Fairly Difficult (College)'; return 'Difficult (Professional)' }
+const topKeywords    = (text:string) => { const stop=new Set(['the','a','an','and','or','but','in','on','at','to','for','of','with','by','from','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','i','you','he','she','it','we','they','this','that','these','those','not','no','so','as','if','also','just','more','can','all','both','very','too','who','what','how','why','when','where','which']); const ws=text.toLowerCase().match(/\b[a-z]{3,}\b/g)||[]; const f:Record<string,number>={}; ws.forEach(w=>{if(!stop.has(w))f[w]=(f[w]||0)+1}); const tot=Object.values(f).reduce((a,b)=>a+b,0); return Object.entries(f).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([w,c])=>({w,c,pct:tot>0?((c/tot)*100).toFixed(1):'0'})) }
+const toTitleCase    = (t:string) => t.replace(/\w\S*/g,w=>w[0].toUpperCase()+w.slice(1).toLowerCase())
+const toSentCase     = (t:string) => t.replace(/(^\s*\w|[.!?]\s*\w)/g,c=>c.toUpperCase())
+const sentColor      = (len:number) => len<=1?'#6366f1':len<=6?'#0ea5e9':len<=15?'#22c55e':len<=25?'#f59e0b':len<=39?'#f97316':'#ef4444'
 
-/* ─── Exam targets ─── */
 const EXAM_TARGETS = [
-  { label: 'Custom', value: 0 },
-  { label: 'UPSC Essay (1000–1200 words)', value: 1200 },
-  { label: 'UPSC GS Answer (150 words)', value: 150 },
-  { label: 'UPSC GS Answer (250 words)', value: 250 },
-  { label: 'SSC Essay (250 words)', value: 250 },
-  { label: 'SSC Letter (150 words)', value: 150 },
-  { label: 'APSC Essay (500 words)', value: 500 },
-  { label: 'Cover Letter (400 words)', value: 400 },
-  { label: 'Article / Blog (800 words)', value: 800 },
-  { label: 'Twitter/X post (280 chars)', value: -280 },
+  { label:'Custom', val:0 },
+  { label:'UPSC Essay (1200 words)', val:1200 },
+  { label:'UPSC GS Answer (150 words)', val:150 },
+  { label:'UPSC GS Answer (250 words)', val:250 },
+  { label:'SSC Descriptive (250 words)', val:250 },
+  { label:'APSC Essay (500 words)', val:500 },
+  { label:'Cover Letter (400 words)', val:400 },
+  { label:'Blog / Article (800 words)', val:800 },
 ]
 
-/* ─── Sentence flow colours ─── */
-const sentenceColor = (len: number) => {
-  if (len <= 1) return '#6366f1'
-  if (len <= 6) return '#0ea5e9'
-  if (len <= 15) return '#22c55e'
-  if (len <= 25) return '#f59e0b'
-  if (len <= 39) return '#f97316'
-  return '#ef4444'
-}
-
 export default function WordCounterClient() {
-  const [text, setText] = useState('')
-  const [targetPreset, setTargetPreset] = useState(0)
-  const [customTarget, setCustomTarget] = useState('')
-  const [activeTab, setActiveTab] = useState<'stats' | 'keywords' | 'flow' | 'tools'>('stats')
-  const [findText, setFindText] = useState('')
-  const [replaceText, setReplaceText] = useState('')
-  const [caseSensitive, setCaseSensitive] = useState(false)
-  const [showFlow, setShowFlow] = useState(false)
-  const [copied, setCopied] = useState(false)
+  const [text, setText]         = useState('')
+  const [targetPreset, setTP]   = useState(0)
+  const [customTarget, setCT]   = useState('')
+  const [tab, setTab]           = useState<'stats'|'keywords'|'flow'|'tools'>('stats')
+  const [findTxt, setFindTxt]   = useState('')
+  const [replaceTxt, setReplace]= useState('')
+  const [caseSen, setCaseSen]   = useState(false)
   const [speaking, setSpeaking] = useState(false)
-  const textRef = useRef<HTMLTextAreaElement>(null)
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
+  const [copied, setCopied]     = useState(false)
+  const [showFlow, setShowFlow] = useState(false)
 
-  /* ─── derived stats ─── */
-  const words = countWords(text)
-  const chars = text.length
-  const charsNoSpace = text.replace(/\s/g, '').length
-  const sentences = countSentences(text)
+  const words      = countWords(text)
+  const chars      = text.length
+  const charsNS    = text.replace(/\s/g,'').length
+  const sentences  = countSentences(text)
   const paragraphs = countParagraphs(text)
-  const lines = text === '' ? 0 : text.split('\n').length
-  const uniqueWords = text.trim() === '' ? 0 : new Set(text.trim().toLowerCase().split(/\s+/)).size
-  const avgWordLen = words > 0 ? (charsNoSpace / words).toFixed(1) : '0'
-  const avgSentLen = sentences > 0 ? Math.round(words / sentences) : 0
-  const allWords: string[] = text.toLowerCase().match(/\b[a-z]+\b/g) || []
-  const syllables = allWords.reduce((acc: number, w: string) => acc + countSyllables(w), 0)
-  const pages = words > 0 ? (words / 250).toFixed(1) : '0'
-  const readTime = words > 0 ? `${Math.ceil(words / 238)} min` : '—'
-  const speakTime = words > 0 ? `${Math.ceil(words / 130)} min` : '—'
-  const handwriteTime = words > 0 ? `${Math.ceil(words / 20)} min` : '—'
-  const level = readingLevel(words, sentences, syllables)
-  const keywords = topKeywords(text)
+  const lines      = text==='' ? 0 : text.split('\n').length
+  const uniqueW    = text.trim()==='' ? 0 : new Set(text.trim().toLowerCase().split(/\s+/)).size
+  const allW: string[] = text.toLowerCase().match(/\b[a-z]+\b/g)||[]
+  const syllables  = allW.reduce((acc:number,w:string)=>acc+countSyllables(w),0)
+  const pages      = words>0 ? (words/250).toFixed(1) : '0'
+  const readTime   = words>0 ? `${Math.ceil(words/238)} min` : '—'
+  const speakTime  = words>0 ? `${Math.ceil(words/130)} min` : '—'
+  const writeTime  = words>0 ? `${Math.ceil(words/20)} min` : '—'
+  const level      = readingLevel(words,sentences,syllables)
+  const keywords   = topKeywords(text)
 
-  /* ─── target progress ─── */
-  const isCharTarget = targetPreset < 0
-  const targetVal = targetPreset === 0
-    ? (customTarget ? Math.abs(Number(customTarget)) : 0)
-    : Math.abs(targetPreset)
-  const currentVal = isCharTarget ? chars : words
-  const progress = targetVal > 0 ? Math.min(100, Math.round((currentVal / targetVal) * 100)) : 0
-  const progressColor = progress < 70 ? '#1dbfad' : progress < 90 ? '#f59e0b' : progress <= 100 ? '#22c55e' : '#ef4444'
+  const targetVal  = targetPreset===0 ? (customTarget ? Number(customTarget) : 0) : targetPreset
+  const progress   = targetVal>0 ? Math.min(110, Math.round((words/targetVal)*100)) : 0
+  const progColor  = progress<70 ? C.teal : progress<90 ? '#f59e0b' : progress<=100 ? '#22c55e' : '#ef4444'
 
-  /* ─── sentence flow highlight ─── */
-  const flowHtml = useCallback(() => {
-    if (!text.trim()) return ''
-    const parts = text.split(/([.!?]+\s*)/)
-    return parts.map((part, i) => {
-      const wc = part.trim().split(/\s+/).filter(Boolean).length
-      if (wc === 0) return `<span>${part}</span>`
-      const col = sentenceColor(wc)
-      return `<span style="background:${col}20;border-bottom:2px solid ${col};padding:1px 0;" title="${wc} words">${part}</span>`
-    }).join('')
-  }, [text])
+  const findCount  = findTxt ? (text.match(new RegExp(findTxt.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), caseSen?'g':'gi'))||[]).length : 0
 
-  /* ─── find & replace ─── */
-  const doReplace = () => {
-    if (!findText) return
-    const flags = caseSensitive ? 'g' : 'gi'
-    setText(prev => prev.replace(new RegExp(findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags), replaceText))
-  }
+  const doReplace = () => { if(!findTxt) return; setText(p=>p.replace(new RegExp(findTxt.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),caseSen?'g':'gi'),replaceTxt)) }
+  const convert = (t:string) => { switch(t){case'upper':setText(text.toUpperCase());break;case'lower':setText(text.toLowerCase());break;case'title':setText(toTitleCase(text));break;case'sentence':setText(toSentCase(text));break;case'alt':setText(text.split('').map((c,i)=>i%2===0?c.toLowerCase():c.toUpperCase()).join(''));break} }
+  const clean = (t:string) => { switch(t){case'spaces':setText(text.replace(/ +/g,' ').replace(/\n{3,}/g,'\n\n').trim());break;case'breaks':setText(text.replace(/\n+/g,' ').trim());break;case'trim':setText(text.split('\n').map(l=>l.trim()).join('\n'));break;case'nums':setText(text.replace(/\d+/g,''));break;case'punct':setText(text.replace(/[^\w\s]/g,''));break} }
 
-  const findCount = findText
-    ? (text.match(new RegExp(findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), caseSensitive ? 'g' : 'gi')) || []).length
-    : 0
-
-  /* ─── case converter ─── */
-  const convertCase = (type: string) => {
-    switch (type) {
-      case 'upper': setText(text.toUpperCase()); break
-      case 'lower': setText(text.toLowerCase()); break
-      case 'title': setText(toTitleCase(text)); break
-      case 'sentence': setText(toSentenceCase(text)); break
-      case 'alternate': setText(text.split('').map((c, i) => i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join('')); break
-    }
-  }
-
-  /* ─── clean text ─── */
-  const cleanText = (type: string) => {
-    switch (type) {
-      case 'extra-spaces': setText(text.replace(/  +/g, ' ').replace(/\n{3,}/g, '\n\n').trim()); break
-      case 'line-breaks': setText(text.replace(/\n+/g, ' ').trim()); break
-      case 'trim-lines': setText(text.split('\n').map(l => l.trim()).join('\n')); break
-      case 'remove-numbers': setText(text.replace(/\d+/g, '')); break
-      case 'remove-punct': setText(text.replace(/[^\w\s]/g, '')); break
-    }
-  }
-
-  /* ─── text to speech ─── */
   const toggleSpeak = () => {
-    if (speaking) {
-      window.speechSynthesis.cancel()
-      setSpeaking(false)
-      return
-    }
-    if (!text.trim()) return
-    const u = new SpeechSynthesisUtterance(text)
-    u.onend = () => setSpeaking(false)
-    utteranceRef.current = u
-    window.speechSynthesis.speak(u)
-    setSpeaking(true)
+    if(speaking){window.speechSynthesis.cancel();setSpeaking(false);return}
+    if(!text.trim()) return
+    const u=new SpeechSynthesisUtterance(text); u.onend=()=>setSpeaking(false)
+    window.speechSynthesis.speak(u); setSpeaking(true)
   }
+  const copyText = () => { navigator.clipboard.writeText(text).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2000)}) }
+  const download = () => { const b=new Blob([text],{type:'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='text.txt'; a.click() }
 
-  /* ─── download ─── */
-  const downloadTxt = () => {
-    const blob = new Blob([text], { type: 'text/plain' })
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'text.txt'; a.click()
-  }
-  const copyText = () => {
-    navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) })
-  }
+  useEffect(()=>{ const t=setTimeout(()=>{if(text)localStorage.setItem('acpi_wc',text)},1000); return()=>clearTimeout(t) },[text])
+  useEffect(()=>{ const s=localStorage.getItem('acpi_wc'); if(s) setText(s) },[])
 
-  /* ─── auto-save ─── */
-  useEffect(() => {
-    const t = setTimeout(() => { if (text) localStorage.setItem('acpi_wordcounter', text) }, 1000)
-    return () => clearTimeout(t)
-  }, [text])
-  useEffect(() => {
-    const saved = localStorage.getItem('acpi_wordcounter')
-    if (saved) setText(saved)
-  }, [])
+  const flowHtml = useCallback(()=>{
+    if(!text.trim()) return ''
+    return text.split(/([.!?]+\s*)/).map((p)=>{
+      const wc=p.trim().split(/\s+/).filter(Boolean).length
+      if(!wc) return `<span>${p}</span>`
+      const col=sentColor(wc)
+      return `<span style="background:${col}20;border-bottom:2px solid ${col};padding:1px 0;" title="${wc} words">${p}</span>`
+    }).join('')
+  },[text])
 
-  const statCard = (label: string, value: string | number, sub?: string) => (
-    <div key={label} className="bg-gray-50 rounded-xl p-4 text-center">
-      <p className="text-2xl font-bold" style={{ color: '#0b1f33' }}>{value}</p>
-      <p className="text-xs font-semibold text-gray-500 mt-0.5">{label}</p>
-      {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
-    </div>
+  const smallBtn = (label:string, onClick:()=>void, active?:boolean) => (
+    <button key={label} onClick={onClick} style={{
+      padding:'9px 16px', borderRadius:'10px', fontSize:'14px', fontWeight:700, fontFamily:'inherit',
+      border:`2px solid ${active ? C.teal : C.gray200}`,
+      background: active ? '#e6faf8' : C.white, color: active ? C.teal2 : C.gray600,
+      cursor:'pointer',
+    }}>{label}</button>
   )
-
-  const tabBtn = (id: typeof activeTab, label: string, emoji: string) => (
-    <button
-      onClick={() => setActiveTab(id)}
-      className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-xl transition-all whitespace-nowrap ${activeTab === id ? 'text-white' : 'text-gray-500 hover:text-gray-700'}`}
-      style={activeTab === id ? { background: '#1dbfad' } : {}}
-    >
-      {emoji} {label}
-    </button>
-  )
-
-  const inputClass = 'w-full border border-gray-300 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition bg-white'
-  const labelClass = 'block text-sm font-semibold text-gray-700 mb-1.5'
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div style={{ background: 'linear-gradient(135deg, #0b1f33 0%, #1a3a5c 100%)' }} className="py-10 px-4">
-        <div className="max-w-6xl mx-auto">
-          <Link href="/tools" className="text-sm text-gray-400 hover:text-white mb-3 inline-block">← Back to Tools</Link>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">Word Counter</h1>
-          <p className="text-gray-300 text-lg">Count words, characters, sentences, reading time and more. Includes exam word limit checker, keyword density, sentence flow analysis, case converter and find & replace.</p>
-        </div>
-      </div>
+    <main style={S.page}>
+      <ToolHeader title="Word Counter"
+        desc="Count words, characters, sentences and reading time. Includes exam word limit checker, keyword density, sentence flow analysis, find & replace and case converter." />
 
-      <div className="max-w-6xl mx-auto px-4 py-10">
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <div style={{ maxWidth:'1200px', margin:'0 auto', padding:'40px 20px' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 300px', gap:'24px', alignItems:'start' }}>
 
-          {/* ── LEFT: Editor (2 cols) ── */}
-          <div className="xl:col-span-2 space-y-5">
+          {/* ── MAIN AREA ── */}
+          <div style={{ display:'flex', flexDirection:'column', gap:'20px' }}>
 
-            {/* Word limit target bar */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-              <div className="flex flex-wrap items-end gap-4">
-                <div className="flex-1 min-w-[200px]">
-                  <label className={labelClass}>📏 Word / Character Target</label>
-                  <select
-                    className={inputClass}
-                    value={targetPreset}
-                    onChange={e => setTargetPreset(Number(e.target.value))}
-                  >
-                    {EXAM_TARGETS.map(t => <option key={t.label} value={t.value}>{t.label}</option>)}
+            {/* Target */}
+            <div style={S.card}>
+              <div style={{ display:'flex', flexWrap:'wrap', gap:'16px', alignItems:'flex-end' }}>
+                <div style={{ flex:1, minWidth:'220px' }}>
+                  <label style={S.label}>📏 Exam Word Limit Target</label>
+                  <select style={S.select} value={targetPreset} onChange={e=>setTP(Number(e.target.value))}>
+                    {EXAM_TARGETS.map(t=><option key={t.label} value={t.val}>{t.label}</option>)}
                   </select>
                 </div>
-                {targetPreset === 0 && (
-                  <div className="w-44">
-                    <label className={labelClass}>Custom Limit</label>
-                    <input className={inputClass} value={customTarget} onChange={e => setCustomTarget(e.target.value)} placeholder="e.g. 500" type="number" min="1" />
+                {targetPreset===0 && (
+                  <div style={{ width:'180px' }}>
+                    <label style={S.label}>Custom Limit (words)</label>
+                    <input style={S.input} value={customTarget} onChange={e=>setCT(e.target.value)} placeholder="e.g. 500" type="number" />
                   </div>
                 )}
               </div>
-              {targetVal > 0 && (
-                <div className="mt-4">
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="font-semibold text-gray-700">{currentVal.toLocaleString()} / {targetVal.toLocaleString()} {isCharTarget ? 'characters' : 'words'}</span>
-                    <span className="font-bold" style={{ color: progressColor }}>{progress}%</span>
+              {targetVal>0 && (
+                <div style={{ marginTop:'16px' }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'8px' }}>
+                    <span style={{ fontSize:'15px', fontWeight:600, color:C.gray700 }}>{words.toLocaleString()} / {targetVal.toLocaleString()} words</span>
+                    <span style={{ fontSize:'15px', fontWeight:800, color:progColor }}>{Math.min(progress,100)}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div className="h-3 rounded-full transition-all duration-300" style={{ width: `${progress}%`, background: progressColor }} />
+                  <div style={{ background:C.gray200, borderRadius:'99px', height:'10px', overflow:'hidden' }}>
+                    <div style={{ height:'100%', background:progColor, width:`${Math.min(progress,100)}%`, borderRadius:'99px', transition:'width 0.3s' }} />
                   </div>
-                  {progress > 100 && (
-                    <p className="text-xs text-red-500 mt-1.5">⚠ Exceeded by {currentVal - targetVal} {isCharTarget ? 'characters' : 'words'}</p>
-                  )}
-                  {progress >= 90 && progress <= 100 && (
-                    <p className="text-xs text-green-600 mt-1.5">✓ Within target range — good to go!</p>
-                  )}
+                  {progress>100 && <p style={{ color:'#dc2626', fontSize:'14px', marginTop:'8px', fontWeight:600 }}>⚠ Exceeded by {words-targetVal} words</p>}
+                  {progress>=90&&progress<=100 && <p style={{ color:'#15803d', fontSize:'14px', marginTop:'8px', fontWeight:600 }}>✓ Within target — good to go!</p>}
                 </div>
               )}
             </div>
 
             {/* Editor */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <div style={S.card}>
               {/* Toolbar */}
-              <div className="flex flex-wrap items-center gap-2 px-4 py-3 border-b border-gray-100 bg-gray-50">
-                <button onClick={() => setText('')} className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 transition">Clear</button>
-                <button onClick={copyText} className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 transition">{copied ? '✓ Copied' : '📋 Copy'}</button>
-                <button onClick={downloadTxt} className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 transition">⬇ .txt</button>
-                <button
-                  onClick={toggleSpeak}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-lg border transition"
-                  style={speaking ? { background: '#fef2f2', borderColor: '#fca5a5', color: '#ef4444' } : { background: 'white', borderColor: '#d1d5db', color: '#4b5563' }}
-                >
-                  {speaking ? '⏹ Stop' : '🔊 Read Aloud'}
-                </button>
-                <div className="ml-auto flex items-center gap-2">
-                  <span className="text-xs font-bold px-3 py-1.5 rounded-lg" style={{ background: '#1dbfad20', color: '#0f6e56' }}>
-                    {words.toLocaleString()} words
-                  </span>
-                  <span className="text-xs font-bold px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600">
-                    {chars.toLocaleString()} chars
-                  </span>
+              <div style={{ display:'flex', flexWrap:'wrap', gap:'8px', marginBottom:'14px', paddingBottom:'14px', borderBottom:`1px solid ${C.gray100}` }}>
+                <button onClick={()=>setText('')} style={{ padding:'8px 14px', borderRadius:'8px', border:`1px solid ${C.gray200}`, background:C.white, color:C.gray600, fontSize:'14px', fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>Clear</button>
+                <button onClick={copyText} style={{ padding:'8px 14px', borderRadius:'8px', border:`1px solid ${C.gray200}`, background:C.white, color:C.gray600, fontSize:'14px', fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>{copied?'✓ Copied':'📋 Copy'}</button>
+                <button onClick={download} style={{ padding:'8px 14px', borderRadius:'8px', border:`1px solid ${C.gray200}`, background:C.white, color:C.gray600, fontSize:'14px', fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>⬇ .txt</button>
+                <button onClick={toggleSpeak} style={{ padding:'8px 14px', borderRadius:'8px', border:`1px solid ${speaking?'#fca5a5':C.gray200}`, background:speaking?'#fef2f2':C.white, color:speaking?'#dc2626':C.gray600, fontSize:'14px', fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>{speaking?'⏹ Stop':'🔊 Read Aloud'}</button>
+                <div style={{ marginLeft:'auto', display:'flex', gap:'8px' }}>
+                  <span style={{ padding:'8px 14px', borderRadius:'8px', background:'#e6faf8', fontSize:'14px', fontWeight:800, color:C.teal2 }}>{words.toLocaleString()} words</span>
+                  <span style={{ padding:'8px 14px', borderRadius:'8px', background:C.gray100, fontSize:'14px', fontWeight:700, color:C.gray600 }}>{chars.toLocaleString()} chars</span>
                 </div>
               </div>
-
-              {/* Textarea */}
               <textarea
-                ref={textRef}
                 value={text}
-                onChange={e => setText(e.target.value)}
-                placeholder="Start typing or paste your text here…&#10;&#10;Your stats will update in real time. Use the tabs below to see keyword density, sentence flow analysis, and more tools."
-                className="w-full p-5 text-base leading-relaxed resize-none focus:outline-none"
-                style={{ minHeight: '320px', fontFamily: 'inherit', color: '#0b1f33' }}
+                onChange={e=>setText(e.target.value)}
+                placeholder="Start typing or paste your text here…&#10;&#10;Word count, reading time, keyword density and more stats will update in real time."
+                style={{ ...S.textarea, minHeight:'280px', border:'none', padding:0, resize:'vertical' }}
               />
             </div>
 
-            {/* Sentence flow view */}
+            {/* Flow highlight */}
             {showFlow && text.trim() && (
-              <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-bold text-gray-800">Sentence Flow Highlight</h3>
-                  <button onClick={() => setShowFlow(false)} className="text-gray-400 hover:text-gray-600 text-sm">✕ Close</button>
+              <div style={S.card}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'14px' }}>
+                  <h3 style={{ margin:0, fontSize:'17px', fontWeight:700, color:C.navy }}>Sentence Flow Highlight</h3>
+                  <button onClick={()=>setShowFlow(false)} style={{ background:'none', border:'none', color:C.gray400, cursor:'pointer', fontSize:'18px' }}>✕</button>
                 </div>
-                <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs mb-3">
-                  {[
-                    { col: '#6366f1', label: '1 word' }, { col: '#0ea5e9', label: '2–6 words' }, { col: '#22c55e', label: '7–15 words' },
-                    { col: '#f59e0b', label: '16–25 words' }, { col: '#f97316', label: '26–39 words' }, { col: '#ef4444', label: '40+ words' },
-                  ].map(({ col, label }) => (
-                    <span key={label} className="flex items-center gap-1">
-                      <span className="w-3 h-3 rounded-sm inline-block" style={{ background: col }}></span>
-                      <span className="text-gray-500">{label}</span>
+                <div style={{ display:'flex', flexWrap:'wrap', gap:'8px', marginBottom:'16px' }}>
+                  {[['#6366f1','1 word'],['#0ea5e9','2–6 words'],['#22c55e','7–15 words'],['#f59e0b','16–25 words'],['#f97316','26–39 words'],['#ef4444','40+']].map(([c,l])=>(
+                    <span key={l} style={{ display:'flex', alignItems:'center', gap:'5px', fontSize:'13px', color:C.gray500 }}>
+                      <span style={{ width:'12px', height:'12px', borderRadius:'3px', background:c, display:'inline-block' }} />{l}
                     </span>
                   ))}
                 </div>
-                <div
-                  className="text-base leading-8 text-gray-800"
-                  dangerouslySetInnerHTML={{ __html: flowHtml() }}
-                />
+                <div style={{ fontSize:'16px', lineHeight:'2', color:C.gray800 }} dangerouslySetInnerHTML={{ __html:flowHtml() }} />
               </div>
             )}
 
             {/* Tabs */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="flex gap-1 p-2 overflow-x-auto border-b border-gray-100 bg-gray-50">
-                {tabBtn('stats', 'Detailed Stats', '📊')}
-                {tabBtn('keywords', 'Keywords', '🔑')}
-                {tabBtn('flow', 'Flow Analysis', '📈')}
-                {tabBtn('tools', 'Text Tools', '🛠')}
-              </div>
-
-              <div className="p-5">
-                {/* STATS TAB */}
-                {activeTab === 'stats' && (
-                  <div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6">
-                      {statCard('Words', words.toLocaleString())}
-                      {statCard('Characters', chars.toLocaleString())}
-                      {statCard('Chars (no spaces)', charsNoSpace.toLocaleString())}
-                      {statCard('Sentences', sentences.toLocaleString())}
-                      {statCard('Paragraphs', paragraphs.toLocaleString())}
-                      {statCard('Lines', lines.toLocaleString())}
-                      {statCard('Unique Words', uniqueWords.toLocaleString())}
-                      {statCard('Syllables', syllables.toLocaleString())}
-                      {statCard('Pages', pages, '~250 words/page')}
-                      {statCard('Avg. Word Length', avgWordLen, 'characters')}
-                      {statCard('Avg. Sentence', avgSentLen, 'words')}
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                      <div className="rounded-xl p-4 text-center" style={{ background: '#E1F5EE' }}>
-                        <p className="text-xl font-bold" style={{ color: '#0F6E56' }}>{readTime}</p>
-                        <p className="text-xs font-semibold mt-0.5" style={{ color: '#1D9E75' }}>Reading Time</p>
-                        <p className="text-xs mt-0.5" style={{ color: '#1D9E75' }}>~238 wpm</p>
-                      </div>
-                      <div className="rounded-xl p-4 text-center" style={{ background: '#E6F1FB' }}>
-                        <p className="text-xl font-bold" style={{ color: '#185FA5' }}>{speakTime}</p>
-                        <p className="text-xs font-semibold mt-0.5" style={{ color: '#378ADD' }}>Speaking Time</p>
-                        <p className="text-xs mt-0.5" style={{ color: '#378ADD' }}>~130 wpm</p>
-                      </div>
-                      <div className="rounded-xl p-4 text-center" style={{ background: '#FAEEDA' }}>
-                        <p className="text-xl font-bold" style={{ color: '#854F0B' }}>{handwriteTime}</p>
-                        <p className="text-xs font-semibold mt-0.5" style={{ color: '#BA7517' }}>Handwriting Time</p>
-                        <p className="text-xs mt-0.5" style={{ color: '#BA7517' }}>~20 wpm</p>
-                      </div>
-                      <div className="rounded-xl p-4 text-center" style={{ background: '#EEEDFE' }}>
-                        <p className="text-base font-bold leading-tight" style={{ color: '#534AB7' }}>{level}</p>
-                        <p className="text-xs font-semibold mt-0.5" style={{ color: '#7F77DD' }}>Reading Level</p>
-                        <p className="text-xs mt-0.5" style={{ color: '#7F77DD' }}>Flesch-Kincaid</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* KEYWORDS TAB */}
-                {activeTab === 'keywords' && (
-                  <div>
-                    <p className="text-sm text-gray-500 mb-4">Top keywords in your text (stop words excluded). Useful to check keyword balance in articles and essays.</p>
-                    {keywords.length === 0 ? (
-                      <p className="text-gray-400 text-sm italic">Start typing to see keyword analysis…</p>
-                    ) : (
-                      <div className="space-y-2">
-                        {keywords.map(k => (
-                          <div key={k.word} className="flex items-center gap-3">
-                            <span className="w-28 text-sm font-semibold text-gray-700 truncate">{k.word}</span>
-                            <div className="flex-1 bg-gray-100 rounded-full h-5 overflow-hidden">
-                              <div
-                                className="h-5 rounded-full flex items-center pl-2 text-xs font-semibold text-white transition-all"
-                                style={{ width: `${Math.max(8, Number(k.pct) * 4)}%`, background: '#1dbfad', minWidth: 32 }}
-                              >
-                                {k.count}×
-                              </div>
-                            </div>
-                            <span className="text-sm text-gray-500 w-12 text-right">{k.pct}%</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* FLOW TAB */}
-                {activeTab === 'flow' && (
-                  <div>
-                    <p className="text-sm text-gray-500 mb-4">Sentence length variety makes writing more engaging. Aim for a mix of short and medium sentences.</p>
-                    {text.trim() === '' ? (
-                      <p className="text-gray-400 text-sm italic">Start typing to see flow analysis…</p>
-                    ) : (() => {
-                      const sentList = text.match(/[^.!?]+[.!?]+/g) || text.split('\n').filter(Boolean)
-                      const buckets = { vshort: 0, short: 0, medium: 0, long: 0, vlong: 0, huge: 0 }
-                      sentList.forEach(s => {
-                        const wc = s.trim().split(/\s+/).length
-                        if (wc <= 1) buckets.vshort++
-                        else if (wc <= 6) buckets.short++
-                        else if (wc <= 15) buckets.medium++
-                        else if (wc <= 25) buckets.long++
-                        else if (wc <= 39) buckets.vlong++
-                        else buckets.huge++
-                      })
-                      const total = sentList.length
-                      const rows = [
-                        { label: 'Impact (1 word)', key: 'vshort', col: '#6366f1', tip: 'Dramatic emphasis' },
-                        { label: 'Staccato (2–6 words)', key: 'short', col: '#0ea5e9', tip: 'Punchy & direct' },
-                        { label: 'Standard (7–15 words)', key: 'medium', col: '#22c55e', tip: '✓ Sweet spot — aim for most here' },
-                        { label: 'Complex (16–25 words)', key: 'long', col: '#f59e0b', tip: 'Good for connecting ideas' },
-                        { label: 'Long (26–39 words)', key: 'vlong', col: '#f97316', tip: 'Use sparingly' },
-                        { label: 'Very Long (40+ words)', key: 'huge', col: '#ef4444', tip: '⚠ May lose reader attention' },
-                      ] as const
-                      return (
-                        <>
-                          <div className="space-y-3 mb-5">
-                            {rows.map(r => {
-                              const cnt = buckets[r.key as keyof typeof buckets]
-                              const pct = total > 0 ? Math.round((cnt / total) * 100) : 0
-                              return (
-                                <div key={r.key} className="flex items-center gap-3">
-                                  <span className="w-36 text-xs font-semibold text-gray-600 flex-shrink-0">{r.label}</span>
-                                  <div className="flex-1 bg-gray-100 rounded-full h-5 overflow-hidden">
-                                    <div className="h-5 rounded-full transition-all" style={{ width: `${pct}%`, background: r.col, minWidth: cnt > 0 ? 24 : 0 }} />
-                                  </div>
-                                  <span className="text-sm font-bold w-8 text-right" style={{ color: r.col }}>{cnt}</span>
-                                  <span className="text-xs text-gray-400 w-8">{pct}%</span>
-                                </div>
-                              )
-                            })}
-                          </div>
-                          <button
-                            onClick={() => { setShowFlow(true); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-                            className="text-sm font-semibold py-2.5 px-5 rounded-xl transition-all hover:opacity-90 text-white"
-                            style={{ background: '#1dbfad' }}
-                          >
-                            View Colour-Highlighted Text ↑
-                          </button>
-                        </>
-                      )
-                    })()}
-                  </div>
-                )}
-
-                {/* TOOLS TAB */}
-                {activeTab === 'tools' && (
-                  <div className="space-y-6">
-
-                    {/* Case Converter */}
-                    <div>
-                      <h3 className="text-sm font-bold text-gray-700 mb-3">🔤 Case Converter</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {[
-                          ['sentence', 'Sentence case'],
-                          ['title', 'Title Case'],
-                          ['upper', 'UPPERCASE'],
-                          ['lower', 'lowercase'],
-                          ['alternate', 'aLtErNaTe'],
-                        ].map(([type, label]) => (
-                          <button key={type} onClick={() => convertCase(type)} className="text-sm font-semibold py-2 px-4 border border-gray-300 rounded-xl bg-white hover:bg-gray-50 text-gray-700 transition-all">
-                            {label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Find & Replace */}
-                    <div>
-                      <h3 className="text-sm font-bold text-gray-700 mb-3">🔍 Find & Replace</h3>
-                      <div className="grid grid-cols-2 gap-3 mb-3">
-                        <div>
-                          <label className="text-xs font-semibold text-gray-500 block mb-1">Find {findText && findCount > 0 && <span className="text-teal-600">({findCount} found)</span>}</label>
-                          <input className={inputClass} value={findText} onChange={e => setFindText(e.target.value)} placeholder="Search text…" />
-                        </div>
-                        <div>
-                          <label className="text-xs font-semibold text-gray-500 block mb-1">Replace with</label>
-                          <input className={inputClass} value={replaceText} onChange={e => setReplaceText(e.target.value)} placeholder="Replace with…" />
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <button onClick={doReplace} disabled={!findText} className="text-sm font-bold py-2.5 px-5 rounded-xl text-white transition-all hover:opacity-90 disabled:opacity-40" style={{ background: '#1dbfad' }}>
-                          Replace All
-                        </button>
-                        <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                          <input type="checkbox" checked={caseSensitive} onChange={e => setCaseSensitive(e.target.checked)} className="accent-teal-500" />
-                          Case sensitive
-                        </label>
-                      </div>
-                    </div>
-
-                    {/* Text Cleaner */}
-                    <div>
-                      <h3 className="text-sm font-bold text-gray-700 mb-3">🧹 Clean Text</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {[
-                          ['extra-spaces', 'Remove Extra Spaces'],
-                          ['trim-lines', 'Trim Line Spaces'],
-                          ['line-breaks', 'Remove Line Breaks'],
-                          ['remove-numbers', 'Remove Numbers'],
-                          ['remove-punct', 'Remove Punctuation'],
-                        ].map(([type, label]) => (
-                          <button key={type} onClick={() => cleanText(type)} className="text-sm font-semibold py-2 px-4 border border-gray-300 rounded-xl bg-white hover:bg-gray-50 text-gray-700 transition-all">
-                            {label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Export */}
-                    <div>
-                      <h3 className="text-sm font-bold text-gray-700 mb-3">📥 Export</h3>
-                      <div className="flex flex-wrap gap-2">
-                        <button onClick={downloadTxt} className="text-sm font-semibold py-2.5 px-5 border border-gray-300 rounded-xl bg-white hover:bg-gray-50 text-gray-700 transition-all">⬇ Download as .TXT</button>
-                        <button onClick={copyText} className="text-sm font-semibold py-2.5 px-5 border border-gray-300 rounded-xl bg-white hover:bg-gray-50 text-gray-700 transition-all">{copied ? '✓ Copied!' : '📋 Copy All'}</button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* ── RIGHT: Quick Stats Sidebar ── */}
-          <div className="space-y-5">
-            <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm sticky top-6">
-              <h2 className="text-base font-bold text-gray-800 mb-4">Quick Stats</h2>
-              <div className="space-y-3">
-                {[
-                  { label: 'Words', val: words.toLocaleString(), col: '#1dbfad' },
-                  { label: 'Characters', val: chars.toLocaleString(), col: '#378ADD' },
-                  { label: 'Sentences', val: sentences.toLocaleString(), col: '#534AB7' },
-                  { label: 'Paragraphs', val: paragraphs.toLocaleString(), col: '#f59e0b' },
-                  { label: 'Unique Words', val: uniqueWords.toLocaleString(), col: '#22c55e' },
-                  { label: 'Pages (~250 w)', val: pages, col: '#f97316' },
-                  { label: 'Reading Time', val: readTime, col: '#ec4899' },
-                  { label: 'Speaking Time', val: speakTime, col: '#8b5cf6' },
-                  { label: 'Handwriting', val: handwriteTime, col: '#6366f1' },
-                  { label: 'Reading Level', val: level.split('(')[0].trim(), col: '#0b1f33' },
-                ].map(({ label, val, col }) => (
-                  <div key={label} className="flex items-center justify-between py-2 border-b border-gray-50">
-                    <span className="text-sm text-gray-500">{label}</span>
-                    <span className="text-sm font-bold" style={{ color: col }}>{val}</span>
-                  </div>
+            <div style={S.card}>
+              <div style={S.tabBar}>
+                {(['stats','keywords','flow','tools'] as const).map(t=>(
+                  <TabBtn key={t} active={tab===t} onClick={()=>setTab(t)}>
+                    {t==='stats'?'📊 Detailed Stats':t==='keywords'?'🔑 Keywords':t==='flow'?'📈 Flow Analysis':'🛠 Text Tools'}
+                  </TabBtn>
                 ))}
               </div>
 
-              <div className="mt-5 pt-4 border-t border-gray-100">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Exam Quick Reference</p>
-                <div className="space-y-1.5 text-xs text-gray-500">
-                  {[
-                    ['UPSC GS Answer', '150–250 words'],
-                    ['UPSC Essay', '1000–1200 words'],
-                    ['SSC Descriptive', '200–250 words'],
-                    ['APSC Essay', '~500 words'],
-                    ['Cover Letter', '300–400 words'],
-                  ].map(([exam, limit]) => (
-                    <div key={exam} className="flex justify-between">
-                      <span>{exam}</span>
-                      <span className="font-semibold" style={{ color: '#1dbfad' }}>{limit}</span>
-                    </div>
-                  ))}
+              {/* STATS */}
+              {tab==='stats' && (
+                <div>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(130px,1fr))', gap:'12px', marginBottom:'20px' }}>
+                    {[
+                      ['Words',words.toLocaleString()],['Characters',chars.toLocaleString()],['Chars (no spaces)',charsNS.toLocaleString()],
+                      ['Sentences',sentences.toLocaleString()],['Paragraphs',paragraphs.toLocaleString()],['Lines',lines.toLocaleString()],
+                      ['Unique Words',uniqueW.toLocaleString()],['Syllables',syllables.toLocaleString()],['Pages (~250w)',pages],
+                    ].map(([l,v])=>(
+                      <div key={l} style={S.statCard}>
+                        <p style={S.statVal}>{v}</p>
+                        <p style={S.statLabel}>{l}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(160px,1fr))', gap:'12px' }}>
+                    {[
+                      { l:'Reading Time', v:readTime, bg:'#E1F5EE', cl:'#0F6E56' },
+                      { l:'Speaking Time', v:speakTime, bg:'#E6F1FB', cl:'#185FA5' },
+                      { l:'Handwriting Time', v:writeTime, bg:'#FAEEDA', cl:'#854F0B' },
+                      { l:'Reading Level', v:level.split('(')[0].trim(), bg:'#EEEDFE', cl:'#534AB7' },
+                    ].map(x=>(
+                      <div key={x.l} style={{ background:x.bg, borderRadius:'14px', padding:'16px', textAlign:'center' }}>
+                        <p style={{ fontSize:'18px', fontWeight:800, color:x.cl, margin:'0 0 4px' }}>{x.v}</p>
+                        <p style={{ fontSize:'13px', fontWeight:600, color:x.cl, margin:0, opacity:0.8 }}>{x.l}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <p className="text-xs text-gray-400 mt-4">💾 Your text is auto-saved in browser</p>
+              {/* KEYWORDS */}
+              {tab==='keywords' && (
+                <div>
+                  <p style={{ fontSize:'15px', color:C.gray500, marginBottom:'20px' }}>Top keywords in your text (stop words excluded). Useful for checking keyword balance in articles and essays.</p>
+                  {keywords.length===0 ? <p style={{ color:C.gray400, fontStyle:'italic' }}>Start typing to see keyword analysis…</p> : (
+                    <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
+                      {keywords.map(k=>(
+                        <div key={k.w} style={{ display:'flex', alignItems:'center', gap:'12px' }}>
+                          <span style={{ width:'120px', fontSize:'15px', fontWeight:700, color:C.gray700, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{k.w}</span>
+                          <div style={{ flex:1, background:C.gray100, borderRadius:'99px', height:'24px', overflow:'hidden' }}>
+                            <div style={{ height:'100%', background:C.teal, borderRadius:'99px', width:`${Math.max(8,Number(k.pct)*4)}%`, minWidth:'36px', display:'flex', alignItems:'center', paddingLeft:'10px' }}>
+                              <span style={{ fontSize:'12px', fontWeight:700, color:C.white }}>{k.c}×</span>
+                            </div>
+                          </div>
+                          <span style={{ fontSize:'14px', color:C.gray500, width:'40px', textAlign:'right' }}>{k.pct}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* FLOW */}
+              {tab==='flow' && (
+                <div>
+                  <p style={{ fontSize:'15px', color:C.gray500, marginBottom:'20px' }}>Sentence length variety makes writing more engaging. Mix short punchy sentences with longer ones for better readability.</p>
+                  {text.trim()==='' ? <p style={{ color:C.gray400, fontStyle:'italic' }}>Start typing to see flow analysis…</p> : (() => {
+                    const sl=text.match(/[^.!?]+[.!?]+/g)||text.split('\n').filter(Boolean)
+                    const b={a:0,b:0,c:0,d:0,e:0,f:0}
+                    sl.forEach(s=>{const w=s.trim().split(/\s+/).length; if(w<=1)b.a++;else if(w<=6)b.b++;else if(w<=15)b.c++;else if(w<=25)b.d++;else if(w<=39)b.e++;else b.f++})
+                    const tot=sl.length
+                    const rows=[
+                      {l:'Impact (1 word)',k:'a',c:'#6366f1'},{l:'Staccato (2–6 words)',k:'b',c:'#0ea5e9'},
+                      {l:'Standard (7–15 words)',k:'c',c:'#22c55e'},{l:'Complex (16–25 words)',k:'d',c:'#f59e0b'},
+                      {l:'Long (26–39 words)',k:'e',c:'#f97316'},{l:'Very Long (40+)',k:'f',c:'#ef4444'},
+                    ] as const
+                    return (
+                      <div>
+                        <div style={{ display:'flex', flexDirection:'column', gap:'10px', marginBottom:'20px' }}>
+                          {rows.map(r=>{const cnt=b[r.k as keyof typeof b]; const pct=tot>0?Math.round((cnt/tot)*100):0; return (
+                            <div key={r.k} style={{ display:'flex', alignItems:'center', gap:'12px' }}>
+                              <span style={{ width:'160px', fontSize:'13px', fontWeight:600, color:C.gray600, flexShrink:0 }}>{r.l}</span>
+                              <div style={{ flex:1, background:C.gray100, borderRadius:'99px', height:'22px', overflow:'hidden' }}>
+                                <div style={{ height:'100%', background:r.c, width:`${pct}%`, borderRadius:'99px', minWidth:cnt>0?16:0 }} />
+                              </div>
+                              <span style={{ fontSize:'15px', fontWeight:800, color:r.c, width:'24px', textAlign:'right' }}>{cnt}</span>
+                              <span style={{ fontSize:'13px', color:C.gray400, width:'32px' }}>{pct}%</span>
+                            </div>
+                          )})}
+                        </div>
+                        <button onClick={()=>setShowFlow(true)} style={{ ...S.btnPrimary, width:'auto', padding:'12px 24px', fontSize:'15px' }}>
+                          View Colour-Highlighted Text ↑
+                        </button>
+                      </div>
+                    )
+                  })()}
+                </div>
+              )}
+
+              {/* TOOLS */}
+              {tab==='tools' && (
+                <div style={{ display:'flex', flexDirection:'column', gap:'24px' }}>
+                  <div>
+                    <p style={{ ...S.cardTitle, fontSize:'16px', marginBottom:'12px' }}>🔤 Case Converter</p>
+                    <div style={{ display:'flex', flexWrap:'wrap', gap:'8px' }}>
+                      {[['sentence','Sentence case'],['title','Title Case'],['upper','UPPERCASE'],['lower','lowercase'],['alt','aLtErNaTe']].map(([t,l])=>smallBtn(l,()=>convert(t)))}
+                    </div>
+                  </div>
+                  <Divider title="Find & Replace" />
+                  <div>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', marginBottom:'12px' }}>
+                      <div>
+                        <label style={S.label}>Find {findTxt&&findCount>0&&<span style={{ color:C.teal, fontWeight:700 }}>({findCount} found)</span>}</label>
+                        <input style={S.input} value={findTxt} onChange={e=>setFindTxt(e.target.value)} placeholder="Search text…" />
+                      </div>
+                      <div>
+                        <label style={S.label}>Replace with</label>
+                        <input style={S.input} value={replaceTxt} onChange={e=>setReplace(e.target.value)} placeholder="Replace with…" />
+                      </div>
+                    </div>
+                    <div style={{ display:'flex', alignItems:'center', gap:'16px' }}>
+                      <button onClick={doReplace} disabled={!findTxt} style={{ ...S.btnPrimary, width:'auto', padding:'12px 24px', fontSize:'15px', opacity:findTxt?1:0.4 }}>Replace All</button>
+                      <label style={{ display:'flex', alignItems:'center', gap:'8px', fontSize:'15px', color:C.gray600, cursor:'pointer' }}>
+                        <input type="checkbox" checked={caseSen} onChange={e=>setCaseSen(e.target.checked)} style={{ accentColor:C.teal, width:'16px', height:'16px' }} />
+                        Case sensitive
+                      </label>
+                    </div>
+                  </div>
+                  <Divider title="Clean Text" />
+                  <div style={{ display:'flex', flexWrap:'wrap', gap:'8px' }}>
+                    {[['spaces','Remove Extra Spaces'],['trim','Trim Line Spaces'],['breaks','Remove Line Breaks'],['nums','Remove Numbers'],['punct','Remove Punctuation']].map(([t,l])=>smallBtn(l,()=>clean(t)))}
+                  </div>
+                  <Divider title="Export" />
+                  <div style={{ display:'flex', gap:'12px', flexWrap:'wrap' }}>
+                    <button onClick={download} style={{ ...S.btnOutline, fontSize:'15px' }}>⬇ Download as .TXT</button>
+                    <button onClick={copyText} style={{ ...S.btnOutline, fontSize:'15px' }}>{copied?'✓ Copied!':'📋 Copy All'}</button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        </div>
 
-        {/* SEO Content */}
-        <div className="mt-10 bg-white rounded-2xl border border-gray-200 p-8">
-          <h2 className="text-2xl font-bold mb-5" style={{ color: '#0b1f33' }}>What Makes This Word Counter Different?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-600 leading-relaxed">
-            <div>
-              <h3 className="font-bold text-gray-800 text-base mb-2">📏 Exam Word Limit Checker</h3>
-              <p>Set a target word count for UPSC essays (1000–1200 words), SSC descriptive answers (250 words), APSC essays (500 words) or any custom limit. A live progress bar shows you how close you are.</p>
+          {/* ── SIDEBAR ── */}
+          <div style={{ ...S.card, position:'sticky', top:'20px' }}>
+            <h2 style={{ fontSize:'17px', fontWeight:800, color:C.navy, margin:'0 0 16px' }}>Quick Stats</h2>
+            {[
+              { l:'Words',           v:words.toLocaleString(),    c:C.teal },
+              { l:'Characters',      v:chars.toLocaleString(),    c:'#378ADD' },
+              { l:'Sentences',       v:sentences.toLocaleString(),c:'#534AB7' },
+              { l:'Paragraphs',      v:paragraphs.toLocaleString(),c:'#f59e0b' },
+              { l:'Unique Words',    v:uniqueW.toLocaleString(),  c:'#22c55e' },
+              { l:'Pages',           v:pages,                     c:'#f97316' },
+              { l:'Reading Time',    v:readTime,                  c:'#ec4899' },
+              { l:'Speaking Time',   v:speakTime,                 c:'#8b5cf6' },
+              { l:'Reading Level',   v:level.split('(')[0].trim(),c:C.navy },
+            ].map(x=>(
+              <div key={x.l} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 0', borderBottom:`1px solid ${C.gray100}` }}>
+                <span style={{ fontSize:'14px', color:C.gray500 }}>{x.l}</span>
+                <span style={{ fontSize:'14px', fontWeight:800, color:x.c }}>{x.v}</span>
+              </div>
+            ))}
+
+            <div style={{ marginTop:'20px', paddingTop:'16px', borderTop:`1px solid ${C.gray100}` }}>
+              <p style={{ fontSize:'12px', fontWeight:700, color:C.gray400, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:'12px' }}>Exam Word Limits</p>
+              {[['UPSC GS Answer','150–250 w'],['UPSC Essay','1000–1200 w'],['SSC Descriptive','200–250 w'],['APSC Essay','~500 w'],['Cover Letter','300–400 w']].map(([e,l])=>(
+                <div key={e} style={{ display:'flex', justifyContent:'space-between', padding:'6px 0', fontSize:'13px' }}>
+                  <span style={{ color:C.gray500 }}>{e}</span>
+                  <span style={{ fontWeight:700, color:C.teal }}>{l}</span>
+                </div>
+              ))}
             </div>
-            <div>
-              <h3 className="font-bold text-gray-800 text-base mb-2">📈 Sentence Flow Analysis</h3>
-              <p>See a breakdown of your sentence lengths with colour-coded highlights. Mix short punchy sentences with longer ones for better readability — important for essay writing in competitive exams.</p>
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-800 text-base mb-2">🔑 Keyword Density</h3>
-              <p>Instantly see which words you use most and at what frequency. Helpful for article writers and bloggers to maintain keyword balance without over-stuffing.</p>
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-800 text-base mb-2">⏱ Time Estimates</h3>
-              <p>Get reading time, speaking time and handwriting time estimates — especially useful for competitive exam preparation where you need to manage answer writing speed.</p>
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-800 text-base mb-2">🛠 Built-in Text Tools</h3>
-              <p>Case converter (UPPERCASE, title case, sentence case), find & replace with case sensitivity toggle, and text cleaner to remove extra spaces, line breaks or punctuation.</p>
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-800 text-base mb-2">🔊 Read Aloud</h3>
-              <p>Listen to your text being read using browser text-to-speech. Useful to catch awkward sentences and grammar issues when proofreading your essays and answers.</p>
-            </div>
+            <p style={{ fontSize:'12px', color:C.gray400, marginTop:'14px' }}>💾 Auto-saved in browser</p>
           </div>
         </div>
       </div>
