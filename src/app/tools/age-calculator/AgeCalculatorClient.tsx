@@ -1,6 +1,6 @@
 'use client'
 import { useState, useMemo } from 'react'
-import { C, S, ToolHeader } from '../_shared'
+import { C, S, ToolsNavbar, ToolHeader } from '../_shared'
 
 const EXAMS = [
   { name:'ADRE Grade III',            min:18, max:{general:40,obc:43,sc:45,stp:45,sth:45,ews:40,pwd:50}, cat:'Assam State' },
@@ -77,6 +77,7 @@ export default function AgeCalculatorClient() {
 
   return (
     <main style={S.page}>
+      <ToolsNavbar />
       <ToolHeader title="Age Calculator"
         desc="Calculate your exact age and check government exam eligibility. Includes OBC/SC/ST age relaxation for ADRE, APSC, SSC, Railway, Bank and UPSC exams." />
 

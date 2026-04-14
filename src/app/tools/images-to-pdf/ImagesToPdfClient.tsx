@@ -1,6 +1,6 @@
 'use client'
 import { useState, useRef } from 'react'
-import { C, S, ToolHeader, Toggle } from '../_shared'
+import { C, S, ToolsNavbar, ToolHeader, Toggle } from '../_shared'
 
 interface ImgItem { id:string; file:File; dataUrl:string; rotation:number; name:string }
 
@@ -80,6 +80,7 @@ export default function ImagesToPdfClient() {
 
   return (
     <main style={S.page}>
+      <ToolsNavbar />
       <ToolHeader title="Images to PDF Converter"
         desc="Convert multiple photos and scanned certificates into a single PDF. Supports compression, reordering, rotation, A4/Letter size and page numbers." />
 

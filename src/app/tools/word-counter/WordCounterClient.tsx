@@ -1,6 +1,6 @@
 'use client'
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { C, S, ToolHeader, TabBtn, Divider } from '../_shared'
+import { C, S, ToolsNavbar, ToolHeader, TabBtn, Divider } from '../_shared'
 
 const countWords     = (t:string) => t.trim()==='' ? 0 : t.trim().split(/\s+/).length
 const countSentences = (t:string) => t.trim()==='' ? 0 : (t.match(/[^.!?]*[.!?]+/g)||[]).length
@@ -94,6 +94,7 @@ export default function WordCounterClient() {
 
   return (
     <main style={S.page}>
+      <ToolsNavbar />
       <ToolHeader title="Word Counter"
         desc="Count words, characters, sentences and reading time. Includes exam word limit checker, keyword density, sentence flow analysis, find & replace and case converter." />
 

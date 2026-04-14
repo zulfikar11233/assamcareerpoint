@@ -1,7 +1,8 @@
 'use client'
 import Link from 'next/link'
+import { useState } from 'react'
 
-// ─── Brand tokens ────────────────────────────────────────────────────────────
+// ─── Brand tokens ─────────────────────────────────────────────────────────────
 export const C = {
   navy:   '#0b1f33',
   navy2:  '#1a3a5c',
@@ -12,6 +13,7 @@ export const C = {
   gray50: '#f9fafb',
   gray100:'#f3f4f6',
   gray200:'#e5e7eb',
+  gray300:'#d1d5db',
   gray400:'#9ca3af',
   gray500:'#6b7280',
   gray600:'#4b5563',
@@ -30,23 +32,13 @@ export const S = {
     fontFamily: 'var(--font-nunito), Nunito, system-ui, sans-serif',
   } as React.CSSProperties,
 
-  hero: (extra?: React.CSSProperties): React.CSSProperties => ({
+  hero: (): React.CSSProperties => ({
     background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navy2} 100%)`,
     padding: '48px 24px 40px',
-    ...extra,
   }),
 
-  heroBack: {
-    display: 'inline-block',
-    color: '#94a3b8',
-    fontSize: '15px',
-    fontWeight: 600,
-    textDecoration: 'none',
-    marginBottom: '16px',
-  } as React.CSSProperties,
-
   heroTitle: {
-    fontSize: 'clamp(28px, 5vw, 42px)',
+    fontSize: 'clamp(26px, 5vw, 40px)',
     fontWeight: 800,
     color: C.white,
     margin: '0 0 12px',
@@ -54,72 +46,71 @@ export const S = {
   } as React.CSSProperties,
 
   heroDesc: {
-    fontSize: '17px',
+    fontSize: '16px',
     color: '#cbd5e1',
     margin: 0,
     lineHeight: 1.7,
-    maxWidth: '600px',
+    maxWidth: '620px',
   } as React.CSSProperties,
 
   wrap: {
-    maxWidth: '1000px',
+    maxWidth: '1040px',
     margin: '0 auto',
-    padding: '40px 20px',
+    padding: '36px 16px',
   } as React.CSSProperties,
 
   grid2: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-    gap: '24px',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+    gap: '20px',
   } as React.CSSProperties,
 
   card: {
     background: C.white,
-    borderRadius: '20px',
+    borderRadius: '18px',
     border: `1px solid ${C.gray200}`,
-    padding: '28px',
-    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+    padding: '24px',
+    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
   } as React.CSSProperties,
 
   cardTitle: {
-    fontSize: '18px',
+    fontSize: '17px',
     fontWeight: 800,
     color: C.navy,
-    margin: '0 0 20px',
+    margin: '0 0 18px',
   } as React.CSSProperties,
 
   label: {
     display: 'block',
-    fontSize: '15px',
+    fontSize: '14px',
     fontWeight: 700,
     color: C.gray700,
-    marginBottom: '8px',
+    marginBottom: '7px',
   } as React.CSSProperties,
 
   input: {
     width: '100%',
     border: `2px solid ${C.gray200}`,
-    borderRadius: '12px',
-    padding: '14px 16px',
-    fontSize: '16px',
+    borderRadius: '11px',
+    padding: '13px 15px',
+    fontSize: '15px',
     color: C.gray800,
     background: C.white,
     outline: 'none',
-    boxSizing: 'border-box',
+    boxSizing: 'border-box' as const,
     fontFamily: 'inherit',
-    transition: 'border-color 0.2s',
   } as React.CSSProperties,
 
   select: {
     width: '100%',
     border: `2px solid ${C.gray200}`,
-    borderRadius: '12px',
-    padding: '14px 16px',
-    fontSize: '16px',
+    borderRadius: '11px',
+    padding: '13px 15px',
+    fontSize: '15px',
     color: C.gray800,
     background: C.white,
     outline: 'none',
-    boxSizing: 'border-box',
+    boxSizing: 'border-box' as const,
     fontFamily: 'inherit',
     cursor: 'pointer',
   } as React.CSSProperties,
@@ -127,15 +118,15 @@ export const S = {
   textarea: {
     width: '100%',
     border: `2px solid ${C.gray200}`,
-    borderRadius: '12px',
-    padding: '14px 16px',
-    fontSize: '16px',
+    borderRadius: '11px',
+    padding: '13px 15px',
+    fontSize: '15px',
     color: C.gray800,
     background: C.white,
     outline: 'none',
-    boxSizing: 'border-box',
+    boxSizing: 'border-box' as const,
     fontFamily: 'inherit',
-    resize: 'vertical',
+    resize: 'vertical' as const,
   } as React.CSSProperties,
 
   btnPrimary: {
@@ -143,13 +134,12 @@ export const S = {
     background: C.teal,
     color: C.white,
     border: 'none',
-    borderRadius: '14px',
-    padding: '16px 24px',
-    fontSize: '17px',
+    borderRadius: '12px',
+    padding: '15px 22px',
+    fontSize: '16px',
     fontWeight: 800,
     cursor: 'pointer',
     fontFamily: 'inherit',
-    transition: 'opacity 0.2s',
   } as React.CSSProperties,
 
   btnGold: {
@@ -157,9 +147,9 @@ export const S = {
     background: C.gold,
     color: C.navy,
     border: 'none',
-    borderRadius: '14px',
-    padding: '16px 24px',
-    fontSize: '17px',
+    borderRadius: '12px',
+    padding: '15px 22px',
+    fontSize: '16px',
     fontWeight: 800,
     cursor: 'pointer',
     fontFamily: 'inherit',
@@ -169,9 +159,9 @@ export const S = {
     background: C.white,
     color: C.gray700,
     border: `2px solid ${C.gray200}`,
-    borderRadius: '12px',
-    padding: '12px 20px',
-    fontSize: '15px',
+    borderRadius: '11px',
+    padding: '11px 18px',
+    fontSize: '14px',
     fontWeight: 700,
     cursor: 'pointer',
     fontFamily: 'inherit',
@@ -181,84 +171,152 @@ export const S = {
     background: '#fef2f2',
     border: `1px solid #fca5a5`,
     color: '#dc2626',
-    borderRadius: '12px',
-    padding: '14px 16px',
-    fontSize: '15px',
-    marginTop: '12px',
+    borderRadius: '11px',
+    padding: '13px 15px',
+    fontSize: '14px',
   } as React.CSSProperties,
 
   hint: {
-    fontSize: '13px',
+    fontSize: '12px',
     color: C.gray400,
-    marginTop: '6px',
+    marginTop: '5px',
   } as React.CSSProperties,
 
   sectionTitle: {
-    fontSize: '22px',
+    fontSize: '20px',
     fontWeight: 800,
     color: C.navy,
-    margin: '0 0 20px',
-    paddingBottom: '12px',
+    margin: '0 0 18px',
+    paddingBottom: '10px',
     borderBottom: `2px solid ${C.gray100}`,
   } as React.CSSProperties,
 
-  tag: (bg: string, cl: string): React.CSSProperties => ({
-    display: 'inline-block',
-    background: bg,
-    color: cl,
-    borderRadius: '99px',
-    padding: '4px 12px',
-    fontSize: '13px',
-    fontWeight: 700,
-  }),
-
   tabBar: {
     display: 'flex',
-    gap: '8px',
+    gap: '6px',
     background: C.gray100,
-    borderRadius: '14px',
-    padding: '6px',
-    marginBottom: '24px',
+    borderRadius: '12px',
+    padding: '5px',
+    marginBottom: '22px',
     overflowX: 'auto' as const,
+    flexWrap: 'nowrap' as const,
   } as React.CSSProperties,
 
   infoBox: {
     background: C.gray50,
-    borderRadius: '14px',
-    padding: '20px',
-    marginTop: '24px',
+    borderRadius: '12px',
+    padding: '18px',
+    marginTop: '20px',
     border: `1px solid ${C.gray200}`,
   } as React.CSSProperties,
 
   statCard: {
     background: C.gray50,
-    borderRadius: '14px',
-    padding: '16px',
+    borderRadius: '12px',
+    padding: '14px',
     textAlign: 'center' as const,
     border: `1px solid ${C.gray200}`,
   } as React.CSSProperties,
 
   statVal: {
-    fontSize: '26px',
+    fontSize: '22px',
     fontWeight: 800,
     color: C.navy,
-    margin: '0 0 4px',
+    margin: '0 0 3px',
   } as React.CSSProperties,
 
   statLabel: {
-    fontSize: '13px',
+    fontSize: '12px',
     fontWeight: 600,
     color: C.gray500,
     margin: 0,
   } as React.CSSProperties,
 }
 
-// ─── Reusable ToolHeader ──────────────────────────────────────────────────────
+// ─── NAV LINKS ────────────────────────────────────────────────────────────────
+const NAV_ITEMS = [
+  { label: 'Home',        href: '/' },
+  { label: 'Govt Jobs',   href: '/govt-jobs' },
+  { label: 'Exams',       href: '/exams' },
+  { label: 'Information', href: '/information' },
+  { label: 'PDF Forms',   href: '/pdf-forms' },
+  { label: 'Results',     href: '/results' },
+  { label: '🛠 Tools',    href: '/tools' },
+]
+
+// ─── Navbar for all tool pages ────────────────────────────────────────────────
+export function ToolsNavbar() {
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  return (
+    <nav style={{
+      position: 'sticky',
+      top: 0,
+      zIndex: 100,
+      background: C.navy,
+      borderBottom: `2px solid rgba(29,191,173,0.3)`,
+      boxShadow: '0 2px 16px rgba(0,0,0,0.25)',
+    }}>
+      <div style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: '0 16px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        height: '60px',
+      }}>
+        {/* Logo */}
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+          <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: C.teal, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 800, color: C.navy }}>A</div>
+          <span style={{ fontSize: '15px', fontWeight: 800, color: C.white, lineHeight: 1.2 }}>Assam Career<br /><span style={{ color: C.teal, fontSize: '12px' }}>Point & Info</span></span>
+        </Link>
+
+        {/* Desktop nav */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'nowrap', overflowX: 'auto', maxWidth: 'calc(100% - 180px)' }}>
+          {NAV_ITEMS.map(item => (
+            <Link
+              key={item.href}
+              href={item.href}
+              style={{
+                textDecoration: 'none',
+                padding: '7px 13px',
+                borderRadius: '99px',
+                fontSize: '13px',
+                fontWeight: 700,
+                color: C.white,
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                whiteSpace: 'nowrap' as const,
+                transition: 'all 0.15s',
+                flexShrink: 0,
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = C.teal
+                ;(e.currentTarget as HTMLAnchorElement).style.color = C.navy
+                ;(e.currentTarget as HTMLAnchorElement).style.borderColor = C.teal
+              }}
+              onMouseLeave={e => {
+                ;(e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.08)'
+                ;(e.currentTarget as HTMLAnchorElement).style.color = C.white
+                ;(e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(255,255,255,0.12)'
+              }}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </nav>
+  )
+}
+
+// ─── Tool Hero (below navbar) ─────────────────────────────────────────────────
 export function ToolHeader({ title, desc }: { title: string; desc: string }) {
   return (
     <div style={S.hero()}>
-      <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-        <Link href="/tools" style={S.heroBack}>← Back to Tools</Link>
+      <div style={{ maxWidth: '1040px', margin: '0 auto' }}>
+        <Link href="/tools" style={{ color: '#94a3b8', fontSize: '14px', fontWeight: 600, textDecoration: 'none', display: 'inline-block', marginBottom: '14px' }}>← Back to Tools</Link>
         <h1 style={S.heroTitle}>{title}</h1>
         <p style={S.heroDesc}>{desc}</p>
       </div>
@@ -269,47 +327,29 @@ export function ToolHeader({ title, desc }: { title: string; desc: string }) {
 // ─── Tab button ───────────────────────────────────────────────────────────────
 export function TabBtn({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button
-      onClick={onClick}
-      style={{
-        padding: '10px 18px',
-        borderRadius: '10px',
-        border: 'none',
-        fontSize: '14px',
-        fontWeight: 700,
-        cursor: 'pointer',
-        whiteSpace: 'nowrap' as const,
-        fontFamily: 'inherit',
-        background: active ? C.teal : 'transparent',
-        color: active ? C.white : C.gray500,
-        transition: 'all 0.15s',
-      }}
-    >
+    <button onClick={onClick} style={{
+      padding: '9px 16px', borderRadius: '9px', border: 'none',
+      fontSize: '13px', fontWeight: 700, cursor: 'pointer',
+      whiteSpace: 'nowrap' as const, fontFamily: 'inherit',
+      background: active ? C.teal : 'transparent',
+      color: active ? C.white : C.gray500,
+      flexShrink: 0,
+    }}>
       {children}
     </button>
   )
 }
 
-// ─── Mode tab (UPI ID / Bank / Mobile style) ──────────────────────────────────
+// ─── Mode tab ─────────────────────────────────────────────────────────────────
 export function ModeTab({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
   return (
-    <button
-      onClick={onClick}
-      style={{
-        flex: 1,
-        padding: '12px 8px',
-        borderRadius: '10px',
-        border: 'none',
-        fontSize: '15px',
-        fontWeight: 700,
-        cursor: 'pointer',
-        fontFamily: 'inherit',
-        background: active ? C.white : 'transparent',
-        color: active ? C.navy : C.gray500,
-        boxShadow: active ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
-        transition: 'all 0.15s',
-      }}
-    >
+    <button onClick={onClick} style={{
+      flex: 1, padding: '11px 8px', borderRadius: '10px', border: 'none',
+      fontSize: '14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+      background: active ? C.white : 'transparent',
+      color: active ? C.navy : C.gray500,
+      boxShadow: active ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
+    }}>
       {label}
     </button>
   )
@@ -318,42 +358,45 @@ export function ModeTab({ active, onClick, label }: { active: boolean; onClick: 
 // ─── Toggle switch ────────────────────────────────────────────────────────────
 export function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
   return (
-    <button
-      onClick={() => onChange(!on)}
-      style={{
-        width: '52px',
-        height: '28px',
-        borderRadius: '99px',
-        border: 'none',
-        background: on ? C.teal : C.gray200,
-        cursor: 'pointer',
-        position: 'relative',
-        transition: 'background 0.2s',
-        flexShrink: 0,
-      }}
-    >
+    <button onClick={() => onChange(!on)} style={{
+      width: '50px', height: '27px', borderRadius: '99px', border: 'none',
+      background: on ? C.teal : C.gray200, cursor: 'pointer', position: 'relative',
+      flexShrink: 0,
+    }}>
       <span style={{
-        position: 'absolute',
-        top: '3px',
-        left: on ? '27px' : '3px',
-        width: '22px',
-        height: '22px',
-        borderRadius: '50%',
-        background: C.white,
-        boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+        position: 'absolute', top: '3px', left: on ? '25px' : '3px',
+        width: '21px', height: '21px', borderRadius: '50%',
+        background: C.white, boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
         transition: 'left 0.2s',
       }} />
     </button>
   )
 }
 
-// ─── Section divider ──────────────────────────────────────────────────────────
+// ─── Divider ──────────────────────────────────────────────────────────────────
 export function Divider({ title }: { title: string }) {
   return (
-    <div style={{ margin: '24px 0 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+    <div style={{ margin: '20px 0 14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
       <div style={{ flex: 1, height: '1px', background: C.gray200 }} />
-      <span style={{ fontSize: '13px', fontWeight: 700, color: C.gray400, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{title}</span>
+      <span style={{ fontSize: '12px', fontWeight: 700, color: C.gray400, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>{title}</span>
       <div style={{ flex: 1, height: '1px', background: C.gray200 }} />
+    </div>
+  )
+}
+
+// ─── Segment control ─────────────────────────────────────────────────────────
+export function Seg({ opts, val, set }: { opts: string[]; val: string; set: (v: any) => void }) {
+  return (
+    <div style={{ display: 'flex', gap: '7px', flexWrap: 'wrap' as const }}>
+      {opts.map(o => (
+        <button key={o} onClick={() => set(o)} style={{
+          padding: '9px 15px', borderRadius: '10px', fontSize: '13px', fontWeight: 700,
+          border: `2px solid ${val === o ? C.teal : C.gray200}`,
+          background: val === o ? '#e6faf8' : C.white,
+          color: val === o ? C.teal2 : C.gray500,
+          cursor: 'pointer', fontFamily: 'inherit',
+        }}>{o}</button>
+      ))}
     </div>
   )
 }
