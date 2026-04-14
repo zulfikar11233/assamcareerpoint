@@ -89,7 +89,7 @@ export default function WordCounterClient() {
   const uniqueWords = text.trim() === '' ? 0 : new Set(text.trim().toLowerCase().split(/\s+/)).size
   const avgWordLen = words > 0 ? (charsNoSpace / words).toFixed(1) : '0'
   const avgSentLen = sentences > 0 ? Math.round(words / sentences) : 0
-  const allWords = text.toLowerCase().match(/\b[a-z]+\b/g) || []
+  const allWords: string[] = text.toLowerCase().match(/\b[a-z]+\b/g) || []
   const syllables = allWords.reduce((acc: number, w: string) => acc + countSyllables(w), 0)
   const pages = words > 0 ? (words / 250).toFixed(1) : '0'
   const readTime = words > 0 ? `${Math.ceil(words / 238)} min` : '—'

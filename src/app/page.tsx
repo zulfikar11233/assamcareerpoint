@@ -50,17 +50,24 @@ type AnyPost = {
 
 // ✅ Updated CATS array (6 boxes, one line)
 const CATS = [
-  { name:'Govt & Private Jobs', emoji:'🏛️', href:'/govt-jobs',   count:'All Job Types',   color:'#e63946' },
-  { name:'Exams',               emoji:'📚', href:'/exams',        count:'Open Now',        color:'#f4a261' },
-  { name:'Information',         emoji:'ℹ️',  href:'/information',  count:'Schemes & Docs',  color:'#2a9d8f' },
-  { name:'PDF Forms',           emoji:'📄', href:'/pdf-forms',    count:'Govt Documents',  color:'#00b4d8' },
-  { name:'Results',             emoji:'📊', href:'/results',      count:'Latest Results',  color:'#457b9d' },
-  { name:'More',                emoji:'📢', href:'/announcements',count:'News & Guides',   color:'#6a0dad' },
+  { name:'Govt & Private Jobs', emoji:'🏛️', href:'/govt-jobs',                count:'All Job Types',   color:'#e63946' },
+  { name:'Exams',               emoji:'📚', href:'/exams',                     count:'Open Now',        color:'#f4a261' },
+  { name:'Information',         emoji:'ℹ️',  href:'/information',               count:'Schemes & Docs',  color:'#2a9d8f' },
+  { name:'PDF Forms',           emoji:'📄', href:'/pdf-forms',                 count:'Govt Documents',  color:'#00b4d8' },
+  { name:'Results',             emoji:'📊', href:'/results',                   count:'Latest Results',  color:'#457b9d' },
+  { name:'More',                emoji:'📢', href:'/announcements',             count:'News & Guides',   color:'#6a0dad' },
+  { name:'UPI QR Generator',    emoji:'📲', href:'/tools/upi-qr-generator',    count:'Free Tool',       color:'#f59e0b' },
+  { name:'Image Resizer',       emoji:'🖼️', href:'/tools/image-resizer',       count:'Free Tool',       color:'#1dbfad' },
+  { name:'Bio-Data Maker',      emoji:'📋', href:'/tools/bio-data-maker',      count:'Free Tool',       color:'#8b5cf6' },
+  { name:'Images to PDF',       emoji:'📄', href:'/tools/images-to-pdf',       count:'Free Tool',       color:'#0ea5e9' },
+  { name:'Age Calculator',      emoji:'🎂', href:'/tools/age-calculator',      count:'Free Tool',       color:'#22c55e' },
+  { name:'Word Counter',        emoji:'📝', href:'/tools/word-counter',        count:'Free Tool',       color:'#ec4899' },
 ]
 
 const NAV_LINKS = [
   ['Home','/'],['Govt Jobs','/govt-jobs'],['Exams','/exams'],
   ['Information','/information'],['PDF Forms','/pdf-forms'],['Results','/results'],
+  ['🛠 Tools','/tools'],
 ]
 
 const fmt  = (d:string) => { try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) } catch { return d } }
