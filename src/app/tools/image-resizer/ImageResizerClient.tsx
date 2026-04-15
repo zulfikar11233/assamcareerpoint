@@ -150,6 +150,17 @@ export default function ImageResizerClient() {
   return (
     <main style={S.page}>
       <ToolsNavbar />
+
+      <style>{`
+        .tool-wrap { max-width: 1040px; margin: 0 auto; padding: 28px 16px; }
+        .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 18px; }
+        .tool-sidebar { position: sticky; top: 78px; }
+        @media (max-width: 700px) {
+          .tool-grid-sidebar { grid-template-columns: 1fr !important; }
+          .tool-sidebar { position: static !important; }
+          .tool-hide-mobile { display: none !important; }
+        }
+      `}</style>
       <ToolHeader
         title="Photo & Image Resizer"
         desc="Resize photos for ADRE, APSC, SLPRB, SSC, Railway, Bank exams. 25+ presets with compression, background color, rotation and crop. Free online photo resizer."

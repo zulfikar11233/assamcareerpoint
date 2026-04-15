@@ -87,6 +87,17 @@ export default function UpiQrClient() {
   return (
     <main style={S.page}>
       <ToolsNavbar />
+
+      <style>{`
+        .tool-wrap { max-width: 1040px; margin: 0 auto; padding: 28px 16px; }
+        .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 18px; }
+        .tool-sidebar { position: sticky; top: 78px; }
+        @media (max-width: 700px) {
+          .tool-grid-sidebar { grid-template-columns: 1fr !important; }
+          .tool-sidebar { position: static !important; }
+          .tool-hide-mobile { display: none !important; }
+        }
+      `}</style>
       <ToolHeader
         title="UPI QR Code Generator"
         desc="Create a payment QR code for GPay, PhonePe, Paytm, BHIM and all UPI apps. Supports UPI ID, Bank Account and Mobile. Free, instant and 100% private."

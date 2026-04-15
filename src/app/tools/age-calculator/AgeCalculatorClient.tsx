@@ -78,6 +78,17 @@ export default function AgeCalculatorClient() {
   return (
     <main style={S.page}>
       <ToolsNavbar />
+
+      <style>{`
+        .tool-wrap { max-width: 1040px; margin: 0 auto; padding: 28px 16px; }
+        .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 18px; }
+        .tool-sidebar { position: sticky; top: 78px; }
+        @media (max-width: 700px) {
+          .tool-grid-sidebar { grid-template-columns: 1fr !important; }
+          .tool-sidebar { position: static !important; }
+          .tool-hide-mobile { display: none !important; }
+        }
+      `}</style>
       <ToolHeader title="Age Calculator"
         desc="Calculate your exact age and check government exam eligibility. Includes OBC/SC/ST age relaxation for ADRE, APSC, SSC, Railway, Bank and UPSC exams." />
 
