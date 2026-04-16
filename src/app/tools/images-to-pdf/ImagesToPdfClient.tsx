@@ -1,4 +1,4 @@
-// src/app/tools/image-to-pdf/imagesToPdfClient
+// src/app/tools/image-to-pdf/imagesToPdfClient.tsx
 'use client'
 import { useState, useRef } from 'react'
 import { C, S, ToolsNavbar, ToolHeader, Toggle } from '../_shared'
@@ -92,6 +92,11 @@ export default function ImagesToPdfClient() {
           .tool-sidebar { position: static !important; }
           .tool-hide-mobile { display: none !important; }
         }
+        /* FIX: mobile order – upload first, settings second */
+        @media (max-width: 640px) {
+          .pdf-settings { order: 2 !important; position: static !important; }
+          .pdf-upload   { order: 1 !important; }
+        }
       `}</style>
       <ToolHeader title="Images to PDF Converter"
         desc="Convert multiple photos and scanned certificates into a single PDF. Supports compression, reordering, rotation, A4/Letter size and page numbers." />
@@ -99,8 +104,8 @@ export default function ImagesToPdfClient() {
       <div style={S.wrap}>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap:'24px' }}>
 
-          {/* Settings */}
-          <div style={{ ...S.card, position:'sticky', top:'20px', alignSelf:'start' }}>
+          {/* Settings – now with className for mobile order */}
+          <div className="pdf-settings" style={{ ...S.card, position:'sticky', top:'20px', alignSelf:'start' }}>
             <h2 style={S.cardTitle}>PDF Settings</h2>
             <div style={{ display:'flex', flexDirection:'column', gap:'20px' }}>
 
@@ -136,8 +141,8 @@ export default function ImagesToPdfClient() {
             </div>
           </div>
 
-          {/* Images */}
-          <div>
+          {/* Upload column – added className for mobile order */}
+          <div className="pdf-upload">
             {/* Upload zone */}
             <div
               onClick={()=>fileRef.current?.click()}

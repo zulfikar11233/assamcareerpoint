@@ -537,7 +537,7 @@ export default function HomePage() {
           <div style={{maxWidth:1180,margin:'0 auto',padding:'0 20px'}}>
             <h2 style={{fontFamily:'var(--font-sora),Sora,sans-serif',fontSize:'1.25rem',fontWeight:800,color:'#0d1b2a',marginBottom:4}}>Browse by Category</h2>
             <p style={{color:'#5a6a7a',fontSize:'.88rem',marginBottom:16}}>Jobs, exams, information and documents — all in one place</p>
-            <div className="cg" style={{display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:10}}>
+            <div className="cg" style={{gap:10}}>
               {CATS.map(c=>(
                 <Link key={c.name} href={c.href} style={{textDecoration:'none'}}>
                   <div className="cc" style={{padding:'13px 14px',display:'flex',alignItems:'center',gap:10}}>
