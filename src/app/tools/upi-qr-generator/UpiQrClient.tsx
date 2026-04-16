@@ -130,11 +130,11 @@ export default function UpiQrClient() {
               {mode === 'bank' && (<>
                 <div>
                   <label style={S.label}>Account Number *</label>
-                  <input style={S.input} value={bankAcc} onChange={e => setBankAcc(e.target.value.replace(/\D/g, ''))} placeholder="e.g. 33283091321" />
+                  <input style={S.input} value={bankAcc} onChange={e => setBankAcc(e.target.value.replace(/\D/g, ''))} placeholder="Enter account number" />
                 </div>
                 <div>
                   <label style={S.label}>IFSC Code * <span style={{ color: C.gray400, fontWeight: 500 }}>(11 characters)</span></label>
-                  <input style={S.input} value={ifsc} onChange={e => setIfsc(e.target.value.toUpperCase())} placeholder="e.g. SBIN0004569" maxLength={11} />
+                  <input style={S.input} value={ifsc} onChange={e => setIfsc(e.target.value.toUpperCase())} placeholder="e.g. SBIN0000001" maxLength={11} />
                   <p style={S.hint}>Find IFSC on your cheque book or bank passbook</p>
                 </div>
               </>)}

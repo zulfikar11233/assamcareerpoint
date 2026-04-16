@@ -1,3 +1,4 @@
+// src/app/tools/word-counter/WordCounterClient
 'use client'
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { C, S, ToolsNavbar, ToolHeader, TabBtn, Divider } from '../_shared'
@@ -94,6 +95,7 @@ export default function WordCounterClient() {
 
   return (
     <main style={S.page}>
+     <div style={{ overflowX: 'hidden' }}>
       <ToolsNavbar />
 
       <style>{`
@@ -110,7 +112,7 @@ export default function WordCounterClient() {
         desc="Count words, characters, sentences and reading time. Includes exam word limit checker, keyword density, sentence flow analysis, find & replace and case converter." />
 
       <div style={{ maxWidth:'1200px', margin:'0 auto', padding:'40px 20px' }}>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 300px', gap:'24px', alignItems:'start' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap:'24px', alignItems:'start' }}>
 
           {/* ── MAIN AREA ── */}
           <div style={{ display:'flex', flexDirection:'column', gap:'20px' }}>

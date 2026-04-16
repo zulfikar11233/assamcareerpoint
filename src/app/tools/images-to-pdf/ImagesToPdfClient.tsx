@@ -1,3 +1,4 @@
+// src/app/tools/image-to-pdf/imagesToPdfClient
 'use client'
 import { useState, useRef } from 'react'
 import { C, S, ToolsNavbar, ToolHeader, Toggle } from '../_shared'
@@ -96,7 +97,7 @@ export default function ImagesToPdfClient() {
         desc="Convert multiple photos and scanned certificates into a single PDF. Supports compression, reordering, rotation, A4/Letter size and page numbers." />
 
       <div style={S.wrap}>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(300px,1fr))', gap:'24px' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap:'24px' }}>
 
           {/* Settings */}
           <div style={{ ...S.card, position:'sticky', top:'20px', alignSelf:'start' }}>
@@ -146,7 +147,7 @@ export default function ImagesToPdfClient() {
               style={{
                 border:`2px dashed ${dragOver ? C.teal : C.gray200}`, borderRadius:'16px', padding:'40px 20px',
                 textAlign:'center', cursor:'pointer', background: dragOver ? '#e6faf8' : C.gray50,
-                marginBottom:'20px', transition:'all 0.2s',
+                marginBottom:'20px', transition:'all 0.2s', minHeight:'160px',
               }}
             >
               <div style={{ fontSize:'48px', marginBottom:'12px' }}>📸</div>

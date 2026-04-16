@@ -1,3 +1,4 @@
+// src/app/tools/age-calculator/AgeCalculatorClient
 'use client'
 import { useState, useMemo } from 'react'
 import { C, S, ToolsNavbar, ToolHeader } from '../_shared'
@@ -31,7 +32,6 @@ function calcAge(dob:Date, ref:Date) {
   if(m<0){y--;m+=12}
   return {y,m,d}
 }
-const zodiac=(d:Date)=>{const mo=d.getMonth()+1,day=d.getDate();if((mo===3&&day>=21)||(mo===4&&day<=19))return'♈ Aries';if((mo===4&&day>=20)||(mo===5&&day<=20))return'♉ Taurus';if((mo===5&&day>=21)||(mo===6&&day<=20))return'♊ Gemini';if((mo===6&&day>=21)||(mo===7&&day<=22))return'♋ Cancer';if((mo===7&&day>=23)||(mo===8&&day<=22))return'♌ Leo';if((mo===8&&day>=23)||(mo===9&&day<=22))return'♍ Virgo';if((mo===9&&day>=23)||(mo===10&&day<=22))return'♎ Libra';if((mo===10&&day>=23)||(mo===11&&day<=21))return'♏ Scorpio';if((mo===11&&day>=22)||(mo===12&&day<=21))return'♐ Sagittarius';if((mo===12&&day>=22)||(mo===1&&day<=19))return'♑ Capricorn';if((mo===1&&day>=20)||(mo===2&&day<=18))return'♒ Aquarius';return'♓ Pisces'}
 
 export default function AgeCalculatorClient() {
   const [dob, setDob]       = useState('')
@@ -169,7 +169,6 @@ export default function AgeCalculatorClient() {
                     { l:'Total Weeks',      v:Math.floor(totalDays/7).toLocaleString() },
                     { l:'Total Hours',      v:(totalDays*24).toLocaleString() },
                     { l:'Day of Birth',     v:dobDate!.toLocaleDateString('en-IN',{weekday:'long'}) },
-                    { l:'Zodiac Sign',      v:zodiac(dobDate!) },
                     { l:'Days to Birthday', v:nextBday===0?'🎉 Today!':nextBday+' days' },
                   ].map(x=>(
                     <div key={x.l} style={S.statCard}>

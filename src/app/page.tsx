@@ -1,3 +1,4 @@
+// src/app/page.tsx
 'use client'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
@@ -367,31 +368,33 @@ export default function HomePage() {
 
         /* ✅ Updated category grid: 6 columns desktop, 3 tablet, 2 mobile */
         .cg {
-          display: grid;
-          grid-template-columns: repeat(6, 1fr);
-          gap: 10px;
-        }
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
+  gap: 10px;
+  width: 100%;
+  overflow-x: hidden;
+}
 
         /* Responsive */
         @media(max-width:900px) {
-          .hg { grid-template-columns:1fr !important; }
-          .alerts-box { display:none !important; }
-          .cg { grid-template-columns: repeat(3, 1fr) !important; }
-          .exam-grid,.info-grid,.res-grid { grid-template-columns:1fr !important; }
-          .desk-nav  { display:none !important; }
-          .desk-lang { display:none !important; }
-          .ham-btn   { display:flex !important; }
-        }
-        @media(max-width:480px) {
-          .cg { grid-template-columns: repeat(2, 1fr) !important; }
-          .stat-num { font-size:1rem !important; }
-          .jr { flex-wrap:wrap !important; padding:11px 12px !important; }
-          .job-badges { width:100% !important; justify-content:flex-start !important; flex-direction:row !important; }
-          .hero-btns { flex-direction:column !important; }
-          .hero-btns a { width:100% !important; justify-content:center !important; }
-          .tab-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
-          .tab-scroll::-webkit-scrollbar { display:none; }
-        }
+  .hg { grid-template-columns:1fr !important; }
+  .alerts-box { display:none !important; }
+  /* Remove the old .cg override - let auto-fill handle it */
+  .exam-grid,.info-grid,.res-grid { grid-template-columns:1fr !important; }
+  .desk-nav  { display:none !important; }
+  .desk-lang { display:none !important; }
+  .ham-btn   { display:flex !important; }
+}
+@media(max-width:480px) {
+  /* Remove the old .cg override - let auto-fill handle it */
+  .stat-num { font-size:1rem !important; }
+  .jr { flex-wrap:wrap !important; padding:11px 12px !important; }
+  .job-badges { width:100% !important; justify-content:flex-start !important; flex-direction:row !important; }
+  .hero-btns { flex-direction:column !important; }
+  .hero-btns a { width:100% !important; justify-content:center !important; }
+  .tab-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .tab-scroll::-webkit-scrollbar { display:none; }
+}
       `}</style>
 
       {/* TICKER */}
@@ -530,7 +533,7 @@ export default function HomePage() {
         </section>
 
         {/* ✅ BROWSE BY CATEGORY — updated CATS and grid */}
-        <section style={{padding:'24px 0 18px'}}>
+        <section style={{padding:'24px 0 18px', overflowX: 'hidden', width: '100%'}}>
           <div style={{maxWidth:1180,margin:'0 auto',padding:'0 20px'}}>
             <h2 style={{fontFamily:'var(--font-sora),Sora,sans-serif',fontSize:'1.25rem',fontWeight:800,color:'#0d1b2a',marginBottom:4}}>Browse by Category</h2>
             <p style={{color:'#5a6a7a',fontSize:'.88rem',marginBottom:16}}>Jobs, exams, information and documents — all in one place</p>
