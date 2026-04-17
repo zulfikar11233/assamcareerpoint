@@ -543,7 +543,7 @@ export default function HomePage() {
                   <div className="cc" style={{padding:'13px 14px',display:'flex',alignItems:'center',gap:10}}>
                     <div style={{width:40,height:40,borderRadius:9,background:`${c.color}15`,border:`1.5px solid ${c.color}30`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.25rem',flexShrink:0}}>{c.emoji}</div>
                     <div style={{minWidth:0}}>
-                      <div style={{fontFamily:'var(--font-sora),Sora,sans-serif',fontWeight:700,fontSize:'.88rem',color:'#0d1b2a',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{c.name}</div>
+                      <div style={{fontFamily:'var(--font-sora),Sora,sans-serif',fontWeight:700,fontSize:'.82rem',color:'#0d1b2a',lineHeight:1.3}}>{c.name}</div>
                       <div style={{fontSize:'.73rem',color:c.color,fontWeight:700,marginTop:1}}>{c.count}</div>
                     </div>
                   </div>
