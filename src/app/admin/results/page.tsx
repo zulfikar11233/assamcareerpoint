@@ -2,16 +2,23 @@
 export const dynamic = 'force-dynamic'
 // src/app/admin/results/page.tsx
 // ✅ Admin CMS for Results (Merit Lists, Answer Keys, Cut-off Marks, etc.)
+// ✅ RichTextEditor for all content fields (TinyMCE)
 
 import { useState, useEffect, useCallback } from 'react'
 import { signOut } from 'next-auth/react'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import {
   ResultPost, ResultSection, ResultLink,
   getResultPosts, saveResultPosts,
   generateResultSlug, RESULT_CATEGORIES,
   newResultSectionId, newResultLinkId,
 } from '@/lib/results-db'
+
+const RichTextEditor = dynamic(
+  () => import('@/components/admin/RichTextEditor'),
+  { ssr: false }
+)
 
 // ─── Colors ───────────────────────────────────────────────────────────────────
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
@@ -121,7 +128,7 @@ function Sidebar() {
   )
 }
 
-// ─── Section Builder ──────────────────────────────────────────────────────────
+// ─── Section Builder (with RichTextEditor) ────────────────────────────────────
 function SectionBuilder({ sections, onChange }: {
   sections: ResultSection[]
   onChange: (s: ResultSection[]) => void
@@ -169,12 +176,16 @@ function SectionBuilder({ sections, onChange }: {
               <input value={sec.title} onChange={e => update(idx, { title: e.target.value })}
                 style={si} placeholder="e.g. Merit List Details / How to Check / Cut-off Marks" />
             </div>
-            {/* Content */}
+            {/* Content - RichTextEditor */}
             <div>
               <label style={lb}>Content / Details</label>
-              <textarea value={sec.content} onChange={e => update(idx, { content: e.target.value })}
-                style={{ ...si, minHeight: 80, resize: 'vertical' as const }}
-                placeholder="Write the details for this section. Each line will appear as a paragraph." />
+              <RichTextEditor
+                value={sec.content || ''}
+                onChange={(val) => update(idx, { content: val })}
+                preset="standard"
+                minHeight={180}
+                placeholder="Write the details for this section. Use the toolbar to add tables, lists, links..."
+              />
             </div>
             {/* PDF Link */}
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 10 }}>
@@ -259,6 +270,7 @@ function PostModal({ initial, onSave, onClose }: {
     description: '', descriptionAs: '', resultDate: '',
     sections: [], affiliateLink: '', affiliateLinkText: '',
     published: false, metaTitle: '', metaDescription: '',
+    fullDescription: '', fullDescTitle: '',
   })
 
   const [form, setForm] = useState<Omit<ResultPost, 'id' | 'createdAt'>>(
@@ -387,20 +399,48 @@ function PostModal({ initial, onSave, onClose }: {
               </div>
             </div>
 
-            {/* Description */}
+            {/* Description - RichTextEditor simple */}
             <div>
               <label style={lb}>Short Description (shown on listing page)</label>
-              <textarea value={form.description || ''} onChange={e => p('description')(e.target.value)}
-                style={{ ...si, minHeight: 70, resize: 'vertical' as const }}
-                placeholder="2–3 sentences summarising this result. Used for SEO and listing cards." />
+              <RichTextEditor
+                value={form.description || ''}
+                onChange={(val) => p('description')(val)}
+                preset="simple"
+                minHeight={120}
+                placeholder="2–3 sentences summarising this result. Used for SEO and listing cards."
+              />
             </div>
 
-            {/* Assamese description */}
+            {/* Assamese description - RichTextEditor simple */}
             <div>
               <label style={lb}>বিৱৰণ — Assamese Description (optional)</label>
-              <textarea value={form.descriptionAs || ''} onChange={e => p('descriptionAs')(e.target.value)}
-                style={{ ...si, minHeight: 60, resize: 'vertical' as const }}
-                placeholder="অসমীয়া বিৱৰণ" />
+              <RichTextEditor
+                value={form.descriptionAs || ''}
+                onChange={(val) => p('descriptionAs')(val)}
+                preset="simple"
+                minHeight={100}
+                placeholder="অসমীয়া বিৱৰণ"
+              />
+            </div>
+
+            {/* Full Description - RichTextEditor full */}
+            <div>
+              <label style={lb}>📄 Full Details Title (optional)</label>
+              <input
+                value={form.fullDescTitle || ''}
+                onChange={e => p('fullDescTitle')(e.target.value)}
+                style={si}
+              />
+            </div>
+            <div>
+              <label style={lb}>📄 Full Detailed Description</label>
+              <RichTextEditor
+                value={form.fullDescription || ''}
+                onChange={(val) => p('fullDescription')(val)}
+                preset="full"
+                minHeight={250}
+                placeholder="Add comprehensive details, analysis, or additional information here..."
+              />
             </div>
 
             {/* Affiliate */}
@@ -457,8 +497,6 @@ function PostModal({ initial, onSave, onClose }: {
           {/* Save buttons */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 6, paddingTop: 12, borderTop: '1px solid #eef3f9' }}>
             <button type="button" onClick={onClose} style={bS}>Cancel</button>
-
-            {/* 🖨️ PRINT BUTTON (Results) */}
             <button type="button" onClick={() => {
               const w = window.open('', '_blank')
               if (!w) return
@@ -488,6 +526,11 @@ function PostModal({ initial, onSave, onClose }: {
 
 <h2>📝 Description</h2>
 <div style="padding:8px 0;line-height:1.6">${(form.description || '—').replace(/\n/g,'<br/>')}</div>
+
+${form.fullDescription ? `
+<h2>📄 Full Details</h2>
+<div style="padding:8px 0;line-height:1.6">${form.fullDescription.replace(/\n/g,'<br/>')}</div>
+` : ''}
 
 ${form.affiliateLink ? `
 <h2>🤝 Recommended Resource</h2>
@@ -523,15 +566,14 @@ ${form.sections.map((sec, idx) => `
             }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
               🖨️ Preview & Print
             </button>
-
             <button type="button" onClick={handleSave} style={bP}>
               {initial ? '💾 Update Result' : '➕ Add Result'}
             </button>
           </div>
 
-        </div> {/* closes the inner padding div */}
-      </div> {/* closes the modal content div */}
-    </div> /* closes the overlay div */
+        </div>
+      </div>
+    </div>
   )
 }
 

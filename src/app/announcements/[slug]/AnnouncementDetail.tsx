@@ -6,6 +6,23 @@ import { useEffect } from 'react'
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 const PATH = 'announcements'
 
+// ─────────────────────────────────────────────────────────────
+// RichContent helper – renders HTML from TinyMCE or plain text
+// ─────────────────────────────────────────────────────────────
+function RichContent({ content, className, style }: { content?: string | null; className?: string; style?: React.CSSProperties }) {
+  if (!content) return null
+  const isHtml = /<[a-z][\s\S]*>/i.test(content)
+  if (isHtml) {
+    return <div className={className} style={style} dangerouslySetInnerHTML={{ __html: content }} />
+  }
+  // Legacy plain text – preserve line breaks
+  return (
+    <div className={className} style={style}>
+      {content.split('\n').map((line, i) => <p key={i} style={{ margin: '4px 0' }}>{line}</p>)}
+    </div>
+  )
+}
+
 type OthersPost = {
   id: string
   slug: string
@@ -33,12 +50,7 @@ type OthersPost = {
 }
 
 export default function AnnouncementDetail({ post }: { post: OthersPost }) {
-  // No useState or fetch – data comes from server
-  // SEO meta tags are set by the server component (generateMetadata), but we still keep
-  // the original JSON‑LD and Open Graph logic if they were client‑side? Actually they are now
-  // handled by generateMetadata. But we can keep the JSON‑LD script for structured data.
   useEffect(() => {
-    // JSON-LD schema (can't be done in server component easily)
     const existing = document.getElementById('acp-jsonld')
     if (existing) existing.remove()
     const script = document.createElement('script')
@@ -59,16 +71,14 @@ export default function AnnouncementDetail({ post }: { post: OthersPost }) {
   return (
     <>
       <style>{`
-        
         * { box-sizing: border-box }
         body { margin: 0; font-family: Nunito, sans-serif; background: #f0f4f8 }
         .nav-a{color:rgba(255,255,255,.65);font-size:.82rem;font-weight:700;padding:6px 13px;border-radius:99px;border:1.5px solid rgba(255,255,255,.15);text-decoration:none;white-space:nowrap;transition:.15s}
-        .nav-a:hover{color:;border-color:88;background:rgba(201,162,39,.08)}
+        .nav-a:hover{color:${G};border-color:${G}88;background:rgba(201,162,39,.08)}
         .sec-card { background: #fff; border-radius: 12px; border: 1.5px solid #e8eef4; overflow: hidden; margin-bottom: 18px; }
         .link-row:hover { background: #f0faf9 !important; }
       `}</style>
 
-      {/* Header */}
       <header style={{ background: N, borderBottom: `3px solid ${G}`, padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ fontFamily: 'Arial Black,sans-serif', fontSize: '.9rem', textDecoration: 'none' }}>
           <span style={{ color: G }}>ASSAM </span><span style={{ color: W }}>CAREER</span><span style={{ color: T }}> POINT</span>
@@ -80,7 +90,6 @@ export default function AnnouncementDetail({ post }: { post: OthersPost }) {
         </nav>
       </header>
 
-      {/* ✅ FIX: <main> landmark */}
       <main id="main-content">
       {/* Breadcrumb */}
       <div style={{ background: '#fff', borderBottom: '1px solid #e8eef4', padding: '10px 20px' }}>
@@ -114,7 +123,7 @@ export default function AnnouncementDetail({ post }: { post: OthersPost }) {
                 <div style={{ color: '#8fa3b8', fontSize: '.9rem', marginBottom: 8 }}>{post.titleAs}</div>
               )}
               {post.description && (
-                <p style={{ color: '#b0c4d8', fontSize: '.9rem', margin: '0 0 8px', lineHeight: 1.7 }}>{post.description}</p>
+                <RichContent content={post.description} className="rte-content" style={{ color: '#b0c4d8', fontSize: '.9rem', margin: '0 0 8px', lineHeight: 1.7 }} />
               )}
               <div style={{ fontSize: '.75rem', color: '#6a8099' }}>
                 Published: {new Date(post.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -131,7 +140,7 @@ export default function AnnouncementDetail({ post }: { post: OthersPost }) {
         {/* Assamese description */}
         {post.descriptionAs && (
           <div style={{ background: '#fdf9ee', border: `1.5px solid ${G}44`, borderRadius: 12, padding: '14px 18px', marginBottom: 20 }}>
-            <p style={{ margin: 0, fontSize: '.9rem', color: '#5a3a00', lineHeight: 1.8 }}>{post.descriptionAs}</p>
+            <RichContent content={post.descriptionAs} className="rte-content" style={{ margin: 0, fontSize: '.9rem', color: '#5a3a00', lineHeight: 1.8 }} />
           </div>
         )}
 
@@ -144,11 +153,8 @@ export default function AnnouncementDetail({ post }: { post: OthersPost }) {
               </h2>
             </div>
             <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {sec.content && (
-                <div style={{ color: '#3a5068', fontSize: '.9rem', lineHeight: 1.8, whiteSpace: 'pre-line' as const }}>
-                  {sec.content}
-                </div>
-              )}
+              {sec.content && <RichContent content={sec.content} className="rte-content" />}
+
               {/* Section Images */}
               {(sec.images || []).filter(Boolean).map((imgUrl, imgIdx) => {
                 const src = imgUrl.includes('drive.google.com')
@@ -226,14 +232,12 @@ export default function AnnouncementDetail({ post }: { post: OthersPost }) {
         )}
 
         {/* Full Description */}
-        {(post as any).fullDescription && (
+        {post.fullDescription && (
           <div style={{ marginTop: 24 }}>
             <h2 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: '1rem', color: N, marginBottom: 10 }}>
-              📄 {(post as any).fullDescTitle || 'Full Details'}
+              📄 {post.fullDescTitle || 'Full Details'}
             </h2>
-            <div style={{ whiteSpace: 'pre-line', lineHeight: 1.9, color: '#3a5068' }}>
-              {(post as any).fullDescription}
-            </div>
+            <RichContent content={post.fullDescription} className="rte-content" style={{ lineHeight: 1.9, color: '#3a5068' }} />
           </div>
         )}
 
@@ -245,7 +249,7 @@ export default function AnnouncementDetail({ post }: { post: OthersPost }) {
         </div>
       </div>
 
-      </main>{/* ✅ end main */}
+      </main>
 
       {/* Footer */}
       <footer style={{ background: N, color: '#8fa3b8', textAlign: 'center', padding: '20px', fontSize: '.78rem' }}>

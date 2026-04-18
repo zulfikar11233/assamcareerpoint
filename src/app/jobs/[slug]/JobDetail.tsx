@@ -28,6 +28,23 @@ type Job     = {
   detailsImages?:string[]
 }
 
+// ─────────────────────────────────────────────────────────────
+// RichContent helper – renders HTML from TinyMCE or plain text
+// ─────────────────────────────────────────────────────────────
+function RichContent({ content, className, style }: { content?: string | null; className?: string; style?: React.CSSProperties }) {
+  if (!content) return null
+  const isHtml = /<[a-z][\s\S]*>/i.test(content)
+  if (isHtml) {
+    return <div className={className} style={style} dangerouslySetInnerHTML={{ __html: content }} />
+  }
+  // Legacy plain text – preserve line breaks
+  return (
+    <div className={className} style={style}>
+      {content.split('\n').map((line, i) => <p key={i} style={{ margin: '4px 0' }}>{line}</p>)}
+    </div>
+  )
+}
+
 const fmt     = (d:string|undefined|null) => { if(!d) return '—'; try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) } catch { return d } }
 const fmtLong = (d:string|undefined|null) => { if(!d) return '—'; try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}) } catch { return d } }
 
@@ -128,7 +145,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
     return () => clearInterval(t)
   }, [])
 
-  // ✅ ALL fields safely defaulted to avoid undefined crashes
+  // safe defaults
   const safeTitle = job.title || 'Job Vacancy'
   const posts     = job.posts || []
   const totalV    = posts.reduce((a,p)=>a+p.vacancy,0) || Number(job.vacancy)||0
@@ -235,7 +252,6 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
               <div style={{fontFamily:'Arial Black,sans-serif',fontSize:'.65rem',color:T,letterSpacing:'.12em'}}>◆ POINT ◆</div>
             </div>
           </Link>
-          {/* ✅ Consistent nav with pill borders */}
           <nav className="nav-wrap">
             {([['🏠 Home','/'],['💼 Jobs','/govt-jobs'],['📚 Exams','/exams'],['ℹ️ Info','/information'],['📄 PDFs','/pdf-forms'],['📊 Results','/results']] as [string,string][]).map(([l,h])=>(
               <Link key={h} href={h} className="nav-a">{l}</Link>
@@ -244,14 +260,12 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
         </div>
       </header>
 
-      {/* ✅ FIX: main landmark for accessibility */}
       <main id="main-content">
       {/* Breadcrumb */}
       <div className="breadcrumb-bar" style={{background:'#fff',borderBottom:'1px solid #e8eef6',padding:'9px 20px',fontSize:'.77rem',color:'#5a6a7a'}}>
         <div style={{maxWidth:1200,margin:'0 auto',display:'flex',gap:6,alignItems:'center',flexWrap:'wrap' as const}}>
           <Link href="/" style={{color:'#0e8a7e',textDecoration:'none',fontWeight:600}}>Home</Link> <span>›</span>
           <Link href="/govt-jobs" style={{color:'#0e8a7e',textDecoration:'none',fontWeight:600}}>Govt Jobs</Link> <span>›</span>
-          {/* ✅ FIX 1 — was job.title.slice() which crashes when title is undefined */}
           <span style={{color:N,fontWeight:700}}>{safeTitle.slice(0,55)}{safeTitle.length>55?'…':''}</span>
         </div>
       </div>
@@ -278,8 +292,8 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
               </div>
               {(job.description||job.descriptionAs)&&(
                 <div className="safe-wrap" style={{maxWidth:700}}>
-                  {job.description&&<p style={{color:'rgba(255,255,255,.7)',fontSize:'.84rem',lineHeight:1.8,margin:'0 0 4px'}}>{job.description}</p>}
-                  {job.descriptionAs&&<p style={{color:'rgba(255,255,255,.55)',fontSize:'.82rem',lineHeight:1.8,margin:0,fontStyle:'italic'}}>{job.descriptionAs}</p>}
+                  {job.description && <RichContent content={job.description} className="rte-content" style={{color:'rgba(255,255,255,.7)', fontSize:'.84rem', lineHeight:1.8, margin:'0 0 4px'}} />}
+                  {job.descriptionAs && <RichContent content={job.descriptionAs} className="rte-content" style={{color:'rgba(255,255,255,.55)', fontSize:'.82rem', lineHeight:1.8, fontStyle:'italic'}} />}
                 </div>
               )}
             </div>
@@ -291,7 +305,6 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
               {l:'Total Vacancies', v:totalV>0?totalV.toLocaleString('en-IN'):'As per notification', c:G},
               {l:'Last Date',       v:`${fmtLong(job.lastDate)}${job.lastDateTime?` · ${job.lastDateTime}`:''}`,           c:dl?.c||W},
               {l:'Age Limit',       v:posts.length?`${ageMin}–${ageMax} yrs${job.ageLimitDate?` (as on ${fmt(job.ageLimitDate)})`:''}`:job.ageLimit||'—', c:T},
-              // ✅ SAFE — job.fee might be undefined from bad Excel records
               {l:'App. Fee',        v:job.fee?(job.fee.split('\n')[0]||'').slice(0,32):'Check Notice', c:'#c0622a'},
             ].map(s=>(
               <div key={s.l} style={{background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.12)',borderRadius:10,padding:'10px 14px',flex:'1 1 160px',minWidth:0}}>
@@ -405,7 +418,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                     {ageRows.length>0&&(
                       <div style={{marginTop:8,borderTop:'1px solid #e8eef6',paddingTop:8}}>
                         <div style={{fontSize:'.7rem',fontWeight:700,color:'#8fa3b8',textTransform:'uppercase' as const,letterSpacing:'.04em',marginBottom:6}}>Relaxation</div>
-                        {ageRows.map((r,i)=><div key={i} style={{fontSize:'.78rem',color:'#3a4a5a',padding:'2px 0'}}>• {r}</div>)}
+                        <RichContent content={job.ageRelaxation} className="rte-content" style={{ fontSize:'.78rem', color:'#3a4a5a', padding:'2px 0' }} />
                       </div>
                     )}
                   </div>
@@ -420,7 +433,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                         </div>
                       ))
                     ):<div style={{fontSize:'.82rem',color:'#5a6a7a'}}>Check official notification</div>}
-                    {job.feeRefund&&<div style={{fontSize:'.74rem',color:'#2e7d32',marginTop:8,fontWeight:700}}>✅ {job.feeRefund}</div>}
+                    {job.feeRefund && <RichContent content={job.feeRefund} className="rte-content" style={{ fontSize:'.74rem', color:'#2e7d32', marginTop:8, fontWeight:700 }} />}
                   </div>
                 </div>
 
@@ -429,15 +442,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                   <>
                     <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>🗺️ Zone / District-wise Vacancy</h2>
                     <div style={{background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'14px 16px',marginBottom:20}}>
-                      {zones.map((z,i)=>{
-                        const [label,...rest]=z.split(':')
-                        return (
-                          <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'5px 0',borderBottom:i<zones.length-1?'1px solid #f0f4f8':undefined,gap:8,flexWrap:'wrap' as const}}>
-                            <span style={{fontSize:'.82rem',color:'#3a4a5a',fontWeight:600}}>{label}</span>
-                            {rest.length>0&&<span style={{fontSize:'.82rem',fontWeight:700,color:N}}>{rest.join(':').trim()}</span>}
-                          </div>
-                        )
-                      })}
+                      <RichContent content={job.zoneWiseVacancy} className="rte-content" />
                     </div>
                   </>
                 )}
@@ -538,9 +543,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                 <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>
                   📄 {(job as any).fullDescTitle || 'Detailed Information'}
                 </h2>
-                <div style={{fontSize:'.88rem',color:'#2a3a4a',lineHeight:1.9,whiteSpace:'pre-line' as const,background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'16px 18px'}}>
-                  {(job as any).fullDescription}
-                </div>
+                <RichContent content={(job as any).fullDescription} className="rte-content" style={{ fontSize:'.88rem', color:'#2a3a4a', lineHeight:1.9, background:'#f8fbff', border:'1.5px solid #d4e0ec', borderRadius:10, padding:'16px 18px' }} />
               </div>
             )}
 
@@ -550,27 +553,14 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                 {selSections.length>0&&(
                   <>
                     <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>🏆 Detailed Selection Process & Exam Pattern</h2>
-                    {selSections.map((sec,i)=>(
-                      <div key={i} style={{borderLeft:`3px solid ${G}`,padding:'10px 14px',marginBottom:12,background:'#fafbf0',borderRadius:'0 8px 8px 0'}}>
-                        {sec.title&&<div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.88rem',color:N,marginBottom:8}}>{sec.title}</div>}
-                        {sec.lines.map((l,j)=><div key={j} style={{fontSize:'.82rem',color:'#3a4a5a',lineHeight:1.85,padding:'1px 0'}}>• {l}</div>)}
-                      </div>
-                    ))}
+                    <RichContent content={job.selectionDetails} className="rte-content" />
                     <div style={{marginBottom:20}}/>
                   </>
                 )}
                 {sylSecs.length>0&&(
                   <>
                     <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📚 Detailed Syllabus</h2>
-                    {sylSecs.map((sec,i)=>{
-                      const lines=sec.split('\n'); const [head,...rest]=lines
-                      return (
-                        <div key={i} style={{background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'14px 16px',marginBottom:12}}>
-                          <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.87rem',color:N,marginBottom:8,paddingBottom:6,borderBottom:`2px solid ${T}`}}>{head}</div>
-                          <div style={{fontSize:'.82rem',color:'#3a4a5a',lineHeight:1.85}}>{rest.join(' ')}</div>
-                        </div>
-                      )
-                    })}
+                    <RichContent content={job.syllabusDetails} className="rte-content" />
                   </>
                 )}
                 {!selSections.length&&!sylSecs.length&&(
@@ -586,24 +576,11 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
             {activeTab==='howapply'&&(
               <div className="tab-panel" style={{padding:'20px'}}>
                 <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>✅ How to Apply Online</h2>
-                {steps.map((step,i)=>{
-                  const clean=step.replace(/^[\d]+[\.\)]\s*/,'')
-                  return (
-                    <div key={i} style={{display:'flex',gap:13,padding:'11px 0',borderBottom:i<steps.length-1?'1px solid #f0f4f8':'none',alignItems:'flex-start'}}>
-                      <div style={{width:29,height:29,borderRadius:'50%',background:N,color:G,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:'.8rem',flexShrink:0,fontFamily:'Arial Black,sans-serif',border:`2px solid ${G}`}}>{i+1}</div>
-                      <div style={{paddingTop:3,fontSize:'.86rem',color:'#2a3a4a',lineHeight:1.75,flex:1}}>{clean}</div>
-                    </div>
-                  )
-                })}
+                <RichContent content={job.howToApply} className="rte-content" />
                 {job.howToApplyAs&&(
                   <div style={{background:'#fff8e1',border:'1.5px solid #ffe082',borderRadius:11,padding:'14px',marginTop:8,marginBottom:4}}>
                     <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.78rem',color:'#5d4037',marginBottom:10}}>🇮🇳 অসমীয়াত আবেদন পদ্ধতি</div>
-                    {job.howToApplyAs.split('\n').filter(s=>s.trim()).map((step,i)=>(
-                      <div key={i} style={{display:'flex',gap:10,padding:'7px 0',borderBottom:'1px solid #fff3cd',alignItems:'flex-start'}}>
-                        <div style={{width:22,height:22,borderRadius:'50%',background:'#5d4037',color:'#fff8e1',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:'.7rem',flexShrink:0}}>{i+1}</div>
-                        <div style={{fontSize:'.84rem',color:'#4a3728',lineHeight:1.7,flex:1,paddingTop:1}}>{step.replace(/^[১২৩৪৫৬৭৮৯০\d]+[.।)]\s*/,'')}</div>
-                      </div>
-                    ))}
+                    <RichContent content={job.howToApplyAs} className="rte-content" />
                   </div>
                 )}
                 {(job.howToApplyImages||[]).map((u:string)=>u.trim()).filter(Boolean).map((imgUrl,idx)=>{
@@ -677,7 +654,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                 <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,color:W,fontSize:'1rem',margin:0}}>{sec.title}</h2>
               </div>
               <div style={{padding:'18px 20px',display:'flex',flexDirection:'column' as const,gap:14}}>
-                {sec.content&&<div style={{color:'#3a5068',fontSize:'.9rem',lineHeight:1.85,whiteSpace:'pre-line' as const}}>{sec.content}</div>}
+                {sec.content && <RichContent content={sec.content} className="rte-content" />}
                 {sec.links?.length>0&&(
                   <div>
                     <div style={{fontSize:'.74rem',fontWeight:800,color:'#3a5068',marginBottom:7,textTransform:'uppercase' as const,letterSpacing:.5}}>🔗 Important Links</div>
@@ -710,11 +687,9 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                 {others.map(j=>{
                   const jsc=j.status==='Live'?'#22c55e':j.status==='Closing'?'#f59e0b':'#8fa3b8'
                   return (
-                    // ✅ FIX 2 — was j.id only, now uses slug when available
                     <Link key={j.id} href={`/jobs/${j.slug || j.id}`} className="re-card">
                       <div style={{width:42,height:42,borderRadius:10,background:`${jsc}18`,border:`1.5px solid ${jsc}44`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.3rem',flexShrink:0}}>{j.logo||'🏛️'}</div>
                       <div style={{flex:1,minWidth:0}}>
-                        {/* ✅ SAFE — j.title might be undefined */}
                         <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.83rem',color:N,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'normal' as const,wordBreak:'break-word',lineHeight:1.3}}>{j.title||'Job Vacancy'}</div>
                         <div style={{fontSize:'.72rem',color:'#5a6a7a',marginTop:2}}>{j.org||'—'} · Last: {fmt(j.lastDate)}</div>
                       </div>
@@ -781,7 +756,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
         </div>
       </div>
 
-      </main>{/* ✅ end main landmark */}
+      </main>
 
       <footer style={{background:N,borderTop:`3px solid ${G}`,padding:'18px',textAlign:'center' as const}}>
         <div style={{fontSize:'.72rem',color:'rgba(255,255,255,.3)'}}>

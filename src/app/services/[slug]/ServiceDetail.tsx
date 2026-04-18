@@ -1,16 +1,28 @@
 'use client'
 // src/app/services/[slug]/ServiceDetail.tsx
-// ✅ PageSpeed fixes:
-//   1. Removed @import Google Fonts (was blocking render +750ms mobile)
-//   2. Breadcrumb contrast: #8fa3b8 → #5a6a7a (WCAG AA on white)
-//   3. "← Back" link contrast: #1dbfad → #0e8a7e (WCAG AA on white)
-//   4. Added <main> landmark (fixes Accessibility Best Practices warning)
-//   5. Nav links — pill border style consistent with other pages
+// ✅ PageSpeed fixes + RichContent for TinyMCE
 import Link from 'next/link'
 import { useEffect } from 'react'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 const PATH = 'services'
+
+// ─────────────────────────────────────────────────────────────
+// RichContent helper – renders HTML from TinyMCE or plain text
+// ─────────────────────────────────────────────────────────────
+function RichContent({ content, className, style }: { content?: string | null; className?: string; style?: React.CSSProperties }) {
+  if (!content) return null
+  const isHtml = /<[a-z][\s\S]*>/i.test(content)
+  if (isHtml) {
+    return <div className={className} style={style} dangerouslySetInnerHTML={{ __html: content }} />
+  }
+  // Legacy plain text – preserve line breaks
+  return (
+    <div className={className} style={style}>
+      {content.split('\n').map((line, i) => <p key={i} style={{ margin: '4px 0' }}>{line}</p>)}
+    </div>
+  )
+}
 
 type OthersPost = {
   id: string
@@ -58,13 +70,10 @@ export default function ServiceDetail({ post }: { post: OthersPost }) {
   return (
     <>
       <style>{`
-        /* ✅ FIX 1: @import REMOVED — was blocking render by 750ms on mobile */
         *{box-sizing:border-box}
         body{margin:0;font-family:Nunito,var(--font-nunito),sans-serif;background:#f0f4f8}
         .sec-card{background:#fff;border-radius:12px;border:1.5px solid #e8eef4;overflow:hidden;margin-bottom:18px}
         .link-row:hover{background:#f5f0ff!important}
-
-        /* ✅ FIX 5: Nav pill borders — consistent across all pages */
         .nav-a{
           color:rgba(255,255,255,.65);font-size:.82rem;font-weight:700;
           padding:6px 13px;border-radius:99px;
@@ -78,7 +87,6 @@ export default function ServiceDetail({ post }: { post: OthersPost }) {
         <Link href="/" style={{ fontFamily: 'Arial Black,sans-serif', fontSize: '.9rem', textDecoration: 'none' }}>
           <span style={{ color: G }}>ASSAM </span><span style={{ color: W }}>CAREER</span><span style={{ color: T }}> POINT</span>
         </Link>
-        {/* ✅ FIX 5: Pill border nav links */}
         <nav style={{ display: 'flex', gap: 6 }}>
           {([['/', '🏠 Home'], [`/${PATH}`, '🏛️ Services'], ['/announcements', '📢 Announcements']] as [string,string][]).map(([href, label]) => (
             <Link key={href} href={href} className="nav-a">{label}</Link>
@@ -86,13 +94,9 @@ export default function ServiceDetail({ post }: { post: OthersPost }) {
         </nav>
       </header>
 
-      {/* ✅ FIX 4: <main> landmark added */}
       <main id="main-content">
-
-        {/* Breadcrumb */}
         <div style={{ background: '#fff', borderBottom: '1px solid #e8eef4', padding: '10px 20px' }}>
           <div style={{ maxWidth: 860, margin: '0 auto', fontSize: '.78rem', color: '#5a6a7a', display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-            {/* ✅ FIX 2: Breadcrumb contrast #8fa3b8 → #5a6a7a (passes WCAG AA on white) */}
             <Link href="/" style={{ color: '#5a6a7a', textDecoration: 'none', fontWeight: 600 }}>Home</Link>
             <span>›</span>
             <Link href={`/${PATH}`} style={{ color: '#5a6a7a', textDecoration: 'none', fontWeight: 600 }}>Public Services</Link>
@@ -101,7 +105,6 @@ export default function ServiceDetail({ post }: { post: OthersPost }) {
           </div>
         </div>
 
-        {/* HERO */}
         <div style={{ background: `linear-gradient(135deg, #1a0a2e 0%, ${N} 100%)`, padding: '32px 20px' }}>
           <div style={{ maxWidth: 860, margin: '0 auto' }}>
             <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
@@ -113,7 +116,7 @@ export default function ServiceDetail({ post }: { post: OthersPost }) {
               <div>
                 <h1 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, color: W, fontSize: '1.5rem', margin: '0 0 8px', lineHeight: 1.3 }}>{post.title}</h1>
                 {post.titleAs && <div style={{ color: '#8fa3b8', fontSize: '.9rem', marginBottom: 8 }}>{post.titleAs}</div>}
-                {post.description && <p style={{ color: '#b0c4d8', fontSize: '.9rem', margin: '0 0 8px', lineHeight: 1.7 }}>{post.description}</p>}
+                {post.description && <RichContent content={post.description} className="rte-content" style={{ color: '#b0c4d8', fontSize: '.9rem', margin: '0 0 8px', lineHeight: 1.7 }} />}
                 <div style={{ fontSize: '.75rem', color: '#6a8099' }}>
                   Published: {new Date(post.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </div>
@@ -122,11 +125,10 @@ export default function ServiceDetail({ post }: { post: OthersPost }) {
           </div>
         </div>
 
-        {/* BODY */}
         <div style={{ maxWidth: 860, margin: '0 auto', padding: '28px 16px 60px' }}>
           {post.descriptionAs && (
             <div style={{ background: '#fdf9ee', border: `1.5px solid ${G}44`, borderRadius: 12, padding: '14px 18px', marginBottom: 20 }}>
-              <p style={{ margin: 0, fontSize: '.9rem', color: '#5a3a00', lineHeight: 1.8 }}>{post.descriptionAs}</p>
+              <RichContent content={post.descriptionAs} className="rte-content" style={{ margin: 0, fontSize: '.9rem', color: '#5a3a00', lineHeight: 1.8 }} />
             </div>
           )}
 
@@ -138,11 +140,7 @@ export default function ServiceDetail({ post }: { post: OthersPost }) {
                 </h2>
               </div>
               <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {sec.content && (
-                  <div style={{ color: '#3a5068', fontSize: '.9rem', lineHeight: 1.8, whiteSpace: 'pre-line' }}>
-                    {sec.content}
-                  </div>
-                )}
+                {sec.content && <RichContent content={sec.content} className="rte-content" />}
 
                 {(sec.images || []).filter(Boolean).map((imgUrl, imgIdx) => {
                   const src = imgUrl.includes('drive.google.com')
@@ -210,26 +208,22 @@ export default function ServiceDetail({ post }: { post: OthersPost }) {
             </div>
           )}
 
-          {(post as any).fullDescription && (
+          {post.fullDescription && (
             <div style={{ marginTop: 24 }}>
               <h2 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: '1rem', color: N, marginBottom: 10 }}>
-                📄 {(post as any).fullDescTitle || 'Full Details'}
+                📄 {post.fullDescTitle || 'Full Details'}
               </h2>
-              <div style={{ whiteSpace: 'pre-line', lineHeight: 1.9, color: '#3a5068' }}>
-                {(post as any).fullDescription}
-              </div>
+              <RichContent content={post.fullDescription} className="rte-content" style={{ lineHeight: 1.9, color: '#3a5068' }} />
             </div>
           )}
 
           <div style={{ marginTop: 24 }}>
-            {/* ✅ FIX 3: "← Back" link contrast #1dbfad → #0e8a7e (passes WCAG AA on white) */}
             <Link href={`/${PATH}`} style={{ color: '#0e8a7e', fontWeight: 700, textDecoration: 'none', fontSize: '.88rem' }}>
               ← Back to Public Services
             </Link>
           </div>
         </div>
-
-      </main>{/* ✅ end <main> */}
+      </main>
 
       <footer style={{ background: N, color: '#8fa3b8', textAlign: 'center', padding: '20px', fontSize: '.78rem' }}>
         © 2025–2026 Assam Career Point &amp; Info

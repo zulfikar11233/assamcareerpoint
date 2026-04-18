@@ -6,6 +6,23 @@ import { useEffect } from 'react'
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 const PATH = 'guides'
 
+// ─────────────────────────────────────────────────────────────
+// RichContent helper – renders HTML from TinyMCE or plain text
+// ─────────────────────────────────────────────────────────────
+function RichContent({ content, className, style }: { content?: string | null; className?: string; style?: React.CSSProperties }) {
+  if (!content) return null
+  const isHtml = /<[a-z][\s\S]*>/i.test(content)
+  if (isHtml) {
+    return <div className={className} style={style} dangerouslySetInnerHTML={{ __html: content }} />
+  }
+  // Legacy plain text – preserve line breaks
+  return (
+    <div className={className} style={style}>
+      {content.split('\n').map((line, i) => <p key={i} style={{ margin: '4px 0' }}>{line}</p>)}
+    </div>
+  )
+}
+
 type OthersPost = {
   id: string
   slug: string
@@ -33,8 +50,6 @@ type OthersPost = {
 }
 
 export default function GuideDetail({ post }: { post: OthersPost }) {
-  // No useState or fetch – data comes from server
-  // Inject JSON‑LD structured data (cannot be done in server component easily)
   useEffect(() => {
     const existing = document.getElementById('acp-jsonld')
     if (existing) existing.remove()
@@ -91,7 +106,7 @@ export default function GuideDetail({ post }: { post: OthersPost }) {
             <div>
               <h1 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, color: '#fff', fontSize: '1.5rem', margin: '0 0 8px', lineHeight: 1.3 }}>{post.title}</h1>
               {post.titleAs && <div style={{ color: '#8fa3b8', fontSize: '.9rem', marginBottom: 8 }}>{post.titleAs}</div>}
-              {post.description && <p style={{ color: '#b0c4d8', fontSize: '.9rem', margin: '0 0 8px', lineHeight: 1.7 }}>{post.description}</p>}
+              {post.description && <RichContent content={post.description} className="rte-content" style={{ color: '#b0c4d8', fontSize: '.9rem', margin: '0 0 8px', lineHeight: 1.7 }} />}
               <div style={{ fontSize: '.75rem', color: '#6a8099' }}>Published: {new Date(post.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
             </div>
           </div>
@@ -101,7 +116,7 @@ export default function GuideDetail({ post }: { post: OthersPost }) {
       <div style={{ maxWidth: 860, margin: '0 auto', padding: '28px 16px 60px' }}>
         {post.descriptionAs && (
           <div style={{ background: '#fdf9ee', border: `1.5px solid ${G}44`, borderRadius: 12, padding: '14px 18px', marginBottom: 20 }}>
-            <p style={{ margin: 0, fontSize: '.9rem', color: '#5a3a00', lineHeight: 1.8 }}>{post.descriptionAs}</p>
+            <RichContent content={post.descriptionAs} className="rte-content" style={{ margin: 0, fontSize: '.9rem', color: '#5a3a00', lineHeight: 1.8 }} />
           </div>
         )}
 
@@ -113,13 +128,8 @@ export default function GuideDetail({ post }: { post: OthersPost }) {
               </h2>
             </div>
             <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {sec.content && (
-                <div style={{ color: '#3a5068', fontSize: '.9rem', lineHeight: 1.8, whiteSpace: 'pre-line' }}>
-                  {sec.content}
-                </div>
-              )}
+              {sec.content && <RichContent content={sec.content} className="rte-content" />}
 
-              {/* Section Images */}
               {(sec.images || []).filter(Boolean).map((imgUrl, imgIdx) => {
                 const src = imgUrl.includes('drive.google.com')
                   ? `https://lh3.googleusercontent.com/d/${(imgUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || [])[1]}`
@@ -195,15 +205,12 @@ export default function GuideDetail({ post }: { post: OthersPost }) {
           </div>
         )}
 
-        {/* Full Description */}
-        {(post as any).fullDescription && (
+        {post.fullDescription && (
           <div style={{ marginTop: 24 }}>
             <h2 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: '1rem', color: N, marginBottom: 10 }}>
-              📄 {(post as any).fullDescTitle || 'Full Details'}
+              📄 {post.fullDescTitle || 'Full Details'}
             </h2>
-            <div style={{ whiteSpace: 'pre-line', lineHeight: 1.9, color: '#3a5068' }}>
-              {(post as any).fullDescription}
-            </div>
+            <RichContent content={post.fullDescription} className="rte-content" style={{ lineHeight: 1.9, color: '#3a5068' }} />
           </div>
         )}
 

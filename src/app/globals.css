@@ -50,3 +50,101 @@ img { max-width: 100%; display: block; }
 @keyframes ticker  { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
 @keyframes pulse   { 0%,100%{box-shadow:0 0 0 0 rgba(230,57,70,.4)} 50%{box-shadow:0 0 0 6px rgba(230,57,70,0)} }
 @keyframes fadeUp  { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
+
+/* ───────────────────────────────────────────────────────────── */
+/* RTE CONTENT STYLES – for HTML from TinyMCE (tables, lists, etc.) */
+/* ───────────────────────────────────────────────────────────── */
+.rte-content {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: #1a1a2e;
+}
+
+.rte-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.2rem 0;
+  font-size: 0.9rem;
+  overflow-x: auto;
+  display: block;
+}
+
+.rte-content th,
+.rte-content td {
+  border: 1px solid #d4e0ec;
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.rte-content th {
+  background: #f0f4f8;
+  font-weight: 700;
+  color: #0d1b2a;
+}
+
+.rte-content tr:nth-child(even) td {
+  background: #fafbff;
+}
+
+.rte-content ul,
+.rte-content ol {
+  padding-left: 1.5rem;
+  margin: 0.8rem 0;
+}
+
+.rte-content li {
+  margin-bottom: 0.3rem;
+  line-height: 1.6;
+}
+
+.rte-content h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0d1b2a;
+  margin: 1.2rem 0 0.8rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 2px solid #e8f0f8;
+}
+
+.rte-content h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a4a6e;
+  margin: 1rem 0 0.6rem;
+}
+
+.rte-content p {
+  margin: 0.6rem 0;
+  line-height: 1.7;
+}
+
+.rte-content a {
+  color: #0096b7;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.rte-content a:hover {
+  color: #e63946;
+}
+
+.rte-content strong {
+  font-weight: 700;
+  color: #0d1b2a;
+}
+
+.rte-content em {
+  font-style: italic;
+}
+
+/* Responsive tables on small screens */
+@media (max-width: 640px) {
+  .rte-content table {
+    font-size: 0.8rem;
+  }
+  .rte-content th,
+  .rte-content td {
+    padding: 6px 8px;
+  }
+}

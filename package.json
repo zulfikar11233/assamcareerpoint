@@ -3,12 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "postinstall": "node scripts/copy-tinymce.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@tinymce/tinymce-react": "^6.3.0",
     "@types/better-sqlite3": "^7.6.13",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.6.2",
@@ -21,7 +23,8 @@
     "next-auth": "^4.24.13",
     "qrcode": "file:qrcode-1.5.3.tgz",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "tinymce": "^8.4.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

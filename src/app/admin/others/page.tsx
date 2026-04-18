@@ -4,15 +4,22 @@ export const dynamic = 'force-dynamic'
 // ✅ Admin CMS for: Announcements · Documents & Guides · Public Services
 // ✅ Full CRUD with sections builder, links table, PDF links, Assamese support
 // ✅ SEO slug auto-generator, publish toggle, affiliate link
+// ✅ RichTextEditor for all content fields (TinyMCE)
 
 import { useState, useEffect, useCallback } from 'react'
 import { signOut } from 'next-auth/react'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import {
   OthersPost, OthersSection, OthersLink,
   getOthersPosts, saveOthersPosts, generateSlug,
   getTypeLabel, getTypePath, newSectionId, newLinkId,
 } from '@/lib/others-db'
+
+const RichTextEditor = dynamic(
+  () => import('@/components/admin/RichTextEditor'),
+  { ssr: false }
+)
 
 // ─── Palette ──────────────────────────────────────────────────────────────────
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
@@ -56,11 +63,12 @@ const blankPost = (type: OthersPost['type']): Omit<OthersPost, 'id' | 'createdAt
   description: '', descriptionAs: '',
   sections: [], affiliateLink: '', affiliateLinkText: '',
   published: false, metaTitle: '', metaDescription: '',
+  fullDescription: '', fullDescTitle: '',
 })
 
 // ─── Blank section ────────────────────────────────────────────────────────────
 const blankSection = (): OthersSection => ({
-  id: newSectionId(), title: '', content: '', pdfLink: '', pdfName: '', links: [],
+  id: newSectionId(), title: '', content: '', pdfLink: '', pdfName: '', links: [], images: [],
 })
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
@@ -137,7 +145,7 @@ function Sidebar() {
   )
 }
 
-// ─── Section Builder ──────────────────────────────────────────────────────────
+// ─── Section Builder (with RichTextEditor) ─────────────────────────────────────
 function SectionBuilder({
   sections, onChange,
 }: {
@@ -181,12 +189,16 @@ function SectionBuilder({
               <label style={lb}>Section Title *</label>
               <input value={sec.title} onChange={e => update(idx, { title: e.target.value })} style={si} placeholder="e.g. DEE Assam Merit List Details" />
             </div>
-            {/* Content */}
+            {/* Content - RichTextEditor */}
             <div>
               <label style={lb}>Content / Description</label>
-              <textarea value={sec.content} onChange={e => update(idx, { content: e.target.value })}
-                style={{ ...si, minHeight: 80, resize: 'vertical' }}
-                placeholder="Write the main content for this section. Supports line breaks." />
+              <RichTextEditor
+                value={sec.content || ''}
+                onChange={(val) => update(idx, { content: val })}
+                preset="standard"
+                minHeight={180}
+                placeholder="Write the main content for this section. Use the toolbar to add tables, lists, links..."
+              />
             </div>
             {/* Images */}
             <div>
@@ -406,36 +418,48 @@ function PostModal({
               </div>
             </div>
 
-            {/* Description */}
+            {/* Description - RichTextEditor simple */}
             <div>
               <label style={lb}>Short Description (shown on listing page)</label>
-              <textarea value={form.description || ''} onChange={e => p('description')(e.target.value)}
-                style={{ ...si, minHeight: 70, resize: 'vertical' }}
-                placeholder="2-3 sentences summarizing this post. Used for SEO and listing cards." /> 
+              <RichTextEditor
+                value={form.description || ''}
+                onChange={(val) => p('description')(val)}
+                preset="simple"
+                minHeight={120}
+                placeholder="2-3 sentences summarizing this post. Used for SEO and listing cards."
+              />
             </div>
-            <div className="fg">
+
+            {/* Full Description - RichTextEditor full */}
+            <div>
               <label style={lb}>📄 Full Details Title</label>
-              <input 
-                value={form.fullDescTitle || ''} 
-                onChange={e => p('fullDescTitle')(e.target.value)} 
+              <input
+                value={form.fullDescTitle || ''}
+                onChange={e => p('fullDescTitle')(e.target.value)}
                 style={si}
               />
             </div>
-
-            <div className="fg">
+            <div>
               <label style={lb}>📄 Full Detailed Description</label>
-              <textarea 
-                value={form.fullDescription || ''} 
-                onChange={e => p('fullDescription')(e.target.value)} 
-                style={{ ...si, minHeight: 150, resize: 'vertical' }}
+              <RichTextEditor
+                value={form.fullDescription || ''}
+                onChange={(val) => p('fullDescription')(val)}
+                preset="full"
+                minHeight={250}
+                placeholder="Add comprehensive details, tables, lists, or FAQs here..."
               />
             </div>
 
-            {/* Assamese description */}
+            {/* Assamese description - RichTextEditor simple */}
             <div>
               <label style={lb}>বিৱৰণ (Assamese Description — optional)</label>
-              <textarea value={form.descriptionAs || ''} onChange={e => p('descriptionAs')(e.target.value)}
-                style={{ ...si, minHeight: 60, resize: 'vertical' }} placeholder="অসমীয়া বিৱৰণ" />
+              <RichTextEditor
+                value={form.descriptionAs || ''}
+                onChange={(val) => p('descriptionAs')(val)}
+                preset="simple"
+                minHeight={100}
+                placeholder="অসমীয়া বিৱৰণ"
+              />
             </div>
 
             {/* Affiliate */}
@@ -497,8 +521,6 @@ function PostModal({
           {/* Save buttons */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 6, paddingTop: 12, borderTop: '1px solid #eef3f9' }}>
             <button type="button" onClick={onClose} style={bS}>Cancel</button>
-
-            {/* 🖨️ PRINT BUTTON (Announcements/Guides/Services) */}
             <button type="button" onClick={() => {
               const w = window.open('', '_blank')
               if (!w) return
@@ -564,7 +586,6 @@ ${form.sections.map((sec, idx) => `
             }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
               🖨️ Preview & Print
             </button>
-
             <button type="button" onClick={handleSave} style={bP}>
               {initial ? '💾 Update' : '➕ Add'} {getTypeLabel(type).split(' ')[0]}
             </button>
@@ -769,7 +790,7 @@ export default function OthersAdmin() {
                               style={{ ...bS, padding: '5px 10px', fontSize: '.78rem', textDecoration: 'none' }}>↗</Link>
                           )}
                         </div>
-                       </td>
+                        </td>
                      </tr>
                   ))}
                 </tbody>

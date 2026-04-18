@@ -5,6 +5,23 @@ import { useEffect } from 'react'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 
+// ─────────────────────────────────────────────────────────────
+// RichContent helper – renders HTML from TinyMCE or plain text
+// ─────────────────────────────────────────────────────────────
+function RichContent({ content, className, style }: { content?: string | null; className?: string; style?: React.CSSProperties }) {
+  if (!content) return null
+  const isHtml = /<[a-z][\s\S]*>/i.test(content)
+  if (isHtml) {
+    return <div className={className} style={style} dangerouslySetInnerHTML={{ __html: content }} />
+  }
+  // Legacy plain text – preserve line breaks
+  return (
+    <div className={className} style={style}>
+      {content.split('\n').map((line, i) => <p key={i} style={{ margin: '4px 0' }}>{line}</p>)}
+    </div>
+  )
+}
+
 type ResultPost = {
   id: string | number
   slug: string
@@ -42,8 +59,6 @@ function catColor(cat: string) {
 }
 
 export default function ResultDetail({ post }: { post: ResultPost }) {
-  // No useState or fetch – data comes from server
-  // Inject JSON‑LD structured data (cannot be done in server component easily)
   useEffect(() => {
     const existing = document.getElementById('acp-result-jsonld')
     if (existing) existing.remove()
@@ -101,7 +116,6 @@ export default function ResultDetail({ post }: { post: ResultPost }) {
       {/* Hero banner */}
       <div style={{ background: `linear-gradient(135deg, ${N} 0%, #102a45 100%)`, padding: '34px 24px' }}>
         <div style={{ maxWidth: 880, margin: '0 auto' }}>
-          {/* Badges */}
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 14 }}>
             <span style={{ padding: '4px 14px', borderRadius: 20, background: color, color: '#fff', fontSize: '.72rem', fontWeight: 800, fontFamily: 'Arial Black,sans-serif' }}>
               📊 {post.category.toUpperCase()}
@@ -118,7 +132,6 @@ export default function ResultDetail({ post }: { post: ResultPost }) {
             )}
           </div>
 
-          {/* Title + emoji */}
           <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
             <span style={{ fontSize: '2.6rem', flexShrink: 0 }}>{post.emoji}</span>
             <div>
@@ -129,11 +142,8 @@ export default function ResultDetail({ post }: { post: ResultPost }) {
                 <div style={{ color: '#8fa3b8', fontSize: '.9rem', marginBottom: 8 }}>{post.titleAs}</div>
               )}
               {post.description && (
-                <p style={{ color: '#b0c4d8', fontSize: '.9rem', margin: '0 0 10px', lineHeight: 1.7 }}>
-                  {post.description}
-                </p>
+                <RichContent content={post.description} className="rte-content" style={{ color: '#b0c4d8', fontSize: '.9rem', margin: '0 0 10px', lineHeight: 1.7 }} />
               )}
-              {/* Dates */}
               <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: '.75rem', color: '#6a8099' }}>
                 {post.resultDate && (
                   <span>📅 Result Date: <strong style={{ color: '#8fa3b8' }}>{new Date(post.resultDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</strong></span>
@@ -145,17 +155,13 @@ export default function ResultDetail({ post }: { post: ResultPost }) {
         </div>
       </div>
 
-      {/* Content */}
       <div style={{ maxWidth: 880, margin: '0 auto', padding: '28px 16px 60px' }}>
-
-        {/* Assamese description box */}
         {post.descriptionAs && (
           <div style={{ background: '#fdf9ee', border: `1.5px solid ${G}44`, borderRadius: 12, padding: '14px 20px', marginBottom: 22 }}>
-            <p style={{ margin: 0, fontSize: '.92rem', color: '#5a3a00', lineHeight: 1.9 }}>{post.descriptionAs}</p>
+            <RichContent content={post.descriptionAs} className="rte-content" style={{ margin: 0, fontSize: '.92rem', color: '#5a3a00', lineHeight: 1.9 }} />
           </div>
         )}
 
-        {/* Sections */}
         {post.sections.map((sec, idx) => (
           <div key={sec.id} className="sec-card">
             <div style={{ background: `linear-gradient(90deg, ${N}, #102a45)`, padding: '13px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -168,11 +174,7 @@ export default function ResultDetail({ post }: { post: ResultPost }) {
             </div>
 
             <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {sec.content && (
-                <div style={{ color: '#3a5068', fontSize: '.92rem', lineHeight: 1.85, whiteSpace: 'pre-line' }}>
-                  {sec.content}
-                </div>
-              )}
+              {sec.content && <RichContent content={sec.content} className="rte-content" />}
 
               {sec.links.length > 0 && (
                 <div>
@@ -219,7 +221,6 @@ export default function ResultDetail({ post }: { post: ResultPost }) {
           </div>
         ))}
 
-        {/* Affiliate promo box */}
         {post.affiliateLink && (
           <div style={{
             background: `linear-gradient(135deg, ${G}14, ${T}14)`,
@@ -243,7 +244,6 @@ export default function ResultDetail({ post }: { post: ResultPost }) {
           </div>
         )}
 
-        {/* Back button */}
         <div style={{ marginTop: 26 }}>
           <Link href="/results" style={{ color: T, fontWeight: 700, textDecoration: 'none', fontSize: '.9rem' }}>
             ← Back to Results
@@ -251,7 +251,6 @@ export default function ResultDetail({ post }: { post: ResultPost }) {
         </div>
       </div>
 
-      {/* Footer */}
       <footer style={{ background: N, color: '#8fa3b8', textAlign: 'center', padding: '20px', fontSize: '.78rem' }}>
         © 2025–2026 Assam Career Point &amp; Info — Informational portal only, verify from official sources.
         {' '}<Link href="/privacy-policy" style={{ color: '#8fa3b8' }}>Privacy Policy</Link>

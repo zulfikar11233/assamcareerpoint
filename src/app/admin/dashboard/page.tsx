@@ -13,6 +13,13 @@ import { generateSlug } from '@/lib/dataHelper'
 import { useState, useEffect, useRef } from 'react'
 import { signOut } from 'next-auth/react'
 import { ContentSection, ContentSectionLink, newContentSectionId, newContentLinkId } from '@/lib/section-types'
+import dynamic from 'next/dynamic'
+
+const RichTextEditor = dynamic(
+  () => import('@/components/admin/RichTextEditor'),
+  { ssr: false }
+)
+
 // ─── TYPES ────────────────────────────────────────────────────────────────────
 
 type Post = {
@@ -304,10 +311,22 @@ function SectionBuilder({ sections, onChange }: {
               <label style={sbLb}>Section Title *</label>
               <input value={sec.title} onChange={e=>update(idx,{title:e.target.value})} style={sbSi} placeholder="e.g. How to Check Result / Important Instructions" />
             </div>
+
+            {/* ✅ CHANGED: was <textarea> — now RichTextEditor */}
             <div>
               <label style={sbLb}>Content / Details</label>
-              <textarea value={sec.content} onChange={e=>update(idx,{content:e.target.value})} style={{...sbSi,minHeight:75,resize:'vertical' as const}} placeholder="Write details here. Each line = one paragraph." />
+              <RichTextEditor
+                value={sec.content || ''}
+                onChange={(val) => update(idx, { content: val })}
+                preset="standard"
+                minHeight={180}
+                placeholder="Write details here. Use the toolbar to add tables, bold text, lists, links..."
+              />
+              <div style={{fontSize:'.67rem',color:'#8fa3b8',marginTop:3}}>
+                💡 Use the Table button (▦) to insert vacancy tables, exam pattern tables etc.
+              </div>
             </div>
+
             <div style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:9}}>
               <div>
                 <label style={sbLb}>📄 PDF Link (Google Drive — optional)</label>
@@ -329,8 +348,8 @@ function SectionBuilder({ sections, onChange }: {
                 <table style={{width:'100%',borderCollapse:'collapse'}}>
                   <thead>
                     <tr style={{background:'#eef3f9'}}>
-                      <th style={{padding:'5px 7px',fontSize:'.7rem',color:'#3a5068',fontWeight:700,textAlign:'left' as const,borderBottom:'1px solid #d4e0ec'}}>Label <span style={{color:'#8fa3b8',fontWeight:400}}>(e.g. Official Website)</span></th>
-                      <th style={{padding:'5px 7px',fontSize:'.7rem',color:'#3a5068',fontWeight:700,textAlign:'left' as const,borderBottom:'1px solid #d4e0ec'}}>URL <span style={{color:'#8fa3b8',fontWeight:400}}>(https://...)</span></th>
+                      <th style={{padding:'5px 7px',fontSize:'.7rem',color:'#3a5068',fontWeight:700,textAlign:'left' as const,borderBottom:'1px solid #d4e0ec'}}>Label <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>(e.g. Official Website)</span></th>
+                      <th style={{padding:'5px 7px',fontSize:'.7rem',color:'#3a5068',fontWeight:700,textAlign:'left' as const,borderBottom:'1px solid #d4e0ec'}}>URL <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>(https://...)</span></th>
                       <th style={{width:36,borderBottom:'1px solid #d4e0ec'}}/>
                     </tr>
                   </thead>
@@ -927,7 +946,7 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                     <thead><tr><th>Exam</th><th>By</th><th>Category</th><th>Apply By</th><th>💳 Payment By</th><th>📅 Exam Date & Time</th><th>Status</th><th>Actions</th></tr></thead>
                     <tbody>
                       {filt(exams).length===0
-                        ? <tr><td colSpan={8} style={{ textAlign:'center' as const,padding:40,color:'#5a6a7a' }}>No exams. Click "Add Exam".</td></tr>
+                        ? <td><td colSpan={8} style={{ textAlign:'center' as const,padding:40,color:'#5a6a7a' }}>No exams. Click "Add Exam".</td></tr>
                         : filt(exams).map(x => (
                           <tr key={x.id}>
                             <td><div style={{ fontWeight:700,maxWidth:170,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const }}>{x.emoji} {x.title}</div></td>
@@ -1220,7 +1239,19 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                   <div className="fg"><label style={lb}>Official Website</label><input value={jf.website} onChange={e=>setJf(p=>({...p,website:e.target.value}))} style={si} placeholder="slprbassam.in" /></div>
                 </div>
                 <div className="fg"><label style={lb}>Selection Process</label><input value={jf.selection} onChange={e=>setJf(p=>({...p,selection:e.target.value}))} style={si} placeholder="Written Test → PET → Medical Exam → Document Verification" /></div>
-                <div className="fg"><label style={lb}>How to Apply (steps)</label><textarea value={jf.howToApply} onChange={e=>setJf(p=>({...p,howToApply:e.target.value}))} style={{...si,minHeight:72,resize:'vertical' as const}} placeholder="1. Visit slprbassam.in&#10;2. Click Apply Online&#10;3. Register with mobile & email&#10;4. Fill application form&#10;5. Upload photo & signature&#10;6. Pay fee and submit" /></div>
+
+                {/* How to Apply — replaced with RichTextEditor */}
+                <div className="fg">
+                  <RichTextEditor
+                    label="How to Apply (steps)"
+                    value={jf.howToApply}
+                    onChange={(val) => setJf(p => ({...p, howToApply: val}))}
+                    preset="standard"
+                    placeholder="Add numbered steps, tables, or formatted instructions..."
+                    hint="💡 Use numbered list (1 2 3) button for steps"
+                  />
+                </div>
+
                 <div className="fg">
   <label style={{...lb, color: '#00b4d8'}}>🖼️ How to Apply Images <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>(shown in How to Apply tab — max 5, one URL per line)</span></label>
   <textarea value={(jf as any).howToApplyImages?.join('\n')||''} onChange={e=>setJf((p:any)=>({...p,howToApplyImages:e.target.value.split(/[\n\s]+/).map((s:string)=>s.trim()).filter(Boolean)}))}
@@ -1242,13 +1273,20 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
   <label style={{...lb,color:'#457b9d'}}>📄 Full Details Title (optional)</label>
   <input value={(jf as any).fullDescTitle||''} onChange={e=>setJf((p:any)=>({...p,fullDescTitle:e.target.value}))} style={si} placeholder="e.g. Complete Details About This Recruitment" />
 </div>
+
+{/* Full Description — replaced with RichTextEditor preset full */}
 <div className="fg">
-  <label style={{...lb,color:'#457b9d'}}>📄 Full Detailed Description (optional — 2000 to 3000 words) <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>Shown on detail page. Good for SEO.</span></label>
-  <textarea value={(jf as any).fullDescription||''} onChange={e=>setJf((p:any)=>({...p,fullDescription:e.target.value}))} style={{...si,minHeight:200,resize:'vertical' as const}} placeholder="Write full detailed description here — eligibility, important points, FAQ, etc. This helps with Google ranking."/>
+  <RichTextEditor
+    value={(jf as any).fullDescription || ''}
+    onChange={(val) => setJf((p: any) => ({...p, fullDescription: val}))}
+    preset="full"
+    hint="💡 Use Table button to add vacancy tables, selection process stages. Word count shown in status bar."
+  />
   <div style={{fontSize:'.7rem',color:'#8fa3b8',marginTop:4}}>
     Characters: {((jf as any).fullDescription||'').length} / ~15000 recommended for 2000-3000 words
   </div>
 </div>
+
                 <div className="g2">
                   <div className="fg"><label style={lb}>Advertisement / Notification No.</label><input value={jf.advtNo} onChange={e=>setJf(p=>({...p,advtNo:e.target.value}))} style={si} placeholder="CEN 09/2025" /></div>
                   <div className="fg"><label style={lb}>Application Opening Date</label><input type="date" value={jf.applicationStart} onChange={e=>setJf(p=>({...p,applicationStart:e.target.value}))} style={si} /></div>
@@ -1270,11 +1308,30 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
   <input value={(jf as any).ageBirthRange||''} onChange={e=>setJf((p:any)=>({...p,ageBirthRange:e.target.value}))} style={si} placeholder="e.g. Born between 01-07-2005 to 01-07-2009" />
 </div>
                 </div>
-                <div className="fg"><label style={lb}>Age Relaxation (category-wise)</label><textarea value={jf.ageRelaxation} onChange={e=>setJf(p=>({...p,ageRelaxation:e.target.value}))} style={{...si,minHeight:90,resize:'vertical' as const}} placeholder={"SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years"} /></div>
 
-                {/* ── Section: Fee & Refund ── */}
+                {/* Age Relaxation — replaced with RichTextEditor preset standard */}
+                <div className="fg">
+                  <RichTextEditor
+                    label="Age Relaxation (category-wise)"
+                    value={jf.ageRelaxation}
+                    onChange={(val) => setJf(p => ({...p, ageRelaxation: val}))}
+                    preset="standard"
+                    placeholder="Use Table button to insert a proper SC/ST/OBC/PwD relaxation table..."
+                    hint="💡 Insert a table: Category | Relaxation | Notes"
+                  />
+                </div>
+
+                {/* Fee Refund — replaced with RichTextEditor preset simple */}
                 <div className="sh">💳 Fee & Refund Details</div>
-                <div className="fg"><label style={lb}>Fee Refund Details</label><textarea value={jf.feeRefund} onChange={e=>setJf(p=>({...p,feeRefund:e.target.value}))} style={{...si,minHeight:72,resize:'vertical' as const}} placeholder={"SC/ST/PwBD/Female/EWS: Full refund of ₹250 after exam\nOthers: Refund of ₹400 out of ₹500 after exam"} /></div>
+                <div className="fg">
+                  <RichTextEditor
+                    label="Fee Refund Details"
+                    value={jf.feeRefund}
+                    onChange={(val) => setJf(p => ({...p, feeRefund: val}))}
+                    preset="simple"
+                    placeholder="Describe fee refund policy..."
+                  />
+                </div>
 
                 {/* ── Section: Helpline ── */}
                 <div className="sh">📞 Helpline / Contact</div>
@@ -1288,11 +1345,25 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                 <div className="fg">
                   <label style={lb}>Detailed Selection Process</label>
                   <div style={{background:'#e8f5e9',border:'1px solid #a5d6a7',borderRadius:7,padding:'8px 12px',marginBottom:8,fontSize:'.75rem',color:'#1b5e20'}}>Enter CBT exam pattern, PET criteria, DV process etc. Each stage on a new line.</div>
-                  <textarea value={jf.selectionDetails} onChange={e=>setJf(p=>({...p,selectionDetails:e.target.value}))} style={{...si,minHeight:110,resize:'vertical' as const}} placeholder={"Stage 1: CBT (Computer Based Test)\n- Duration: 90 minutes, 100 Questions\n- General Science: 25 Marks\n- Mathematics: 25 Marks\n- General Intelligence & Reasoning: 30 Marks\n- General Awareness & Current Affairs: 20 Marks\n- Negative Marking: -1/3 per wrong answer\n- Cut-off: UR/EWS-40%, OBC-30%, SC/ST-30%\n\nStage 2: Physical Efficiency Test (PET)\n- Male: Carry 35kg for 100m in 2 mins; Run 1000m in 4:15\n- Female: Carry 20kg for 100m in 2 mins; Run 1000m in 5:40\n\nStage 3: Document Verification (DV)\nStage 4: Medical Examination (ME)"} />
+                  {/* Selection Details — RichTextEditor preset full */}
+                  <RichTextEditor
+                    value={jf.selectionDetails}
+                    onChange={(val) => setJf(p => ({...p, selectionDetails: val}))}
+                    preset="full"
+                    placeholder="Add selection stages, exam pattern table, cut-off marks table..."
+                    hint="💡 Great for exam pattern tables: Subject | Questions | Marks | Duration"
+                  />
                 </div>
                 <div className="fg">
                   <label style={lb}>Exam Syllabus (subject-wise)</label>
-                  <textarea value={jf.syllabusDetails} onChange={e=>setJf(p=>({...p,syllabusDetails:e.target.value}))} style={{...si,minHeight:120,resize:'vertical' as const}} placeholder={"Mathematics: Number system, BODMAS, Fractions, LCM, HCF, Ratio & Proportion, Percentages, Mensuration, Time & Work, Time & Distance, Simple & Compound Interest, Profit & Loss, Algebra, Geometry, Statistics\n\nGeneral Intelligence & Reasoning: Analogies, Alphabetical/Number Series, Coding-Decoding, Syllogism, Venn Diagram, Data Interpretation, Analytical Reasoning, Directions\n\nGeneral Science: Physics, Chemistry, Life Sciences (Class 10 CBSE level)\n\nGeneral Awareness & Current Affairs: Science & Technology, Sports, Culture, Economics, Politics"} />
+                  {/* Syllabus Details — RichTextEditor preset full */}
+                  <RichTextEditor
+                    value={jf.syllabusDetails}
+                    onChange={(val) => setJf(p => ({...p, syllabusDetails: val}))}
+                    preset="full"
+                    placeholder="Add subject-wise syllabus. Use Table button for structured subject tables..."
+                    hint="💡 Table format: Subject | Topics | Marks Weightage"
+                  />
                 </div>
 
                 {/* ── Section: Zone-wise Vacancy ── */}
@@ -1300,7 +1371,14 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                 <div className="fg">
                   <label style={lb}>Zone-wise Vacancy Breakdown</label>
                   <div style={{background:'#e3f2fd',border:'1px solid #90caf9',borderRadius:7,padding:'8px 12px',marginBottom:8,fontSize:'.75rem',color:'#0d47a1'}}>Format: "Zone Name: Vacancies" — one per line. e.g. "Northeast Frontier Railway (Guwahati): 1776"</div>
-                  <textarea value={jf.zoneWiseVacancy} onChange={e=>setJf(p=>({...p,zoneWiseVacancy:e.target.value}))} style={{...si,minHeight:110,resize:'vertical' as const}} placeholder={"Northeast Frontier Railway (Guwahati): 1776\nNorthern Railway (New Delhi): 3537\nWestern Railway (Mumbai): 3148\nCentral Railway (Mumbai): 2012\nEastern Railway (Kolkata): 1180"} />
+                  {/* Zone-wise Vacancy — RichTextEditor preset standard */}
+                  <RichTextEditor
+                    value={jf.zoneWiseVacancy}
+                    onChange={(val) => setJf(p => ({...p, zoneWiseVacancy: val}))}
+                    preset="standard"
+                    placeholder="Use Table button to create Zone/State-wise vacancy breakdown..."
+                    hint="💡 Perfect for tables: State | SC | ST | OBC | EWS | UR | Total"
+                  />
                 </div>
 
                 {/* ── Section: Posts ── */}
@@ -1397,17 +1475,34 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                     <input value={jf.orgAs||''} onChange={e=>setJf(p=>({...p,orgAs:e.target.value}))} style={{...si,borderColor:'#ffe082'}} placeholder="যেনে: এছ এল পি আৰ বি অসম" />
                   </div>
                 </div>
+
+                {/* Description Assamese — RichTextEditor preset simple */}
                 <div className="fg">
-                  <label style={{...lb,color:'#5d4037'}}>বিৱৰণ (Description in Assamese — optional)</label>
-                  <textarea value={jf.descriptionAs||''} onChange={e=>setJf(p=>({...p,descriptionAs:e.target.value}))} style={{...si,minHeight:72,resize:'vertical' as const,borderColor:'#ffe082'}} placeholder="অসমীয়াত চাকৰিৰ বিৱৰণ লিখক..." />
+                  <RichTextEditor
+                    label="বিৱৰণ (Description in Assamese — optional)"
+                    value={jf.descriptionAs || ''}
+                    onChange={(val) => setJf(p => ({...p, descriptionAs: val}))}
+                    preset="simple"
+                    labelStyle={{ color: '#5d4037' }}
+                    placeholder="অসমীয়াত চাকৰিৰ বিৱৰণ লিখক..."
+                  />
                 </div>
+
                 <div className="fg">
                   <label style={{...lb,color:'#5d4037'}}>বাছনি প্ৰক্ৰিয়া (Selection in Assamese — optional)</label>
                   <input value={jf.selectionAs||''} onChange={e=>setJf(p=>({...p,selectionAs:e.target.value}))} style={{...si,borderColor:'#ffe082'}} placeholder="লিখিত পৰীক্ষা → শাৰীৰিক পৰীক্ষা → চিকিৎসা পৰীক্ষা" />
                 </div>
+
+                {/* How to Apply Assamese — RichTextEditor preset simple */}
                 <div className="fg">
-                  <label style={{...lb,color:'#5d4037'}}>আবেদন কৰাৰ পদ্ধতি (How to Apply in Assamese — optional)</label>
-                  <textarea value={jf.howToApplyAs||''} onChange={e=>setJf(p=>({...p,howToApplyAs:e.target.value}))} style={{...si,minHeight:72,resize:'vertical' as const,borderColor:'#ffe082'}} placeholder="১. slprbassam.in লৈ যাওক&#10;২. অনলাইনত আবেদন কৰক..." />
+                  <RichTextEditor
+                    label="আবেদন কৰাৰ পদ্ধতি (How to Apply in Assamese — optional)"
+                    value={jf.howToApplyAs || ''}
+                    onChange={(val) => setJf(p => ({...p, howToApplyAs: val}))}
+                    preset="simple"
+                    labelStyle={{ color: '#5d4037' }}
+                    placeholder="অসমীয়াত আবেদনৰ পদক্ষেপ লিখক..."
+                  />
                 </div>
 
                 {/* ── Section: Job-specific Affiliate Products ── */}
@@ -1651,15 +1746,32 @@ ${jf.helplinePhone ? `<div class="row"><span class="label">Phone</span><span cla
                   <div className="fg"><label style={lb}>Conducted By *</label><input required value={ef.conductedBy} onChange={e=>setEf(p=>({...p,conductedBy:e.target.value}))} style={si} placeholder="CBSE / NTA / UPSC / State Board" /></div>
                   <div className="fg"><label style={lb}>Eligibility</label><input value={ef.eligibility} onChange={e=>setEf(p=>({...p,eligibility:e.target.value}))} style={si} placeholder="Graduation + B.Ed" /></div>
                 </div>
-                <div className="fg"><label style={lb}>Description</label><textarea value={ef.description} onChange={e=>setEf(p=>({...p,description:e.target.value}))} style={{...si,minHeight:60,resize:'vertical' as const}} placeholder="Brief description of the exam..." /></div>
+
+                {/* Description — RichTextEditor preset simple */}
+                <div className="fg">
+                  <RichTextEditor
+                    label="Description"
+                    value={ef.description}
+                    onChange={(val) => setEf(p => ({...p, description: val}))}
+                    preset="simple"
+                    minHeight={130}
+                    placeholder="Brief description of the exam..."
+                  />
+                </div>
+
 			<div className="fg">
   <label style={{...lb,color:'#457b9d'}}>📄 Full Details Title (optional)</label>
   <input value={(ef as any).fullDescTitle||''} onChange={e=>setEf((p:any)=>({...p,fullDescTitle:e.target.value}))} style={si} />
 </div>
 
+{/* Full Description — RichTextEditor preset full */}
 <div className="fg">
-  <label style={{...lb,color:'#457b9d'}}>📄 Full Detailed Description (optional)</label>
-  <textarea value={(ef as any).fullDescription||''} onChange={e=>setEf((p:any)=>({...p,fullDescription:e.target.value}))} style={{...si,minHeight:200}} />
+  <RichTextEditor
+    value={(ef as any).fullDescription || ''}
+    onChange={(val) => setEf((p: any) => ({...p, fullDescription: val}))}
+    preset="full"
+    hint="💡 Add exam pattern table, previous year analysis, preparation tips with proper formatting"
+  />
 </div>
 
                 <div className="sh" style={{ marginTop:4 }}>📅 Important Dates</div>
@@ -1687,7 +1799,19 @@ ${jf.helplinePhone ? `<div class="row"><span class="label">Phone</span><span cla
 
                 <div className="sh" style={{ marginTop:4 }}>💰 Fee & Syllabus</div>
                 <div className="fg"><label style={lb}>Application Fee</label><input value={ef.fee} onChange={e=>setEf(p=>({...p,fee:e.target.value}))} style={si} placeholder="Gen ₹1,000 · OBC ₹800 · SC/ST ₹500 · PWD ₹0" /></div>
-                <div className="fg"><label style={lb}>Syllabus (brief)</label><textarea value={ef.syllabus} onChange={e=>setEf(p=>({...p,syllabus:e.target.value}))} style={{...si,minHeight:55,resize:'vertical' as const}} placeholder="Child Development, Language I & II, Mathematics, Environmental Science" /></div>
+
+                {/* Syllabus — RichTextEditor preset standard */}
+                <div className="fg">
+                  <RichTextEditor
+                    label="Syllabus (brief)"
+                    value={ef.syllabus}
+                    onChange={(val) => setEf(p => ({...p, syllabus: val}))}
+                    preset="standard"
+                    minHeight={150}
+                    placeholder="Use Table button for subject-wise syllabus breakdown..."
+                    hint="💡 Table: Subject | Topics | Marks"
+                  />
+                </div>
 
                 <div className="sh" style={{ marginTop:4 }}>🔗 Links</div>
                 <div className="g2">
@@ -1705,10 +1829,19 @@ ${jf.helplinePhone ? `<div class="row"><span class="label">Phone</span><span cla
                   <label style={{...lb,color:'#5d4037'}}>পৰীক্ষাৰ নাম (Exam Title in Assamese)</label>
                   <input value={ef.titleAs||''} onChange={e=>setEf(p=>({...p,titleAs:e.target.value}))} style={{...si,borderColor:'#ffe082'}} placeholder="যেনে: কেন্দ্ৰীয় শিক্ষক পাত্ৰতা পৰীক্ষা 2026" />
                 </div>
+
+                {/* Description Assamese — RichTextEditor preset simple */}
                 <div className="fg">
-                  <label style={{...lb,color:'#5d4037'}}>বিৱৰণ (Description in Assamese)</label>
-                  <textarea value={ef.descriptionAs||''} onChange={e=>setEf(p=>({...p,descriptionAs:e.target.value}))} style={{...si,minHeight:60,resize:'vertical' as const,borderColor:'#ffe082'}} placeholder="অসমীয়াত পৰীক্ষাৰ বিৱৰণ..." />
+                  <RichTextEditor
+                    label="বিৱৰণ (Description in Assamese)"
+                    value={ef.descriptionAs || ''}
+                    onChange={(val) => setEf(p => ({...p, descriptionAs: val}))}
+                    preset="simple"
+                    labelStyle={{ color: '#5d4037' }}
+                    placeholder="অসমীয়াত পৰীক্ষাৰ বিৱৰণ..."
+                  />
                 </div>
+
                 <div className="fg">
                   <label style={{...lb,color:'#5d4037'}}>যোগ্যতা (Eligibility in Assamese)</label>
                   <input value={ef.eligibilityAs||''} onChange={e=>setEf(p=>({...p,eligibilityAs:e.target.value}))} style={{...si,borderColor:'#ffe082'}} placeholder="স্নাতক + বি.এড / ডি.এল.এড" />
@@ -1900,24 +2033,50 @@ ${ef.examPdfs.map(pdf => `<div class="row"><span class="label">${pdf.label || 'P
                     Public URL: assamcareerpoint-info.com/information/{inf.slug || '...'}
                   </div>
                 </div>
-                <div className="fg"><label style={lb}>Description</label><textarea value={inf.description} onChange={e=>setInf(p=>({...p,description:e.target.value}))} style={{...si,minHeight:72,resize:'vertical' as const}} placeholder="What is this? Who needs to do it? Why is it important?" /> 
+
+                {/* Description — RichTextEditor preset simple */}
+                <div className="fg">
+                  <RichTextEditor
+                    label="Description"
+                    value={inf.description}
+                    onChange={(val) => setInf(p => ({...p, description: val}))}
+                    preset="simple"
+                    minHeight={140}
+                    placeholder="What is this? Who needs to do it? Why is it important?"
+                  />
+                </div>
+
 		<div className="fg">
   <label style={{...lb,color:'#457b9d'}}>📄 Full Details Title</label>
   <input value={(inf as any).fullDescTitle||''} onChange={e=>setInf((p:any)=>({...p,fullDescTitle:e.target.value}))} style={si} />
 </div>
 
+{/* Full Description — RichTextEditor preset full */}
 <div className="fg">
-  <label style={{...lb,color:'#457b9d'}}>📄 Full Detailed Description</label>
-  <textarea value={(inf as any).fullDescription||''} onChange={e=>setInf((p:any)=>({...p,fullDescription:e.target.value}))} style={{...si,minHeight:200}} />
+  <RichTextEditor
+    value={(inf as any).fullDescription || ''}
+    onChange={(val) => setInf((p: any) => ({...p, fullDescription: val}))}
+    preset="full"
+    hint="💡 Add step-by-step tables, FAQ sections, document checklists with proper formatting"
+  />
 </div>
-</div>
+
                 <div className="g2">
                   <div className="fg"><label style={lb}>Overall Deadline (optional)</label><input type="date" value={inf.lastDate||''} onChange={e=>setInf(p=>({...p,lastDate:e.target.value}))} style={si} /></div>
                   <div className="fg"><label style={lb}>Official Website</label><input type="url" value={inf.officialLink} onChange={e=>setInf(p=>({...p,officialLink:e.target.value}))} style={si} placeholder="https://voters.eci.gov.in" /></div>
                 </div>
+
+                {/* Process — RichTextEditor preset standard */}
                 <div className="fg">
-                  <label style={lb}>Process / Steps (how to do it)</label>
-                  <textarea value={inf.process} onChange={e=>setInf(p=>({...p,process:e.target.value}))} style={{...si,minHeight:100,resize:'vertical' as const}} placeholder="1. Visit voters.eci.gov.in&#10;2. Click 'Register as New Voter'&#10;3. Fill Form 6 with your details&#10;4. Upload Aadhaar and address proof&#10;5. Submit and note acknowledgement number" />
+                  <RichTextEditor
+                    label="Process / Steps (how to do it)"
+                    value={inf.process}
+                    onChange={(val) => setInf(p => ({...p, process: val}))}
+                    preset="standard"
+                    minHeight={180}
+                    placeholder="Add numbered steps. Use Table button for document checklists..."
+                    hint="💡 Use ordered list (1 2 3) for steps, or Table for document requirements"
+                  />
                 </div>
 
                 <div className="sh" style={{ marginTop:4 }}>
@@ -1943,14 +2102,31 @@ ${ef.examPdfs.map(pdf => `<div class="row"><span class="label">${pdf.label || 'P
                   <label style={{...lb,color:'#5d4037'}}>শিৰোনাম (Title in Assamese)</label>
                   <input value={inf.titleAs||''} onChange={e=>setInf(p=>({...p,titleAs:e.target.value}))} style={{...si,borderColor:'#ffe082'}} placeholder="অসমীয়াত শিৰোনাম লিখক" />
                 </div>
+
+                {/* Description Assamese — RichTextEditor preset simple */}
                 <div className="fg">
-                  <label style={{...lb,color:'#5d4037'}}>বিৱৰণ (Description in Assamese)</label>
-                  <textarea value={inf.descriptionAs||''} onChange={e=>setInf(p=>({...p,descriptionAs:e.target.value}))} style={{...si,minHeight:60,resize:'vertical' as const,borderColor:'#ffe082'}} placeholder="অসমীয়াত বিৱৰণ..." />
+                  <RichTextEditor
+                    label="বিৱৰণ (Description in Assamese)"
+                    value={inf.descriptionAs || ''}
+                    onChange={(val) => setInf(p => ({...p, descriptionAs: val}))}
+                    preset="simple"
+                    labelStyle={{ color: '#5d4037' }}
+                    placeholder="অসমীয়াত বিৱৰণ..."
+                  />
                 </div>
+
+                {/* Process Assamese — RichTextEditor preset simple */}
                 <div className="fg">
-                  <label style={{...lb,color:'#5d4037'}}>প্ৰক্ৰিয়া (Process/Steps in Assamese)</label>
-                  <textarea value={inf.processAs||''} onChange={e=>setInf(p=>({...p,processAs:e.target.value}))} style={{...si,minHeight:72,resize:'vertical' as const,borderColor:'#ffe082'}} placeholder="১. ৱেবছাইটলৈ যাওক&#10;২. ফৰ্ম পূৰণ কৰক..." />
+                  <RichTextEditor
+                    label="প্ৰক্ৰিয়া (Process/Steps in Assamese)"
+                    value={inf.processAs || ''}
+                    onChange={(val) => setInf(p => ({...p, processAs: val}))}
+                    preset="simple"
+                    labelStyle={{ color: '#5d4037' }}
+                    placeholder="অসমীয়াত পদক্ষেপ লিখক..."
+                  />
                 </div>
+
 <div className="fg">
   <label style={{...lb,color:'#2a9d8f'}}>
     🖼️ Process Images

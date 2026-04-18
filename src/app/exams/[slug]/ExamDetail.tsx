@@ -1,15 +1,33 @@
 'use client'
 // src/app/exams/[slug]/ExamDetail.tsx
-// ✅ PageSpeed fixes:
+// ✅ PageSpeed fixes + RichText rendering from TinyMCE
 //   1. Removed @import Google Fonts (was blocking render +750ms)
 //   2. Fixed contrast: breadcrumb, date labels, footer links
 //   3. Added <main> landmark (Accessibility Best Practices)
 //   4. Added suppressHydrationWarning to countdown (React #418 error)
 //   5. Nav pill borders consistent with other pages
+//   6. RichContent helper – renders HTML from TinyMCE or plain text
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
+
+// ─────────────────────────────────────────────────────────────
+// RichContent helper – renders HTML from TinyMCE or plain text
+// ─────────────────────────────────────────────────────────────
+function RichContent({ content, className, style }: { content?: string | null; className?: string; style?: React.CSSProperties }) {
+  if (!content) return null
+  const isHtml = /<[a-z][\s\S]*>/i.test(content)
+  if (isHtml) {
+    return <div className={className} style={style} dangerouslySetInnerHTML={{ __html: content }} />
+  }
+  // Legacy plain text – preserve line breaks
+  return (
+    <div className={className} style={style}>
+      {content.split('\n').map((line, i) => <p key={i} style={{ margin: '4px 0' }}>{line}</p>)}
+    </div>
+  )
+}
 
 function Logo({ size = 38 }: { size?: number }) {
   return (
@@ -156,7 +174,6 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
               <div style={{fontFamily:'Arial Black,sans-serif',fontSize:'.65rem',color:T,letterSpacing:'.12em'}}>◆ POINT ◆</div>
             </div>
           </Link>
-          {/* ✅ Consistent nav with pill borders */}
           <nav style={{display:'flex',gap:6,flexWrap:'wrap' as const}}>
             {NAV_LINKS.map(([l,h])=>(
               <Link key={h} href={h} className="nav-a">{l}</Link>
@@ -165,13 +182,11 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
         </div>
       </header>
 
-      {/* ✅ FIX 3: <main> landmark added — fixes Accessibility Best Practices warning */}
       <main id="main-content">
 
         {/* Breadcrumb */}
         <div style={{background:'#fff',borderBottom:'1px solid #e8eef6',padding:'10px 20px',fontSize:'.78rem',color:'#5a6a7a'}}>
           <div style={{maxWidth:1180,margin:'0 auto',display:'flex',gap:6,alignItems:'center',flexWrap:'wrap' as const}}>
-            {/* ✅ FIX 2A: Breadcrumb contrast — #0e8a7e instead of #1dbfad (teal on white fails) */}
             <Link href="/" style={{color:'#0e8a7e',textDecoration:'none',fontWeight:600}}>Home</Link> <span>›</span>
             <Link href="/exams" style={{color:'#0e8a7e',textDecoration:'none',fontWeight:600}}>Exams</Link> <span>›</span>
             <span style={{color:N,fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const}}>{(exam.title||'').slice(0,50)}</span>
@@ -205,7 +220,6 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
                 {l:'Admit Card', v:exam.admitCardDate||'—',       hi:false},
               ].map(s=>(
                 <div key={s.l} style={{background:'rgba(255,255,255,.07)',border:`1px solid ${s.hi?`${G}55`:'rgba(255,255,255,.12)'}`,borderRadius:10,padding:'10px 13px'}}>
-                  {/* ✅ FIX 2B: Label contrast — rgba(255,255,255,.55) instead of .4 for better readability */}
                   <div style={{fontSize:'.62rem',color:'rgba(255,255,255,.55)',fontWeight:700,textTransform:'uppercase' as const,letterSpacing:'.04em',marginBottom:4}}>{s.l}</div>
                   <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.82rem',color:s.hi?G:W,lineHeight:1.3}}>{s.v}</div>
                 </div>
@@ -221,8 +235,8 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
             {exam.description && (
               <div className="card">
                 <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📋 About This Exam</h2>
-                <p style={{fontSize:'.88rem',color:'#3a4a5a',lineHeight:1.85,margin:'0 0 4px'}}>{exam.description}</p>
-                {exam.descriptionAs&&<p style={{fontSize:'.86rem',color:'#5d4037',lineHeight:1.8,margin:'8px 0 0',background:'#fff8e1',borderRadius:8,padding:'8px 12px',borderLeft:'3px solid #ffe082'}}>{exam.descriptionAs}</p>}
+                <RichContent content={exam.description} className="rte-content" style={{fontSize:'.88rem',color:'#3a4a5a',lineHeight:1.85,margin:'0 0 4px'}} />
+                {exam.descriptionAs && <RichContent content={exam.descriptionAs} className="rte-content" style={{fontSize:'.86rem',color:'#5d4037',lineHeight:1.8,margin:'8px 0 0',background:'#fff8e1',borderRadius:8,padding:'8px 12px',borderLeft:'3px solid #ffe082'}} />}
               </div>
             )}
 
@@ -238,7 +252,6 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
                   ...(exam.resultDate          ? [{l:'Result Date',          v:fmt(exam.resultDate),          hi:false}] : []),
                 ].map(d=>(
                   <div key={d.l} style={{background:d.hi?`${G}12`:'#f8fbff',border:`1.5px solid ${d.hi?`${G}44`:'#d4e0ec'}`,borderRadius:10,padding:'12px 14px'}}>
-                    {/* ✅ FIX 2B: date label contrast #8fa3b8 → #5a6a7a (passes WCAG AA) */}
                     <div style={{fontSize:'.63rem',fontWeight:700,color:'#5a6a7a',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:5}}>{d.l}</div>
                     <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.87rem',color:d.hi?G:N,lineHeight:1.3}}>{d.v}</div>
                   </div>
@@ -263,10 +276,10 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
             {exam.eligibility && (
               <div className="card">
                 <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>✅ Eligibility Criteria</h2>
-                <div style={{fontSize:'.88rem',color:'#3a4a5a',lineHeight:1.85,whiteSpace:'pre-line' as const}}>{exam.eligibility}</div>
-                {exam.eligibilityAs&&(
-                  <div style={{marginTop:12,background:'#fff8e1',border:'1.5px solid #ffe082',borderRadius:9,padding:'10px 13px',fontSize:'.84rem',color:'#5d4037',lineHeight:1.8,whiteSpace:'pre-line' as const,borderLeft:'3px solid #ffe082'}}>
-                    {exam.eligibilityAs}
+                <RichContent content={exam.eligibility} className="rte-content" style={{fontSize:'.88rem',color:'#3a4a5a',lineHeight:1.85}} />
+                {exam.eligibilityAs && (
+                  <div style={{marginTop:12,background:'#fff8e1',border:'1.5px solid #ffe082',borderRadius:9,padding:'10px 13px',borderLeft:'3px solid #ffe082'}}>
+                    <RichContent content={exam.eligibilityAs} className="rte-content" style={{fontSize:'.84rem',color:'#5d4037',lineHeight:1.8}} />
                   </div>
                 )}
               </div>
@@ -275,7 +288,7 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
             {exam.syllabus && (
               <div className="card">
                 <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📚 Exam Syllabus / Pattern</h2>
-                <div style={{fontSize:'.88rem',color:'#3a4a5a',lineHeight:1.9,whiteSpace:'pre-line' as const}}>{exam.syllabus}</div>
+                <RichContent content={exam.syllabus} className="rte-content" style={{fontSize:'.88rem',color:'#3a4a5a',lineHeight:1.9}} />
               </div>
             )}
 
@@ -341,14 +354,12 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
               </div>
             )}
 
-            {(exam as any).fullDescription&&(
+            {(exam as any).fullDescription && (
               <div style={{marginTop:22}}>
                 <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>
                   📄 {(exam as any).fullDescTitle || 'Detailed Information'}
                 </h2>
-                <div style={{fontSize:'.88rem',color:'#2a3a4a',lineHeight:1.9,whiteSpace:'pre-line' as const,background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'16px 18px'}}>
-                  {(exam as any).fullDescription}
-                </div>
+                <RichContent content={(exam as any).fullDescription} className="rte-content" style={{background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'16px 18px'}} />
               </div>
             )}
 
@@ -359,7 +370,7 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
                   <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,color:W,fontSize:'1rem',margin:0}}>{sec.title}</h2>
                 </div>
                 <div style={{padding:'18px 20px',display:'flex',flexDirection:'column' as const,gap:14}}>
-                  {sec.content&&<div style={{color:'#3a5068',fontSize:'.9rem',lineHeight:1.85,whiteSpace:'pre-line' as const}}>{sec.content}</div>}
+                  {sec.content && <RichContent content={sec.content} className="rte-content" />}
                   {sec.links?.length>0&&(
                     <div>
                       <div style={{fontSize:'.74rem',fontWeight:800,color:'#3a5068',marginBottom:7,textTransform:'uppercase' as const,letterSpacing:.5}}>🔗 Important Links</div>
@@ -405,7 +416,6 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
 
           {/* SIDEBAR */}
           <div style={{width:290,flexShrink:0,minWidth:0}}>
-            {/* ✅ FIX 4: suppressHydrationWarning — fixes React #418 hydration error */}
             {timerOn && canCountdown && (
               <div suppressHydrationWarning style={{background:N,border:`2px solid ${G}`,borderRadius:16,padding:'18px',marginBottom:16}}>
                 <h3 style={{fontFamily:'Arial Black,sans-serif',color:G,fontSize:'.76rem',letterSpacing:'.06em',marginBottom:12}}>⏳ TIME REMAINING</h3>
@@ -436,7 +446,6 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
                 ...(exam.officialSite ? [{l:'Official Site', v:exam.officialSite, c:T, href:`https://${exam.officialSite}`}] : []),
               ].map((r:any)=>(
                 <div key={r.l} style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',padding:'6px 0',borderBottom:'1px solid #f0f4f8',gap:8}}>
-                  {/* ✅ FIX 2B: sidebar label contrast #8fa3b8 → #5a6a7a */}
                   <span style={{fontSize:'.73rem',color:'#5a6a7a',fontWeight:700,flexShrink:0}}>{r.l}</span>
                   {r.href
                     ? <a href={r.href} target="_blank" rel="noopener noreferrer" style={{fontSize:'.76rem',fontWeight:700,color:'#0e8a7e',textDecoration:'none',textAlign:'right' as const,wordBreak:'break-all' as const}}>{r.v}</a>
@@ -476,13 +485,12 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
           </div>
         </div>
 
-      </main>{/* ✅ end <main> */}
+      </main>
 
       <footer style={{background:N,borderTop:`3px solid ${G}`,padding:'18px',textAlign:'center' as const}}>
         <div style={{fontSize:'.72rem',color:'rgba(255,255,255,.4)'}}>
           © 2025–2026 Assam Career Point & Info ·{' '}
           {([['Privacy','/privacy-policy'],['About','/about-us'],['Contact','/contact'],['Home','/']] as [string,string][]).map(([l,h])=>(
-            // ✅ FIX 2C: Footer link contrast — full opacity gold #c9a227 instead of 53% opacity
             <span key={h}><Link href={h} style={{color:'#c9a227',textDecoration:'none'}}>{l}</Link> · </span>
           ))}
         </div>

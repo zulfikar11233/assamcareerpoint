@@ -1,9 +1,26 @@
 'use client'
-// src/app/information/[id]/InfoDetail.tsx — Client component (only rendering, no data fetching)
+// src/app/information/[slug]/InfoDetail.tsx — Client component (only rendering, no data fetching)
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
+
+// ─────────────────────────────────────────────────────────────
+// RichContent helper – renders HTML from TinyMCE or plain text
+// ─────────────────────────────────────────────────────────────
+function RichContent({ content, className, style }: { content?: string | null; className?: string; style?: React.CSSProperties }) {
+  if (!content) return null
+  const isHtml = /<[a-z][\s\S]*>/i.test(content)
+  if (isHtml) {
+    return <div className={className} style={style} dangerouslySetInnerHTML={{ __html: content }} />
+  }
+  // Legacy plain text – preserve line breaks
+  return (
+    <div className={className} style={style}>
+      {content.split('\n').map((line, i) => <p key={i} style={{ margin: '4px 0' }}>{line}</p>)}
+    </div>
+  )
+}
 
 function Logo({ size = 38 }: { size?: number }) {
   return (
@@ -50,7 +67,7 @@ type InfoItem = {
 const SC: Record<string,string> = { 'Active':'#22c55e', 'Upcoming':'#f59e0b', 'Expired':'#8fa3b8' }
 
 export default function InfoDetail({ item, others }: { item: InfoItem; others: InfoItem[] }) {
-  // ✅ FIX: JSON-LD structured data — fixes SEO 92 → 100
+  // JSON-LD structured data
   useEffect(() => {
     const existing = document.getElementById('acp-jsonld')
     if (existing) existing.remove()
@@ -76,13 +93,10 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
   }
 
   const sc = SC[item.status] || '#8fa3b8'
-  const steps = item.process?.split('\n').filter(s => s.trim()) || []
-  const stepsAs = item.processAs?.split('\n').filter(s => s.trim()) || []
 
   return (
     <>
       <style>{`
-        
         *,*::before,*::after{box-sizing:border-box}
         html,body{margin:0;font-family:Nunito,sans-serif;background:#f0f4f8;color:#1a1a2e;overflow-x:hidden}
         .nav-a{color:rgba(255,255,255,.65);font-size:.82rem;font-weight:700;padding:6px 13px;border-radius:99px;border:1.5px solid rgba(255,255,255,.15);text-decoration:none;white-space:nowrap;transition:.15s}
@@ -109,7 +123,6 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
         </div>
       </header>
 
-      {/* ✅ FIX: <main> landmark */}
       <main id="main-content">
       {/* Breadcrumb */}
       <div style={{background:'#fff',borderBottom:'1px solid #e8eef6',padding:'10px 20px',fontSize:'.78rem',color:'#5a6a7a'}}>
@@ -129,8 +142,12 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
               <span style={{background:`${sc}22`,color:sc,border:`1px solid ${sc}44`,padding:'3px 12px',borderRadius:99,fontSize:'.72rem',fontWeight:800}}>● {item.status}</span>
               <span style={{background:'rgba(255,255,255,.1)',color:'rgba(255,255,255,.65)',padding:'3px 12px',borderRadius:99,fontSize:'.72rem',fontWeight:700}}>{item.category}</span>
             </div>
-            <h1 style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:'clamp(1.1rem,2.5vw,1.6rem)',color:W,margin:'0 0 8px',lineHeight:1.3}}>{item.title}{item.titleAs&&<><br/><span style={{fontSize:'clamp(.78rem,1.6vw,1rem)',color:'#ffd54f',fontWeight:700}}>{item.titleAs}</span></>}</h1>
-            <p style={{color:'rgba(255,255,255,.55)',fontSize:'.87rem',lineHeight:1.7,margin:'0 0 4px'}}>{item.description}</p>{item.descriptionAs&&<p style={{color:'rgba(255,255,255,.4)',fontSize:'.85rem',lineHeight:1.7,margin:0,fontStyle:'italic'}}>{item.descriptionAs}</p>}
+            <h1 style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:'clamp(1.1rem,2.5vw,1.6rem)',color:W,margin:'0 0 8px',lineHeight:1.3}}>
+              {item.title}
+              {item.titleAs && <><br/><span style={{fontSize:'clamp(.78rem,1.6vw,1rem)',color:'#ffd54f',fontWeight:700}}>{item.titleAs}</span></>}
+            </h1>
+            {item.description && <RichContent content={item.description} className="rte-content" style={{color:'rgba(255,255,255,.55)', fontSize:'.87rem', lineHeight:1.7, margin:'0 0 4px'}} />}
+            {item.descriptionAs && <RichContent content={item.descriptionAs} className="rte-content" style={{color:'rgba(255,255,255,.4)', fontSize:'.85rem', lineHeight:1.7, margin:0, fontStyle:'italic'}} />}
           </div>
         </div>
       </div>
@@ -157,29 +174,14 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
           )}
 
           {/* Step-by-step process */}
-          {steps.length > 0 && (
+          {item.process && (
             <div className="card">
               <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:N,margin:'0 0 16px',paddingBottom:10,borderBottom:'2px solid #f0f4f8'}}>📋 Step-by-Step Process</h2>
-              <div>
-                {steps.map((step, i) => {
-                  const clean = step.replace(/^[\d]+[\.\)]\s*/, '').replace(/^Step\s*\d+:?\s*/i,'')
-                  return (
-                    <div key={i} style={{display:'flex',gap:14,padding:'12px 0',borderBottom:i<steps.length-1?'1px solid #f0f4f8':'none',alignItems:'flex-start'}}>
-                      <div style={{width:30,height:30,borderRadius:'50%',background:N,color:G,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:'.8rem',flexShrink:0,fontFamily:'Arial Black,sans-serif',border:`2px solid ${G}`}}>{i+1}</div>
-                      <div style={{paddingTop:4,fontSize:'.88rem',color:'#2a3a4a',lineHeight:1.75,flex:1}}>{clean}</div>
-                    </div>
-                  )
-                })}
-              </div>
-              {stepsAs.length > 0 && (
+              <RichContent content={item.process} className="rte-content" />
+              {item.processAs && (
                 <div style={{marginTop:14,background:'#fff8e1',border:'1.5px solid #ffe082',borderRadius:10,padding:'12px'}}>
                   <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.78rem',color:'#5d4037',marginBottom:8}}>🇮🇳 অসমীয়াত প্ৰক্ৰিয়া</div>
-                  {stepsAs.map((step,i)=>(
-                    <div key={i} style={{display:'flex',gap:10,padding:'7px 0',borderBottom:i<stepsAs.length-1?'1px solid #fff3cd':'none',alignItems:'flex-start'}}>
-                      <div style={{width:22,height:22,borderRadius:'50%',background:'#5d4037',color:'#fff8e1',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:'.7rem',flexShrink:0}}>{i+1}</div>
-                      <div style={{fontSize:'.84rem',color:'#4a3728',lineHeight:1.7,flex:1,paddingTop:1}}>{step.replace(/^[১২৩৪৫৬৭৮৯০\d]+[.।)]\s*/,'').replace(/^Step\s*\d+:?\s*/i,'')}</div>
-                    </div>
-                  ))}
+                  <RichContent content={item.processAs} className="rte-content" />
                 </div>
               )}
             </div>
@@ -222,9 +224,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
               <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>
                 📄 {item.fullDescTitle || 'Detailed Information'}
               </h2>
-              <div style={{fontSize:'.88rem',color:'#2a3a4a',lineHeight:1.9,whiteSpace:'pre-line',background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'16px 18px'}}>
-                {item.fullDescription}
-              </div>
+              <RichContent content={item.fullDescription} className="rte-content" style={{background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'16px 18px'}} />
             </div>
           )}
 
@@ -236,9 +236,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
                 <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,color:W,fontSize:'1rem',margin:0}}>{sec.title}</h2>
               </div>
               <div style={{padding:'18px 20px',display:'flex',flexDirection:'column' as const,gap:14}}>
-                {sec.content&&(
-                  <div style={{color:'#3a5068',fontSize:'.9rem',lineHeight:1.85,whiteSpace:'pre-line' as const}}>{sec.content}</div>
-                )}
+                {sec.content && <RichContent content={sec.content} className="rte-content" />}
                 {sec.links?.length>0&&(
                   <div>
                     <div style={{fontSize:'.74rem',fontWeight:800,color:'#3a5068',marginBottom:7,textTransform:'uppercase' as const,letterSpacing:.5}}>🔗 Important Links</div>
@@ -335,7 +333,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
         </div>
       </div>
 
-      </main>{/* ✅ end main */}
+      </main>
 
       <footer style={{background:N,borderTop:`3px solid ${G}`,padding:'18px',textAlign:'center' as const}}>
         <div style={{fontSize:'.72rem',color:'rgba(255,255,255,.3)'}}>
