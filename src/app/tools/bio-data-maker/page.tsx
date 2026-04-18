@@ -13,6 +13,14 @@ export const metadata: Metadata = {
       'Build a complete government-format bio-data with Assam-specific fields. Download as PDF instantly. Free and private.',
     url: 'https://assamcareerpoint-info.com/tools/bio-data-maker',
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  alternates: {
+    canonical: 'https://www.assamcareerpoint-info.com/tools/bio-data-maker',
+  },
 }
 
 export default function BioDataPage() {

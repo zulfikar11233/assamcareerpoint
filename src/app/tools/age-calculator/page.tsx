@@ -13,6 +13,14 @@ export const metadata: Metadata = {
       'Calculate your exact age and check eligibility for ADRE, APSC, SSC, Railway and other exams. Includes OBC/SC/ST age relaxation for Assam.',
     url: 'https://assamcareerpoint-info.com/tools/age-calculator',
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  alternates: {
+    canonical: 'https://www.assamcareerpoint-info.com/tools/age-calculator',
+  },
 }
 
 export default function AgeCalculatorPage() {

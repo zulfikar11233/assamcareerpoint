@@ -13,6 +13,14 @@ export const metadata: Metadata = {
       'Count words, characters, sentences, reading time and keyword density. Includes exam word limit checker, case converter, find & replace and more.',
     url: 'https://assamcareerpoint-info.com/tools/word-counter',
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  alternates: {
+    canonical: 'https://www.assamcareerpoint-info.com/tools/word-counter',
+  },
 }
 
 export default function WordCounterPage() {
