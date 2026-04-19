@@ -37,6 +37,9 @@ export type ResultPost = {
   // SEO
   metaTitle?: string
   metaDescription?: string
+  // ✅ ADDED for rich text full description
+  fullDescription?: string   // long detailed description (supports HTML)
+  fullDescTitle?: string     // optional title for the full description section
 }
 
 // ─── localStorage key ─────────────────────────────────────────────────────────
