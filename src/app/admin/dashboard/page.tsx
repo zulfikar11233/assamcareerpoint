@@ -940,36 +940,45 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
 )}
             {/* ── EXAMS TABLE ── */}
             {activeTab==='exams' && (
-              <div style={{ background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:12,overflow:'hidden' }}>
-                <div style={{ overflowX:'auto' }}>
-                  <table className="tbl">
-                    <thead><tr><th>Exam</th><th>By</th><th>Category</th><th>Apply By</th><th>💳 Payment By</th><th>📅 Exam Date & Time</th><th>Status</th><th>Actions</th></tr></thead>
-                    <tbody>
-                      {filt(exams).length===0
-                        ? <td><td colSpan={8} style={{ textAlign:'center' as const,padding:40,color:'#5a6a7a' }}>No exams. Click "Add Exam".</td></tr>
-                        : filt(exams).map(x => (
-                          <tr key={x.id}>
-                            <td><div style={{ fontWeight:700,maxWidth:170,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const }}>{x.emoji} {x.title}</div></td>
-                            <td style={{ fontSize:'.77rem',color:'#5a6a7a',whiteSpace:'nowrap' as const }}>{x.conductedBy}</td>
-                            <td><span className="chip cO">{x.category}</span></td>
-                            <td style={{ fontSize:'.76rem',color:'#e63946',fontWeight:700,whiteSpace:'nowrap' as const }}>{fmt(x.applicationLastDate)}</td>
-                            <td style={{ fontSize:'.76rem',color:'#6a0dad',fontWeight:700,whiteSpace:'nowrap' as const }}>{fmt(x.paymentLastDate)}</td>
-                            <td style={{ fontSize:'.76rem',whiteSpace:'nowrap' as const }}><strong>{fmt(x.examDate)}</strong><br/><span style={{ color:'#5a6a7a',fontSize:'.67rem' }}>{x.examTime}</span></td>
-                            <td><span className={`chip ${x.status==='Registration Open'?'cG':x.status==='Upcoming'?'cT':'cGr'}`}>{x.status}</span></td>
-                            <td>
-                              <div style={{ display:'flex',gap:5 }}>
-                                <button onClick={()=>openEditExam(x)} style={{ padding:'5px 9px',borderRadius:7,fontSize:'.72rem',fontWeight:700,cursor:'pointer',background:'#e0f7fc',color:'#0096b7',border:'1.5px solid #b2ebf5',fontFamily:'Nunito,sans-serif' }}>✏️</button>
-                                <button onClick={()=>{if(confirm('Delete?'))setExams(p=>p.filter(e=>e.id!==x.id))}} style={{ padding:'5px 9px',borderRadius:7,fontSize:'.72rem',fontWeight:700,cursor:'pointer',background:'#fde8ea',color:'#e63946',border:'1.5px solid #f7bcc0',fontFamily:'Nunito,sans-serif' }}>🗑</button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
+  <div style={{ background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:12,overflow:'hidden' }}>
+    <div style={{ overflowX:'auto' }}>
+      <table className="tbl">
+        <thead>
+          <tr>
+            <th>Exam</th><th>By</th><th>Category</th><th>Apply By</th><th>💳 Payment By</th><th>📅 Exam Date & Time</th><th>Status</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filt(exams).length === 0 ? (
+            <tr>
+              <td colSpan={8} style={{ textAlign:'center' as const, padding:40, color:'#5a6a7a' }}>
+                No exams. Click "Add Exam".
+              </td>
+            </tr>
+          ) : (
+            filt(exams).map(x => (
+              <tr key={x.id}>
+                <td><div style={{ fontWeight:700, maxWidth:170, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' as const }}>{x.emoji} {x.title}</div></td>
+                <td style={{ fontSize:'.77rem', color:'#5a6a7a', whiteSpace:'nowrap' as const }}>{x.conductedBy}</td>
+                <td><span className="chip cO">{x.category}</span></td>
+                <td style={{ fontSize:'.76rem', color:'#e63946', fontWeight:700, whiteSpace:'nowrap' as const }}>{fmt(x.applicationLastDate)}</td>
+                <td style={{ fontSize:'.76rem', color:'#6a0dad', fontWeight:700, whiteSpace:'nowrap' as const }}>{fmt(x.paymentLastDate)}</td>
+                <td style={{ fontSize:'.76rem', whiteSpace:'nowrap' as const }}><strong>{fmt(x.examDate)}</strong><br/><span style={{ color:'#5a6a7a', fontSize:'.67rem' }}>{x.examTime}</span></td>
+                <td><span className={`chip ${x.status==='Registration Open'?'cG':x.status==='Upcoming'?'cT':'cGr'}`}>{x.status}</span></td>
+                <td>
+                  <div style={{ display:'flex', gap:5 }}>
+                    <button onClick={()=>openEditExam(x)} style={{ padding:'5px 9px', borderRadius:7, fontSize:'.72rem', fontWeight:700, cursor:'pointer', background:'#e0f7fc', color:'#0096b7', border:'1.5px solid #b2ebf5', fontFamily:'Nunito,sans-serif' }}>✏️</button>
+                    <button onClick={()=>{if(confirm('Delete?')) setExams(p=>p.filter(e=>e.id!==x.id))}} style={{ padding:'5px 9px', borderRadius:7, fontSize:'.72rem', fontWeight:700, cursor:'pointer', background:'#fde8ea', color:'#e63946', border:'1.5px solid #f7bcc0', fontFamily:'Nunito,sans-serif' }}>🗑</button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+)}
 
             {/* ── INFO TABLE ── */}
             {activeTab==='info' && (

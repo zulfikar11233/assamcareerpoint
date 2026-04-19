@@ -9,14 +9,14 @@ export const dynamic = 'force-dynamic'
 import { useState, useEffect, useCallback } from 'react'
 import { signOut } from 'next-auth/react'
 import Link from 'next/link'
-import dynamic from 'next/dynamic'
+import dynamicImport from 'next/dynamic'
 import {
   OthersPost, OthersSection, OthersLink,
   getOthersPosts, saveOthersPosts, generateSlug,
   getTypeLabel, getTypePath, newSectionId, newLinkId,
 } from '@/lib/others-db'
 
-const RichTextEditor = dynamic(
+const RichTextEditor = dynamicImport(
   () => import('@/components/admin/RichTextEditor'),
   { ssr: false }
 )
