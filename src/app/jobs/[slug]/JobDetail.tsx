@@ -1,6 +1,7 @@
 'use client'
 // src/app/jobs/[slug]/JobDetail.tsx
 import Link from 'next/link'
+import { getTargetDate } from '@/lib/dataHelper'
 import { useState, useEffect } from 'react'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
@@ -91,18 +92,21 @@ function safePdfHref(raw: string): string {
   return sanitizeHttpUrl(raw)
 }
 
-function CountdownInline({ target, now }:{target:string; now:number}) {
-  const diff = new Date(target).getTime() - now
+function CountdownInline({ dateStr, timeStr, now }: { dateStr: string; timeStr?: string; now: number }) {
+  const targetDate = getTargetDate(dateStr, timeStr)
+  const diff = targetDate.getTime() - now
   if (diff <= 0) return <span style={{color:'#ef4444',fontWeight:800,fontSize:'.85rem'}}>Application Closed</span>
-  const d = Math.floor(diff/86400000)
-  const h = Math.floor((diff%86400000)/3600000)
-  const m = Math.floor((diff%3600000)/60000)
-  const s = Math.floor((diff%60000)/1000)
-  const pad = (n:number) => String(n).padStart(2,'0')
-  const G='#c9a227'
+
+  const d = Math.floor(diff / 86400000)
+  const h = Math.floor((diff % 86400000) / 3600000)
+  const m = Math.floor((diff % 3600000) / 60000)
+  const s = Math.floor((diff % 60000) / 1000)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  const G = '#c9a227'
+
   return (
     <div style={{display:'flex',gap:6,alignItems:'center',flexWrap:'wrap' as const}}>
-      {[{v:d,l:'Days'},{v:h,l:'Hrs'},{v:m,l:'Min'},{v:s,l:'Sec'}].map(({v,l})=>(
+      {[{v:d,l:'Days'},{v:h,l:'Hrs'},{v:m,l:'Min'},{v:s,l:'Sec'}].map(({v,l}) => (
         <div key={l} style={{background:'rgba(0,0,0,.4)',borderRadius:7,padding:'4px 9px',textAlign:'center' as const,minWidth:42}}>
           <div style={{fontFamily:'Arial Black,sans-serif',fontWeight:900,fontSize:'1rem',color:G,lineHeight:1.1}}>{pad(v)}</div>
           <div style={{fontSize:'.55rem',color:'rgba(255,255,255,.4)',letterSpacing:'.05em',marginTop:1}}>{l}</div>
@@ -111,7 +115,6 @@ function CountdownInline({ target, now }:{target:string; now:number}) {
     </div>
   )
 }
-
 function Logo({ size=38 }:{size?:number}) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100">
@@ -145,8 +148,9 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
     return () => clearInterval(t)
   }, [])
 
+
   // safe defaults
-  const safeTitle = job.title || 'Job Vacancy'
+   const safeTitle = job.title || 'Job Vacancy'
   const posts     = job.posts || []
   const totalV    = posts.reduce((a,p)=>a+p.vacancy,0) || Number(job.vacancy)||0
   const ageMin    = posts.length ? Math.min(...posts.map(p=>Number(p.ageMin)||0)) : 0
@@ -158,9 +162,10 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
   const zones     = (job.zoneWiseVacancy||'').split('\n').filter(s=>s.trim())
   const sc        = job.status==='Live'?'#22c55e':job.status==='Closing'?'#f59e0b':'#8fa3b8'
 
-  const dl = (() => {
+    const dl = (() => {
     try {
-      const diff = Math.ceil((new Date(job.lastDate).getTime()-Date.now())/86400000)
+      const target = getTargetDate(job.lastDate, job.lastDateTime)
+      const diff = Math.ceil((target.getTime() - Date.now()) / 86400000)
       if(diff<0)  return {t:'Closed',          c:'#ef4444'}
       if(diff===0)return {t:'Last Day!',        c:'#ef4444'}
       if(diff<=5) return {t:`⚠️ ${diff}d left`, c:'#f59e0b'}
@@ -300,25 +305,39 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
           </div>
 
           {/* Stats strip */}
-          <div className="stats-strip" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:10,marginTop:18}}>
-            {[
-              {l:'Total Vacancies', v:totalV>0?totalV.toLocaleString('en-IN'):'As per notification', c:G},
-              {l:'Last Date',       v:`${fmtLong(job.lastDate)}${job.lastDateTime?` · ${job.lastDateTime}`:''}`,           c:dl?.c||W},
-              {l:'Age Limit',       v:posts.length?`${ageMin}–${ageMax} yrs${job.ageLimitDate?` (as on ${fmt(job.ageLimitDate)})`:''}`:job.ageLimit||'—', c:T},
-              {l:'App. Fee',        v:job.fee?(job.fee.split('\n')[0]||'').slice(0,32):'Check Notice', c:'#c0622a'},
-            ].map(s=>(
-              <div key={s.l} style={{background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.12)',borderRadius:10,padding:'10px 14px',flex:'1 1 160px',minWidth:0}}>
-                <div style={{fontSize:'.63rem',color:'rgba(255,255,255,.4)',fontWeight:700,textTransform:'uppercase' as const,letterSpacing:'.04em',marginBottom:4}}>{s.l}</div>
-                <div className="safe-wrap" style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.83rem',color:s.c,lineHeight:1.3}}>{s.v}</div>
-              </div>
-            ))}
-          </div>
+<div className="stats-strip" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:10,marginTop:18}}>
+  {(() => {
+    // ✅ Compute the local date string once before the array
+    let lastDateDisplay = '—'
+    if (job.lastDate) {
+      const localDate = getTargetDate(job.lastDate, '00:00')
+      lastDateDisplay = localDate.toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      })
+    }
+    // Append time if available
+    const lastDateFull = lastDateDisplay + (job.lastDateTime ? ` · ${job.lastDateTime}` : '')
 
+    return [
+      { l: 'Total Vacancies', v: totalV > 0 ? totalV.toLocaleString('en-IN') : 'As per notification', c: G },
+      { l: 'Last Date',       v: lastDateFull, c: dl?.c || W },
+      { l: 'Age Limit',       v: posts.length ? `${ageMin}–${ageMax} yrs${job.ageLimitDate ? ` (as on ${fmt(job.ageLimitDate)})` : ''}` : job.ageLimit || '—', c: T },
+      { l: 'App. Fee',        v: job.fee ? (job.fee.split('\n')[0] || '').slice(0, 32) : 'Check Notice', c: '#c0622a' },
+    ].map(s => (
+      <div key={s.l} style={{background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.12)',borderRadius:10,padding:'10px 14px',flex:'1 1 160px',minWidth:0}}>
+        <div style={{fontSize:'.63rem',color:'rgba(255,255,255,.4)',fontWeight:700,textTransform:'uppercase' as const,letterSpacing:'.04em',marginBottom:4}}>{s.l}</div>
+        <div className="safe-wrap" style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.83rem',color:s.c,lineHeight:1.3}}>{s.v}</div>
+      </div>
+    ))
+  })()}
+</div>
           {/* Countdown Timer */}
-          {timerOn && job.lastDate && new Date(job.lastDate).getTime() > Date.now() && (
+          {timerOn && job.lastDate && getTargetDate(job.lastDate, job.lastDateTime).getTime() > Date.now() && (
             <div suppressHydrationWarning style={{marginTop:16,background:'rgba(0,0,0,.25)',border:'1px solid rgba(201,162,39,.3)',borderRadius:10,padding:'10px 16px',display:'flex',alignItems:'center',gap:16,flexWrap:'wrap' as const}}>
               <span style={{fontSize:'.72rem',color:'rgba(255,255,255,.45)',fontWeight:700,textTransform:'uppercase' as const,letterSpacing:'.06em',flexShrink:0}}>⏱ Time Remaining</span>
-              <CountdownInline target={job.lastDate} now={now} />
+               <CountdownInline dateStr={job.lastDate} timeStr={job.lastDateTime} now={now} />
             </div>
           )}
         </div>

@@ -1,7 +1,8 @@
 // src/lib/dataHelper.ts
 // Helper functions to save and load data from the server
 // Use these in admin pages to save, and in public pages to load
-// Add this function — generates SEO slug from any title
+
+// ── SEO Slug Generator ────────────────────────────────────────────
 export function generateSlug(title: string, id: number): string {
   const slug = title
     .toLowerCase()
@@ -13,6 +14,39 @@ export function generateSlug(title: string, id: number): string {
     .slice(0, 80)                  // max 80 chars
   return `${slug}-${id}`           // append ID to guarantee uniqueness
 }
+
+// ── Countdown Target Date (fixes UTC vs IST timezone bug) ─────────
+// PROBLEM: new Date('2026-04-20') is parsed as UTC midnight = 05:30 AM IST
+//          This causes countdown to show ~9 hrs instead of ~24+ hrs
+// SOLUTION: Append T + local time to force local (IST) parsing
+//
+// Usage:
+//   Jobs:   getTargetDate(job.lastDate, job.lastDateTime)
+//   Exams:  getTargetDate(exam.applicationLastDate)
+//   Exams:  getTargetDate(exam.examDate, exam.examTime)
+//   Info:   getTargetDate(item.lastDate)
+//   Any:    getTargetDate(someDate, someTimeString)
+//
+export function getTargetDate(dateStr?: string | null, timeStr?: string | null): Date {
+  if (!dateStr) return new Date()
+
+  // Default to end of day 23:59 if no time provided
+  let time = '23:59'
+
+  if (timeStr) {
+    // Extract HH:MM from strings like "23:59 Hrs", "9:30 AM – 12:00 PM", "23:59"
+    const match = timeStr.match(/(\d{1,2}):(\d{2})/)
+    if (match) {
+      time = `${match[1].padStart(2, '0')}:${match[2]}`
+    }
+  }
+
+  // Handles both ISO format (2026-04-20) and other formats
+  // Appending T + time forces JS to parse as LOCAL time, not UTC
+  const normalized = dateStr.trim().slice(0, 10) // ensure YYYY-MM-DD
+  return new Date(`${normalized}T${time}:00`)
+}
+
 // ── Save data to server ───────────────────────────────────────────
 export async function saveToServer(collection: string, data: unknown[]): Promise<boolean> {
   try {
@@ -55,7 +89,6 @@ export async function migrateLocalStorageToServer(): Promise<void> {
     { key: 'acp_guides',        name: 'guides'        },
     { key: 'acp_services',      name: 'services'      },
   ]
-
   for (const col of collections) {
     const raw = localStorage.getItem(col.key)
     if (raw) {

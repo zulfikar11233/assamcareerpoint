@@ -9,6 +9,7 @@
 //   6. RichContent helper – renders HTML from TinyMCE or plain text
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { getTargetDate } from '@/lib/dataHelper'          // ✅ FIX: import the helper
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 
@@ -97,10 +98,11 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
   })
   const [countdown, setCountdown] = useState({ d:0, h:0, m:0, s:0 })
 
+  // ✅ FIX: Use getTargetDate for application deadline (default to 23:59 Hrs IST)
   useEffect(() => {
-    const rawTarget = exam.applicationLastDate
-    if (!rawTarget) return
-    const target = new Date(rawTarget)
+    if (!exam.applicationLastDate) return
+    // Convert the date string to a proper IST-local Date object (end of day)
+    const target = getTargetDate(exam.applicationLastDate, '23:59 Hrs')
     if (isNaN(target.getTime())) return
     const tick = () => {
       const diff = target.getTime() - Date.now()
@@ -115,19 +117,29 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
     tick()
     const t = setInterval(tick, 1000)
     return () => clearInterval(t)
-  }, [exam])
+  }, [exam.applicationLastDate])  // ✅ dependency updated
 
+  // ✅ FIX: Display-only dates – using new Date().toLocaleDateString() is safe because it converts UTC midnight to local date.
+  // For examDate which may be a range like "20-04-2026 to 30-04-2026", we keep raw string.
   const fmt = (d?: string) => {
     if (!d) return '—'
-    const parsed = new Date(d)
-    if (!isNaN(parsed.getTime())) return parsed.toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
+    // If it looks like a single date (YYYY-MM-DD) we can format it safely
+    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
+      const parsed = new Date(d)
+      if (!isNaN(parsed.getTime())) return parsed.toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
+    }
+    // Otherwise return as-is (e.g., date ranges or free text)
     return d
   }
 
   const sc           = SC[exam.status] || '#8fa3b8'
   const pdfs         = exam.examPdfs?.filter(p => p.url && p.label) || []
   const affiliates   = exam.examAffiliates?.filter(a => a.title && a.link) || []
-  const canCountdown = !!exam.applicationLastDate && !isNaN(new Date(exam.applicationLastDate).getTime()) && new Date(exam.applicationLastDate).getTime() > Date.now()
+  
+  // ✅ FIX: Use getTargetDate for checking if deadline is still active
+  const canCountdown = !!exam.applicationLastDate && 
+    !isNaN(getTargetDate(exam.applicationLastDate, '23:59 Hrs').getTime()) && 
+    getTargetDate(exam.applicationLastDate, '23:59 Hrs').getTime() > Date.now()
 
   return (
     <>

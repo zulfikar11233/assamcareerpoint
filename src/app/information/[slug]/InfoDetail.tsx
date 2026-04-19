@@ -1,7 +1,8 @@
 'use client'
-// src/app/information/[slug]/InfoDetail.tsx — Client component (only rendering, no data fetching)
+// src/app/information/[slug]/InfoDetail.tsx — with countdown timer (IST‑fixed)
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { getTargetDate } from '@/lib/dataHelper'   // ✅ import the helper
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 
@@ -49,7 +50,7 @@ type InfoItem = {
   title: string
   category: string
   description?: string
-  lastDate?: string
+  lastDate?: string          // ✅ used for countdown
   process?: string
   officialLink?: string
   importantDates?: { label: string; date: string; time?: string }[]
@@ -67,6 +68,46 @@ type InfoItem = {
 const SC: Record<string,string> = { 'Active':'#22c55e', 'Upcoming':'#f59e0b', 'Expired':'#8fa3b8' }
 
 export default function InfoDetail({ item, others }: { item: InfoItem; others: InfoItem[] }) {
+  // ─────────────────────────────────────────────────────────
+  // ✅ Countdown timer for lastDate (if exists)
+  // ─────────────────────────────────────────────────────────
+  const [timerOn] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true
+    try {
+      const s = localStorage.getItem('acp_settings_v1')
+      return s ? JSON.parse(s).timerEnabled !== false : true
+    } catch { return true }
+  })
+  const [now, setNow] = useState<number>(Date.now())
+  const [countdown, setCountdown] = useState({ d:0, h:0, m:0, s:0 })
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(t)
+  }, [])
+
+  useEffect(() => {
+    if (!item.lastDate) return
+    // ✅ Use getTargetDate with default end-of-day time
+    const target = getTargetDate(item.lastDate, '23:59 Hrs')
+    if (isNaN(target.getTime())) return
+    const tick = () => {
+      const diff = target.getTime() - now
+      if (diff <= 0) {
+        setCountdown({ d:0, h:0, m:0, s:0 })
+        return
+      }
+      setCountdown({
+        d: Math.floor(diff / 86400000),
+        h: Math.floor((diff % 86400000) / 3600000),
+        m: Math.floor((diff % 3600000) / 60000),
+        s: Math.floor((diff % 60000) / 1000),
+      })
+    }
+    tick()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.lastDate, now]) // re-run when now changes
+
   // JSON-LD structured data
   useEffect(() => {
     const existing = document.getElementById('acp-jsonld')
@@ -93,6 +134,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
   }
 
   const sc = SC[item.status] || '#8fa3b8'
+  const canCountdown = !!item.lastDate && getTargetDate(item.lastDate, '23:59 Hrs').getTime() > Date.now()
 
   return (
     <>
@@ -104,6 +146,9 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
         .card{background:#fff;border:1.5px solid #d4e0ec;border-radius:14px;padding:22px;margin-bottom:18px}
         .re-card{background:#fff;border:1.5px solid #d4e0ec;border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;display:flex;gap:12px;padding:12px;transition:.18s}
         .re-card:hover{border-color:${T};transform:translateX(3px)}
+        .cd-box{background:rgba(0,0,0,.4);border-radius:10px;padding:10px 6px;text-align:center}
+        .cd-val{font-family:'Arial Black',sans-serif;font-weight:900;font-size:1.6rem;line-height:1;color:${G}}
+        .cd-lbl{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.5);margin-top:3px}
         @media(max-width:860px){.layout{flex-direction:column!important}}
       `}</style>
 
@@ -150,6 +195,26 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
             {item.descriptionAs && <RichContent content={item.descriptionAs} className="rte-content" style={{color:'rgba(255,255,255,.4)', fontSize:'.85rem', lineHeight:1.7, margin:0, fontStyle:'italic'}} />}
           </div>
         </div>
+
+        {/* ✅ Countdown Timer for lastDate */}
+        {timerOn && canCountdown && (
+          <div suppressHydrationWarning style={{marginTop:18, background:'rgba(0,0,0,.3)', border:`1px solid ${G}66`, borderRadius:12, padding:'12px 20px', maxWidth:400}}>
+            <div style={{fontSize:'.7rem', color:'rgba(255,255,255,.5)', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8}}>⏱ Deadline Countdown</div>
+            <div style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8}}>
+              {[
+                {v:countdown.d, l:'Days'},
+                {v:countdown.h, l:'Hrs'},
+                {v:countdown.m, l:'Mins'},
+                {v:countdown.s, l:'Secs'}
+              ].map(({v,l}) => (
+                <div key={l} className="cd-box">
+                  <div className="cd-val">{String(v).padStart(2,'0')}</div>
+                  <div className="cd-lbl">{l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="layout" style={{maxWidth:1180,margin:'0 auto',padding:'22px 20px 60px',display:'flex',gap:22,alignItems:'flex-start'}}>
