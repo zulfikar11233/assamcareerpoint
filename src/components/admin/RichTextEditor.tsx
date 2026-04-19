@@ -62,7 +62,7 @@ function buildInit(preset: RtePreset, minHeight?: number): Record<string, unknow
     height: minHeight ?? cfg.height,
     plugins: cfg.plugins,
     toolbar: cfg.toolbar,
-    licenseKey: 'gpl',        // ← ADD THIS LINE
+    // ✅ licenseKey REMOVED from init (v7 requires it as direct prop)
     menubar: false,
     branding: false,
     promotion: false,
@@ -171,6 +171,7 @@ export default function RichTextEditor({
       <div style={{ border: '1.5px solid #d4e0ec', borderRadius: 8, overflow: 'hidden' }}>
         <Editor
           tinymceScriptSrc="/tinymce/tinymce.min.js"
+          licenseKey="gpl"                    // ✅ ADDED as direct prop (TinyMCE 7+)
           onInit={(_evt, editor) => { editorRef.current = editor }}
           value={value || ''}
           onEditorChange={(content) => onChange(content)}
