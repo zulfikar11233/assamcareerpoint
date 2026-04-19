@@ -62,6 +62,7 @@ function buildInit(preset: RtePreset, minHeight?: number): Record<string, unknow
     height: minHeight ?? cfg.height,
     plugins: cfg.plugins,
     toolbar: cfg.toolbar,
+    licenseKey: 'gpl',        // ← ADD THIS LINE
     menubar: false,
     branding: false,
     promotion: false,
