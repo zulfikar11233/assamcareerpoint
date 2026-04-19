@@ -13,9 +13,9 @@ import { generateSlug } from '@/lib/dataHelper'
 import { useState, useEffect, useRef } from 'react'
 import { signOut } from 'next-auth/react'
 import { ContentSection, ContentSectionLink, newContentSectionId, newContentLinkId } from '@/lib/section-types'
-import dynamic from 'next/dynamic'
+import dynamicImport from 'next/dynamic'
 
-const RichTextEditor = dynamic(
+const RichTextEditor = dynamicImport(
   () => import('@/components/admin/RichTextEditor'),
   { ssr: false }
 )
