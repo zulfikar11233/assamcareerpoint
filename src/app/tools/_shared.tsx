@@ -247,6 +247,7 @@ const NAV_ITEMS = [
   { label: 'PDF Forms',   href: '/pdf-forms' },
   { label: 'Results',     href: '/results' },
   { label: '🛠 Tools',    href: '/tools' },
+  { label: '🧮 Salary Calculator',    href: '/salary-calculator' },
 ]
 
 export function ToolsNavbar() {

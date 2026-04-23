@@ -51,6 +51,14 @@ const tools = [
     tags: ['GPay', 'PhonePe', 'BHIM', 'Paytm'],
     bg: '#fffbeb', border: '#fde68a', badge: null, badgeBg: '', badgeCl: '',
   },
+   {
+  href: '/salary-calculator', 
+  icon: '🧮',
+  title: 'Govt Salary Calculator',
+  desc: 'Assam State & Central Government Employees\n\nঅসম ৰাজ্য আৰু কেন্দ্ৰীয় চৰকাৰী কৰ্মচাৰীৰ দৰমহা হিচাপ কৰক',
+  tags: ['Govt Salary Calculate', 'Pvt Salary calculate'],
+  bg: '#f0fdfb', border: '#99f6e4', badge: 'Most Popular', badgeBg: '#c9a227', badgeCl: '#0b1f33',
+},
 ]
 
 export default function ToolsHubClient() {
