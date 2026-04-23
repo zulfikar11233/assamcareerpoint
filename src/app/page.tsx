@@ -63,6 +63,7 @@ const CATS = [
   { name:'Images to PDF',       emoji:'📄', href:'/tools/images-to-pdf',       count:'Free Tool',       color:'#0ea5e9' },
   { name:'Age Calculator',      emoji:'🎂', href:'/tools/age-calculator',      count:'Free Tool',       color:'#22c55e' },
   { name:'Word Counter',        emoji:'📝', href:'/tools/word-counter',        count:'Free Tool',       color:'#ec4899' },
+  { name:'Salary Calculator',      emoji:'🧮', href:'/salary-calculator',      count:'Free Tool',       color:'#22c55e' },
 ]
 
 const NAV_LINKS = [
