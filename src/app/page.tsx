@@ -68,7 +68,7 @@ const CATS = [
 const NAV_LINKS = [
   ['Home','/'],['Govt Jobs','/govt-jobs'],['Exams','/exams'],
   ['Information','/information'],['PDF Forms','/pdf-forms'],['Results','/results'],
-  ['🛠 Tools','/tools'],
+  ['🛠 Tools','/tools'],['🧮 Salary Calculator','/salary-calculator'],
 ]
 
 const fmt  = (d:string) => { try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) } catch { return d } }
