@@ -149,10 +149,19 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
         .cd-box{background:rgba(0,0,0,.4);border-radius:10px;padding:10px 6px;text-align:center}
         .cd-val{font-family:'Arial Black',sans-serif;font-weight:900;font-size:1.6rem;line-height:1;color:${G}}
         .cd-lbl{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.5);margin-top:3px}
-        @media(max-width:860px){.layout{flex-direction:column!important}.side{width:100%!important}}
+        @media(max-width:860px){
+          .detail-header{padding:10px 12px!important}
+          .detail-nav{display:flex!important;gap:6px!important;width:100%!important;overflow-x:auto!important;flex-wrap:nowrap!important;padding-bottom:4px}
+          .detail-nav a{flex-shrink:0}
+          .detail-crumb{flex-wrap:wrap!important}
+          .detail-hero{padding:14px 12px 10px!important}
+          .detail-content{padding:16px 12px 44px!important}
+          .layout{flex-direction:column!important}
+          .side{width:100%!important}
+        }
       `}</style>
 
-      <header style={{background:N,borderBottom:`2px solid ${G}`,position:'sticky',top:0,zIndex:100,boxShadow:'0 2px 20px rgba(0,0,0,.4)'}}>
+      <header className="detail-header" style={{background:N,borderBottom:`2px solid ${G}`,position:'sticky',top:0,zIndex:100,boxShadow:'0 2px 20px rgba(0,0,0,.4)'}}>
         <div style={{maxWidth:1180,margin:'0 auto',padding:'10px 20px',display:'flex',alignItems:'center',gap:14,flexWrap:'wrap' as const}}>
           <Link href="/" style={{display:'flex',alignItems:'center',gap:10,textDecoration:'none',flexShrink:0}}>
             <Logo size={40}/><div>
@@ -160,7 +169,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
               <div style={{fontFamily:'Arial Black,sans-serif',fontSize:'.65rem',color:T,letterSpacing:'.12em'}}>◆ POINT ◆</div>
             </div>
           </Link>
-          <nav style={{display:'flex',gap:2,flexWrap:'wrap' as const}}>
+          <nav className="detail-nav" style={{display:'flex',gap:2,flexWrap:'wrap' as const}}>
             {([['🏠 Home','/'],['💼 Jobs','/govt-jobs'],['📚 Exams','/exams'],['ℹ️ Info','/information'],['📄 PDF Forms','/pdf-forms'],['📊 Results','/results']] as [string,string][]).map(([l,h])=>(
               <Link key={h} href={h} className="nav-a">{l}</Link>
             ))}
@@ -171,7 +180,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
       <main id="main-content">
       {/* Breadcrumb */}
       <div style={{background:'#fff',borderBottom:'1px solid #e8eef6',padding:'10px 20px',fontSize:'.78rem',color:'#5a6a7a'}}>
-        <div style={{maxWidth:1180,margin:'0 auto',display:'flex',gap:6,alignItems:'center'}}>
+        <div className="detail-crumb" style={{maxWidth:1180,margin:'0 auto',display:'flex',gap:6,alignItems:'center'}}>
           <Link href="/" style={{color:'#0e8a7e',textDecoration:'none',fontWeight:600}}>Home</Link> <span>›</span>
           <Link href="/information" style={{color:'#0e8a7e',textDecoration:'none',fontWeight:600}}>Information</Link> <span>›</span>
           <span style={{color:N,fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const,maxWidth:'min(72vw,680px)'}}>{item.title.slice(0,50)}</span>
@@ -179,7 +188,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
       </div>
 
       {/* HERO */}
-      <div style={{background:`linear-gradient(135deg,${N},#0a3050)`,padding:'16px 20px 12px'}}>
+      <div className="detail-hero" style={{background:`linear-gradient(135deg,${N},#0a3050)`,padding:'16px 20px 12px'}}>
         <div style={{maxWidth:1180,margin:'0 auto',display:'flex',gap:16,alignItems:'flex-start',flexWrap:'wrap' as const}}>
           <div style={{width:64,height:64,borderRadius:15,background:`${T}22`,border:`2px solid ${T}55`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2rem',flexShrink:0}}>{item.emoji}</div>
           <div style={{flex:1,minWidth:220}}>
@@ -217,7 +226,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
         )}
       </div>
 
-      <div className="layout" style={{maxWidth:1180,margin:'0 auto',padding:'22px 20px 60px',display:'flex',gap:22,alignItems:'flex-start'}}>
+      <div className="layout detail-content" style={{maxWidth:1180,margin:'0 auto',padding:'22px 20px 60px',display:'flex',gap:22,alignItems:'flex-start'}}>
 
         {/* MAIN */}
         <div style={{flex:1,minWidth:0}}>
@@ -226,7 +235,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
           {item.importantDates?.length > 0 && (
             <div className="card">
               <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:N,margin:'0 0 14px',paddingBottom:10,borderBottom:'2px solid #f0f4f8'}}>📅 Important Dates</h2>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:12}}>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(min(100%,160px),1fr))',gap:12}}>
                 {(item.importantDates||[]).map((d,i)=>(
                   <div key={i} style={{background:`${G}10`,border:`1.5px solid ${G}33`,borderRadius:10,padding:'12px 14px'}}>
                     <div style={{fontSize:'.65rem',fontWeight:700,color:'#5a6a7a',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:5}}>{d.label}</div>

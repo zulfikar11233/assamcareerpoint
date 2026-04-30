@@ -166,6 +166,13 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
         .pdf-row{display:flex;align-items:center;gap:12px;padding:11px 14px;background:#f8fbff;border:1.5px solid #d4e0ec;border-radius:10px;text-decoration:none;color:inherit;transition:.15s;margin-bottom:8px}
         .pdf-row:hover{border-color:${T};background:#e0f7fc}
         @media(max-width:860px){
+          .detail-header{padding:10px 12px!important}
+          .detail-nav{display:flex!important;gap:6px!important;width:100%!important;overflow-x:auto!important;flex-wrap:nowrap!important;padding-bottom:4px}
+          .detail-nav a{flex-shrink:0}
+          .detail-crumb{flex-wrap:wrap!important}
+          .detail-hero{padding:18px 12px 14px!important}
+          .detail-hero-row{flex-wrap:wrap!important}
+          .detail-content{padding:16px 12px 44px!important}
           .layout{flex-direction:column!important}
           .layout>div:last-child{width:100%!important;min-width:0!important}
         }
@@ -177,7 +184,7 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
       `}</style>
 
       {/* HEADER */}
-      <header style={{background:N,borderBottom:`2px solid ${G}`,position:'sticky',top:0,zIndex:100,boxShadow:'0 2px 20px rgba(0,0,0,.4)'}}>
+      <header className="detail-header" style={{background:N,borderBottom:`2px solid ${G}`,position:'sticky',top:0,zIndex:100,boxShadow:'0 2px 20px rgba(0,0,0,.4)'}}>
         <div style={{maxWidth:1180,margin:'0 auto',padding:'10px 20px',display:'flex',alignItems:'center',gap:14,flexWrap:'wrap' as const}}>
           <Link href="/" style={{display:'flex',alignItems:'center',gap:10,textDecoration:'none',flexShrink:0}}>
             <Logo size={40}/>
@@ -186,7 +193,7 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
               <div style={{fontFamily:'Arial Black,sans-serif',fontSize:'.65rem',color:T,letterSpacing:'.12em'}}>◆ POINT ◆</div>
             </div>
           </Link>
-          <nav style={{display:'flex',gap:6,flexWrap:'wrap' as const}}>
+          <nav className="detail-nav" style={{display:'flex',gap:6,flexWrap:'wrap' as const}}>
             {NAV_LINKS.map(([l,h])=>(
               <Link key={h} href={h} className="nav-a">{l}</Link>
             ))}
@@ -198,7 +205,7 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
 
         {/* Breadcrumb */}
         <div style={{background:'#fff',borderBottom:'1px solid #e8eef6',padding:'10px 20px',fontSize:'.78rem',color:'#5a6a7a'}}>
-          <div style={{maxWidth:1180,margin:'0 auto',display:'flex',gap:6,alignItems:'center',flexWrap:'wrap' as const}}>
+          <div className="detail-crumb" style={{maxWidth:1180,margin:'0 auto',display:'flex',gap:6,alignItems:'center',flexWrap:'wrap' as const}}>
             <Link href="/" style={{color:'#0e8a7e',textDecoration:'none',fontWeight:600}}>Home</Link> <span>›</span>
             <Link href="/exams" style={{color:'#0e8a7e',textDecoration:'none',fontWeight:600}}>Exams</Link> <span>›</span>
             <span style={{color:N,fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const}}>{(exam.title||'').slice(0,50)}</span>
@@ -206,16 +213,16 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
         </div>
 
         {/* HERO */}
-        <div style={{background:`linear-gradient(135deg,${N},#0a3050)`,padding:'28px 20px 22px'}}>
+        <div className="detail-hero" style={{background:`linear-gradient(135deg,${N},#0a3050)`,padding:'20px 20px 16px'}}>
           <div style={{maxWidth:1180,margin:'0 auto'}}>
-            <div style={{display:'flex',gap:16,alignItems:'flex-start',flexWrap:'wrap' as const}}>
+            <div className="detail-hero-row" style={{display:'flex',gap:16,alignItems:'flex-start',flexWrap:'wrap' as const}}>
               <div style={{width:64,height:64,borderRadius:14,background:`${sc}22`,border:`2px solid ${sc}55`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2rem',flexShrink:0}}>{exam.emoji}</div>
               <div style={{flex:1,minWidth:200}}>
                 <div style={{display:'flex',gap:8,flexWrap:'wrap' as const,marginBottom:10}}>
                   <span style={{background:`${sc}22`,color:sc,border:`1px solid ${sc}44`,padding:'4px 12px',borderRadius:99,fontSize:'.72rem',fontWeight:800}}>● {exam.status}</span>
                   <span style={{background:'rgba(255,255,255,.1)',color:'rgba(255,255,255,.7)',padding:'4px 12px',borderRadius:99,fontSize:'.72rem',fontWeight:700}}>{exam.category}</span>
                 </div>
-                <h1 style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:'clamp(1rem,2.5vw,1.55rem)',color:W,margin:'0 0 6px',lineHeight:1.3}}>
+                <h1 style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:'clamp(1rem,2.3vw,1.45rem)',color:W,margin:'0 0 6px',lineHeight:1.3,overflowWrap:'anywhere'}}>
                   {exam.title}
                   {exam.titleAs&&<><br/><span style={{fontSize:'clamp(.78rem,1.6vw,1rem)',color:'#ffd54f',fontWeight:700}}>{exam.titleAs}</span></>}
                 </h1>
@@ -240,7 +247,7 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
           </div>
         </div>
 
-        <div className="layout" style={{maxWidth:1180,margin:'0 auto',padding:'20px 20px 60px',display:'flex',gap:20,alignItems:'flex-start'}}>
+        <div className="layout detail-content" style={{maxWidth:1180,margin:'0 auto',padding:'20px 20px 60px',display:'flex',gap:20,alignItems:'flex-start'}}>
 
           {/* MAIN */}
           <div style={{flex:1,minWidth:0}}>

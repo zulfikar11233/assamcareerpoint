@@ -72,18 +72,29 @@ export default function AnnouncementDetail({ post }: { post: OthersPost }) {
     <>
       <style>{`
         * { box-sizing: border-box }
-        body { margin: 0; font-family: Nunito, sans-serif; background: #f0f4f8 }
+        html,body { margin: 0; font-family: Nunito, sans-serif; background: #f0f4f8; overflow-x:hidden; max-width:100vw }
         .nav-a{color:rgba(255,255,255,.65);font-size:.82rem;font-weight:700;padding:6px 13px;border-radius:99px;border:1.5px solid rgba(255,255,255,.15);text-decoration:none;white-space:nowrap;transition:.15s}
         .nav-a:hover{color:${G};border-color:${G}88;background:rgba(201,162,39,.08)}
         .sec-card { background: #fff; border-radius: 12px; border: 1.5px solid #e8eef4; overflow: hidden; margin-bottom: 18px; }
         .link-row:hover { background: #f0faf9 !important; }
+        .link-row span:first-child { min-width:0; overflow-wrap:anywhere; word-break:break-word; }
+        @media(max-width:860px){
+          .detail-header{padding:10px 12px!important;flex-wrap:wrap!important;gap:10px!important}
+          .detail-nav{display:flex!important;gap:6px!important;width:100%!important;overflow-x:auto!important;flex-wrap:nowrap!important;padding-bottom:4px}
+          .detail-nav a{flex-shrink:0}
+          .detail-crumb{flex-wrap:wrap!important}
+          .detail-hero{padding:16px 12px!important}
+          .detail-hero-row{flex-wrap:wrap!important}
+          .detail-content{padding:18px 12px 40px!important}
+          .sec-card > div:last-child{padding:14px 12px!important}
+        }
       `}</style>
 
-      <header style={{ background: N, borderBottom: `3px solid ${G}`, padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <header className="detail-header" style={{ background: N, borderBottom: `3px solid ${G}`, padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ fontFamily: 'Arial Black,sans-serif', fontSize: '.9rem', textDecoration: 'none' }}>
           <span style={{ color: G }}>ASSAM </span><span style={{ color: W }}>CAREER</span><span style={{ color: T }}> POINT</span>
         </Link>
-        <nav style={{ display: 'flex', gap: 16 }}>
+        <nav className="detail-nav" style={{ display: 'flex', gap: 16 }}>
           {[['/', 'Home'], ['/govt-jobs', 'Jobs'], ['/exams', 'Exams'], [`/${PATH}`, 'Announcements']].map(([href, label]) => (
             <Link key={href} href={href} className="nav-a">{label}</Link>
           ))}
@@ -93,7 +104,7 @@ export default function AnnouncementDetail({ post }: { post: OthersPost }) {
       <main id="main-content">
       {/* Breadcrumb */}
       <div style={{ background: '#fff', borderBottom: '1px solid #e8eef4', padding: '10px 20px' }}>
-        <div style={{ maxWidth: 860, margin: '0 auto', fontSize: '.78rem', color: '#8fa3b8', display: 'flex', gap: 6, alignItems: 'center' }}>
+        <div className="detail-crumb" style={{ maxWidth: 860, margin: '0 auto', fontSize: '.78rem', color: '#8fa3b8', display: 'flex', gap: 6, alignItems: 'center' }}>
           <Link href="/" style={{ color: '#5a6a7a', textDecoration: 'none', fontWeight: 600 }}>Home</Link>
           <span>›</span>
           <Link href={`/${PATH}`} style={{ color: '#5a6a7a', textDecoration: 'none', fontWeight: 600 }}>Announcements</Link>
@@ -103,7 +114,7 @@ export default function AnnouncementDetail({ post }: { post: OthersPost }) {
       </div>
 
       {/* Hero */}
-      <div style={{ background: `linear-gradient(135deg, ${N} 0%, #0d2d4a 100%)`, padding: '32px 20px' }}>
+      <div className="detail-hero" style={{ background: `linear-gradient(135deg, ${N} 0%, #0d2d4a 100%)`, padding: '32px 20px' }}>
         <div style={{ maxWidth: 860, margin: '0 auto' }}>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 12 }}>
             <span style={{ padding: '3px 12px', borderRadius: 20, background: '#e74c3c', color: '#fff', fontSize: '.72rem', fontWeight: 800, fontFamily: 'Arial Black,sans-serif' }}>
@@ -113,10 +124,10 @@ export default function AnnouncementDetail({ post }: { post: OthersPost }) {
               <span style={{ padding: '3px 12px', borderRadius: 20, background: G + '33', color: G, fontSize: '.72rem', fontWeight: 700 }}>{post.category}</span>
             )}
           </div>
-          <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+          <div className="detail-hero-row" style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
             <span style={{ fontSize: '2.5rem', flexShrink: 0 }}>{post.emoji}</span>
             <div>
-              <h1 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, color: '#fff', fontSize: '1.5rem', margin: '0 0 8px', lineHeight: 1.3 }}>
+              <h1 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, color: '#fff', fontSize: '1.3rem', margin: '0 0 8px', lineHeight: 1.3, overflowWrap:'anywhere' }}>
                 {post.title}
               </h1>
               {post.titleAs && (
@@ -135,7 +146,7 @@ export default function AnnouncementDetail({ post }: { post: OthersPost }) {
       </div>
 
       {/* Main content */}
-      <div style={{ maxWidth: 860, margin: '0 auto', padding: '28px 16px 60px' }}>
+      <div className="detail-content" style={{ maxWidth: 860, margin: '0 auto', padding: '28px 16px 60px' }}>
 
         {/* Assamese description */}
         {post.descriptionAs && (

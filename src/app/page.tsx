@@ -335,9 +335,10 @@ export default function HomePage() {
         .cc  {
           transition:.18s;
           border: 1.5px solid #d4e0ec;
-          border-radius: 10px;
+          border-radius: 9px;
           background: #fff;
           height: 100%;
+          min-height: 66px;
         }
         .cc:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,.09); border-color:${T}; }
         .jr { position:relative; overflow:hidden; transition:.15s; }
@@ -371,8 +372,8 @@ export default function HomePage() {
         /* ✅ Updated category grid: 6 columns desktop, 3 tablet, 2 mobile */
         .cg {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 165px), 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 132px), 1fr));
+  gap: 8px;
   width: 100%;
   overflow-x: hidden;
   grid-auto-rows: 1fr;
@@ -390,7 +391,7 @@ export default function HomePage() {
   .ham-btn   { display:flex !important; }
 }
         @media(max-width:480px) {
-  .cg { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+  .cg { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px !important; }
   /* Remove the old .cg override - let auto-fill handle it */
   .stat-num { font-size:1rem !important; }
   .jr { flex-wrap:wrap !important; padding:11px 12px !important; }
@@ -545,11 +546,11 @@ export default function HomePage() {
             <div className="cg" style={{gap:10}}>
               {CATS.map(c=>(
                 <Link key={c.name} href={c.href} style={{textDecoration:'none'}}>
-                  <div className="cc" style={{padding:'12px 12px',display:'flex',flexDirection:'column' as const,alignItems:'flex-start',justifyContent:'space-between',gap:10}}>
-                    <div style={{width:38,height:38,borderRadius:8,background:`${c.color}15`,border:`1.5px solid ${c.color}30`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem',flexShrink:0}}>{c.emoji}</div>
+                  <div className="cc" style={{padding:'8px 9px',display:'flex',alignItems:'center',gap:8}}>
+                    <div style={{width:28,height:28,borderRadius:7,background:`${c.color}15`,border:`1.5px solid ${c.color}30`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'.92rem',flexShrink:0}}>{c.emoji}</div>
                     <div style={{minWidth:0}}>
-                      <div style={{fontFamily:'var(--font-sora),Sora,sans-serif',fontWeight:700,fontSize:'.8rem',color:'#0d1b2a',lineHeight:1.3}}>{c.name}</div>
-                      <div style={{fontSize:'.72rem',color:c.color,fontWeight:700,marginTop:2}}>{c.count}</div>
+                      <div style={{fontFamily:'var(--font-sora),Sora,sans-serif',fontWeight:700,fontSize:'.74rem',color:'#0d1b2a',lineHeight:1.22,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical' as const}}>{c.name}</div>
+                      <div style={{fontSize:'.67rem',color:c.color,fontWeight:700,marginTop:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const}}>{c.count}</div>
                     </div>
                   </div>
                 </Link>

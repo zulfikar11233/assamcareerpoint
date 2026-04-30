@@ -71,7 +71,7 @@ export default function ServiceDetail({ post }: { post: OthersPost }) {
     <>
       <style>{`
         *{box-sizing:border-box}
-        body{margin:0;font-family:Nunito,var(--font-nunito),sans-serif;background:#f0f4f8}
+        html,body{margin:0;font-family:Nunito,var(--font-nunito),sans-serif;background:#f0f4f8;overflow-x:hidden;max-width:100vw}
         .sec-card{background:#fff;border-radius:12px;border:1.5px solid #e8eef4;overflow:hidden;margin-bottom:18px}
         .link-row:hover{background:#f5f0ff!important}
         .nav-a{
@@ -81,13 +81,24 @@ export default function ServiceDetail({ post }: { post: OthersPost }) {
           text-decoration:none;white-space:nowrap;transition:.15s;
         }
         .nav-a:hover{color:${G};border-color:${G}88;background:rgba(201,162,39,.08)}
+        .link-row span:first-child{min-width:0;overflow-wrap:anywhere;word-break:break-word}
+        @media(max-width:860px){
+          .detail-header{padding:10px 12px!important;flex-wrap:wrap!important;gap:10px!important}
+          .detail-nav{display:flex!important;gap:6px!important;width:100%!important;overflow-x:auto!important;flex-wrap:nowrap!important;padding-bottom:4px}
+          .detail-nav a{flex-shrink:0}
+          .detail-crumb{flex-wrap:wrap!important}
+          .detail-hero{padding:16px 12px!important}
+          .detail-hero-row{flex-wrap:wrap!important}
+          .detail-content{padding:18px 12px 40px!important}
+          .sec-card > div:last-child{padding:14px 12px!important}
+        }
       `}</style>
 
-      <header style={{ background: N, borderBottom: `3px solid ${G}`, padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <header className="detail-header" style={{ background: N, borderBottom: `3px solid ${G}`, padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ fontFamily: 'Arial Black,sans-serif', fontSize: '.9rem', textDecoration: 'none' }}>
           <span style={{ color: G }}>ASSAM </span><span style={{ color: W }}>CAREER</span><span style={{ color: T }}> POINT</span>
         </Link>
-        <nav style={{ display: 'flex', gap: 6 }}>
+        <nav className="detail-nav" style={{ display: 'flex', gap: 6 }}>
           {([['/', '🏠 Home'], [`/${PATH}`, '🏛️ Services'], ['/announcements', '📢 Announcements']] as [string,string][]).map(([href, label]) => (
             <Link key={href} href={href} className="nav-a">{label}</Link>
           ))}
@@ -96,7 +107,7 @@ export default function ServiceDetail({ post }: { post: OthersPost }) {
 
       <main id="main-content">
         <div style={{ background: '#fff', borderBottom: '1px solid #e8eef4', padding: '10px 20px' }}>
-          <div style={{ maxWidth: 860, margin: '0 auto', fontSize: '.78rem', color: '#5a6a7a', display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div className="detail-crumb" style={{ maxWidth: 860, margin: '0 auto', fontSize: '.78rem', color: '#5a6a7a', display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
             <Link href="/" style={{ color: '#5a6a7a', textDecoration: 'none', fontWeight: 600 }}>Home</Link>
             <span>›</span>
             <Link href={`/${PATH}`} style={{ color: '#5a6a7a', textDecoration: 'none', fontWeight: 600 }}>Public Services</Link>
@@ -105,16 +116,16 @@ export default function ServiceDetail({ post }: { post: OthersPost }) {
           </div>
         </div>
 
-        <div style={{ background: `linear-gradient(135deg, #1a0a2e 0%, ${N} 100%)`, padding: '32px 20px' }}>
+        <div className="detail-hero" style={{ background: `linear-gradient(135deg, #1a0a2e 0%, ${N} 100%)`, padding: '32px 20px' }}>
           <div style={{ maxWidth: 860, margin: '0 auto' }}>
             <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
               <span style={{ padding: '3px 12px', borderRadius: 20, background: '#8e44ad', color: '#fff', fontSize: '.72rem', fontWeight: 800, fontFamily: 'Arial Black,sans-serif' }}>🏛 PUBLIC SERVICE</span>
               {post.category && <span style={{ padding: '3px 12px', borderRadius: 20, background: G + '33', color: G, fontSize: '.72rem', fontWeight: 700 }}>{post.category}</span>}
             </div>
-            <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+            <div className="detail-hero-row" style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
               <span style={{ fontSize: '2.5rem', flexShrink: 0 }}>{post.emoji}</span>
               <div>
-                <h1 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, color: W, fontSize: '1.5rem', margin: '0 0 8px', lineHeight: 1.3 }}>{post.title}</h1>
+                <h1 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, color: W, fontSize: '1.3rem', margin: '0 0 8px', lineHeight: 1.3, overflowWrap:'anywhere' }}>{post.title}</h1>
                 {post.titleAs && <div style={{ color: '#8fa3b8', fontSize: '.9rem', marginBottom: 8 }}>{post.titleAs}</div>}
                 {post.description && <RichContent content={post.description} className="rte-content" style={{ color: '#b0c4d8', fontSize: '.9rem', margin: '0 0 8px', lineHeight: 1.7 }} />}
                 <div style={{ fontSize: '.75rem', color: '#6a8099' }}>
@@ -125,7 +136,7 @@ export default function ServiceDetail({ post }: { post: OthersPost }) {
           </div>
         </div>
 
-        <div style={{ maxWidth: 860, margin: '0 auto', padding: '28px 16px 60px' }}>
+        <div className="detail-content" style={{ maxWidth: 860, margin: '0 auto', padding: '28px 16px 60px' }}>
           {post.descriptionAs && (
             <div style={{ background: '#fdf9ee', border: `1.5px solid ${G}44`, borderRadius: 12, padding: '14px 18px', marginBottom: 20 }}>
               <RichContent content={post.descriptionAs} className="rte-content" style={{ margin: 0, fontSize: '.9rem', color: '#5a3a00', lineHeight: 1.8 }} />
