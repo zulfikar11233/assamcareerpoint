@@ -58,6 +58,8 @@ img { max-width: 100%; display: block; }
   font-size: 0.95rem;
   line-height: 1.75;
   color: #1a1a2e;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .rte-content table {
@@ -123,6 +125,8 @@ img { max-width: 100%; display: block; }
   color: #0096b7;
   text-decoration: underline;
   text-underline-offset: 2px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .rte-content a:hover {

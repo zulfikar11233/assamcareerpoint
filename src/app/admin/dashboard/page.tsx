@@ -706,7 +706,27 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
         nav::-webkit-scrollbar-track { background:transparent; }
         nav::-webkit-scrollbar-thumb { background:rgba(255,255,255,.15);border-radius:99px; }
         nav::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,.3); }
-        @media(max-width:900px) { .g2,.g3 { grid-template-columns:1fr; } .prgrid { grid-template-columns:1fr 1fr; } .lgrid { grid-template-columns:repeat(6,1fr); } }
+        @media(max-width:900px) {
+          .g2,.g3 { grid-template-columns:1fr; }
+          .prgrid { grid-template-columns:1fr 1fr; }
+          .lgrid { grid-template-columns:repeat(6,1fr); }
+          .admin-shell { flex-direction:column; }
+          .admin-sidebar { position:relative!important;width:100%!important;height:auto!important;max-height:none!important; }
+          .admin-sidebar nav { display:flex;gap:6px;overflow-x:auto!important;overflow-y:hidden!important;padding:10px!important; }
+          .admin-sidebar .nbtn { flex:0 0 auto; }
+          .admin-main { margin-left:0!important;width:100%!important; }
+          .admin-topbar { position:relative!important;top:auto!important;align-items:flex-start!important;flex-direction:column!important;padding:12px 16px!important; }
+          .admin-topbar input { width:100%!important; }
+          .admin-content { padding:16px!important; }
+          .admin-stats { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
+        }
+        @media(max-width:560px) {
+          .admin-stats { grid-template-columns:1fr!important; }
+          .prgrid,.idrow { grid-template-columns:1fr!important; }
+          .lgrid { grid-template-columns:repeat(4,1fr); }
+          .mbdy { padding:16px; }
+          .tst { left:16px!important;right:16px!important;bottom:16px!important;text-align:center; }
+        }
       `}</style>
 
       {/* TOAST */}
@@ -714,10 +734,10 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
         <div className="tst" style={{ position:'fixed',bottom:24,right:24,background:'#0d1b2a',color:'#fff',padding:'11px 22px',borderRadius:99,fontWeight:700,fontSize:'.87rem',zIndex:9999,boxShadow:'0 8px 30px rgba(0,0,0,.35)' }}>{toastMsg}</div>
       )}
 
-      <div style={{ display:'flex', minHeight:'100vh', background:'#f0f4f8' }}>
+      <div className="admin-shell" style={{ display:'flex', minHeight:'100vh', background:'#f0f4f8' }}>
 
         {/* ══════ SIDEBAR ══════ */}
-        <aside style={{ width:200, background:'#0d1b2a', height:'100vh', position:'fixed', top:0, left:0, display:'flex', flexDirection:'column', zIndex:100, overflow:'hidden' }}>
+        <aside className="admin-sidebar" style={{ width:200, background:'#0d1b2a', height:'100vh', position:'fixed', top:0, left:0, display:'flex', flexDirection:'column', zIndex:100, overflow:'hidden' }}>
           {/* Brand */}
           <div style={{ padding:'16px 16px 13px', borderBottom:'1px solid rgba(255,255,255,.07)' }}>
             <div style={{ display:'flex', alignItems:'center', gap:10 }}>
@@ -792,10 +812,10 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
         </aside>
 
         {/* ══════ MAIN ══════ */}
-<main style={{ marginLeft:200, flex:1, minWidth:0, overflowX:'hidden' }}>
+<main className="admin-main" style={{ marginLeft:200, flex:1, minWidth:0, overflowX:'hidden' }}>
 
   {/* Top bar */}
-  <div style={{ background:'#fff', borderBottom:'1px solid #d4e0ec', padding:'12px 26px', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50, gap:12 }}>
+  <div className="admin-topbar" style={{ background:'#fff', borderBottom:'1px solid #d4e0ec', padding:'12px 26px', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50, gap:12 }}>
     <div>
       <h1 style={{ fontFamily:"'Sora',sans-serif", fontSize:'1.05rem', fontWeight:700, color:'#1a1a2e' }}>
         {activeTab==='dashboard' && '🏠 Dashboard'}
@@ -821,14 +841,14 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
   </div>
 
   {/* Main content area */}
-  <div style={{ padding: 24 }}>
+  <div className="admin-content" style={{ padding: 24 }}>
 
             {/* ── DASHBOARD ── */}
             {activeTab==='dashboard' && (
               <>
                 {/* MigrateButton removed — migration complete */}
                 {/* Stats cards — 3 columns × 2 rows */}
-                <div style={{ display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:24 }}>
+                <div className="admin-stats" style={{ display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:24 }}>
                   {[
                     {ico:'💼',bg:'#fde8ea',val:jobs.length,        lbl:'Job Vacancies', sub:`${jobs.filter(j=>j.status==='Live').length} live`},
                     {ico:'📚',bg:'#fff3e0',val:exams.length,       lbl:'Exams',         sub:`${exams.filter(e=>e.status==='Registration Open').length} open`},

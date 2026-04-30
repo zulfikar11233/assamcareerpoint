@@ -335,8 +335,9 @@ export default function HomePage() {
         .cc  {
           transition:.18s;
           border: 1.5px solid #d4e0ec;
-          border-radius: 14px;
+          border-radius: 10px;
           background: #fff;
+          height: 100%;
         }
         .cc:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,.09); border-color:${T}; }
         .jr { position:relative; overflow:hidden; transition:.15s; }
@@ -370,11 +371,13 @@ export default function HomePage() {
         /* ✅ Updated category grid: 6 columns desktop, 3 tablet, 2 mobile */
         .cg {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 165px), 1fr));
   gap: 10px;
   width: 100%;
   overflow-x: hidden;
+  grid-auto-rows: 1fr;
 }
+        .cg > a { display:block; height:100%; }
 
         /* Responsive */
         @media(max-width:900px) {
@@ -386,7 +389,8 @@ export default function HomePage() {
   .desk-lang { display:none !important; }
   .ham-btn   { display:flex !important; }
 }
-@media(max-width:480px) {
+        @media(max-width:480px) {
+  .cg { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
   /* Remove the old .cg override - let auto-fill handle it */
   .stat-num { font-size:1rem !important; }
   .jr { flex-wrap:wrap !important; padding:11px 12px !important; }
@@ -472,9 +476,9 @@ export default function HomePage() {
       <main id="main-content">
 
         {/* HERO section unchanged */}
-        <section style={{background:'linear-gradient(135deg,#0d1b2a 0%,#1b2f45 60%,#0a3050 100%)',padding:'22px 0 18px'}}>
+        <section style={{background:'linear-gradient(135deg,#0d1b2a 0%,#1b2f45 60%,#0a3050 100%)',padding:'12px 0 10px'}}>
           <div style={{maxWidth:1180,margin:'0 auto',padding:'0 20px'}}>
-            <div className="hg" style={{display:'grid',gridTemplateColumns:'1fr 320px',gap:28,alignItems:'center'}}>
+            <div className="hg" style={{display:'grid',gridTemplateColumns:'1fr 300px',gap:18,alignItems:'center'}}>
               <div>
                 <div style={{display:'inline-flex',alignItems:'center',gap:7,background:'rgba(0,180,216,.15)',border:'1px solid rgba(0,180,216,.3)',borderRadius:99,padding:'4px 12px',fontSize:'.74rem',fontWeight:700,color:'#00b4d8',marginBottom:12}}>
                   🔴 Live — Jobs · Exams · Information
@@ -482,7 +486,7 @@ export default function HomePage() {
                 <h1 style={{fontFamily:'var(--font-sora),Sora,Arial Black,sans-serif',fontSize:'clamp(1.5rem,3.2vw,2.2rem)',fontWeight:800,color:'#fff',lineHeight:1.18,marginBottom:10}}>
                   {lang==='en' ? <>Assam Career Point<br/><span style={{color:'#00b4d8'}}>& Info</span></> : <>অসম কেৰিয়াৰ পইণ্ট<br/><span style={{color:'#00b4d8'}}>আৰু তথ্য</span></>}
                 </h1>
-                <p style={{color:'rgba(255,255,255,.7)',fontSize:'.92rem',marginBottom:18,lineHeight:1.65,maxWidth:420}}>
+                <p style={{color:'rgba(255,255,255,.7)',fontSize:'.9rem',marginBottom:12,lineHeight:1.55,maxWidth:520}}>
                   {lang==='en' ? 'Jobs · Exams · Information — updated daily for Assam & NE India' : 'চাকৰি · পৰীক্ষা · তথ্য — প্ৰতিদিন আপডেট'}
                 </p>
                 <div className="hero-btns" style={{display:'flex',gap:9,flexWrap:'wrap' as const}}>
@@ -490,7 +494,7 @@ export default function HomePage() {
                   <Link href="/exams"       style={{display:'inline-flex',gap:6,alignItems:'center',padding:'10px 20px',borderRadius:99,background:'#f4a261',color:'#0d1b2a',fontWeight:700,fontSize:'.88rem',textDecoration:'none'}}>📚 Exams</Link>
                   <Link href="/information" style={{display:'inline-flex',gap:6,alignItems:'center',padding:'10px 20px',borderRadius:99,background:'transparent',color:'#fff',fontWeight:700,fontSize:'.88rem',border:'1.5px solid rgba(255,255,255,.28)',textDecoration:'none'}}>ℹ️ Info</Link>
                 </div>
-                <div style={{display:'flex',gap:22,marginTop:16,flexWrap:'wrap' as const}}>
+                <div style={{display:'flex',gap:16,marginTop:10,flexWrap:'wrap' as const}}>
                   {STATS.map(({num,label})=>(
                     <div key={label}>
                       <div className="stat-num" style={{fontFamily:'var(--font-sora),Sora,sans-serif',fontWeight:800,fontSize:'1.2rem',color:'#00b4d8'}}>{num}</div>
@@ -541,11 +545,11 @@ export default function HomePage() {
             <div className="cg" style={{gap:10}}>
               {CATS.map(c=>(
                 <Link key={c.name} href={c.href} style={{textDecoration:'none'}}>
-                  <div className="cc" style={{padding:'13px 14px',display:'flex',alignItems:'center',gap:10}}>
-                    <div style={{width:40,height:40,borderRadius:9,background:`${c.color}15`,border:`1.5px solid ${c.color}30`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.25rem',flexShrink:0}}>{c.emoji}</div>
+                  <div className="cc" style={{padding:'12px 12px',display:'flex',flexDirection:'column' as const,alignItems:'flex-start',justifyContent:'space-between',gap:10}}>
+                    <div style={{width:38,height:38,borderRadius:8,background:`${c.color}15`,border:`1.5px solid ${c.color}30`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem',flexShrink:0}}>{c.emoji}</div>
                     <div style={{minWidth:0}}>
-                      <div style={{fontFamily:'var(--font-sora),Sora,sans-serif',fontWeight:700,fontSize:'.82rem',color:'#0d1b2a',lineHeight:1.3}}>{c.name}</div>
-                      <div style={{fontSize:'.73rem',color:c.color,fontWeight:700,marginTop:1}}>{c.count}</div>
+                      <div style={{fontFamily:'var(--font-sora),Sora,sans-serif',fontWeight:700,fontSize:'.8rem',color:'#0d1b2a',lineHeight:1.3}}>{c.name}</div>
+                      <div style={{fontSize:'.72rem',color:c.color,fontWeight:700,marginTop:2}}>{c.count}</div>
                     </div>
                   </div>
                 </Link>

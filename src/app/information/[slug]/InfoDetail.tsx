@@ -143,13 +143,13 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
         html,body{margin:0;font-family:Nunito,sans-serif;background:#f0f4f8;color:#1a1a2e;overflow-x:hidden}
         .nav-a{color:rgba(255,255,255,.65);font-size:.82rem;font-weight:700;padding:6px 13px;border-radius:99px;border:1.5px solid rgba(255,255,255,.15);text-decoration:none;white-space:nowrap;transition:.15s}
         .nav-a:hover{color:${G};border-color:${G}88;background:rgba(201,162,39,.08)}
-        .card{background:#fff;border:1.5px solid #d4e0ec;border-radius:14px;padding:22px;margin-bottom:18px}
+        .card{background:#fff;border:1.5px solid #d4e0ec;border-radius:14px;padding:20px;margin-bottom:18px;min-width:0}
         .re-card{background:#fff;border:1.5px solid #d4e0ec;border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;display:flex;gap:12px;padding:12px;transition:.18s}
         .re-card:hover{border-color:${T};transform:translateX(3px)}
         .cd-box{background:rgba(0,0,0,.4);border-radius:10px;padding:10px 6px;text-align:center}
         .cd-val{font-family:'Arial Black',sans-serif;font-weight:900;font-size:1.6rem;line-height:1;color:${G}}
         .cd-lbl{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.5);margin-top:3px}
-        @media(max-width:860px){.layout{flex-direction:column!important}}
+        @media(max-width:860px){.layout{flex-direction:column!important}.side{width:100%!important}}
       `}</style>
 
       <header style={{background:N,borderBottom:`2px solid ${G}`,position:'sticky',top:0,zIndex:100,boxShadow:'0 2px 20px rgba(0,0,0,.4)'}}>
@@ -174,12 +174,12 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
         <div style={{maxWidth:1180,margin:'0 auto',display:'flex',gap:6,alignItems:'center'}}>
           <Link href="/" style={{color:'#0e8a7e',textDecoration:'none',fontWeight:600}}>Home</Link> <span>›</span>
           <Link href="/information" style={{color:'#0e8a7e',textDecoration:'none',fontWeight:600}}>Information</Link> <span>›</span>
-          <span style={{color:N,fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const}}>{item.title.slice(0,50)}</span>
+          <span style={{color:N,fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const,maxWidth:'min(72vw,680px)'}}>{item.title.slice(0,50)}</span>
         </div>
       </div>
 
       {/* HERO */}
-      <div style={{background:`linear-gradient(135deg,${N},#0a3050)`,padding:'28px 20px 22px'}}>
+      <div style={{background:`linear-gradient(135deg,${N},#0a3050)`,padding:'16px 20px 12px'}}>
         <div style={{maxWidth:1180,margin:'0 auto',display:'flex',gap:16,alignItems:'flex-start',flexWrap:'wrap' as const}}>
           <div style={{width:64,height:64,borderRadius:15,background:`${T}22`,border:`2px solid ${T}55`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2rem',flexShrink:0}}>{item.emoji}</div>
           <div style={{flex:1,minWidth:220}}>
@@ -187,18 +187,18 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
               <span style={{background:`${sc}22`,color:sc,border:`1px solid ${sc}44`,padding:'3px 12px',borderRadius:99,fontSize:'.72rem',fontWeight:800}}>● {item.status}</span>
               <span style={{background:'rgba(255,255,255,.1)',color:'rgba(255,255,255,.65)',padding:'3px 12px',borderRadius:99,fontSize:'.72rem',fontWeight:700}}>{item.category}</span>
             </div>
-            <h1 style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:'clamp(1.1rem,2.5vw,1.6rem)',color:W,margin:'0 0 8px',lineHeight:1.3}}>
+            <h1 style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:'clamp(1.05rem,2.2vw,1.45rem)',color:W,margin:'0 0 8px',lineHeight:1.3,overflowWrap:'anywhere'}}>
               {item.title}
               {item.titleAs && <><br/><span style={{fontSize:'clamp(.78rem,1.6vw,1rem)',color:'#ffd54f',fontWeight:700}}>{item.titleAs}</span></>}
             </h1>
-            {item.description && <RichContent content={item.description} className="rte-content" style={{color:'rgba(255,255,255,.55)', fontSize:'.87rem', lineHeight:1.7, margin:'0 0 4px'}} />}
-            {item.descriptionAs && <RichContent content={item.descriptionAs} className="rte-content" style={{color:'rgba(255,255,255,.4)', fontSize:'.85rem', lineHeight:1.7, margin:0, fontStyle:'italic'}} />}
+            {item.description && <RichContent content={item.description} className="rte-content" style={{color:'rgba(255,255,255,.55)', fontSize:'.86rem', lineHeight:1.65, margin:'0 0 4px',overflowWrap:'anywhere'}} />}
+            {item.descriptionAs && <RichContent content={item.descriptionAs} className="rte-content" style={{color:'rgba(255,255,255,.4)', fontSize:'.84rem', lineHeight:1.65, margin:0, fontStyle:'italic',overflowWrap:'anywhere'}} />}
           </div>
         </div>
 
         {/* ✅ Countdown Timer for lastDate */}
         {timerOn && canCountdown && (
-          <div suppressHydrationWarning style={{marginTop:18, background:'rgba(0,0,0,.3)', border:`1px solid ${G}66`, borderRadius:12, padding:'12px 20px', maxWidth:400}}>
+          <div suppressHydrationWarning style={{marginTop:12, background:'rgba(0,0,0,.3)', border:`1px solid ${G}66`, borderRadius:12, padding:'10px 14px', maxWidth:390}}>
             <div style={{fontSize:'.7rem', color:'rgba(255,255,255,.5)', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8}}>⏱ Deadline Countdown</div>
             <div style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8}}>
               {[
@@ -354,7 +354,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
         </div>
 
         {/* SIDEBAR */}
-<div style={{width:280,flexShrink:0}}>
+<div className="side" style={{width:270,flexShrink:0,minWidth:0}}>
   {/* QUICK INFO */}
   <div style={{background:N,border:`2px solid ${G}`,borderRadius:14,padding:'18px',marginBottom:16}}>
     <h3 style={{fontFamily:'Arial Black,sans-serif',color:G,fontSize:'.78rem',letterSpacing:'.06em',marginBottom:14}}>📌 QUICK INFO</h3>
