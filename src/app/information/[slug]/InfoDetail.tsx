@@ -161,7 +161,8 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
             </div>
           </Link>
           <nav style={{display:'flex',gap:2,flexWrap:'wrap' as const}}>
-            {([['🏠 Home','/'],['💼 Jobs','/govt-jobs'],['📚 Exams','/exams'],['ℹ️ Info','/information'],['📄 PDF Forms','/pdf-forms']] as [string,string][]).map(([l,h])=>(
+            {([['🏠 Home','/'],['💼 Jobs','/govt-jobs'],['📚 Exams','/exams'],['ℹ️ Info','/information'],['📄 PDF Forms','/pdf-forms'],['📊 Results','/results'],
+  ['📋 Board Results','/results/board']] as [string,string][]).map(([l,h])=>(
               <Link key={h} href={h} className="nav-a">{l}</Link>
             ))}
           </nav>
@@ -354,31 +355,47 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
         </div>
 
         {/* SIDEBAR */}
-        <div style={{width:280,flexShrink:0}}>
-          <div style={{background:N,border:`2px solid ${G}`,borderRadius:14,padding:'18px',marginBottom:16}}>
-            <h3 style={{fontFamily:'Arial Black,sans-serif',color:G,fontSize:'.78rem',letterSpacing:'.06em',marginBottom:14}}>📌 QUICK INFO</h3>
-            {[
-              {l:'Category', v:item.category},
-              {l:'Status',   v:item.status, c:sc},
-              ...(item.lastDate ? [{l:'Last Date', v:fmt(item.lastDate), c:G}] : []),
-              ...(item.officialLink ? [{l:'Official Site', v:new URL(item.officialLink).hostname, href:item.officialLink}] : []),
-            ].map((r:any) => (
-              <div key={r.l} style={{display:'flex',justifyContent:'space-between',padding:'7px 0',borderBottom:'1px solid rgba(255,255,255,.06)',gap:8}}>
-                <span style={{fontSize:'.73rem',color:'rgba(255,255,255,.65)',fontWeight:700}}>{r.l}</span>
-                {r.href
-                  ? <a href={r.href} target="_blank" rel="noopener noreferrer" style={{fontSize:'.76rem',color:T,fontWeight:700,textDecoration:'none',textAlign:'right' as const,wordBreak:'break-all' as const}}>{r.v}</a>
-                  : <span style={{fontSize:'.76rem',color:r.c||W,fontWeight:700,textAlign:'right' as const}}>{r.v}</span>
-                }
-              </div>
-            ))}
-          </div>
+<div style={{width:280,flexShrink:0}}>
 
-          {item.officialLink && (
-            <a href={item.officialLink} target="_blank" rel="noopener noreferrer"
-              style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,width:'100%',padding:'13px',borderRadius:12,background:G,color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif',boxSizing:'border-box' as const,marginBottom:14}}>
-              🔗 OFFICIAL WEBSITE
-            </a>
-          )}
+  {/* ── Board Results Link ── (always shown) */}
+  <a
+    href="/results/board"
+    style={{
+      display: 'flex', alignItems: 'center', gap: '8px',
+      padding: '10px 14px', background: 'rgba(0,212,170,.06)',
+      border: '0.5px solid rgba(0,212,170,.2)', borderRadius: '8px',
+      color: '#00d4aa', textDecoration: 'none', fontSize: '13px',
+      fontWeight: 500, marginBottom: '8px'
+    }}
+  >
+    📋 Check All India Board Results →
+  </a>
+
+  {/* QUICK INFO */}
+  <div style={{background:N,border:`2px solid ${G}`,borderRadius:14,padding:'18px',marginBottom:16}}>
+    <h3 style={{fontFamily:'Arial Black,sans-serif',color:G,fontSize:'.78rem',letterSpacing:'.06em',marginBottom:14}}>📌 QUICK INFO</h3>
+    {[
+      {l:'Category', v:item.category},
+      {l:'Status',   v:item.status, c:sc},
+      ...(item.lastDate ? [{l:'Last Date', v:fmt(item.lastDate), c:G}] : []),
+      ...(item.officialLink ? [{l:'Official Site', v:new URL(item.officialLink).hostname, href:item.officialLink}] : []),
+    ].map((r:any) => (
+      <div key={r.l} style={{display:'flex',justifyContent:'space-between',padding:'7px 0',borderBottom:'1px solid rgba(255,255,255,.06)',gap:8}}>
+        <span style={{fontSize:'.73rem',color:'rgba(255,255,255,.65)',fontWeight:700}}>{r.l}</span>
+        {r.href
+          ? <a href={r.href} target="_blank" rel="noopener noreferrer" style={{fontSize:'.76rem',color:T,fontWeight:700,textDecoration:'none',textAlign:'right',wordBreak:'break-all'}}>{r.v}</a>
+          : <span style={{fontSize:'.76rem',color:r.c||W,fontWeight:700,textAlign:'right'}}>{r.v}</span>
+        }
+      </div>
+    ))}
+  </div>
+
+  {item.officialLink && (
+    <a href={item.officialLink} target="_blank" rel="noopener noreferrer"
+      style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,width:'100%',padding:'13px',borderRadius:12,background:G,color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif',boxSizing:'border-box',marginBottom:14}}>
+      🔗 OFFICIAL WEBSITE
+    </a>
+  )}
 
           {/* Share */}
           <div style={{background:'#f8fbff',border:'1px solid #d4e0ec',borderRadius:12,padding:'14px',textAlign:'center' as const}}>
