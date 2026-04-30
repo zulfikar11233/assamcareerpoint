@@ -87,7 +87,7 @@ function driveDownloadUrl(url: string): string {
 // ✅ NAV LINKS — consistent across all pages
 const NAV_LINKS: [string,string][] = [
   ['🏠 Home','/'],['💼 Jobs','/govt-jobs'],['📚 Exams','/exams'],
-  ['ℹ️ Info','/information'],['📄 PDFs','/pdf-forms'],['📊 Results','/results'],['📋 Board Results','/results/board'],
+  ['ℹ️ Info','/information'],['📄 PDFs','/pdf-forms'],['📊 Results','/results'],
 ]
 
 export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[] }) {
@@ -446,19 +446,6 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
                 </div>
               </div>
             )}
-	    {/* ── Board Results Link ── */}
-  <a
-    href="/results/board"
-    style={{
-      display: 'flex', alignItems: 'center', gap: '8px',
-      padding: '10px 14px', background: 'rgba(0,212,170,.06)',
-      border: '0.5px solid rgba(0,212,170,.2)', borderRadius: '8px',
-      color: '#00d4aa', textDecoration: 'none', fontSize: '13px',
-      fontWeight: 500, marginBottom: '8px'
-    }}
-  >
-    📋 Check All India Board Results →
-  </a>
             <div style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:14,padding:'16px',marginBottom:14}}>
               <h3 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.87rem',color:N,marginBottom:12}}>📌 Quick Info</h3>
               {[

@@ -258,7 +258,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
             </div>
           </Link>
           <nav className="nav-wrap">
-            {([['🏠 Home','/'],['💼 Jobs','/govt-jobs'],['📚 Exams','/exams'],['ℹ️ Info','/information'],['📄 PDFs','/pdf-forms'],['📊 Results','/results'],['📋 Board Results','/results/board']] as [string,string][]).map(([l,h])=>(
+            {([['🏠 Home','/'],['💼 Jobs','/govt-jobs'],['📚 Exams','/exams'],['ℹ️ Info','/information'],['📄 PDFs','/pdf-forms'],['📊 Results','/results']] as [string,string][]).map(([l,h])=>(
               <Link key={h} href={h} className="nav-a">{l}</Link>
             ))}
           </nav>
@@ -738,19 +738,6 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
               {siteHref&&<a href={siteHref} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,width:'100%',padding:'10px',borderRadius:10,background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.6)',fontWeight:700,fontSize:'.82rem',textDecoration:'none',border:'1px solid rgba(255,255,255,.15)',boxSizing:'border-box' as const,overflowWrap:'anywhere',wordBreak:'break-word',whiteSpace:'normal' as const}}>🌐 {job.website}</a>}
             </div>
           )}
-	  {/* ── Board Results Link ── */}
-  <a
-    href="/results/board"
-    style={{
-      display: 'flex', alignItems: 'center', gap: '8px',
-      padding: '10px 14px', background: 'rgba(0,212,170,.06)',
-      border: '0.5px solid rgba(0,212,170,.2)', borderRadius: '8px',
-      color: '#00d4aa', textDecoration: 'none', fontSize: '13px',
-      fontWeight: 500, marginBottom: '8px'
-    }}
-  >
-    📋 Check All India Board Results →
-  </a>
           <div style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:13,padding:'16px',marginBottom:15}}>
             <h3 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.87rem',color:N,marginBottom:12}}>📌 Quick Info</h3>
             {[

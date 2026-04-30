@@ -161,8 +161,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
             </div>
           </Link>
           <nav style={{display:'flex',gap:2,flexWrap:'wrap' as const}}>
-            {([['🏠 Home','/'],['💼 Jobs','/govt-jobs'],['📚 Exams','/exams'],['ℹ️ Info','/information'],['📄 PDF Forms','/pdf-forms'],['📊 Results','/results'],
-  ['📋 Board Results','/results/board']] as [string,string][]).map(([l,h])=>(
+            {([['🏠 Home','/'],['💼 Jobs','/govt-jobs'],['📚 Exams','/exams'],['ℹ️ Info','/information'],['📄 PDF Forms','/pdf-forms'],['📊 Results','/results']] as [string,string][]).map(([l,h])=>(
               <Link key={h} href={h} className="nav-a">{l}</Link>
             ))}
           </nav>
@@ -356,21 +355,6 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
 
         {/* SIDEBAR */}
 <div style={{width:280,flexShrink:0}}>
-
-  {/* ── Board Results Link ── (always shown) */}
-  <a
-    href="/results/board"
-    style={{
-      display: 'flex', alignItems: 'center', gap: '8px',
-      padding: '10px 14px', background: 'rgba(0,212,170,.06)',
-      border: '0.5px solid rgba(0,212,170,.2)', borderRadius: '8px',
-      color: '#00d4aa', textDecoration: 'none', fontSize: '13px',
-      fontWeight: 500, marginBottom: '8px'
-    }}
-  >
-    📋 Check All India Board Results →
-  </a>
-
   {/* QUICK INFO */}
   <div style={{background:N,border:`2px solid ${G}`,borderRadius:14,padding:'18px',marginBottom:16}}>
     <h3 style={{fontFamily:'Arial Black,sans-serif',color:G,fontSize:'.78rem',letterSpacing:'.06em',marginBottom:14}}>📌 QUICK INFO</h3>

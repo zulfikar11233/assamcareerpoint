@@ -64,13 +64,12 @@ const CATS = [
   { name:'Age Calculator',      emoji:'🎂', href:'/tools/age-calculator',      count:'Free Tool',       color:'#22c55e' },
   { name:'Word Counter',        emoji:'📝', href:'/tools/word-counter',        count:'Free Tool',       color:'#ec4899' },
   { name:'Salary Calculator',      emoji:'🧮', href:'/salary-calculator',      count:'Free Tool',       color:'#22c55e' },
-  { name:'Board Results', emoji:'📋', href:'/results/board', count:'10th & 12th', color:'#00d4aa' },
 ]
 
 const NAV_LINKS = [
   ['Home','/'],['Govt Jobs','/govt-jobs'],['Exams','/exams'],
   ['Information','/information'],['PDF Forms','/pdf-forms'],['Results','/results'],
-  ['🛠 Tools','/tools'],['🧮 Salary Calculator','/salary-calculator'],['📊 Board Results', '/results/board'],
+  ['🛠 Tools','/tools'],['🧮 Salary Calculator','/salary-calculator'],
 ]
 
 const fmt  = (d:string) => { try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) } catch { return d } }

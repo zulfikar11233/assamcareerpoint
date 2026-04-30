@@ -208,7 +208,7 @@ type AffItem = {
 }
 
 // ─── TAB TYPE ─────────────────────────────────────────────────────────────────
-type Tab = 'dashboard' | 'jobs' | 'exams' | 'info' | 'pdfforms' | 'affiliate' | 'settings' | 'boardresults'
+type Tab = 'dashboard' | 'jobs' | 'exams' | 'info' | 'pdfforms' | 'affiliate' | 'settings'
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 const JOB_CATS   = ['Govt Job','Central Govt','State Govt','Banking','Teaching','Railway','Defence','PSC','Private Job']
@@ -660,7 +660,6 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
     { icon:'📄', label:'PDF Forms',    tab:'pdfforms'  as Tab, active: '#6a0dad' },
     { icon:'🤝', label:'Affiliates',   tab:'affiliate' as Tab, active: '#c9a227' },
     { icon:'⚙️', label:'Settings',     tab:'settings'  as Tab, active: '#8fa3b8' },
-   { icon:'📋', label:'Board Results Settings', tab:'boardresults' as Tab, active: '#00d4aa' },
   ]
 
   const filt = <T extends {title?: string}>(arr: T[]) => arr.filter(x => (x.title || '').toLowerCase().includes(search.toLowerCase()))
@@ -756,7 +755,6 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
             {([
               ['🏆','Results CMS','/admin/results'],
               ['📢','Others CMS','/admin/others'],
-	      ['📋','Board Results Settings','/admin/board-results'],
             ] as [string,string,string][]).map(([ico,lbl,href]) => (
               <a key={href} href={href} className="nbtn" style={{ textDecoration:'none',fontSize:'.76rem' }}>
                 <span style={{ width:20,textAlign:'center' as const }}>{ico}</span>{lbl}
