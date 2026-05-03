@@ -82,7 +82,7 @@ export default function GuideDetail({ post }: { post: OthersPost }) {
           .detail-crumb{flex-wrap:wrap!important}
           .detail-hero{padding:16px 12px!important}
           .detail-hero-row{flex-wrap:wrap!important}
-          .detail-content{padding:18px 12px 40px!important}
+          .detail-content{padding:18px 12px 40px!important;overflow-x:hidden!important;max-width:100%!important}
           .sec-card > div:last-child{padding:14px 12px!important}
         }
       `}</style>

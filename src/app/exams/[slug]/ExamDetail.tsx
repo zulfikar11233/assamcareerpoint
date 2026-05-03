@@ -165,6 +165,7 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
         .re-card:hover{border-color:${T};transform:translateX(3px)}
         .pdf-row{display:flex;align-items:center;gap:12px;padding:11px 14px;background:#f8fbff;border:1.5px solid #d4e0ec;border-radius:10px;text-decoration:none;color:inherit;transition:.15s;margin-bottom:8px}
         .pdf-row:hover{border-color:${T};background:#e0f7fc}
+
         @media(max-width:860px){
           .detail-header{padding:10px 12px!important}
           .detail-nav{display:flex!important;gap:6px!important;width:100%!important;overflow-x:auto!important;flex-wrap:nowrap!important;padding-bottom:4px}
@@ -174,12 +175,14 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
           .detail-hero-row{flex-wrap:wrap!important}
           .detail-content{padding:16px 12px 44px!important}
           .layout{flex-direction:column!important}
-          .layout>div:last-child{width:100%!important;min-width:0!important}
+          .layout>div:first-child{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
+          .layout>div:last-child{width:100%!important;min-width:0!important;max-width:100%!important}
         }
         @media(max-width:600px){
-          .dates-grid{grid-template-columns:1fr 1fr!important}
+          .dates-grid{grid-template-columns:1fr!important}
           .apply-btns{flex-direction:column!important}
           .apply-btns a{width:100%!important}
+          .detail-hero .hero-grid-strip{grid-template-columns:1fr 1fr!important}
         }
       `}</style>
 
@@ -230,8 +233,8 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
               </div>
             </div>
 
-            {/* Key dates strip */}
-            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:10,marginTop:18}}>
+            {/* Key dates strip — now with className and reduced min width */}
+            <div className="hero-grid-strip" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:10,marginTop:18}}>
               {[
                 {l:'Apply By',   v:fmt(exam.applicationLastDate), hi:true},
                 {l:'Payment By', v:fmt(exam.paymentLastDate),     hi:false},

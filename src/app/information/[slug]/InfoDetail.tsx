@@ -143,12 +143,13 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
         html,body{margin:0;font-family:Nunito,sans-serif;background:#f0f4f8;color:#1a1a2e;overflow-x:hidden}
         .nav-a{color:rgba(255,255,255,.65);font-size:.82rem;font-weight:700;padding:6px 13px;border-radius:99px;border:1.5px solid rgba(255,255,255,.15);text-decoration:none;white-space:nowrap;transition:.15s}
         .nav-a:hover{color:${G};border-color:${G}88;background:rgba(201,162,39,.08)}
-        .card{background:#fff;border:1.5px solid #d4e0ec;border-radius:14px;padding:20px;margin-bottom:18px;min-width:0}
+        .card{background:#fff;border:1.5px solid #d4e0ec;border-radius:14px;padding:20px;margin-bottom:18px}
         .re-card{background:#fff;border:1.5px solid #d4e0ec;border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;display:flex;gap:12px;padding:12px;transition:.18s}
         .re-card:hover{border-color:${T};transform:translateX(3px)}
         .cd-box{background:rgba(0,0,0,.4);border-radius:10px;padding:10px 6px;text-align:center}
         .cd-val{font-family:'Arial Black',sans-serif;font-weight:900;font-size:1.6rem;line-height:1;color:${G}}
         .cd-lbl{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.5);margin-top:3px}
+
         @media(max-width:860px){
           .detail-header{padding:10px 12px!important}
           .detail-nav{display:flex!important;gap:6px!important;width:100%!important;overflow-x:auto!important;flex-wrap:nowrap!important;padding-bottom:4px}
@@ -158,6 +159,9 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
           .detail-content{padding:16px 12px 44px!important}
           .layout{flex-direction:column!important}
           .side{width:100%!important}
+          /* ✅ FIX: main column prevents overflow */
+          .layout>div:first-child{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
+          .layout>div:last-child{width:100%!important;max-width:100%!important}
         }
       `}</style>
 
@@ -363,32 +367,32 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
         </div>
 
         {/* SIDEBAR */}
-<div className="side" style={{width:270,flexShrink:0,minWidth:0}}>
-  {/* QUICK INFO */}
-  <div style={{background:N,border:`2px solid ${G}`,borderRadius:14,padding:'18px',marginBottom:16}}>
-    <h3 style={{fontFamily:'Arial Black,sans-serif',color:G,fontSize:'.78rem',letterSpacing:'.06em',marginBottom:14}}>📌 QUICK INFO</h3>
-    {[
-      {l:'Category', v:item.category},
-      {l:'Status',   v:item.status, c:sc},
-      ...(item.lastDate ? [{l:'Last Date', v:fmt(item.lastDate), c:G}] : []),
-      ...(item.officialLink ? [{l:'Official Site', v:new URL(item.officialLink).hostname, href:item.officialLink}] : []),
-    ].map((r:any) => (
-      <div key={r.l} style={{display:'flex',justifyContent:'space-between',padding:'7px 0',borderBottom:'1px solid rgba(255,255,255,.06)',gap:8}}>
-        <span style={{fontSize:'.73rem',color:'rgba(255,255,255,.65)',fontWeight:700}}>{r.l}</span>
-        {r.href
-          ? <a href={r.href} target="_blank" rel="noopener noreferrer" style={{fontSize:'.76rem',color:T,fontWeight:700,textDecoration:'none',textAlign:'right',wordBreak:'break-all'}}>{r.v}</a>
-          : <span style={{fontSize:'.76rem',color:r.c||W,fontWeight:700,textAlign:'right'}}>{r.v}</span>
-        }
-      </div>
-    ))}
-  </div>
+        <div className="side" style={{width:270,flexShrink:0,minWidth:0}}>
+          {/* QUICK INFO */}
+          <div style={{background:N,border:`2px solid ${G}`,borderRadius:14,padding:'18px',marginBottom:16}}>
+            <h3 style={{fontFamily:'Arial Black,sans-serif',color:G,fontSize:'.78rem',letterSpacing:'.06em',marginBottom:14}}>📌 QUICK INFO</h3>
+            {[
+              {l:'Category', v:item.category},
+              {l:'Status',   v:item.status, c:sc},
+              ...(item.lastDate ? [{l:'Last Date', v:fmt(item.lastDate), c:G}] : []),
+              ...(item.officialLink ? [{l:'Official Site', v:new URL(item.officialLink).hostname, href:item.officialLink}] : []),
+            ].map((r:any) => (
+              <div key={r.l} style={{display:'flex',justifyContent:'space-between',padding:'7px 0',borderBottom:'1px solid rgba(255,255,255,.06)',gap:8}}>
+                <span style={{fontSize:'.73rem',color:'rgba(255,255,255,.65)',fontWeight:700}}>{r.l}</span>
+                {r.href
+                  ? <a href={r.href} target="_blank" rel="noopener noreferrer" style={{fontSize:'.76rem',color:T,fontWeight:700,textDecoration:'none',textAlign:'right',wordBreak:'break-all'}}>{r.v}</a>
+                  : <span style={{fontSize:'.76rem',color:r.c||W,fontWeight:700,textAlign:'right'}}>{r.v}</span>
+                }
+              </div>
+            ))}
+          </div>
 
-  {item.officialLink && (
-    <a href={item.officialLink} target="_blank" rel="noopener noreferrer"
-      style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,width:'100%',padding:'13px',borderRadius:12,background:G,color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif',boxSizing:'border-box',marginBottom:14}}>
-      🔗 OFFICIAL WEBSITE
-    </a>
-  )}
+          {item.officialLink && (
+            <a href={item.officialLink} target="_blank" rel="noopener noreferrer"
+              style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,width:'100%',padding:'13px',borderRadius:12,background:G,color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif',boxSizing:'border-box',marginBottom:14}}>
+              🔗 OFFICIAL WEBSITE
+            </a>
+          )}
 
           {/* Share */}
           <div style={{background:'#f8fbff',border:'1px solid #d4e0ec',borderRadius:12,padding:'14px',textAlign:'center' as const}}>

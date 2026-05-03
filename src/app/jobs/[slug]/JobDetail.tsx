@@ -217,10 +217,10 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
         .re-card{background:#fff;border:1.5px solid #d4e0ec;border-radius:11px;text-decoration:none;color:inherit;display:flex;gap:12px;padding:12px;transition:.18s;min-width:0}
         .re-card:hover{border-color:${T};transform:translateX(3px)}
         @media(max-width:860px){
-          .layout{flex-direction:column!important;flex-wrap:wrap!important}
-          .layout>div:last-child{width:100%!important;min-width:0!important}
+          .layout{flex-direction:column!important;flex-wrap:wrap!important;overflow-x:hidden!important}
+          .layout>div:last-child{width:100%!important;min-width:0!important;max-width:100%!important}
           .sidebar-col{width:100%!important;max-width:100%!important;flex-shrink:1!important;order:2}
-          .layout>div:first-child{width:100%!important;min-width:0!important;order:1}
+          .layout>div:first-child{width:100%!important;min-width:0!important;max-width:100%!important;overflow-x:hidden!important;order:1}
         }
         @media(max-width:600px){
           .header-inner{padding:10px 12px!important}
@@ -237,7 +237,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
           .tbl-wrap{max-width:100%!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;display:block!important}
           .sel-stages{flex-direction:column!important;align-items:stretch!important}
           .sel-stages > div{max-width:100%}
-          .stats-strip{grid-template-columns:1fr!important}
+          .stats-strip{grid-template-columns:1fr 1fr!important}
           .stats-strip > div{min-width:0!important}
           .age-fee-grid{grid-template-columns:1fr!important}
           .dates-grid{grid-template-columns:1fr!important}
@@ -304,35 +304,34 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
             </div>
           </div>
 
-          {/* Stats strip */}
-<div className="stats-strip" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:10,marginTop:18}}>
-  {(() => {
-    // ✅ Compute the local date string once before the array
-    let lastDateDisplay = '—'
-    if (job.lastDate) {
-      const localDate = getTargetDate(job.lastDate, '00:00')
-      lastDateDisplay = localDate.toLocaleDateString('en-IN', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric'
-      })
-    }
-    // Append time if available
-    const lastDateFull = lastDateDisplay + (job.lastDateTime ? ` · ${job.lastDateTime}` : '')
+          {/* Stats strip — updated with maxWidth and 140px columns */}
+          <div className="stats-strip" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:10,marginTop:18,maxWidth:'100%'}}>
+            {(() => {
+              let lastDateDisplay = '—'
+              if (job.lastDate) {
+                const localDate = getTargetDate(job.lastDate, '00:00')
+                lastDateDisplay = localDate.toLocaleDateString('en-IN', {
+                  day: '2-digit',
+                  month: 'long',
+                  year: 'numeric'
+                })
+              }
+              const lastDateFull = lastDateDisplay + (job.lastDateTime ? ` · ${job.lastDateTime}` : '')
 
-    return [
-      { l: 'Total Vacancies', v: totalV > 0 ? totalV.toLocaleString('en-IN') : 'As per notification', c: G },
-      { l: 'Last Date',       v: lastDateFull, c: dl?.c || W },
-      { l: 'Age Limit',       v: posts.length ? `${ageMin}–${ageMax} yrs${job.ageLimitDate ? ` (as on ${fmt(job.ageLimitDate)})` : ''}` : job.ageLimit || '—', c: T },
-      { l: 'App. Fee',        v: job.fee ? (job.fee.split('\n')[0] || '').slice(0, 32) : 'Check Notice', c: '#c0622a' },
-    ].map(s => (
-      <div key={s.l} style={{background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.12)',borderRadius:10,padding:'10px 14px',flex:'1 1 160px',minWidth:0}}>
-        <div style={{fontSize:'.63rem',color:'rgba(255,255,255,.4)',fontWeight:700,textTransform:'uppercase' as const,letterSpacing:'.04em',marginBottom:4}}>{s.l}</div>
-        <div className="safe-wrap" style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.83rem',color:s.c,lineHeight:1.3}}>{s.v}</div>
-      </div>
-    ))
-  })()}
-</div>
+              return [
+                { l: 'Total Vacancies', v: totalV > 0 ? totalV.toLocaleString('en-IN') : 'As per notification', c: G },
+                { l: 'Last Date',       v: lastDateFull, c: dl?.c || W },
+                { l: 'Age Limit',       v: posts.length ? `${ageMin}–${ageMax} yrs${job.ageLimitDate ? ` (as on ${fmt(job.ageLimitDate)})` : ''}` : job.ageLimit || '—', c: T },
+                { l: 'App. Fee',        v: job.fee ? (job.fee.split('\n')[0] || '').slice(0, 32) : 'Check Notice', c: '#c0622a' },
+              ].map(s => (
+                <div key={s.l} style={{background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.12)',borderRadius:10,padding:'10px 14px',flex:'1 1 160px',minWidth:0}}>
+                  <div style={{fontSize:'.63rem',color:'rgba(255,255,255,.4)',fontWeight:700,textTransform:'uppercase' as const,letterSpacing:'.04em',marginBottom:4}}>{s.l}</div>
+                  <div className="safe-wrap" style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.83rem',color:s.c,lineHeight:1.3}}>{s.v}</div>
+                </div>
+              ))
+            })()}
+          </div>
+
           {/* Countdown Timer */}
           {timerOn && job.lastDate && getTargetDate(job.lastDate, job.lastDateTime).getTime() > Date.now() && (
             <div suppressHydrationWarning style={{marginTop:16,background:'rgba(0,0,0,.25)',border:'1px solid rgba(201,162,39,.3)',borderRadius:10,padding:'10px 16px',display:'flex',alignItems:'center',gap:16,flexWrap:'wrap' as const}}>
@@ -396,7 +395,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                         <tbody>
                           {posts.map((p,i)=>(
                             <tr key={p.id||i}>
-                              <td style={{fontWeight:700,color:N,minWidth:140}}>{p.name||'—'}</td>
+                              <td style={{fontWeight:700,color:N,minWidth:140}}>{p.name||'—'}<tr>
                               <td style={{color:'#5a6a7a',minWidth:120}}>{p.dept||'—'}</td>
                               <td style={{fontWeight:700,color:T,textAlign:'center' as const}}>{Number(p.vacancy||0).toLocaleString('en-IN')}</td>
                               <td style={{color:'#5a6a7a',minWidth:140}}>{p.qualification||'—'}</td>

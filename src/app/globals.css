@@ -52,7 +52,7 @@ img { max-width: 100%; display: block; }
 @keyframes fadeUp  { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
 
 /* ───────────────────────────────────────────────────────────── */
-/* RTE CONTENT STYLES – for HTML from TinyMCE (tables, lists, etc.) */
+/* RTE CONTENT STYLES – for HTML from TinyMCE (tables, lists etc) */
 /* ───────────────────────────────────────────────────────────── */
 .rte-content {
   font-size: 0.95rem;
@@ -60,15 +60,36 @@ img { max-width: 100%; display: block; }
   color: #1a1a2e;
   overflow-wrap: anywhere;
   word-break: break-word;
+  max-width: 100%;          /* prevent expanding beyond container */
+  overflow-x: hidden;       /* clip any overflowing child */
 }
 
+/* Wrap table in a scrollable container */
 .rte-content table {
   border-collapse: collapse;
-  width: 100%;
+  min-width: 100%;          /* changed from width:100% to min-width */
   margin: 1.2rem 0;
   font-size: 0.9rem;
+}
+
+/* Keep as table (not block) */
+.rte-content table {
+  display: table;
+}
+
+/* Wrap tables in a scrollable div — applied via JS below */
+.rte-table-wrap {
   overflow-x: auto;
-  display: block;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  border-radius: 8px;
+  border: 1px solid #d4e0ec;
+  margin: 1.2rem 0;
+}
+
+.rte-table-wrap table {
+  margin: 0;
+  border: none;
 }
 
 .rte-content th,
@@ -77,6 +98,7 @@ img { max-width: 100%; display: block; }
   padding: 8px 12px;
   text-align: left;
   vertical-align: top;
+  white-space: nowrap;      /* keep cells from wrapping weirdly */
 }
 
 .rte-content th {
@@ -93,24 +115,28 @@ img { max-width: 100%; display: block; }
 .rte-content ol {
   padding-left: 1.5rem;
   margin: 0.8rem 0;
+  max-width: 100%;
 }
 
 .rte-content li {
   margin-bottom: 0.3rem;
   line-height: 1.6;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .rte-content h2 {
-  font-size: 1.25rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: #0d1b2a;
   margin: 1.2rem 0 0.8rem;
   padding-bottom: 0.3rem;
   border-bottom: 2px solid #e8f0f8;
+  overflow-wrap: anywhere;
 }
 
 .rte-content h3 {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #1a4a6e;
   margin: 1rem 0 0.6rem;
@@ -119,6 +145,9 @@ img { max-width: 100%; display: block; }
 .rte-content p {
   margin: 0.6rem 0;
   line-height: 1.7;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .rte-content a {
@@ -142,13 +171,22 @@ img { max-width: 100%; display: block; }
   font-style: italic;
 }
 
-/* Responsive tables on small screens */
+.rte-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Mobile table scrolling */
 @media (max-width: 640px) {
-  .rte-content table {
-    font-size: 0.8rem;
+  .rte-content {
+    font-size: 0.875rem;
   }
   .rte-content th,
   .rte-content td {
     padding: 6px 8px;
+    font-size: 0.78rem;
+  }
+  .rte-content h2 {
+    font-size: 0.95rem;
   }
 }
