@@ -211,7 +211,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
         .tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:.8rem;min-width:700px}
         .tbl th{background:#0b1f33;color:#c9a227;padding:9px 12px;text-align:left;font-family:Arial Black,sans-serif;font-size:.72rem;position:sticky;top:0;z-index:2}
         .tbl td{padding:9px 12px;border-bottom:1px solid #f0f4f8;vertical-align:top}
-        .tbl td:first-child,.tbl th:first-child{position:sticky;left:0;background:#0b1f33;z-index:1}
+        .tbl td:first-child,.tbl th:first-child{position:sticky;left:0;background:#0b1f33;color:#ffffff!important;z-index:1}
         .tbl tr:hover td{background:#f8fbff}
         .tbl tr:last-child td{border-bottom:none}
         .re-card{background:#fff;border:1.5px solid #d4e0ec;border-radius:11px;text-decoration:none;color:inherit;display:flex;gap:12px;padding:12px;transition:.18s;min-width:0}
