@@ -395,7 +395,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                         <tbody>
                           {posts.map((p,i)=>(
                             <tr key={p.id||i}>
-                              <td style={{fontWeight:700,color:N,minWidth:140}}>{p.name||'—'}<tr>
+                              <td style={{fontWeight:700,color:N,minWidth:140}}>{p.name||'—'}</td>
                               <td style={{color:'#5a6a7a',minWidth:120}}>{p.dept||'—'}</td>
                               <td style={{fontWeight:700,color:T,textAlign:'center' as const}}>{Number(p.vacancy||0).toLocaleString('en-IN')}</td>
                               <td style={{color:'#5a6a7a',minWidth:140}}>{p.qualification||'—'}</td>
