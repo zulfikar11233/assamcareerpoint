@@ -669,13 +669,13 @@ export default function HomePage() {
                     {visibleItems.map((item, i) => (
                       <Link key={item.id} href={item.href} style={{textDecoration:'none'}}>
                         <div className="jr" style={{
-                          display:'flex', gap:14, padding:'13px 20px',
+                          display:'flex', gap:14, padding:'15px 20px',
                           borderBottom: i < visibleItems.length-1 ? '1px solid #f0f4f8' : 'none',
                           cursor:'pointer', alignItems:'flex-start'
                         }}>
                           {/* LEFT — RECTANGLE THUMBNAIL */}
                           <div style={{
-                            width: 90, height: 78, flexShrink: 0, borderRadius: 10,
+                            width: 130, height: 86, flexShrink: 0, borderRadius: 10,
                             background: '#f0f4f8', border: '1.5px solid #e0e8f0',
                             overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center'
                           }}>
@@ -692,7 +692,7 @@ export default function HomePage() {
                             {/* Row 1: Title + Tag badge */}
                             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8, marginBottom:3 }}>
                               <h3 style={{
-                                fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:'.88rem',
+                                fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:'1.1rem',
                                 color:'#0d1b2a', margin:0, lineHeight:1.35,
                                 display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden'
                               }}>
