@@ -1062,12 +1062,12 @@ export default function AdminDashboard() {
                   <div style={{ overflowX:'auto' }}>
                     <table className="tbl">
                       <thead><tr><th>Title</th><th>Category</th><th>Google Drive Link</th><th>Added</th><th>Actions</th></tr></thead>
-                                            <tbody>
+                                                                  <tbody>
                         {filt(pdfForms).length === 0 ? (
                           <tr>
                             <td colSpan={5} style={{ textAlign:'center', padding:40, color:'#5a6a7a' }}>
                               No PDF forms. Click "Add PDF Form".
-                            </td>
+                            </tr>
                           </tr>
                         ) : (
                           filt(pdfForms).map(p => (
