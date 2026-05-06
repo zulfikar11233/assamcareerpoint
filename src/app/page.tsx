@@ -1,4 +1,3 @@
-// src/app/page.tsx
 'use client'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
@@ -45,9 +44,12 @@ type AnyPost = {
   href: string
   subCl: string
   date: number
-  desc?: string   // description preview (2 lines)
-  meta?: string   // extra info: org / conductedBy
-  imageUrl?: string // optional thumbnail
+  desc?: string
+  meta?: string
+  imageUrl?: string
+  lastDate?: string    // ← ADD
+  postsCount?: string  // ← ADD
+  examDate?: string    // ← ADD
 }
 
 // ✅ Updated CATS array (6 boxes, one line)
@@ -80,6 +82,23 @@ function fmtCount(n:number):string {
   if (n === 0) return '0'
   if (n >= 100) return `${Math.floor(n/100)*100}+`
   return `${n}+`
+}
+
+// Converts Google Drive share links to direct image URLs
+function toThumbUrl(url?: string): string {
+  if (!url || typeof url !== 'string') return ''
+  const t = url.trim()
+  if (!t.startsWith('http')) return ''
+  if (t.includes('drive.google.com')) {
+    const m = t.match(/\/d\/([a-zA-Z0-9_-]+)/)
+    return m ? `https://lh3.googleusercontent.com/d/${m[1]}` : ''
+  }
+  return t
+}
+
+// Strip HTML tags from description
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim()
 }
 
 async function fetchWithRetry(url: string, retries = 2): Promise<any> {
@@ -223,7 +242,12 @@ export default function HomePage() {
       date: new Date(j.createdAt||'').getTime() || 0,
       desc: j.description || '',
       meta: `${j.org || ''} · ${j.district || ''}`,
-      imageUrl: (j.logo && j.logo.startsWith('http')) ? j.logo : '',
+      imageUrl: toThumbUrl((j as any).imageUrl),
+      lastDate: j.lastDate || '',
+      postsCount: (j.posts?.reduce((a,p)=>a+p.vacancy,0)||parseInt(j.vacancy||'0')) > 0
+        ? `${(j.posts?.reduce((a,p)=>a+p.vacancy,0)||parseInt(j.vacancy||'0')).toLocaleString()} Posts`
+        : '',
+      examDate: '',
     })),
     ...exams.map(e => ({
       id: `e${e.id}`,
@@ -236,7 +260,10 @@ export default function HomePage() {
       date: new Date((e as any).createdAt || e.applicationLastDate || '').getTime() || 0,
       desc: `Apply by: ${fmt(e.applicationLastDate)} · Exam: ${fmt(e.examDate)}`,
       meta: `Conducted by ${e.conductedBy || ''}`,
-      imageUrl: e.imageUrl || '',
+      imageUrl: toThumbUrl((e as any).imageUrl),
+      lastDate: e.applicationLastDate || '',
+      postsCount: '',
+      examDate: e.examDate || '',
     })),
     ...info.map(i => ({
       id: `i${i.id}`,
@@ -249,7 +276,10 @@ export default function HomePage() {
       date: new Date(i.createdAt||'').getTime() || 0,
       desc: i.description || '',
       meta: i.category || '',
-      imageUrl: i.imageUrl || '',
+      imageUrl: toThumbUrl((i as any).imageUrl),
+      lastDate: i.lastDate || '',
+      postsCount: '',
+      examDate: '',
     })),
     ...results.map(r => ({
       id: `r${r.id}`,
@@ -262,7 +292,10 @@ export default function HomePage() {
       date: new Date(r.resultDate||'').getTime() || 0,
       desc: r.resultDate ? `Result declared: ${fmt(r.resultDate)}` : '',
       meta: r.org || '',
-      imageUrl: (r as any).imageUrl || '',
+      imageUrl: toThumbUrl((r as any).imageUrl),
+      lastDate: '',
+      postsCount: '',
+      examDate: '',
     })),
     ...announcements.map(a => ({
       id: `a${a.id}`,
@@ -275,7 +308,10 @@ export default function HomePage() {
       date: new Date(a.createdAt||'').getTime() || 0,
       desc: a.description || '',
       meta: a.category || '',
-      imageUrl: (a as any).imageUrl || '',
+      imageUrl: toThumbUrl((a as any).imageUrl),
+      lastDate: '',
+      postsCount: '',
+      examDate: '',
     })),
     ...services.map(s => ({
       id: `s${s.id}`,
@@ -288,7 +324,10 @@ export default function HomePage() {
       date: new Date(s.createdAt||'').getTime() || 0,
       desc: s.description || '',
       meta: s.category || '',
-      imageUrl: (s as any).imageUrl || '',
+      imageUrl: toThumbUrl((s as any).imageUrl),
+      lastDate: '',
+      postsCount: '',
+      examDate: '',
     })),
     ...guides.map(g => ({
       id: `g${g.id}`,
@@ -301,7 +340,10 @@ export default function HomePage() {
       date: new Date(g.createdAt||'').getTime() || 0,
       desc: g.description || '',
       meta: g.category || '',
-      imageUrl: (g as any).imageUrl || '',
+      imageUrl: toThumbUrl((g as any).imageUrl),
+      lastDate: '',
+      postsCount: '',
+      examDate: '',
     })),
   ].sort((a, b) => b.date - a.date)
 
@@ -627,51 +669,85 @@ export default function HomePage() {
                     {visibleItems.map((item, i) => (
                       <Link key={item.id} href={item.href} style={{textDecoration:'none'}}>
                         <div className="jr" style={{
-                          display:'flex', gap:14, padding:'14px 20px',
-                          borderBottom: i<visibleItems.length-1 ? '1px solid #f0f4f8' : 'none',
+                          display:'flex', gap:14, padding:'13px 20px',
+                          borderBottom: i < visibleItems.length-1 ? '1px solid #f0f4f8' : 'none',
                           cursor:'pointer', alignItems:'flex-start'
                         }}>
-                          {/* LEFT IMAGE BOX */}
+                          {/* LEFT — RECTANGLE THUMBNAIL */}
                           <div style={{
-                            width: 72, height: 72, flexShrink: 0, borderRadius: 10,
+                            width: 90, height: 78, flexShrink: 0, borderRadius: 10,
                             background: '#f0f4f8', border: '1.5px solid #e0e8f0',
                             overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center'
                           }}>
-                            {item.imageUrl ? (
+                            {item.imageUrl && item.imageUrl.startsWith('http') ? (
                               <img src={item.imageUrl} alt={item.title} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
                             ) : (
-                              <span style={{ fontSize: '1.8rem' }}>{item.icon}</span>
+                              <span style={{ fontSize: '2rem' }}>{item.icon}</span>
                             )}
                           </div>
 
-                          {/* RIGHT CONTENT */}
+                          {/* RIGHT — CONTENT */}
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8, marginBottom:4 }}>
-                              <h3 style={{ fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:'.9rem', color:'#0d1b2a', margin:0, lineHeight:1.35 }}>
+
+                            {/* Row 1: Title + Tag badge */}
+                            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8, marginBottom:3 }}>
+                              <h3 style={{
+                                fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:'.88rem',
+                                color:'#0d1b2a', margin:0, lineHeight:1.35,
+                                display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden'
+                              }}>
                                 {item.title}
                               </h3>
                               <span style={{
-                                flexShrink:0, fontSize:'.65rem', fontWeight:800, padding:'2px 8px', borderRadius:99,
-                                background: item.tag==='JOB'?'#e8f5e9': item.tag==='EXAM'?'#e3f2fd': item.tag==='RESULT'?'#fff8e1':'#f3e5f5',
-                                color: item.tag==='JOB'?'#2e7d32': item.tag==='EXAM'?'#1565c0': item.tag==='RESULT'?'#e65100':'#6a0dad',
+                                flexShrink:0, fontSize:'.63rem', fontWeight:800, padding:'2px 8px', borderRadius:99,
+                                background: item.tagBg, color: item.tagCl,
                               }}>
                                 {item.tag}
                               </span>
                             </div>
+
+                            {/* Row 2: Organisation / Category */}
                             {item.meta && (
-                              <div style={{ fontSize:'.75rem', color:'#8a9ab0', margin:'0 0 5px' }}>{item.meta}</div>
-                            )}
-                            {item.desc && (
-                              <div style={{
-                                fontSize:'.78rem', color:'#5a6a7a', margin:0,
-                                display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden', lineHeight:1.5
-                              }}>
-                                {item.desc.slice(0,120)}
+                              <div style={{ fontSize:'.73rem', color:'#8a9ab0', marginBottom:3, whiteSpace:'nowrap' as const, overflow:'hidden', textOverflow:'ellipsis' }}>
+                                {item.meta}
                               </div>
                             )}
-                            <div style={{ fontSize:'.74rem', color:item.subCl, fontWeight:700, marginTop:5 }}>
-                              {item.sub}
+
+                            {/* Row 3: Description — 2 lines, strip HTML */}
+                            {item.desc && (
+                              <div style={{
+                                fontSize:'.76rem', color:'#5a6a7a', marginBottom:5,
+                                display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical',
+                                overflow:'hidden', lineHeight:1.5
+                              }}>
+                                {stripHtml(item.desc).slice(0, 160)}
+                              </div>
+                            )}
+
+                            {/* Row 4: Pills — Posts Count, Last Date, Exam Date */}
+                            <div style={{ display:'flex', flexWrap:'wrap' as const, gap:6, marginTop:2 }}>
+                              {item.postsCount && (
+                                <span style={{ fontSize:'.68rem', fontWeight:700, padding:'2px 8px', borderRadius:99, background:'#fff3e0', color:'#e65100', border:'1px solid #ffcc80' }}>
+                                  👥 {item.postsCount}
+                                </span>
+                              )}
+                              {item.lastDate && (
+                                <span style={{ fontSize:'.68rem', fontWeight:700, padding:'2px 8px', borderRadius:99, background:'#fce4ec', color:'#c62828', border:'1px solid #ef9a9a' }}>
+                                  📅 Last Date: {item.lastDate}
+                                </span>
+                              )}
+                              {item.examDate && (
+                                <span style={{ fontSize:'.68rem', fontWeight:700, padding:'2px 8px', borderRadius:99, background:'#e3f2fd', color:'#1565c0', border:'1px solid #90caf9' }}>
+                                  📝 Exam: {item.examDate}
+                                </span>
+                              )}
+                              {!item.lastDate && !item.examDate && !item.postsCount && item.sub && (
+                                <span style={{ fontSize:'.70rem', fontWeight:700, color: item.subCl }}>
+                                  {item.sub}
+                                </span>
+                              )}
                             </div>
+
                           </div>
                         </div>
                       </Link>

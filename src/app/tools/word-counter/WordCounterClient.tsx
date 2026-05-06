@@ -1,4 +1,3 @@
-// src/app/tools/word-counter/WordCounterClient.tsx
 'use client'
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { C, S, ToolsNavbar, ToolHeader, TabBtn, Divider } from '../_shared'
@@ -94,8 +93,8 @@ export default function WordCounterClient() {
   )
 
   return (
-    <main style={{ fontFamily:'Nunito,sans-serif', background:'#f0f4f8', minHeight:'100vh', color:'#1a1a2e' }}>
-      <div style={{ overflowX: 'hidden' }}>
+    <main style={{ fontFamily:'Nunito,sans-serif', background:'#f0f4f8', minHeight:'100vh', color:'#1a1a2e', overflowX:'hidden', maxWidth:'100vw' }}>
+      <div style={{ overflowX:'hidden', maxWidth:'100%' }}>
         <ToolsNavbar />
 
         <style>{`
@@ -105,8 +104,13 @@ export default function WordCounterClient() {
           @media (max-width: 900px) {
             .wc-grid { grid-template-columns: 1fr !important; }
             .wc-sidebar { position: static !important; }
-            .wc-outer { padding: 16px 14px !important; }
+            .wc-outer { padding: 12px 10px !important; }
           }
+          @media (max-width: 480px) {
+            .wc-outer { padding: 8px 8px !important; }
+          }
+          * { box-sizing: border-box; max-width: 100%; }
+          textarea { max-width: 100% !important; }
         `}</style>
         
         <ToolHeader title="Word Counter"
@@ -190,10 +194,10 @@ export default function WordCounterClient() {
 
               {/* Tabs */}
               <div style={S.card}>
-                <div style={S.tabBar}>
+                <div style={{ ...S.tabBar, flexWrap:'wrap' as const, gap:'6px' }}>
                   {(['stats','keywords','flow','tools'] as const).map(t=>(
                     <TabBtn key={t} active={tab===t} onClick={()=>setTab(t)}>
-                      {t==='stats'?'📊 Detailed Stats':t==='keywords'?'🔑 Keywords':t==='flow'?'📈 Flow Analysis':'🛠 Text Tools'}
+                      {t==='stats'?'📊 Stats':t==='keywords'?'🔑 Keywords':t==='flow'?'📈 Flow':'🛠 Tools'}
                     </TabBtn>
                   ))}
                 </div>
@@ -237,7 +241,7 @@ export default function WordCounterClient() {
                       <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
                         {keywords.map(k=>(
                           <div key={k.w} style={{ display:'flex', alignItems:'center', gap:'12px' }}>
-                            <span style={{ width:'120px', fontSize:'15px', fontWeight:700, color:C.gray700, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{k.w}</span>
+                            <span style={{ width:'90px', minWidth:0, fontSize:'14px', fontWeight:700, color:C.gray700, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' as const }}>{k.w}</span>
                             <div style={{ flex:1, background:C.gray100, borderRadius:'99px', height:'24px', overflow:'hidden' }}>
                               <div style={{ height:'100%', background:C.teal, borderRadius:'99px', width:`${Math.max(8,Number(k.pct)*4)}%`, minWidth:'36px', display:'flex', alignItems:'center', paddingLeft:'10px' }}>
                                 <span style={{ fontSize:'12px', fontWeight:700, color:C.white }}>{k.c}×</span>
