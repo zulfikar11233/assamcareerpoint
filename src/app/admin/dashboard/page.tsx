@@ -1062,34 +1062,40 @@ export default function AdminDashboard() {
                   <div style={{ overflowX:'auto' }}>
                     <table className="tbl">
                       <thead><tr><th>Title</th><th>Category</th><th>Google Drive Link</th><th>Added</th><th>Actions</th></tr></thead>
-                      <tbody>
-                        {filt(pdfForms).length===0
-                          ? <tr><td colSpan={5} style={{ textAlign:'center' as const,padding:40,color:'#5a6a7a' }}>No PDF forms. Click "Add PDF Form".</td></tr>
-                          : filt(pdfForms).map(p => (
+                                            <tbody>
+                        {filt(pdfForms).length === 0 ? (
+                          <tr>
+                            <td colSpan={5} style={{ textAlign:'center', padding:40, color:'#5a6a7a' }}>
+                              No PDF forms. Click "Add PDF Form".
+                            </td>
+                          </tr>
+                        ) : (
+                          filt(pdfForms).map(p => (
                             <tr key={p.id}>
-                              <td style={{ fontWeight:700,maxWidth:200,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const }}>📄 {p.title}</td>
+                              <td style={{ fontWeight:700, maxWidth:200, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                                📄 {p.title}
+                              </td>
                               <td><span className="chip cT">{p.category}</span></td>
                               <td>
-                                <a href={p.driveLink} target="_blank" rel="noreferrer" style={{ color:'#0096b7',fontSize:'.77rem',fontWeight:700,textDecoration:'none' }}>
+                                <a href={p.driveLink} target="_blank" rel="noreferrer" style={{ color:'#0096b7', fontSize:'.77rem', fontWeight:700, textDecoration:'none' }}>
                                   🔗 Open in Drive ↗
                                 </a>
                               </td>
-                              <td style={{ fontSize:'.75rem',color:'#5a6a7a',whiteSpace:'nowrap' as const }}>{p.uploadedAt}</td>
+                              <td style={{ fontSize:'.75rem', color:'#5a6a7a', whiteSpace:'nowrap' }}>{p.uploadedAt}</td>
                               <td>
                                 <div style={{ display:'flex', gap:5 }}>
-                                  <button onClick={()=>openEditPdf(p)} style={{ padding:'5px 9px', borderRadius:7, fontSize:'.72rem', fontWeight:700, cursor:'pointer', background:'#e0f7fc', color:'#0096b7', border:'1.5px solid #b2ebf5', fontFamily:'Nunito,sans-serif' }}>✏️ Edit</button>
-                                  <button onClick={()=>{if(confirm('Delete?'))setPdfForms(prev=>prev.filter(x=>x.id!==p.id))}} style={{ padding:'5px 9px', borderRadius:7, fontSize:'.72rem', fontWeight:700, cursor:'pointer', background:'#fde8ea', color:'#e63946', border:'1.5px solid #f7bcc0', fontFamily:'Nunito,sans-serif' }}>🗑 Delete</button>
+                                  <button onClick={() => openEditPdf(p)} style={{ padding:'5px 9px', borderRadius:7, fontSize:'.72rem', fontWeight:700, cursor:'pointer', background:'#e0f7fc', color:'#0096b7', border:'1.5px solid #b2ebf5' }}>
+                                    ✏️ Edit
+                                  </button>
+                                  <button onClick={() => { if(confirm('Delete?')) setPdfForms(prev => prev.filter(x => x.id !== p.id)) }} style={{ padding:'5px 9px', borderRadius:7, fontSize:'.72rem', fontWeight:700, cursor:'pointer', background:'#fde8ea', color:'#e63946', border:'1.5px solid #f7bcc0' }}>
+                                    🗑 Delete
+                                  </button>
                                 </div>
                               </td>
                             </tr>
                           ))
-                        }
+                        )}
                       </tbody>
-                    </table>
-                  </div>
-                </div>
-              </>
-            )}
 
             {/* ── AFFILIATE PARTNERS ── */}
             {activeTab==='affiliate' && (

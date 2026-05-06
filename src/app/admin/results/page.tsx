@@ -745,45 +745,45 @@ export default function ResultsAdmin() {
                     ))}
                   </tr>
                 </thead>
-                <tbody>
-                  {filtered.map((post, idx) => (
-                    <tr key={post.id} style={{ borderBottom: idx < filtered.length - 1 ? '1px solid #f0f4f8' : 'none' }}>
-                      <td style={{ padding: '12px 16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ fontSize: '1.3rem' }}>{post.emoji}</span>
-                          <div>
-                            <div style={{ fontWeight: 700, fontSize: '.86rem', color: N, maxWidth: 220 }}>{post.title}</div>
-                            <code style={{ fontSize: '.68rem', color: '#8fa3b8' }}>/{post.slug}</code>
+                                  <tbody>
+                    {filtered.map((post, idx) => (
+                      <tr key={post.id} style={{ borderBottom: idx < filtered.length - 1 ? '1px solid #f0f4f8' : 'none' }}>
+                        <td style={{ padding: '12px 16px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: '1.3rem' }}>{post.emoji}</span>
+                            <div>
+                              <div style={{ fontWeight: 700, fontSize: '.86rem', color: N, maxWidth: 220 }}>{post.title}</div>
+                              <code style={{ fontSize: '.68rem', color: '#8fa3b8' }}>/{post.slug}</code>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td style={{ padding: '12px 16px', fontSize: '.82rem', color: '#5a6a7a' }}>{post.org}</td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <span style={{ padding: '3px 10px', borderRadius: 20, background: catColor(post.category) + '18', color: catColor(post.category), fontSize: '.72rem', fontWeight: 700 }}>
-                          {post.category}
-                        </span>
-                      </td>
-                      <td style={{ padding: '12px 16px', fontSize: '.82rem', color: '#5a6a7a' }}>{post.sections.length}</td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <button onClick={() => togglePublish(post.id)} style={{
-                          padding: '4px 12px', borderRadius: 20, fontSize: '.72rem', fontWeight: 700, border: 'none', cursor: 'pointer',
-                          background: post.published ? '#eafaf1' : '#fef9e7',
-                          color: post.published ? '#27ae60' : '#e67e22',
-                        }}>{post.published ? '✅ Published' : '⏸ Draft'}</button>
-                      </td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          <button onClick={() => { setEditPost(post); setShowModal(true) }} style={{ ...bS, padding: '5px 12px', fontSize: '.78rem' }}>✏️ Edit</button>
-                          <button onClick={() => handleDelete(post.id)} style={{ ...bDanger, padding: '5px 10px' }}>🗑</button>
-                          {post.published && (
-                            <Link href={`/results/${post.slug}`} target="_blank"
-                              style={{ ...bS, padding: '5px 10px', fontSize: '.78rem', textDecoration: 'none' }}>↗</Link>
-                          )}
-                        </div>
-                      </td>
-                    </table>
-                  ))}
-                </tbody>
+                        </td>
+                        <td style={{ padding: '12px 16px', fontSize: '.82rem', color: '#5a6a7a' }}>{post.org}</td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <span style={{ padding: '3px 10px', borderRadius: 20, background: catColor(post.category) + '18', color: catColor(post.category), fontSize: '.72rem', fontWeight: 700 }}>
+                            {post.category}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px 16px', fontSize: '.82rem', color: '#5a6a7a' }}>{post.sections.length}</td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <button onClick={() => togglePublish(post.id)} style={{
+                            padding: '4px 12px', borderRadius: 20, fontSize: '.72rem', fontWeight: 700, border: 'none', cursor: 'pointer',
+                            background: post.published ? '#eafaf1' : '#fef9e7',
+                            color: post.published ? '#27ae60' : '#e67e22',
+                          }}>{post.published ? '✅ Published' : '⏸ Draft'}</button>
+                        </td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <button onClick={() => { setEditPost(post); setShowModal(true) }} style={{ ...bS, padding: '5px 12px', fontSize: '.78rem' }}>✏️ Edit</button>
+                            <button onClick={() => handleDelete(post.id)} style={{ ...bDanger, padding: '5px 10px' }}>🗑</button>
+                            {post.published && (
+                              <Link href={`/results/${post.slug}`} target="_blank"
+                                style={{ ...bS, padding: '5px 10px', fontSize: '.78rem', textDecoration: 'none' }}>↗</Link>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
               </table>
             </div>
           )}
