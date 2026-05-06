@@ -26,8 +26,8 @@ function Logo({ size=38 }:{size?:number}) {
 }
 
 type Job = { id:number; logo:string; title:string; org:string; category:string; district:string; status:string; vacancy:string; lastDate:string; description?:string; posts?:{vacancy:number}[]; slug?:string; createdAt?:string }
-type Exam         = { id:number; emoji:string; title:string; conductedBy:string; category:string; applicationLastDate:string; paymentLastDate:string; examDate:string; examTime:string; status:string; slug?:string; createdAt?:string }
-type Info         = { id:number; emoji:string; title:string; category:string; description:string; lastDate?:string; status:string; importantDates:{label:string;date:string;time?:string}[]; slug?:string; createdAt?:string }
+type Exam         = { id:number; emoji:string; imageUrl?:string; title:string; conductedBy:string; category:string; applicationLastDate:string; paymentLastDate:string; examDate:string; examTime:string; status:string; slug?:string; createdAt?:string }
+type Info         = { id:number; emoji:string; imageUrl?:string; title:string; category:string; description:string; lastDate?:string; status:string; importantDates:{label:string;date:string;time?:string}[]; slug?:string; createdAt?:string }
 type Result       = { id:number; emoji?:string; title:string; org?:string; category?:string; resultDate?:string; slug?:string; createdAt?:string }
 type Announcement = { id:number; emoji?:string; title:string; category?:string; description?:string; createdAt:string; slug?:string; published?:boolean }
 type Guide        = { id:number; emoji?:string; title:string; category?:string; description?:string; createdAt:string; slug?:string; published?:boolean }
@@ -236,7 +236,7 @@ export default function HomePage() {
       date: new Date((e as any).createdAt || e.applicationLastDate || '').getTime() || 0,
       desc: `Apply by: ${fmt(e.applicationLastDate)} · Exam: ${fmt(e.examDate)}`,
       meta: `Conducted by ${e.conductedBy || ''}`,
-      imageUrl: (ex as any).imageUrl || '',
+      imageUrl: e.imageUrl || '',
     })),
     ...info.map(i => ({
       id: `i${i.id}`,
@@ -249,7 +249,7 @@ export default function HomePage() {
       date: new Date(i.createdAt||'').getTime() || 0,
       desc: i.description || '',
       meta: i.category || '',
-      imageUrl: (inf as any).imageUrl || '',
+      imageUrl: i.imageUrl || '',
     })),
     ...results.map(r => ({
       id: `r${r.id}`,

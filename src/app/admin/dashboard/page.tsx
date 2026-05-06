@@ -355,7 +355,7 @@ function SectionBuilder({ sections, onChange }: {
                       </tr>
                     ))}
                   </tbody>
-                <tr>
+                </table>
               )}
             </div>
           </div>
@@ -1007,7 +1007,7 @@ export default function AdminDashboard() {
                                 <button onClick={()=>{if(confirm('Delete?')) setExams(p=>p.filter(e=>e.id!==x.id))}} style={{ padding:'5px 9px', borderRadius:7, fontSize:'.72rem', fontWeight:700, cursor:'pointer', background:'#fde8ea', color:'#e63946', border:'1.5px solid #f7bcc0', fontFamily:'Nunito,sans-serif' }}>🗑</button>
                               </div>
                             </td>
-                          <tr>
+                          </tr>
                         ))
                       )}
                     </tbody>
@@ -1062,12 +1062,12 @@ export default function AdminDashboard() {
                   <div style={{ overflowX:'auto' }}>
                     <table className="tbl">
                       <thead><tr><th>Title</th><th>Category</th><th>Google Drive Link</th><th>Added</th><th>Actions</th></tr></thead>
-                                                                  <tbody>
+                      <tbody>
                         {filt(pdfForms).length === 0 ? (
                           <tr>
                             <td colSpan={5} style={{ textAlign:'center', padding:40, color:'#5a6a7a' }}>
                               No PDF forms. Click "Add PDF Form".
-                            </tr>
+                            </td>
                           </tr>
                         ) : (
                           filt(pdfForms).map(p => (
@@ -1096,6 +1096,11 @@ export default function AdminDashboard() {
                           ))
                         )}
                       </tbody>
+                    </table>
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* ── AFFILIATE PARTNERS ── */}
             {activeTab==='affiliate' && (

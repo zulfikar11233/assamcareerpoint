@@ -54,7 +54,7 @@ type ExamPdf      = { label: string; url: string }
 type ExamAffiliate = { id: string; title: string; link: string; img?: string; badge?: string }
 
 type Exam = {
-  id: number; slug?: string; emoji: string; title: string; conductedBy: string
+  id: number; slug?: string; emoji: string; imageUrl?: string; title: string; conductedBy: string
   category: string; description?: string; applicationStart?: string
   applicationLastDate?: string; paymentLastDate?: string; examDate?: string
   examTime?: string; admitCardDate?: string; resultDate?: string; fee?: string
