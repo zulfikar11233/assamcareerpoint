@@ -219,7 +219,12 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
         <div className="detail-hero" style={{background:`linear-gradient(135deg,${N},#0a3050)`,padding:'20px 20px 16px'}}>
           <div style={{maxWidth:1180,margin:'0 auto'}}>
             <div className="detail-hero-row" style={{display:'flex',gap:16,alignItems:'flex-start',flexWrap:'wrap' as const}}>
-              <div style={{width:64,height:64,borderRadius:14,background:`${sc}22`,border:`2px solid ${sc}55`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2rem',flexShrink:0}}>{exam.emoji}</div>
+              <div style={{width:64,height:64,borderRadius:14,background:`${sc}22`,border:`2px solid ${sc}55`,overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2rem',flexShrink:0}}>
+  {exam.imageUrl
+    ? <img src={exam.imageUrl} alt={exam.title} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+    : exam.emoji
+  }
+</div>
               <div style={{flex:1,minWidth:200}}>
                 <div style={{display:'flex',gap:8,flexWrap:'wrap' as const,marginBottom:10}}>
                   <span style={{background:`${sc}22`,color:sc,border:`1px solid ${sc}44`,padding:'4px 12px',borderRadius:99,fontSize:'.72rem',fontWeight:800}}>● {exam.status}</span>

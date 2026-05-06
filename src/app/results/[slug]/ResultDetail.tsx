@@ -36,6 +36,7 @@ type ResultPost = {
   resultDate?: string
   createdAt: string
   updatedAt?: string
+  imageUrl?: string
   sections: Array<{
     id: string
     title?: string
@@ -144,7 +145,12 @@ export default function ResultDetail({ post }: { post: ResultPost }) {
           </div>
 
           <div className="detail-hero-row" style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-            <span style={{ fontSize: '2.6rem', flexShrink: 0 }}>{post.emoji}</span>
+            <div style={{ width: 70, height: 70, borderRadius: 15, background: `${color}22`, border: `2px solid ${color}55`, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', flexShrink: 0 }}>
+  {post.imageUrl
+    ? <img src={post.imageUrl} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+    : post.emoji
+  }
+</div>
             <div>
               <h1 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, color: '#fff', fontSize: '1.35rem', margin: '0 0 8px', lineHeight: 1.3, overflowWrap:'anywhere' }}>
                 {post.title}

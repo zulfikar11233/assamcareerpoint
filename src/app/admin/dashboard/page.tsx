@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 // ✅ Jobs: image banner upload, multiple advertisement PDFs, last-date extend history
 // ✅ NEW: Competitive Exams (exam date + time, payment last date separate from apply last date)
 // ✅ NEW: Information (Voter ID, PAN-Aadhaar, schemes — with dates+time)
-// ✅ PDF Forms library: SEPARATE from job/exam PDFs (Google Drive links supported)
+// ✅ PDF Forms library: SEPARATE from job/exam PDFs (Google Drive links supported) + EDITABLE
 // ✅ NEW: Results CMS + Others CMS (Announcements, Guides, Services) — sidebar links added
 import Link from 'next/link'
 import { generateSlug } from '@/lib/dataHelper'
@@ -57,6 +57,7 @@ type DateExt = {         // Last-date extension history entry
 type Job = {
   id: number
   logo: string
+  imageUrl?: string       // ✅ ADDED
   title: string
   org: string
   category: string
@@ -79,7 +80,7 @@ type Job = {
   howToApply?: string
   howToApplyImages?: string[]
   detailsImages?: string[]
-  sections?:ContentSection[]   // ← optional sections shown on detail page
+  sections?: ContentSection[]
   youtubeLink?: string
   createdAt?: string
   // SEO & Description
@@ -88,7 +89,7 @@ type Job = {
   // Age Details
   ageLimitDate?: string
   ageRelaxation?: string
-  ageBirthRange?: string   // ← e.g. "Born between 01-07-2005 to 01-07-2009"
+  ageBirthRange?: string
   // Fee Details
   feeRefund?: string
   // Important Dates extras
@@ -108,8 +109,8 @@ type Job = {
   // Job-specific affiliate products
   jobAffiliates?: JobAffiliate[]
   // Bilingual — Assamese (all optional)
-  fullDescription?: string   // ← long 2000-3000 word optional field
-  fullDescTitle?: string     // ← optional title for the field
+  fullDescription?: string
+  fullDescTitle?: string
   titleAs?: string
   orgAs?: string
   descriptionAs?: string
@@ -147,8 +148,9 @@ type Exam = {
   syllabusAs?: string
   fullDescription?: string
   fullDescTitle?: string
-  examPdfs?:      { label: string; url: string }[]
+  examPdfs?: { label: string; url: string }[]
   examAffiliates?: { id: string; title: string; link: string; img?: string; badge?: string }[]
+  imageUrl?: string       // ✅ ADDED
 }
 
 type InfoItem = {
@@ -170,6 +172,7 @@ type InfoItem = {
   titleAs?: string
   descriptionAs?: string
   processAs?: string
+  imageUrl?: string       // ✅ ADDED
 }
 
 // PDF Forms library — Google Drive links only (NOT base64, NOT job advert PDFs)
@@ -177,34 +180,33 @@ type PdfForm = {
   id: number
   title: string
   category: string
-  driveLink: string      // Google Drive shareable link
+  driveLink: string
   uploadedAt?: string
   downloads?: number
-  // SEO fields — shown on public page, indexed by Google
-  description?: string   // 2-3 sentence description using search keywords
-  keywords?:   string    // comma-separated exact search phrases
-  fileSize?:   string    // "1.2 MB"
-  pages?:      string    // "12"
-  language?:   string    // "English" | "Assamese" | "Both"
-  source?:     string    // official source e.g. "Election Commission of India"
+  description?: string
+  keywords?: string
+  fileSize?: string
+  pages?: string
+  language?: string
+  source?: string
 }
 
 // Affiliate items
 type AffItem = {
   id: number
-  category: string       // 'Exam Preparation' | 'Books & Study Material' | 'Tools & Resources'
+  category: string
   title: string
   description?: string
-  badge: string          // "Best for Assam", "Top Rated" etc.
-  logo: string           // emoji
+  badge: string
+  logo: string
   price: string
   originalPrice?: string
   commission: string
-  link: string           // YOUR affiliate URL — replace with real link
-  highlights: string[]   // up to 4 bullet points
+  link: string
+  highlights: string[]
   buttonText: string
-  tag: string            // 'RECOMMENDED' | 'POPULAR' | 'NEW' | ''
-  active: boolean        // show/hide on public page
+  tag: string
+  active: boolean
 }
 
 // ─── TAB TYPE ─────────────────────────────────────────────────────────────────
@@ -221,7 +223,7 @@ const LOGOS      = ['👮','🌲','🚂','🏦','🏛️','🏥','🎓','📋','
 
 // ─── SAMPLE DATA ──────────────────────────────────────────────────────────────
 const SAMPLE_JOBS: Job[] = [{
-  id:1, logo:'👮', title:'Assam Police Recruitment 2026', org:'SLPRB Assam',
+  id:1, logo:'👮', imageUrl:'', title:'Assam Police Recruitment 2026', org:'SLPRB Assam',
   category:'Govt Job', district:'All Districts', status:'Live',
   vacancy:'5734', qualification:'HS Pass', ageLimit:'18-43', salary:'₹12,000–1,10,000', lastDate:'2026-03-25', applyLink:'https://slprbassam.in',
   posts:[
@@ -235,29 +237,23 @@ const SAMPLE_JOBS: Job[] = [{
 }]
 
 const SAMPLE_EXAMS: Exam[] = [
-  {id:1,emoji:'📚',title:'CTET 2026 — Central Teacher Eligibility Test',conductedBy:'CBSE',category:'Teaching',description:'National eligibility test for teachers for Class 1–8.',applicationStart:'2026-02-15',applicationLastDate:'2026-03-15',paymentLastDate:'2026-03-17',examDate:'2026-05-22',examTime:'9:30 AM – 12:00 PM  &  2:30 PM – 5:00 PM',admitCardDate:'2026-05-10',resultDate:'2026-06-30',fee:'1 Paper: Gen ₹1,000 · SC/ST ₹500 | Both: Gen ₹1,200 · SC/ST ₹600',eligibility:'Graduation + B.Ed / D.El.Ed',syllabus:'Child Dev., Language I & II, Maths / Science / Social Studies',officialSite:'ctet.nic.in',applyLink:'https://ctet.nic.in',admitCardLink:'',status:'Registration Open',createdAt:new Date().toISOString()},
-  {id:2,emoji:'🏥',title:'NEET UG 2026',conductedBy:'NTA',category:'Medical',description:'National Eligibility cum Entrance Test for MBBS, BDS, BAMS and other medical courses.',applicationStart:'2026-02-01',applicationLastDate:'2026-03-31',paymentLastDate:'2026-04-01',examDate:'2026-05-04',examTime:'2:00 PM – 5:20 PM',admitCardDate:'2026-04-20',resultDate:'2026-06-14',fee:'Gen ₹1,700 · OBC/EWS ₹1,600 · SC/ST/PWD ₹1,000',eligibility:'10+2 with PCB (min 50% Gen, 45% OBC, 40% SC/ST)',syllabus:'Physics, Chemistry, Biology (Class 11 & 12 NCERT)',officialSite:'neet.nta.nic.in',applyLink:'https://neet.nta.nic.in',admitCardLink:'',status:'Registration Open',createdAt:new Date().toISOString()},
+  {id:1,emoji:'📚',title:'CTET 2026 — Central Teacher Eligibility Test',conductedBy:'CBSE',category:'Teaching',description:'National eligibility test for teachers for Class 1–8.',applicationStart:'2026-02-15',applicationLastDate:'2026-03-15',paymentLastDate:'2026-03-17',examDate:'2026-05-22',examTime:'9:30 AM – 12:00 PM  &  2:30 PM – 5:00 PM',admitCardDate:'2026-05-10',resultDate:'2026-06-30',fee:'1 Paper: Gen ₹1,000 · SC/ST ₹500 | Both: Gen ₹1,200 · SC/ST ₹600',eligibility:'Graduation + B.Ed / D.El.Ed',syllabus:'Child Dev., Language I & II, Maths / Science / Social Studies',officialSite:'ctet.nic.in',applyLink:'https://ctet.nic.in',admitCardLink:'',status:'Registration Open',createdAt:new Date().toISOString(), imageUrl:''},
+  {id:2,emoji:'🏥',title:'NEET UG 2026',conductedBy:'NTA',category:'Medical',description:'National Eligibility cum Entrance Test for MBBS, BDS, BAMS and other medical courses.',applicationStart:'2026-02-01',applicationLastDate:'2026-03-31',paymentLastDate:'2026-04-01',examDate:'2026-05-04',examTime:'2:00 PM – 5:20 PM',admitCardDate:'2026-04-20',resultDate:'2026-06-14',fee:'Gen ₹1,700 · OBC/EWS ₹1,600 · SC/ST/PWD ₹1,000',eligibility:'10+2 with PCB (min 50% Gen, 45% OBC, 40% SC/ST)',syllabus:'Physics, Chemistry, Biology (Class 11 & 12 NCERT)',officialSite:'neet.nta.nic.in',applyLink:'https://neet.nta.nic.in',admitCardLink:'',status:'Registration Open',createdAt:new Date().toISOString(), imageUrl:''},
 ]
 
 const SAMPLE_INFO: InfoItem[] = [
-  {id:1,emoji:'🗳️',title:'Voter ID Registration / Correction 2026',category:'Electoral',description:'Register as a new voter or correct existing voter ID details via Form 6/6A/8 online or offline.',lastDate:'2026-04-30',process:'1. Visit voters.eci.gov.in\n2. Click "Register as New Voter"\n3. Fill Form 6 with your details\n4. Upload Aadhaar, address proof, photo\n5. Submit and note acknowledgement number\n6. BLO will verify at your address',officialLink:'https://voters.eci.gov.in',importantDates:[{label:'Registration Opens',date:'2026-01-01'},{label:'Last Date to Apply',date:'2026-04-30',time:'11:59 PM'},{label:'Verification Deadline',date:'2026-05-15'}],status:'Active',createdAt:new Date().toISOString()},
-  {id:2,emoji:'🔗',title:'PAN–Aadhaar Linking Deadline 2026',category:'ID & Documents',description:'Link your PAN card with Aadhaar to avoid PAN becoming inoperative. Penalty of ₹1,000 applies after deadline.',lastDate:'2026-06-30',process:'Method 1 (SMS): Send UIDPAN<space>12-digit Aadhaar<space>10-digit PAN to 567678\nMethod 2 (Online): Visit incometax.gov.in → Quick Links → Link Aadhaar → Enter PAN & Aadhaar → Pay ₹1,000 penalty if applicable → Submit',officialLink:'https://incometax.gov.in',importantDates:[{label:'Extended Deadline',date:'2026-06-30',time:'11:59 PM'}],status:'Active',createdAt:new Date().toISOString()},
+  {id:1,emoji:'🗳️',title:'Voter ID Registration / Correction 2026',category:'Electoral',description:'Register as a new voter or correct existing voter ID details via Form 6/6A/8 online or offline.',lastDate:'2026-04-30',process:'1. Visit voters.eci.gov.in\n2. Click "Register as New Voter"\n3. Fill Form 6 with your details\n4. Upload Aadhaar, address proof, photo\n5. Submit and note acknowledgement number\n6. BLO will verify at your address',officialLink:'https://voters.eci.gov.in',importantDates:[{label:'Registration Opens',date:'2026-01-01'},{label:'Last Date to Apply',date:'2026-04-30',time:'11:59 PM'},{label:'Verification Deadline',date:'2026-05-15'}],status:'Active',createdAt:new Date().toISOString(),imageUrl:''},
+  {id:2,emoji:'🔗',title:'PAN–Aadhaar Linking Deadline 2026',category:'ID & Documents',description:'Link your PAN card with Aadhaar to avoid PAN becoming inoperative. Penalty of ₹1,000 applies after deadline.',lastDate:'2026-06-30',process:'Method 1 (SMS): Send UIDPAN<space>12-digit Aadhaar<space>10-digit PAN to 567678\nMethod 2 (Online): Visit incometax.gov.in → Quick Links → Link Aadhaar → Enter PAN & Aadhaar → Pay ₹1,000 penalty if applicable → Submit',officialLink:'https://incometax.gov.in',importantDates:[{label:'Extended Deadline',date:'2026-06-30',time:'11:59 PM'}],status:'Active',createdAt:new Date().toISOString(),imageUrl:''},
 ]
 
 const SAMPLE_PDFS: PdfForm[] = [
-  {id:1,title:'APSC CCE Syllabus 2026',category:'Syllabus',driveLink:'https://drive.google.com/file/d/example1/view',uploadedAt:'15 Feb 2026',downloads:12450},
-  {id:2,title:'Assam Police SI Application Form',category:'Application Forms',driveLink:'https://drive.google.com/file/d/example2/view',uploadedAt:'20 Feb 2026',downloads:8200},
+  {id:1,title:'APSC CCE Syllabus 2026',category:'Syllabus',driveLink:'https://drive.google.com/file/d/example1/view',uploadedAt:'15 Feb 2026',downloads:12450,description:'APSC CCE Prelims Syllabus 2026 PDF',keywords:'apsc syllabus cce 2026,apsc prelims syllabus',fileSize:'2.1 MB',pages:'48',language:'English',source:'APSC'},
+  {id:2,title:'Assam Police SI Application Form',category:'Application Forms',driveLink:'https://drive.google.com/file/d/example2/view',uploadedAt:'20 Feb 2026',downloads:8200,description:'Application form for Assam Police SI 2026',keywords:'assam police si form 2026,slprb si application',fileSize:'1.4 MB',pages:'4',language:'English',source:'SLPRB'},
 ]
 
 const DEFAULT_AFFILIATES: AffItem[] = [
-  { id:1, category:'Exam Preparation', title:'Testbook Pass — All Govt Exam Prep', description:"India's #1 platform for SSC, Railway, Banking, UPSC, APSC & more. 10,000+ mock tests, live classes.", badge:'Best for Assam', logo:'📚', price:'₹299/month', originalPrice:'₹999/month', commission:'You earn ₹200–500 per referral', link:'https://testbook.com/?ref=YOUR_ID', highlights:['10,000+ Mock Tests','Live Classes in Assamese','APSC + SLPRB coverage','Current Affairs daily'], buttonText:'Start Free Trial →', tag:'RECOMMENDED', active:true },
-  { id:2, category:'Exam Preparation', title:'Adda247 — SSC, Banking & Railway', description:'Trusted by 5 crore+ students. Best for SSC CGL, CHSL, Banking (SBI/IBPS), Railway RRB.', badge:'Top Rated', logo:'🏆', price:'₹399/month', originalPrice:'₹1,199/month', commission:'You earn ₹250–600 per referral', link:'https://adda247.com/?ref=YOUR_ID', highlights:['5 Cr+ Students Trust','SSC + Banking + Railway','Hindi & English medium','Expert faculty'], buttonText:'Enrol Now →', tag:'POPULAR', active:true },
-  { id:3, category:'Exam Preparation', title:"BYJU's Exam Prep (Gradeup)", description:'Comprehensive preparation for UPSC, State PSC, Defence, Teaching (CTET/TET) exams.', badge:'For UPSC & PSC', logo:'🎯', price:'₹499/month', originalPrice:'₹1,499/month', commission:'You earn ₹350–800 per referral', link:'https://byjusexamprep.com/?ref=YOUR_ID', highlights:['UPSC + APSC focused','Previous year papers','Weekly mock tests','Expert mentors'], buttonText:'Explore Courses →', tag:'', active:true },
-  { id:4, category:'Exam Preparation', title:'Unacademy — Live + Recorded Classes', description:"India's largest learning platform. UPSC, SSC, Railway, JEE, NEET, Banking live classes.", badge:'Live Classes', logo:'🎓', price:'₹599/month', originalPrice:'₹1,799/month', commission:'You earn ₹400–900 per referral', link:'https://unacademy.com/?ref=YOUR_ID', highlights:['Live interactive classes','Top educators','JEE + NEET + UPSC','Doubt clearing sessions'], buttonText:'Watch Free →', tag:'', active:true },
-  { id:5, category:'Books & Study Material', title:'Assam GK & Current Affairs Book 2026', description:'Essential book for APSC, SLPRB, Assam Police and all state-level exams.', badge:'Must Have', logo:'📖', price:'₹280', originalPrice:'₹350', commission:'You earn ₹30–80 per sale (Amazon)', link:'https://amzn.in/d/YOUR_PRODUCT_ID', highlights:['Assam-specific content','Updated for 2026','APSC & SLPRB focused','Bilingual (En + As)'], buttonText:'Buy on Amazon →', tag:'NEW', active:true },
-  { id:6, category:'Books & Study Material', title:'Lucent General Knowledge 2026', description:"India's most popular GK book for all competitive exams. Used by crores of students.", badge:'Bestseller', logo:'📕', price:'₹290', originalPrice:'₹360', commission:'You earn ₹30–70 per sale (Amazon)', link:'https://amzn.in/d/YOUR_PRODUCT_ID_2', highlights:["India's #1 GK book",'All subjects covered','Updated 2026 edition','Hindi & English'], buttonText:'Buy on Amazon →', tag:'POPULAR', active:true },
-  { id:7, category:'Tools & Resources', title:'Current Affairs Monthly Magazine', description:'Stay updated with monthly current affairs — essential for all competitive exams.', badge:'Monthly', logo:'📰', price:'₹50/month', originalPrice:'₹80/month', commission:'You earn ₹15–40 per subscription', link:'https://YOUR_AFFILIATE_LINK', highlights:['National + International','Assam current affairs','Monthly PDF + print','MCQ practice'], buttonText:'Subscribe Now →', tag:'', active:true },
-  { id:8, category:'Tools & Resources', title:'Amazon Prime Student — 6 Months Free', description:'Get 6 months of Amazon Prime FREE for students. Access Prime Reading, Video, and fast delivery.', badge:'6 Months Free', logo:'🛒', price:'FREE for 6 months', originalPrice:'₹599', commission:'You earn ₹100–200 per signup', link:'https://amzn.in/d/prime-student', highlights:['6 months free','Prime Reading','1000s of books','Fast delivery'], buttonText:'Claim Free Trial →', tag:'RECOMMENDED', active:true },
+  { id:1, category:'Exam Preparation', title:'Testbook Pass — All Govt Exam Prep', description:"India's #1 platform for SSC, Railway, Banking, UPSC, APSC & more.", badge:'Best for Assam', logo:'📚', price:'₹299/month', originalPrice:'₹999/month', commission:'You earn ₹200–500 per referral', link:'https://testbook.com/?ref=YOUR_ID', highlights:['10,000+ Mock Tests','Live Classes in Assamese','APSC + SLPRB coverage','Current Affairs daily'], buttonText:'Start Free Trial →', tag:'RECOMMENDED', active:true },
+  { id:2, category:'Exam Preparation', title:'Adda247 — SSC, Banking & Railway', description:'Trusted by 5 crore+ students.', badge:'Top Rated', logo:'🏆', price:'₹399/month', originalPrice:'₹1,199/month', commission:'You earn ₹250–600 per referral', link:'https://adda247.com/?ref=YOUR_ID', highlights:['5 Cr+ Students Trust','SSC + Banking + Railway','Hindi & English medium','Expert faculty'], buttonText:'Enrol Now →', tag:'POPULAR', active:true },
 ]
 
 // ─── COMPONENT ────────────────────────────────────────────────────────────────
@@ -266,7 +262,7 @@ function driveImgUrl(url: string): string {
   if (!url) return ''
   const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/)
   if (m) return `https://lh3.googleusercontent.com/d/${m[1]}`
-  return url  // not a Drive link, use as-is
+  return url
 }
 // ── Shared Section Builder ────────────────────────────────────────────────────
 const sbSi: React.CSSProperties = { width:'100%',padding:'7px 11px',borderRadius:7,border:'1.5px solid #d4e0ec',fontSize:'.85rem',fontFamily:'Nunito,sans-serif',outline:'none',background:'#fafcff' }
@@ -311,8 +307,6 @@ function SectionBuilder({ sections, onChange }: {
               <label style={sbLb}>Section Title *</label>
               <input value={sec.title} onChange={e=>update(idx,{title:e.target.value})} style={sbSi} placeholder="e.g. How to Check Result / Important Instructions" />
             </div>
-
-            {/* ✅ CHANGED: was <textarea> — now RichTextEditor */}
             <div>
               <label style={sbLb}>Content / Details</label>
               <RichTextEditor
@@ -326,7 +320,6 @@ function SectionBuilder({ sections, onChange }: {
                 💡 Use the Table button (▦) to insert vacancy tables, exam pattern tables etc.
               </div>
             </div>
-
             <div style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:9}}>
               <div>
                 <label style={sbLb}>📄 PDF Link (Google Drive — optional)</label>
@@ -362,7 +355,7 @@ function SectionBuilder({ sections, onChange }: {
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                <tr>
               )}
             </div>
           </div>
@@ -424,9 +417,11 @@ export default function AdminDashboard() {
   const [editJob,  setEditJob]  = useState<Job|null>(null)
   const [editExam, setEditExam] = useState<Exam|null>(null)
   const [editInfo, setEditInfo] = useState<InfoItem|null>(null)
-const [dataLoaded, setDataLoaded] = useState(false)
+  const [editPdf,  setEditPdf]  = useState<PdfForm|null>(null)  // ✅ ADDED for PDF editing
+  const [dataLoaded, setDataLoaded] = useState(false)
+
   // Job form
-  const BLANK_JF = { logo:'🏛️', title:'', slug:'', org:'', category:'Govt Job', district:'All Districts', status:'Live' as Job['status'], fee:'', selection:'', website:'', howToApply:'',howToApplyImages: [], detailsImages: [], youtubeLink:'', description:'', advtNo:'', ageLimitDate:'',ageBirthRange:'', ageRelaxation:'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:'', lastDateTime:'23:59 Hrs', paymentLastDate:'', paymentLastDateTime:'23:59 Hrs', correctionWindow:'', applicationStart:'', helplineEmail:'', helplinePhone:'', selectionDetails:'', syllabusDetails:'', zoneWiseVacancy:'', fullDescription:'', fullDescTitle:'', titleAs:'', orgAs:'', descriptionAs:'', howToApplyAs:'', selectionAs:'' }
+  const BLANK_JF = { logo:'🏛️', imageUrl:'', title:'', slug:'', org:'', category:'Govt Job', district:'All Districts', status:'Live' as Job['status'], fee:'', selection:'', website:'', howToApply:'',howToApplyImages: [], detailsImages: [], youtubeLink:'', description:'', advtNo:'', ageLimitDate:'',ageBirthRange:'', ageRelaxation:'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:'', lastDateTime:'23:59 Hrs', paymentLastDate:'', paymentLastDateTime:'23:59 Hrs', correctionWindow:'', applicationStart:'', helplineEmail:'', helplinePhone:'', selectionDetails:'', syllabusDetails:'', zoneWiseVacancy:'', fullDescription:'', fullDescTitle:'', titleAs:'', orgAs:'', descriptionAs:'', howToApplyAs:'', selectionAs:'' }
   const [jf, setJf] = useState(BLANK_JF)
   const [posts,       setPosts]       = useState<Post[]>([])
   const [advPdfs,     setAdvPdfs]     = useState<AdvPdf[]>([])
@@ -438,16 +433,15 @@ const [dataLoaded, setDataLoaded] = useState(false)
   const [infoSections, setInfoSections] = useState<ContentSection[]>([])
 
   // Exam form
-  const blankExam = { emoji:'📚', title:'', slug: '', conductedBy:'', category:'Teaching', description:'', applicationStart:'', applicationLastDate:'', paymentLastDate:'', examDate:'', examTime:'', admitCardDate:'', resultDate:'', fee:'', eligibility:'', fullDescription:'', fullDescTitle:'', syllabus:'', officialSite:'', applyLink:'', admitCardLink:'', status:'Upcoming' as Exam['status'], titleAs:'', descriptionAs:'', eligibilityAs:'', examPdfs:[] as {label:string;url:string}[], examAffiliates:[] as {id:string;title:string;link:string;img?:string;badge?:string}[] }
+  const blankExam = { emoji:'📚', title:'', slug: '', conductedBy:'', category:'Teaching', description:'', applicationStart:'', applicationLastDate:'', paymentLastDate:'', examDate:'', examTime:'', admitCardDate:'', resultDate:'', fee:'', eligibility:'', fullDescription:'', fullDescTitle:'', syllabus:'', officialSite:'', applyLink:'', admitCardLink:'', status:'Upcoming' as Exam['status'], titleAs:'', descriptionAs:'', eligibilityAs:'', examPdfs:[] as {label:string;url:string}[], examAffiliates:[] as {id:string;title:string;link:string;img?:string;badge?:string}[], imageUrl:'' }
   const [ef, setEf] = useState(blankExam)
 
   // Info form
-  const blankInfo = { emoji:'🗳️', title:'', slug:'', category:'Electoral', description:'', lastDate:'', process:'',processImages: [], officialLink:'', fullDescription:'',
-fullDescTitle:'', status:'Active' as InfoItem['status'], titleAs:'', descriptionAs:'', processAs:'' }
+  const blankInfo = { emoji:'🗳️', title:'', slug:'', category:'Electoral', description:'', lastDate:'', process:'',processImages: [], officialLink:'', fullDescription:'', fullDescTitle:'', status:'Active' as InfoItem['status'], titleAs:'', descriptionAs:'', processAs:'', imageUrl:'' }
   const [inf, setInf]       = useState(blankInfo)
   const [infDates, setInfDates] = useState<{label:string;date:string;time:string}[]>([])
 
-  // PDF form form
+  // PDF form form (for add/edit)
   const [pf, setPf] = useState({ title:'', category:'Application Forms', driveLink:'', description:'', keywords:'', fileSize:'', pages:'', language:'English', source:'' })
 
   const [search,   setSearch]   = useState('')
@@ -527,9 +521,9 @@ fullDescTitle:'', status:'Active' as InfoItem['status'], titleAs:'', description
   }
   function openEditJob(j:Job) {
     setEditJob(j)
-    setJf({ logo:j.logo, title:j.title, slug: j.slug || '', org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'',howToApplyImages: (j as any).howToApplyImages || [], detailsImages: (j as any).detailsImages || [], youtubeLink:j.youtubeLink||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageBirthRange:(j as any).ageBirthRange||'', ageRelaxation:j.ageRelaxation||'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:j.feeRefund||'', lastDateTime:j.lastDateTime||'23:59 Hrs', paymentLastDate:j.paymentLastDate||'', paymentLastDateTime:j.paymentLastDateTime||'23:59 Hrs', correctionWindow:j.correctionWindow||'', applicationStart:j.applicationStart||'', helplineEmail:j.helplineEmail||'', helplinePhone:j.helplinePhone||'', selectionDetails:j.selectionDetails||'', syllabusDetails:j.syllabusDetails||'', zoneWiseVacancy:j.zoneWiseVacancy||'', fullDescription:(j as any).fullDescription||'', fullDescTitle:(j as any).fullDescTitle||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
+    setJf({ logo:j.logo, imageUrl:j.imageUrl||'', title:j.title, slug: j.slug || '', org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'',howToApplyImages: (j as any).howToApplyImages || [], detailsImages: (j as any).detailsImages || [], youtubeLink:j.youtubeLink||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageBirthRange:(j as any).ageBirthRange||'', ageRelaxation:j.ageRelaxation||'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:j.feeRefund||'', lastDateTime:j.lastDateTime||'23:59 Hrs', paymentLastDate:j.paymentLastDate||'', paymentLastDateTime:j.paymentLastDateTime||'23:59 Hrs', correctionWindow:j.correctionWindow||'', applicationStart:j.applicationStart||'', helplineEmail:j.helplineEmail||'', helplinePhone:j.helplinePhone||'', selectionDetails:j.selectionDetails||'', syllabusDetails:j.syllabusDetails||'', zoneWiseVacancy:j.zoneWiseVacancy||'', fullDescription:(j as any).fullDescription||'', fullDescTitle:(j as any).fullDescTitle||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
     setPosts(j.posts||[]); setAdvPdfs(j.advPdfs||[]); setJobAffiliates(j.jobAffiliates||[]); setDateHistory(j.dateHistory||[])
-setJobSections((j as any).sections||[])
+    setJobSections((j as any).sections||[])
     setShowJobModal(true)
   }
   function addPost() {
@@ -572,18 +566,17 @@ setJobSections((j as any).sections||[])
       const newId  = Date.now()
       const newJob = {
         id:        newId,
-        slug:      generateSlug(jf.title, newId),   // ← ADD
+        slug:      generateSlug(jf.title, newId),
         createdAt: new Date().toISOString(),
         ...base
       } as Job
       setJobs(prev => [newJob, ...prev])
     }
-setShowJobModal(false); toast('✅ Job saved!')
-}
+    setShowJobModal(false); toast('✅ Job saved!')
+  }
   // ── EXAM HELPERS ─────────────────────────────────────────────────────────
   function openAddExam()  { setEditExam(null); setEf(blankExam); setExamSections([]); setShowExamModal(true) }
-  function openEditExam(x:Exam) { setEditExam(x); setEf({ emoji:x.emoji, title:x.title, slug: x.slug || '', conductedBy:x.conductedBy, category:x.category, description:x.description||'', applicationStart:x.applicationStart||'', applicationLastDate:x.applicationLastDate||'', paymentLastDate:x.paymentLastDate||'', examDate:x.examDate||'', examTime:x.examTime||'', admitCardDate:x.admitCardDate||'', resultDate:x.resultDate||'', fee:x.fee||'', eligibility:x.eligibility||'', syllabus:x.syllabus||'', officialSite:x.officialSite||'', applyLink:x.applyLink||'', admitCardLink:x.admitCardLink||'', status:x.status, titleAs:x.titleAs||'', descriptionAs:x.descriptionAs||'', eligibilityAs:x.eligibilityAs||'', fullDescription:(x as any).fullDescription||'',
-fullDescTitle:(x as any).fullDescTitle||'', examPdfs:x.examPdfs||[], examAffiliates:x.examAffiliates||[] }); setExamSections((x as any).sections || []); setShowExamModal(true) }
+  function openEditExam(x:Exam) { setEditExam(x); setEf({ emoji:x.emoji, title:x.title, slug: x.slug || '', conductedBy:x.conductedBy, category:x.category, description:x.description||'', applicationStart:x.applicationStart||'', applicationLastDate:x.applicationLastDate||'', paymentLastDate:x.paymentLastDate||'', examDate:x.examDate||'', examTime:x.examTime||'', admitCardDate:x.admitCardDate||'', resultDate:x.resultDate||'', fee:x.fee||'', eligibility:x.eligibility||'', syllabus:x.syllabus||'', officialSite:x.officialSite||'', applyLink:x.applyLink||'', admitCardLink:x.admitCardLink||'', status:x.status, titleAs:x.titleAs||'', descriptionAs:x.descriptionAs||'', eligibilityAs:x.eligibilityAs||'', fullDescription:(x as any).fullDescription||'', fullDescTitle:(x as any).fullDescTitle||'', examPdfs:x.examPdfs||[], examAffiliates:x.examAffiliates||[], imageUrl:x.imageUrl||'' }); setExamSections((x as any).sections || []); setShowExamModal(true) }
   function saveExam(e:React.FormEvent) {
     e.preventDefault()
     if (!ef.title) { alert('Title required.'); return }
@@ -592,54 +585,84 @@ fullDescTitle:(x as any).fullDescTitle||'', examPdfs:x.examPdfs||[], examAffilia
       const newId   = Date.now()
       const newExam = {
         id:        newId,
-        slug:      generateSlug(ef.title, newId),   // ← ADD
+        slug:      generateSlug(ef.title, newId),
         createdAt: new Date().toISOString(),
         ...ef,
         sections: examSections
       }
       setExams(prev => [newExam, ...prev])
-	}
+    }
     setShowExamModal(false); toast('✅ Exam saved!')
   }
 
   // ── INFO HELPERS ─────────────────────────────────────────────────────────
   function openAddInfo()  { setEditInfo(null); setInf(blankInfo); setInfDates([]); setInfoSections([]); setShowInfoModal(true) }
-  function openEditInfo(i:InfoItem) { setEditInfo(i); setInf({ emoji:i.emoji, title:i.title, slug: i.slug || '', category:i.category, description:i.description||'', processImages: (i as any).processImages || [], lastDate:i.lastDate||'', process:i.process||'', officialLink:i.officialLink||'', fullDescription:(i as any).fullDescription||'',
-fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||'', descriptionAs:i.descriptionAs||'', processAs:i.processAs||'' }); setInfDates((i.importantDates||[]).map(d=>({label:d.label,date:d.date,time:d.time||''}))); setInfoSections((i as any).sections||[]); setShowInfoModal(true) }
+  function openEditInfo(i:InfoItem) { setEditInfo(i); setInf({ emoji:i.emoji, title:i.title, slug: i.slug || '', category:i.category, description:i.description||'', processImages: (i as any).processImages || [], lastDate:i.lastDate||'', process:i.process||'', officialLink:i.officialLink||'', fullDescription:(i as any).fullDescription||'', fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||'', descriptionAs:i.descriptionAs||'', processAs:i.processAs||'', imageUrl:i.imageUrl||'' }); setInfDates((i.importantDates||[]).map(d=>({label:d.label,date:d.date,time:d.time||''}))); setInfoSections((i as any).sections||[]); setShowInfoModal(true) }
   function saveInfo(e:React.FormEvent) {
     e.preventDefault()
     if (!inf.title) { alert('Title required.'); return }
     const dates = infDates.filter(d=>d.label&&d.date).map(d => ({label:d.label,date:d.date,...(d.time?{time:d.time}:{})}))
     if (editInfo) setInfoList(prev => prev.map(x => x.id===editInfo.id ? {...editInfo,...inf,importantDates:dates,sections:infoSections} : x))
     else {
-  const newId = Date.now()
-  const newInfo = {
-    id: newId,
-    slug: generateSlug(inf.title, newId),   // ← ADD THIS
-    createdAt: new Date().toISOString(),
-    ...inf,
-    importantDates: dates,
-    sections: infoSections
-  }
-  setInfoList(prev => [newInfo, ...prev])
-}
+      const newId = Date.now()
+      const newInfo = {
+        id: newId,
+        slug: generateSlug(inf.title, newId),
+        createdAt: new Date().toISOString(),
+        ...inf,
+        importantDates: dates,
+        sections: infoSections
+      }
+      setInfoList(prev => [newInfo, ...prev])
+    }
     setShowInfoModal(false); toast('✅ Information saved!')
   }
 
   // ── PDF FORM HELPERS ─────────────────────────────────────────────────────
+  function openAddPdf() {
+    setEditPdf(null)
+    setPf({ title:'', category:'Application Forms', driveLink:'', description:'', keywords:'', fileSize:'', pages:'', language:'English', source:'' })
+    setShowPdfModal(true)
+  }
+  function openEditPdf(pdf: PdfForm) {
+    setEditPdf(pdf)
+    setPf({
+      title: pdf.title,
+      category: pdf.category,
+      driveLink: pdf.driveLink,
+      description: pdf.description || '',
+      keywords: pdf.keywords || '',
+      fileSize: pdf.fileSize || '',
+      pages: pdf.pages || '',
+      language: pdf.language || 'English',
+      source: pdf.source || ''
+    })
+    setShowPdfModal(true)
+  }
   function savePdfForm(e:React.FormEvent) {
     e.preventDefault()
     if (!pf.title||!pf.driveLink) { alert('Title and Google Drive link required.'); return }
-    setPdfForms(prev => [{
-      id:Date.now(), title:pf.title, category:pf.category, driveLink:pf.driveLink,
-      uploadedAt:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),
-      downloads:0,
-      description:pf.description||undefined, keywords:pf.keywords||undefined,
-      fileSize:pf.fileSize||undefined, pages:pf.pages||undefined,
-      language:pf.language||undefined, source:pf.source||undefined,
-    },...prev])
-    setPf({ title:'', category:'Application Forms', driveLink:'', description:'', keywords:'', fileSize:'', pages:'', language:'English', source:'' })
-    setShowPdfModal(false); toast('✅ PDF Form added!')
+    if (editPdf) {
+      setPdfForms(prev => prev.map(p => p.id===editPdf.id ? { ...p, ...pf, uploadedAt: p.uploadedAt, downloads: p.downloads } : p))
+      toast('✅ PDF Form updated!')
+    } else {
+      setPdfForms(prev => [{
+        id:Date.now(),
+        title:pf.title,
+        category:pf.category,
+        driveLink:pf.driveLink,
+        uploadedAt:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),
+        downloads:0,
+        description:pf.description||undefined,
+        keywords:pf.keywords||undefined,
+        fileSize:pf.fileSize||undefined,
+        pages:pf.pages||undefined,
+        language:pf.language||undefined,
+        source:pf.source||undefined,
+      }, ...prev])
+      toast('✅ PDF Form added!')
+    }
+    setShowPdfModal(false);
   }
 
   // ── STYLES ───────────────────────────────────────────────────────────────
@@ -666,7 +689,6 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
 
   return (
     <>
-      {/* ── GLOBAL STYLES ── */}
       <style>{`
         *, *::before, *::after { box-sizing: border-box; }
         html, body { overflow-x: hidden; max-width: 100vw; margin: 0; font-family: Nunito, sans-serif; }
@@ -812,41 +834,40 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
         </aside>
 
         {/* ══════ MAIN ══════ */}
-<main className="admin-main" style={{ marginLeft:200, flex:1, minWidth:0, overflowX:'hidden' }}>
+        <main className="admin-main" style={{ marginLeft:200, flex:1, minWidth:0, overflowX:'hidden' }}>
 
-  {/* Top bar */}
-  <div className="admin-topbar" style={{ background:'#fff', borderBottom:'1px solid #d4e0ec', padding:'12px 26px', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50, gap:12 }}>
-    <div>
-      <h1 style={{ fontFamily:"'Sora',sans-serif", fontSize:'1.05rem', fontWeight:700, color:'#1a1a2e' }}>
-        {activeTab==='dashboard' && '🏠 Dashboard'}
-        {activeTab==='jobs' && '💼 Job Vacancies'}
-        {activeTab==='exams' && '📚 Competitive Exams'}
-        {activeTab==='info' && 'ℹ️ Information'}
-        {activeTab==='pdfforms' && '📄 PDF Forms Library'}
-        {activeTab==='affiliate' && '🤝 Affiliate Partners'}
-        {activeTab==='settings' && '⚙️ Settings'}
-      </h1>
-      <p style={{ fontSize:'.74rem', color:'#5a6a7a', marginTop:1 }}>Assam Career Point & Info — Admin</p>
-    </div>
-    <div style={{ display:'flex', gap:9, alignItems:'center', flexWrap:'wrap' as const }}>
-      {activeTab !== 'dashboard' && activeTab !== 'settings' && (
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 Search..." style={{ ...si, width:190, padding:'7px 12px' }} />
-      )}
-      {activeTab === 'jobs' && <button onClick={openAddJob} style={bR}>➕ Add Job</button>}
-      {activeTab === 'exams' && <button onClick={openAddExam} style={bO}>➕ Add Exam</button>}
-      {activeTab === 'info' && <button onClick={openAddInfo} style={bG}>➕ Add Info</button>}
-      {activeTab === 'pdfforms' && <button onClick={() => setShowPdfModal(true)} style={bP}>➕ Add PDF Form</button>}
-      {activeTab === 'affiliate' && <button onClick={() => { setEditAff(null); setAf({ category: 'Exam Preparation', title: '', description: '', badge: '', logo: '📚', price: '', originalPrice: '', commission: '', link: '', h1: '', h2: '', h3: '', h4: '', buttonText: 'Start Free Trial →', tag: '', active: true }); setShowAffModal(true); }} style={{ padding: '8px 16px', borderRadius: 8, background: '#c9a227', color: '#0b1f33', fontWeight: 900, fontSize: '.82rem', border: 'none', cursor: 'pointer', fontFamily: 'Nunito, sans-serif' }}>➕ Add Affiliate</button>}
-    </div>
-  </div>
+          {/* Top bar */}
+          <div className="admin-topbar" style={{ background:'#fff', borderBottom:'1px solid #d4e0ec', padding:'12px 26px', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50, gap:12 }}>
+            <div>
+              <h1 style={{ fontFamily:"'Sora',sans-serif", fontSize:'1.05rem', fontWeight:700, color:'#1a1a2e' }}>
+                {activeTab==='dashboard' && '🏠 Dashboard'}
+                {activeTab==='jobs' && '💼 Job Vacancies'}
+                {activeTab==='exams' && '📚 Competitive Exams'}
+                {activeTab==='info' && 'ℹ️ Information'}
+                {activeTab==='pdfforms' && '📄 PDF Forms Library'}
+                {activeTab==='affiliate' && '🤝 Affiliate Partners'}
+                {activeTab==='settings' && '⚙️ Settings'}
+              </h1>
+              <p style={{ fontSize:'.74rem', color:'#5a6a7a', marginTop:1 }}>Assam Career Point & Info — Admin</p>
+            </div>
+            <div style={{ display:'flex', gap:9, alignItems:'center', flexWrap:'wrap' as const }}>
+              {activeTab !== 'dashboard' && activeTab !== 'settings' && (
+                <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 Search..." style={{ ...si, width:190, padding:'7px 12px' }} />
+              )}
+              {activeTab === 'jobs' && <button onClick={openAddJob} style={bR}>➕ Add Job</button>}
+              {activeTab === 'exams' && <button onClick={openAddExam} style={bO}>➕ Add Exam</button>}
+              {activeTab === 'info' && <button onClick={openAddInfo} style={bG}>➕ Add Info</button>}
+              {activeTab === 'pdfforms' && <button onClick={openAddPdf} style={bP}>➕ Add PDF Form</button>}
+              {activeTab === 'affiliate' && <button onClick={() => { setEditAff(null); setAf({ category: 'Exam Preparation', title: '', description: '', badge: '', logo: '📚', price: '', originalPrice: '', commission: '', link: '', h1: '', h2: '', h3: '', h4: '', buttonText: 'Start Free Trial →', tag: '', active: true }); setShowAffModal(true); }} style={{ padding: '8px 16px', borderRadius: 8, background: '#c9a227', color: '#0b1f33', fontWeight: 900, fontSize: '.82rem', border: 'none', cursor: 'pointer', fontFamily: 'Nunito, sans-serif' }}>➕ Add Affiliate</button>}
+            </div>
+          </div>
 
-  {/* Main content area */}
-  <div className="admin-content" style={{ padding: 24 }}>
+          {/* Main content area */}
+          <div className="admin-content" style={{ padding: 24 }}>
 
             {/* ── DASHBOARD ── */}
             {activeTab==='dashboard' && (
               <>
-                {/* MigrateButton removed — migration complete */}
                 {/* Stats cards — 3 columns × 2 rows */}
                 <div className="admin-stats" style={{ display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:24 }}>
                   {[
@@ -874,7 +895,7 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                     {ico:'➕',lbl:'Add Job Vacancy',  act:openAddJob,                            bg:'#e63946'},
                     {ico:'📚',lbl:'Add Exam',         act:openAddExam,                           bg:'#f4a261'},
                     {ico:'ℹ️',lbl:'Add Information',  act:openAddInfo,                           bg:'#2a9d8f'},
-                    {ico:'📄',lbl:'Add PDF Form',     act:()=>setShowPdfModal(true),             bg:'#6a0dad'},
+                    {ico:'📄',lbl:'Add PDF Form',     act:openAddPdf,                            bg:'#6a0dad'},
                     {ico:'🏆',lbl:'Results CMS',      act:()=>{ window.location.href='/admin/results' }, bg:'#00b4d8'},
                     {ico:'📢',lbl:'Others CMS',       act:()=>{ window.location.href='/admin/others'  }, bg:'#1dbfad'},
                   ].map(q => (
@@ -887,118 +908,113 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
               </>
             )}
 
-		{/* ── JOBS TABLE ── */}
-{activeTab==='jobs' && (
-  <>
-
-    {/* Jobs Table */}
-    <div style={{ background:'#fff', border:'1.5px solid #d4e0ec', borderRadius:12, overflow:'hidden' }}>
-      <div style={{ overflowX:'auto' }}>
-        <table className="tbl">
-          <thead>
-            <tr>
-              <th>Logo</th>
-              <th>Title</th>
-              <th>Posts</th>
-              <th>Vacancies</th>
-              <th>Last Date</th>
-              <th>Adv.PDFs</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filt(jobs).length===0 ? (
-              <tr>
-                <td colSpan={8} style={{ textAlign:'center', padding:40, color:'#5a6a7a' }}>
-                  No jobs. Click "Add Job".
-                </td>
-              </tr>
-            ) : (
-              filt(jobs).map(j => (
-                <tr key={j.id}>
-                  <td style={{ fontSize:'1.3rem' }}>{j.logo}</td>
-                  <td>
-                    <div style={{ fontWeight:700, maxWidth:190, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-                      {j.title}
-                    </div>
-                    <div style={{ fontSize:'.71rem', color:'#5a6a7a' }}>{j.org}</div>
-                  </td>
-                  <td><span className="chip cT">{j.posts?.length||0} posts</span></td>
-                  <td style={{ fontWeight:700 }}>
-                    {(j.posts||[]).reduce((a,p)=>a+p.vacancy,0) || parseInt(j.vacancy||'0')}
-                  </td>
-                  <td style={{ fontSize:'.76rem', whiteSpace:'nowrap' }}>
-                    {fmt(j.lastDate)}
-                  </td>
-                  <td><span className="chip cP">{j.advPdfs?.length||0} PDF</span></td>
-                  <td>
-                    <button
-                      onClick={() => setJobs(p => p.map(x => x.id===j.id ? {...x, status:x.status==='Live'?'Draft':'Live'} : x))}
-                      className={`chip ${j.status==='Live'?'cG':'cGr'}`}
-                      style={{ cursor:'pointer', border:'none' }}
-                    >
-                      {j.status==='Live'?'🟢 Live':'⚪ Draft'}
-                    </button>
-                  </td>
-                  <td>
-                    <div style={{ display:'flex', gap:5 }}>
-                      <button onClick={() => openEditJob(j)}>✏️</button>
-                      <button onClick={() => {
-                        if(confirm('Delete?')) setJobs(p => p.filter(x => x.id !== j.id))
-                      }}>🗑</button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+            {/* ── JOBS TABLE ── */}
+            {activeTab==='jobs' && (
+              <div style={{ background:'#fff', border:'1.5px solid #d4e0ec', borderRadius:12, overflow:'hidden' }}>
+                <div style={{ overflowX:'auto' }}>
+                  <table className="tbl">
+                    <thead>
+                      <tr>
+                        <th>Logo</th>
+                        <th>Title</th>
+                        <th>Posts</th>
+                        <th>Vacancies</th>
+                        <th>Last Date</th>
+                        <th>Adv.PDFs</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filt(jobs).length===0 ? (
+                        <tr>
+                          <td colSpan={8} style={{ textAlign:'center', padding:40, color:'#5a6a7a' }}>
+                            No jobs. Click "Add Job".
+                          </td>
+                        </tr>
+                      ) : (
+                        filt(jobs).map(j => (
+                          <tr key={j.id}>
+                            <td style={{ fontSize:'1.3rem' }}>{j.logo}</td>
+                            <td>
+                              <div style={{ fontWeight:700, maxWidth:190, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                                {j.title}
+                              </div>
+                              <div style={{ fontSize:'.71rem', color:'#5a6a7a' }}>{j.org}</div>
+                            </td>
+                            <td><span className="chip cT">{j.posts?.length||0} posts</span></td>
+                            <td style={{ fontWeight:700 }}>
+                              {(j.posts||[]).reduce((a,p)=>a+p.vacancy,0) || parseInt(j.vacancy||'0')}
+                            </td>
+                            <td style={{ fontSize:'.76rem', whiteSpace:'nowrap' }}>
+                              {fmt(j.lastDate)}
+                            </td>
+                            <td><span className="chip cP">{j.advPdfs?.length||0} PDF</span></td>
+                            <td>
+                              <button
+                                onClick={() => setJobs(p => p.map(x => x.id===j.id ? {...x, status:x.status==='Live'?'Draft':'Live'} : x))}
+                                className={`chip ${j.status==='Live'?'cG':'cGr'}`}
+                                style={{ cursor:'pointer', border:'none' }}
+                              >
+                                {j.status==='Live'?'🟢 Live':'⚪ Draft'}
+                              </button>
+                            </td>
+                            <td>
+                              <div style={{ display:'flex', gap:5 }}>
+                                <button onClick={() => openEditJob(j)}>✏️</button>
+                                <button onClick={() => { if(confirm('Delete?')) setJobs(p => p.filter(x => x.id !== j.id)) }}>🗑</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </>
-)}
+
             {/* ── EXAMS TABLE ── */}
             {activeTab==='exams' && (
-  <div style={{ background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:12,overflow:'hidden' }}>
-    <div style={{ overflowX:'auto' }}>
-      <table className="tbl">
-        <thead>
-          <tr>
-            <th>Exam</th><th>By</th><th>Category</th><th>Apply By</th><th>💳 Payment By</th><th>📅 Exam Date & Time</th><th>Status</th><th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filt(exams).length === 0 ? (
-            <tr>
-              <td colSpan={8} style={{ textAlign:'center' as const, padding:40, color:'#5a6a7a' }}>
-                No exams. Click "Add Exam".
-              </td>
-            </tr>
-          ) : (
-            filt(exams).map(x => (
-              <tr key={x.id}>
-                <td><div style={{ fontWeight:700, maxWidth:170, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' as const }}>{x.emoji} {x.title}</div></td>
-                <td style={{ fontSize:'.77rem', color:'#5a6a7a', whiteSpace:'nowrap' as const }}>{x.conductedBy}</td>
-                <td><span className="chip cO">{x.category}</span></td>
-                <td style={{ fontSize:'.76rem', color:'#e63946', fontWeight:700, whiteSpace:'nowrap' as const }}>{fmt(x.applicationLastDate)}</td>
-                <td style={{ fontSize:'.76rem', color:'#6a0dad', fontWeight:700, whiteSpace:'nowrap' as const }}>{fmt(x.paymentLastDate)}</td>
-                <td style={{ fontSize:'.76rem', whiteSpace:'nowrap' as const }}><strong>{fmt(x.examDate)}</strong><br/><span style={{ color:'#5a6a7a', fontSize:'.67rem' }}>{x.examTime}</span></td>
-                <td><span className={`chip ${x.status==='Registration Open'?'cG':x.status==='Upcoming'?'cT':'cGr'}`}>{x.status}</span></td>
-                <td>
-                  <div style={{ display:'flex', gap:5 }}>
-                    <button onClick={()=>openEditExam(x)} style={{ padding:'5px 9px', borderRadius:7, fontSize:'.72rem', fontWeight:700, cursor:'pointer', background:'#e0f7fc', color:'#0096b7', border:'1.5px solid #b2ebf5', fontFamily:'Nunito,sans-serif' }}>✏️</button>
-                    <button onClick={()=>{if(confirm('Delete?')) setExams(p=>p.filter(e=>e.id!==x.id))}} style={{ padding:'5px 9px', borderRadius:7, fontSize:'.72rem', fontWeight:700, cursor:'pointer', background:'#fde8ea', color:'#e63946', border:'1.5px solid #f7bcc0', fontFamily:'Nunito,sans-serif' }}>🗑</button>
-                  </div>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
-  </div>
-)}
+              <div style={{ background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:12,overflow:'hidden' }}>
+                <div style={{ overflowX:'auto' }}>
+                  <table className="tbl">
+                    <thead>
+                      <tr>
+                        <th>Exam</th><th>By</th><th>Category</th><th>Apply By</th><th>💳 Payment By</th><th>📅 Exam Date & Time</th><th>Status</th><th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filt(exams).length === 0 ? (
+                        <tr>
+                          <td colSpan={8} style={{ textAlign:'center' as const, padding:40, color:'#5a6a7a' }}>
+                            No exams. Click "Add Exam".
+                          </td>
+                        </tr>
+                      ) : (
+                        filt(exams).map(x => (
+                          <tr key={x.id}>
+                            <td><div style={{ fontWeight:700, maxWidth:170, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' as const }}>{x.emoji} {x.title}</div></td>
+                            <td style={{ fontSize:'.77rem', color:'#5a6a7a', whiteSpace:'nowrap' as const }}>{x.conductedBy}</td>
+                            <td><span className="chip cO">{x.category}</span></td>
+                            <td style={{ fontSize:'.76rem', color:'#e63946', fontWeight:700, whiteSpace:'nowrap' as const }}>{fmt(x.applicationLastDate)}</td>
+                            <td style={{ fontSize:'.76rem', color:'#6a0dad', fontWeight:700, whiteSpace:'nowrap' as const }}>{fmt(x.paymentLastDate)}</td>
+                            <td style={{ fontSize:'.76rem', whiteSpace:'nowrap' as const }}><strong>{fmt(x.examDate)}</strong><br/><span style={{ color:'#5a6a7a', fontSize:'.67rem' }}>{x.examTime}</span></td>
+                            <td><span className={`chip ${x.status==='Registration Open'?'cG':x.status==='Upcoming'?'cT':'cGr'}`}>{x.status}</span></td>
+                            <td>
+                              <div style={{ display:'flex', gap:5 }}>
+                                <button onClick={()=>openEditExam(x)} style={{ padding:'5px 9px', borderRadius:7, fontSize:'.72rem', fontWeight:700, cursor:'pointer', background:'#e0f7fc', color:'#0096b7', border:'1.5px solid #b2ebf5', fontFamily:'Nunito,sans-serif' }}>✏️</button>
+                                <button onClick={()=>{if(confirm('Delete?')) setExams(p=>p.filter(e=>e.id!==x.id))}} style={{ padding:'5px 9px', borderRadius:7, fontSize:'.72rem', fontWeight:700, cursor:'pointer', background:'#fde8ea', color:'#e63946', border:'1.5px solid #f7bcc0', fontFamily:'Nunito,sans-serif' }}>🗑</button>
+                              </div>
+                            </td>
+                          <tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
             {/* ── INFO TABLE ── */}
             {activeTab==='info' && (
@@ -1035,7 +1051,7 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
               </div>
             )}
 
-            {/* ── PDF FORMS TABLE ── */}
+            {/* ── PDF FORMS TABLE (with EDIT button) ── */}
             {activeTab==='pdfforms' && (
               <>
                 <div style={{ background:'#e8f5e9',border:'1.5px solid #a5d6a7',borderRadius:10,padding:'11px 16px',marginBottom:16,fontSize:'.83rem',color:'#1b5e20' }}>
@@ -1060,7 +1076,10 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                               </td>
                               <td style={{ fontSize:'.75rem',color:'#5a6a7a',whiteSpace:'nowrap' as const }}>{p.uploadedAt}</td>
                               <td>
-                                <button onClick={()=>{if(confirm('Delete?'))setPdfForms(prev=>prev.filter(x=>x.id!==p.id))}} style={{ padding:'5px 9px',borderRadius:7,fontSize:'.72rem',fontWeight:700,cursor:'pointer',background:'#fde8ea',color:'#e63946',border:'1.5px solid #f7bcc0',fontFamily:'Nunito,sans-serif' }}>🗑 Delete</button>
+                                <div style={{ display:'flex', gap:5 }}>
+                                  <button onClick={()=>openEditPdf(p)} style={{ padding:'5px 9px', borderRadius:7, fontSize:'.72rem', fontWeight:700, cursor:'pointer', background:'#e0f7fc', color:'#0096b7', border:'1.5px solid #b2ebf5', fontFamily:'Nunito,sans-serif' }}>✏️ Edit</button>
+                                  <button onClick={()=>{if(confirm('Delete?'))setPdfForms(prev=>prev.filter(x=>x.id!==p.id))}} style={{ padding:'5px 9px', borderRadius:7, fontSize:'.72rem', fontWeight:700, cursor:'pointer', background:'#fde8ea', color:'#e63946', border:'1.5px solid #f7bcc0', fontFamily:'Nunito,sans-serif' }}>🗑 Delete</button>
+                                </div>
                               </td>
                             </tr>
                           ))
@@ -1088,7 +1107,7 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                     </div>
                   ))}
                   <div style={{background:'#c9a22718',border:'1.5px solid #c9a22744',borderRadius:11,padding:'14px 20px',fontSize:'.8rem',color:'#5a6a7a',lineHeight:1.7,flex:1,minWidth:200}}>
-                    💡 <strong>How it works:</strong> Add your real affiliate links here. They show on the public <strong>/affiliate</strong> page. Toggle Active/Hidden to control what visitors see. Replace placeholder links with your actual affiliate URLs from Testbook, Adda247, Amazon etc.
+                    💡 <strong>How it works:</strong> Add your real affiliate links here. They show on the public <strong>/affiliate</strong> page. Toggle Active/Hidden to control what visitors see.
                   </div>
                 </div>
 
@@ -1096,7 +1115,6 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                 <div style={{display:'flex',flexDirection:'column' as const,gap:12}}>
                   {affiliates.map((item,i)=>(
                     <div key={item.id} style={{background:'#fff',border:`1.5px solid ${item.active?'#d4e0ec':'#f7bcc0'}`,borderRadius:13,padding:'16px 20px',display:'flex',alignItems:'center',gap:14,flexWrap:'wrap' as const,opacity:item.active?1:0.65}}>
-                      {/* Logo + info */}
                       <div style={{width:46,height:46,borderRadius:10,background:'#f0f4f8',border:'1.5px solid #d4e0ec',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.5rem',flexShrink:0}}>{item.logo}</div>
                       <div style={{flex:1,minWidth:180}}>
                         <div style={{display:'flex',alignItems:'center',gap:7,marginBottom:4,flexWrap:'wrap' as const}}>
@@ -1107,9 +1125,7 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                         <div style={{fontSize:'.75rem',color:'#5a6a7a',marginBottom:4}}>{item.category} · {item.price}</div>
                         <div style={{fontSize:'.72rem',color:'#8fa3b8',fontFamily:'monospace',wordBreak:'break-all' as const}}>{item.link.slice(0,60)}{item.link.length>60?'…':''}</div>
                       </div>
-                      {/* Commission badge */}
                       <div style={{background:'#1dbfad18',border:'1px solid #1dbfad44',borderRadius:8,padding:'6px 12px',fontSize:'.73rem',color:'#1dbfad',fontWeight:700,whiteSpace:'nowrap' as const,flexShrink:0}}>{item.commission}</div>
-                      {/* Actions */}
                       <div style={{display:'flex',gap:7,flexShrink:0}}>
                         <button onClick={()=>{
                           setEditAff(item)
@@ -1123,7 +1139,6 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                         </button>
                         <button onClick={()=>{if(confirm('Delete this affiliate item?')){setAffiliates(affiliates.filter((_,j)=>j!==i));toast('🗑️ Deleted')}}} style={{padding:'7px 13px',borderRadius:8,background:'#fde8ea',color:'#e63946',fontWeight:700,fontSize:'.77rem',border:'1.5px solid #f7bcc0',cursor:'pointer',fontFamily:'Nunito,sans-serif'}}>🗑️</button>
                       </div>
-                      {/* Move up/down */}
                       <div style={{display:'flex',flexDirection:'column' as const,gap:3,flexShrink:0}}>
                         <button onClick={()=>{if(i===0)return;const a=[...affiliates];[a[i-1],a[i]]=[a[i],a[i-1]];setAffiliates(a)}} style={{padding:'3px 8px',borderRadius:5,background:'#f0f4f8',border:'1px solid #d4e0ec',cursor:'pointer',fontSize:'.7rem'}} disabled={i===0}>▲</button>
                         <button onClick={()=>{if(i===affiliates.length-1)return;const a=[...affiliates];[a[i],a[i+1]]=[a[i+1],a[i]];setAffiliates(a)}} style={{padding:'3px 8px',borderRadius:5,background:'#f0f4f8',border:'1px solid #d4e0ec',cursor:'pointer',fontSize:'.7rem'}} disabled={i===affiliates.length-1}>▼</button>
@@ -1137,7 +1152,6 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                   )}
                 </div>
 
-                {/* Preview link */}
                 <div style={{marginTop:18,background:'#f0f4f8',borderRadius:10,padding:'12px 16px',fontSize:'.82rem',color:'#5a6a7a',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap' as const,gap:10}}>
                   <span>👁 Public page: <strong>/affiliate</strong></span>
                   <a href="/affiliate" target="_blank" style={{color:'#1dbfad',fontWeight:700,fontSize:'.8rem',textDecoration:'none'}}>Open Public Page ↗</a>
@@ -1148,8 +1162,6 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
             {/* ── SETTINGS ── */}
             {activeTab==='settings' && (
               <div style={{ maxWidth:580 }}>
-
-                {/* ── Countdown Timer Toggle ── */}
                 <div style={{ background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:14,padding:'20px 22px',marginBottom:18 }}>
                   <h2 style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.92rem',color:'#0b1f33',marginBottom:16,paddingBottom:10,borderBottom:'1px solid #f0f4f8' }}>⏱️ Countdown Timer</h2>
                   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap' as const,gap:12}}>
@@ -1191,7 +1203,6 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                   </div>
                 </div>
 
-                {/* ── Other settings ── */}
                 {[
                   {title:'🌐 Site Identity',fields:[{l:'Site Name',t:'text',ph:'Assam Career Point & Info'},{l:'Tagline',t:'text',ph:'Jobs · Exams · Information'},{l:'Contact Email',t:'email',ph:'admin@acpinfo.com'}]},
                   {title:'📲 Social / Channels',fields:[{l:'WhatsApp Channel',t:'url',ph:'https://wa.me/...'},{l:'Telegram Channel',t:'url',ph:'https://t.me/...'},{l:'YouTube Channel',t:'url',ph:'https://youtube.com/...'}]},
@@ -1224,10 +1235,23 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                 {/* ── Section: Basic Info ── */}
                 <div className="sh">🏷️ Basic Information</div>
 
-                {/* Logo only */}
+                {/* Logo + Image URL */}
                 <div style={{ display:'flex',alignItems:'center',gap:12,marginBottom:12 }}>
                   <div style={{ width:52,height:52,borderRadius:11,background:'#e0f7fc',border:'2px solid #00b4d8',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.7rem' }}>{jf.logo}</div>
                   <button type="button" onClick={()=>setShowLogoModal(true)} style={bS}>🎨 Choose Emoji</button>
+                </div>
+                <div className="fg">
+                  <label style={lb}>
+                    🖼️ Thumbnail Image URL
+                    <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem',marginLeft:6}}>(shows on homepage — paste any image URL)</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={(jf as any).imageUrl||''}
+                    onChange={e=>setJf(p=>({...p,imageUrl:e.target.value}))}
+                    style={si}
+                    placeholder="https://example.com/image.jpg"
+                  />
                 </div>
 
                 <div className="g2">
@@ -1282,15 +1306,15 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                 </div>
 
                 <div className="fg">
-  <label style={{...lb, color: '#00b4d8'}}>🖼️ How to Apply Images <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>(shown in How to Apply tab — max 5, one URL per line)</span></label>
-  <textarea value={(jf as any).howToApplyImages?.join('\n')||''} onChange={e=>setJf((p:any)=>({...p,howToApplyImages:e.target.value.split(/[\n\s]+/).map((s:string)=>s.trim()).filter(Boolean)}))}
-    style={{...si,minHeight:80,resize:'vertical' as const}} placeholder={'https://drive.google.com/file/d/...\nhttps://drive.google.com/file/d/...'}/>
-</div>
-<div className="fg">
-  <label style={{...lb, color: '#00b4d8'}}>🖼️ Details Tab Images <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>(shown in Details tab — max 5, one URL per line)</span></label>
-  <textarea value={(jf as any).detailsImages?.join('\n')||''} onChange={e=>setJf((p:any)=>({...p,detailsImages:e.target.value.split(/[\n\s]+/).map((s:string)=>s.trim()).filter(Boolean)}))}    style={{...si,minHeight:80,resize:'vertical' as const}} placeholder={'https://drive.google.com/file/d/...\nhttps://drive.google.com/file/d/...'}/>
-</div>
-<div className="fg"><label style={lb}>YouTube Video Link (optional)</label><input value={jf.youtubeLink} onChange={e=>setJf(p=>({...p,youtubeLink:e.target.value}))} style={si} placeholder="https://youtube.com/watch?v=..." /></div>
+                  <label style={{...lb, color: '#00b4d8'}}>🖼️ How to Apply Images <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>(shown in How to Apply tab — max 5, one URL per line)</span></label>
+                  <textarea value={(jf as any).howToApplyImages?.join('\n')||''} onChange={e=>setJf((p:any)=>({...p,howToApplyImages:e.target.value.split(/[\n\s]+/).map((s:string)=>s.trim()).filter(Boolean)}))}
+                    style={{...si,minHeight:80,resize:'vertical' as const}} placeholder={'https://drive.google.com/file/d/...\nhttps://drive.google.com/file/d/...'}/>
+                </div>
+                <div className="fg">
+                  <label style={{...lb, color: '#00b4d8'}}>🖼️ Details Tab Images <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>(shown in Details tab — max 5, one URL per line)</span></label>
+                  <textarea value={(jf as any).detailsImages?.join('\n')||''} onChange={e=>setJf((p:any)=>({...p,detailsImages:e.target.value.split(/[\n\s]+/).map((s:string)=>s.trim()).filter(Boolean)}))}    style={{...si,minHeight:80,resize:'vertical' as const}} placeholder={'https://drive.google.com/file/d/...\nhttps://drive.google.com/file/d/...'}/>
+                </div>
+                <div className="fg"><label style={lb}>YouTube Video Link (optional)</label><input value={jf.youtubeLink} onChange={e=>setJf(p=>({...p,youtubeLink:e.target.value}))} style={si} placeholder="https://youtube.com/watch?v=..." /></div>
 
                 {/* ── Section: SEO Description & Advt No ── */}
                 <div className="sh">📝 Job Description & SEO</div>
@@ -1298,23 +1322,23 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                   💡 <strong>SEO Tip:</strong> Write a 2–3 sentence description using searchable phrases like "RRB Group D 2026 Assam", "10th pass railway jobs Northeast India". This appears on Google search previews.
                 </div>
                 <div className="fg"><label style={lb}>Job Description (SEO paragraph — optional but recommended)</label><textarea value={jf.description} onChange={e=>setJf(p=>({...p,description:e.target.value}))} style={{...si,minHeight:90,resize:'vertical' as const}} placeholder="e.g. Railway Recruitment Board (RRB) has released RRB Group D 2026 notification for 22195 Level-1 posts under various Railway zones including Northeast Frontier Railway (Guwahati) with 1776 vacancies. Eligible 10th pass / ITI candidates from Assam and Northeast India can apply online before 9 March 2026." /></div>
-		<div className="fg">
-  <label style={{...lb,color:'#457b9d'}}>📄 Full Details Title (optional)</label>
-  <input value={(jf as any).fullDescTitle||''} onChange={e=>setJf((p:any)=>({...p,fullDescTitle:e.target.value}))} style={si} placeholder="e.g. Complete Details About This Recruitment" />
-</div>
+                <div className="fg">
+                  <label style={{...lb,color:'#457b9d'}}>📄 Full Details Title (optional)</label>
+                  <input value={(jf as any).fullDescTitle||''} onChange={e=>setJf((p:any)=>({...p,fullDescTitle:e.target.value}))} style={si} placeholder="e.g. Complete Details About This Recruitment" />
+                </div>
 
-{/* Full Description — replaced with RichTextEditor preset full */}
-<div className="fg">
-  <RichTextEditor
-    value={(jf as any).fullDescription || ''}
-    onChange={(val) => setJf((p: any) => ({...p, fullDescription: val}))}
-    preset="full"
-    hint="💡 Use Table button to add vacancy tables, selection process stages. Word count shown in status bar."
-  />
-  <div style={{fontSize:'.7rem',color:'#8fa3b8',marginTop:4}}>
-    Characters: {((jf as any).fullDescription||'').length} / ~15000 recommended for 2000-3000 words
-  </div>
-</div>
+                {/* Full Description — replaced with RichTextEditor preset full */}
+                <div className="fg">
+                  <RichTextEditor
+                    value={(jf as any).fullDescription || ''}
+                    onChange={(val) => setJf((p: any) => ({...p, fullDescription: val}))}
+                    preset="full"
+                    hint="💡 Use Table button to add vacancy tables, selection process stages. Word count shown in status bar."
+                  />
+                  <div style={{fontSize:'.7rem',color:'#8fa3b8',marginTop:4}}>
+                    Characters: {((jf as any).fullDescription||'').length} / ~15000 recommended for 2000-3000 words
+                  </div>
+                </div>
 
                 <div className="g2">
                   <div className="fg"><label style={lb}>Advertisement / Notification No.</label><input value={jf.advtNo} onChange={e=>setJf(p=>({...p,advtNo:e.target.value}))} style={si} placeholder="CEN 09/2025" /></div>
@@ -1332,10 +1356,10 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                 <div className="g2">
                   <div className="fg"><label style={lb}>Age Limit (range)</label><input value={jf.ageLimitDate?`(as on ${jf.ageLimitDate})`:'as on date'} readOnly style={{...si,color:'#8fa3b8',cursor:'not-allowed'}} /></div>
                   <div className="fg"><label style={lb}>Age Limit "as on" Date</label><input type="date" value={jf.ageLimitDate} onChange={e=>setJf(p=>({...p,ageLimitDate:e.target.value}))} style={si} /></div>
-		<div className="fg">
-  <label style={lb}>Birth Date Range (if applicable)</label>
-  <input value={(jf as any).ageBirthRange||''} onChange={e=>setJf((p:any)=>({...p,ageBirthRange:e.target.value}))} style={si} placeholder="e.g. Born between 01-07-2005 to 01-07-2009" />
-</div>
+                  <div className="fg">
+                    <label style={lb}>Birth Date Range (if applicable)</label>
+                    <input value={(jf as any).ageBirthRange||''} onChange={e=>setJf((p:any)=>({...p,ageBirthRange:e.target.value}))} style={si} placeholder="e.g. Born between 01-07-2005 to 01-07-2009" />
+                  </div>
                 </div>
 
                 {/* Age Relaxation — replaced with RichTextEditor preset standard */}
@@ -1582,7 +1606,7 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
                 <button type="button" onClick={()=>setJobAffiliates(p=>[...p,{id:Date.now().toString(),title:'',link:'',img:'',badge:''}])} style={{...bT,fontSize:'.8rem',padding:'8px 16px',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:7,marginBottom:4}}>
                   🛒 Add Product / Book
                 </button>
-		{/* ── Section: Optional Sections ── */}
+                {/* ── Section: Optional Sections ── */}
                 <div className="sh">📦 Optional Sections (title + content + links + PDF)</div>
                 <div style={{background:'#e8f4fd',border:'1px solid #90caf9',borderRadius:9,padding:'9px 14px',marginBottom:12,fontSize:'.78rem',color:'#1a3a5c',lineHeight:1.75}}>
                   Add extra sections with custom content, important links, and PDF downloads. These appear on the public job detail page below the main content.
@@ -1591,11 +1615,10 @@ fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||
               </div>
               <div style={{ padding:'14px 24px',borderTop:'1px solid #d4e0ec',display:'flex',justifyContent:'flex-end',gap:10 }}>
                 <button type="button" onClick={()=>setShowJobModal(false)} style={bS}>Cancel</button>
-                {/* 🖨️ PRINT PREVIEW BUTTON FOR JOBS */}
                 <button type="button" onClick={() => {
-		const w = window.open('', '_blank')
-  		if (!w) return 
-  const totalVac = posts.reduce((a:number,p:any)=>a+Number(p.vacancy||0),0)
+                  const w = window.open('', '_blank')
+                  if (!w) return
+                  const totalVac = posts.reduce((a:number,p:any)=>a+Number(p.vacancy||0),0)
                   w.document.write(`
 <html><head><title>Preview — ${jf.title || 'Job Preview'}</title>
 <style>
@@ -1788,20 +1811,20 @@ ${jf.helplinePhone ? `<div class="row"><span class="label">Phone</span><span cla
                   />
                 </div>
 
-			<div className="fg">
-  <label style={{...lb,color:'#457b9d'}}>📄 Full Details Title (optional)</label>
-  <input value={(ef as any).fullDescTitle||''} onChange={e=>setEf((p:any)=>({...p,fullDescTitle:e.target.value}))} style={si} />
-</div>
+                <div className="fg">
+                  <label style={{...lb,color:'#457b9d'}}>📄 Full Details Title (optional)</label>
+                  <input value={(ef as any).fullDescTitle||''} onChange={e=>setEf((p:any)=>({...p,fullDescTitle:e.target.value}))} style={si} />
+                </div>
 
-{/* Full Description — RichTextEditor preset full */}
-<div className="fg">
-  <RichTextEditor
-    value={(ef as any).fullDescription || ''}
-    onChange={(val) => setEf((p: any) => ({...p, fullDescription: val}))}
-    preset="full"
-    hint="💡 Add exam pattern table, previous year analysis, preparation tips with proper formatting"
-  />
-</div>
+                {/* Full Description — RichTextEditor preset full */}
+                <div className="fg">
+                  <RichTextEditor
+                    value={(ef as any).fullDescription || ''}
+                    onChange={(val) => setEf((p: any) => ({...p, fullDescription: val}))}
+                    preset="full"
+                    hint="💡 Add exam pattern table, previous year analysis, preparation tips with proper formatting"
+                  />
+                </div>
 
                 <div className="sh" style={{ marginTop:4 }}>📅 Important Dates</div>
                 <div className="g2">
@@ -1821,7 +1844,6 @@ ${jf.helplinePhone ? `<div class="row"><span class="label">Phone</span><span cla
                   <div className="fg">
                     <label style={{...lb,color:'#e63946'}}>⏰ Exam Time *</label>
                     <input value={ef.examTime} onChange={e=>setEf(p=>({...p,examTime:e.target.value}))} style={si} placeholder="e.g. 9:30 AM – 12:00 PM  &  2:30 PM – 5:00 PM" />
-                    <div style={{ fontSize:'.67rem',color:'#5a6a7a',marginTop:3 }}>Include both shifts if applicable</div>
                   </div>
                 </div>
                 <div className="fg"><label style={lb}>Expected Result Date</label><input value={ef.resultDate||''} onChange={e=>setEf(p=>({...p,resultDate:e.target.value}))} style={si} placeholder="e.g. 1st week July 2026 OR 2026-07-15"/></div>
@@ -1848,6 +1870,21 @@ ${jf.helplinePhone ? `<div class="row"><span class="label">Phone</span><span cla
                   <div className="fg"><label style={lb}>Apply Online Link</label><input type="url" value={ef.applyLink} onChange={e=>setEf(p=>({...p,applyLink:e.target.value}))} style={si} placeholder="https://ctet.nic.in/apply" /></div>
                 </div>
                 <div className="fg"><label style={lb}>Admit Card Link (once available)</label><input type="url" value={ef.admitCardLink||''} onChange={e=>setEf(p=>({...p,admitCardLink:e.target.value}))} style={si} placeholder="https://..." /></div>
+
+                {/* ✅ IMAGE URL FIELD FOR EXAM */}
+                <div className="fg">
+                  <label style={lb}>
+                    🖼️ Thumbnail Image URL
+                    <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem',marginLeft:6}}>(shows on homepage preview)</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={(ef as any).imageUrl||''}
+                    onChange={e=>setEf(p=>({...p,imageUrl:e.target.value}))}
+                    style={si}
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
 
                 {/* ── Assamese Bilingual ── */}
                 <div className="sh">🇮🇳 অসমীয়া (Assamese) — Optional</div>
@@ -1877,61 +1914,60 @@ ${jf.helplinePhone ? `<div class="row"><span class="label">Phone</span><span cla
                 </div>
 
               {/* ── Section: PDFs ── */}
-<div className="sh">📄 Official PDFs / Documents (Google Drive Links)</div>
-<div style={{background:'#e3f2fd',border:'1px solid #90caf9',borderRadius:9,padding:'9px 13px',fontSize:'.78rem',color:'#0d47a1',marginBottom:10}}>
-  Add notification PDF, syllabus, admit card etc. Enter a label and Google Drive share link for each.
-</div>
-{(ef.examPdfs||[]).map((pdf,i)=>(
-  <div key={i} style={{display:'flex',gap:8,marginBottom:9,background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'10px 12px'}}>
-    <div style={{flex:1,display:'flex',flexDirection:'column' as const,gap:7}}>
-      <input value={pdf.label} onChange={e=>{const n=[...(ef.examPdfs||[])];n[i]={...n[i],label:e.target.value};setEf(p=>({...p,examPdfs:n}))}} style={si} placeholder="Label e.g. Official Notification, Syllabus PDF, Admit Card"/>
-      <input value={pdf.url} onChange={e=>{const n=[...(ef.examPdfs||[])];n[i]={...n[i],url:e.target.value};setEf(p=>({...p,examPdfs:n}))}} style={{...si,borderColor:'#90caf9'}} placeholder="Google Drive share link"/>
-    </div>
-    <button type="button" onClick={()=>setEf(p=>({...p,examPdfs:(p.examPdfs||[]).filter((_,j)=>j!==i)}))} style={{background:'#fde8ea',border:'1.5px solid #f7bcc0',borderRadius:7,color:'#e63946',fontWeight:700,fontSize:'.8rem',padding:'6px 10px',cursor:'pointer',flexShrink:0}}>✕</button>
-  </div>
-))}
-<button type="button" onClick={()=>setEf(p=>({...p,examPdfs:[...(p.examPdfs||[]),{label:'',url:''}]}))} style={{...bT,fontSize:'.8rem',padding:'8px 16px',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:7,marginBottom:4}}>
-  ➕ Add PDF Link
-</button>
+                <div className="sh">📄 Official PDFs / Documents (Google Drive Links)</div>
+                <div style={{background:'#e3f2fd',border:'1px solid #90caf9',borderRadius:9,padding:'9px 13px',fontSize:'.78rem',color:'#0d47a1',marginBottom:10}}>
+                  Add notification PDF, syllabus, admit card etc. Enter a label and Google Drive share link for each.
+                </div>
+                {(ef.examPdfs||[]).map((pdf,i)=>(
+                  <div key={i} style={{display:'flex',gap:8,marginBottom:9,background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'10px 12px'}}>
+                    <div style={{flex:1,display:'flex',flexDirection:'column' as const,gap:7}}>
+                      <input value={pdf.label} onChange={e=>{const n=[...(ef.examPdfs||[])];n[i]={...n[i],label:e.target.value};setEf(p=>({...p,examPdfs:n}))}} style={si} placeholder="Label e.g. Official Notification, Syllabus PDF, Admit Card"/>
+                      <input value={pdf.url} onChange={e=>{const n=[...(ef.examPdfs||[])];n[i]={...n[i],url:e.target.value};setEf(p=>({...p,examPdfs:n}))}} style={{...si,borderColor:'#90caf9'}} placeholder="Google Drive share link"/>
+                    </div>
+                    <button type="button" onClick={()=>setEf(p=>({...p,examPdfs:(p.examPdfs||[]).filter((_,j)=>j!==i)}))} style={{background:'#fde8ea',border:'1.5px solid #f7bcc0',borderRadius:7,color:'#e63946',fontWeight:700,fontSize:'.8rem',padding:'6px 10px',cursor:'pointer',flexShrink:0}}>✕</button>
+                  </div>
+                ))}
+                <button type="button" onClick={()=>setEf(p=>({...p,examPdfs:[...(p.examPdfs||[]),{label:'',url:''}]}))} style={{...bT,fontSize:'.8rem',padding:'8px 16px',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:7,marginBottom:4}}>
+                  ➕ Add PDF Link
+                </button>
 
-{/* ── Section: Affiliate ── */}
-<div className="sh">🛒 Recommended Books/Courses (optional)</div>
-{(ef.examAffiliates||[]).map((aff,i)=>(
-  <div key={aff.id} style={{background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:11,padding:'12px',marginBottom:10}}>
-    <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
-      <span style={{fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.8rem',color:'#0d1b2a'}}>Item #{i+1}</span>
-      <button type="button" onClick={()=>setEf(p=>({...p,examAffiliates:(p.examAffiliates||[]).filter((_,j)=>j!==i)}))} style={{background:'#fde8ea',border:'1.5px solid #f7bcc0',borderRadius:7,color:'#e63946',fontWeight:700,fontSize:'.77rem',padding:'3px 9px',cursor:'pointer'}}>✕ Remove</button>
-    </div>
-    <div className="g2">
-      <div className="fg"><label style={lb}>Title</label><input value={aff.title} onChange={e=>{const n=[...(ef.examAffiliates||[])];n[i]={...n[i],title:e.target.value};setEf(p=>({...p,examAffiliates:n}))}} style={si} placeholder="Book/Course title"/></div>
-      <div className="fg"><label style={lb}>Badge</label><input value={aff.badge||''} onChange={e=>{const n=[...(ef.examAffiliates||[])];n[i]={...n[i],badge:e.target.value};setEf(p=>({...p,examAffiliates:n}))}} style={si} placeholder="Best Seller"/></div>
-    </div>
-    <div className="fg"><label style={lb}>Affiliate Link *</label><input value={aff.link} onChange={e=>{const n=[...(ef.examAffiliates||[])];n[i]={...n[i],link:e.target.value};setEf(p=>({...p,examAffiliates:n}))}} style={{...si,borderColor:'#90caf9'}} placeholder="https://amzn.to/..."/></div>
-    {/* ← ADD THIS BELOW THE LINK FIELD */}
-    <div className="fg">
-      <label style={lb}>Product Image (max 150 KB)</label>
-      <input type="file" accept="image/*" style={{display:'none'}} id={`ea-img-${aff.id}`}
-        onChange={e=>{
-          const f=e.target.files?.[0]; if(!f) return
-          if(f.size>153600){alert('Image must be under 150 KB. Please compress it first.'); e.target.value=''; return}
-          const r=new FileReader(); r.onload=ev=>{
-            const n=[...(ef.examAffiliates||[])];
-            n[i]={...n[i],img:ev.target?.result as string};
-            setEf(p=>({...p,examAffiliates:n}))
-          }; r.readAsDataURL(f)
-        }}
-      />
-      <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap' as const}}>
-        {aff.img&&<img src={aff.img} alt="product" style={{width:64,height:64,objectFit:'cover',borderRadius:8,border:'1.5px solid #d4e0ec'}}/>}
-        <label htmlFor={`ea-img-${aff.id}`} style={{...bS,cursor:'pointer',display:'inline-flex',alignItems:'center',gap:6,fontSize:'.78rem'}}>
-          📷 {aff.img?'Change Image':'Upload Image'}
-        </label>
-        {aff.img&&<button type="button" onClick={()=>{const n=[...(ef.examAffiliates||[])];n[i]={...n[i],img:''};setEf(p=>({...p,examAffiliates:n}))}} style={{...bS,fontSize:'.72rem',padding:'4px 9px',color:'#e63946'}}>✕ Remove</button>}
-        <span style={{fontSize:'.7rem',color:'#8fa3b8'}}>JPG/PNG · max 150 KB</span>
-      </div>
-    </div>
-  </div>
-))}
+              {/* ── Section: Affiliate ── */}
+                <div className="sh">🛒 Recommended Books/Courses (optional)</div>
+                {(ef.examAffiliates||[]).map((aff,i)=>(
+                  <div key={aff.id} style={{background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:11,padding:'12px',marginBottom:10}}>
+                    <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
+                      <span style={{fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.8rem',color:'#0d1b2a'}}>Item #{i+1}</span>
+                      <button type="button" onClick={()=>setEf(p=>({...p,examAffiliates:(p.examAffiliates||[]).filter((_,j)=>j!==i)}))} style={{background:'#fde8ea',border:'1.5px solid #f7bcc0',borderRadius:7,color:'#e63946',fontWeight:700,fontSize:'.77rem',padding:'3px 9px',cursor:'pointer'}}>✕ Remove</button>
+                    </div>
+                    <div className="g2">
+                      <div className="fg"><label style={lb}>Title</label><input value={aff.title} onChange={e=>{const n=[...(ef.examAffiliates||[])];n[i]={...n[i],title:e.target.value};setEf(p=>({...p,examAffiliates:n}))}} style={si} placeholder="Book/Course title"/></div>
+                      <div className="fg"><label style={lb}>Badge</label><input value={aff.badge||''} onChange={e=>{const n=[...(ef.examAffiliates||[])];n[i]={...n[i],badge:e.target.value};setEf(p=>({...p,examAffiliates:n}))}} style={si} placeholder="Best Seller"/></div>
+                    </div>
+                    <div className="fg"><label style={lb}>Affiliate Link *</label><input value={aff.link} onChange={e=>{const n=[...(ef.examAffiliates||[])];n[i]={...n[i],link:e.target.value};setEf(p=>({...p,examAffiliates:n}))}} style={{...si,borderColor:'#90caf9'}} placeholder="https://amzn.to/..."/></div>
+                    <div className="fg">
+                      <label style={lb}>Product Image (max 150 KB)</label>
+                      <input type="file" accept="image/*" style={{display:'none'}} id={`ea-img-${aff.id}`}
+                        onChange={e=>{
+                          const f=e.target.files?.[0]; if(!f) return
+                          if(f.size>153600){alert('Image must be under 150 KB. Please compress it first.'); e.target.value=''; return}
+                          const r=new FileReader(); r.onload=ev=>{
+                            const n=[...(ef.examAffiliates||[])];
+                            n[i]={...n[i],img:ev.target?.result as string};
+                            setEf(p=>({...p,examAffiliates:n}))
+                          }; r.readAsDataURL(f)
+                        }}
+                      />
+                      <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap' as const}}>
+                        {aff.img&&<img src={aff.img} alt="product" style={{width:64,height:64,objectFit:'cover',borderRadius:8,border:'1.5px solid #d4e0ec'}}/>}
+                        <label htmlFor={`ea-img-${aff.id}`} style={{...bS,cursor:'pointer',display:'inline-flex',alignItems:'center',gap:6,fontSize:'.78rem'}}>
+                          📷 {aff.img?'Change Image':'Upload Image'}
+                        </label>
+                        {aff.img&&<button type="button" onClick={()=>{const n=[...(ef.examAffiliates||[])];n[i]={...n[i],img:''};setEf(p=>({...p,examAffiliates:n}))}} style={{...bS,fontSize:'.72rem',padding:'4px 9px',color:'#e63946'}}>✕ Remove</button>}
+                        <span style={{fontSize:'.7rem',color:'#8fa3b8'}}>JPG/PNG · max 150 KB</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
                 <button type="button" onClick={()=>setEf(p=>({...p,examAffiliates:[...(p.examAffiliates||[]),{id:Date.now().toString(),title:'',link:'',badge:''}]}))} style={{...bT,fontSize:'.8rem',padding:'8px 16px',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:7,marginBottom:4}}>
                   🛒 Add Book/Course
                 </button>
@@ -1944,7 +1980,6 @@ ${jf.helplinePhone ? `<div class="row"><span class="label">Phone</span><span cla
               </div>
               <div style={{ padding:'14px 24px',borderTop:'1px solid #d4e0ec',display:'flex',justifyContent:'flex-end',gap:10 }}>
                 <button type="button" onClick={()=>setShowExamModal(false)} style={bS}>Cancel</button>
-                {/* 🖨️ PRINT PREVIEW BUTTON FOR EXAMS */}
                 <button type="button" onClick={() => {
                   const w = window.open('', '_blank')
                   if (!w) return
@@ -2075,24 +2110,39 @@ ${ef.examPdfs.map(pdf => `<div class="row"><span class="label">${pdf.label || 'P
                   />
                 </div>
 
-		<div className="fg">
-  <label style={{...lb,color:'#457b9d'}}>📄 Full Details Title</label>
-  <input value={(inf as any).fullDescTitle||''} onChange={e=>setInf((p:any)=>({...p,fullDescTitle:e.target.value}))} style={si} />
-</div>
+                <div className="fg">
+                  <label style={{...lb,color:'#457b9d'}}>📄 Full Details Title</label>
+                  <input value={(inf as any).fullDescTitle||''} onChange={e=>setInf((p:any)=>({...p,fullDescTitle:e.target.value}))} style={si} />
+                </div>
 
-{/* Full Description — RichTextEditor preset full */}
-<div className="fg">
-  <RichTextEditor
-    value={(inf as any).fullDescription || ''}
-    onChange={(val) => setInf((p: any) => ({...p, fullDescription: val}))}
-    preset="full"
-    hint="💡 Add step-by-step tables, FAQ sections, document checklists with proper formatting"
-  />
-</div>
+                {/* Full Description — RichTextEditor preset full */}
+                <div className="fg">
+                  <RichTextEditor
+                    value={(inf as any).fullDescription || ''}
+                    onChange={(val) => setInf((p: any) => ({...p, fullDescription: val}))}
+                    preset="full"
+                    hint="💡 Add step-by-step tables, FAQ sections, document checklists with proper formatting"
+                  />
+                </div>
 
                 <div className="g2">
                   <div className="fg"><label style={lb}>Overall Deadline (optional)</label><input type="date" value={inf.lastDate||''} onChange={e=>setInf(p=>({...p,lastDate:e.target.value}))} style={si} /></div>
                   <div className="fg"><label style={lb}>Official Website</label><input type="url" value={inf.officialLink} onChange={e=>setInf(p=>({...p,officialLink:e.target.value}))} style={si} placeholder="https://voters.eci.gov.in" /></div>
+                </div>
+
+                {/* ✅ IMAGE URL FIELD FOR INFO */}
+                <div className="fg">
+                  <label style={lb}>
+                    🖼️ Thumbnail Image URL
+                    <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem',marginLeft:6}}>(shows on homepage preview)</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={(inf as any).imageUrl||''}
+                    onChange={e=>setInf(p=>({...p,imageUrl:e.target.value}))}
+                    style={si}
+                    placeholder="https://example.com/image.jpg"
+                  />
                 </div>
 
                 {/* Process — RichTextEditor preset standard */}
@@ -2156,22 +2206,21 @@ ${ef.examPdfs.map(pdf => `<div class="row"><span class="label">${pdf.label || 'P
                   />
                 </div>
 
-<div className="fg">
-  <label style={{...lb,color:'#2a9d8f'}}>
-    🖼️ Process Images
-    <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>
-      (shown after steps — max 5, one URL per line)
-    </span>
-  </label>
-
-  <textarea
-    value={(inf as any).processImages?.join('\n') || ''}
-    onChange={e=>setInf((p:any)=>({...p,processImages:e.target.value.split(/[\n\s]+/).map((s:string)=>s.trim()).filter(Boolean)}))}
-    style={{...si,minHeight:80,resize:'vertical'}}
-    placeholder={`https://drive.google.com/file/d/...
+                <div className="fg">
+                  <label style={{...lb,color:'#2a9d8f'}}>
+                    🖼️ Process Images
+                    <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>
+                      (shown after steps — max 5, one URL per line)
+                    </span>
+                  </label>
+                  <textarea
+                    value={(inf as any).processImages?.join('\n') || ''}
+                    onChange={e=>setInf((p:any)=>({...p,processImages:e.target.value.split(/[\n\s]+/).map((s:string)=>s.trim()).filter(Boolean)}))}
+                    style={{...si,minHeight:80,resize:'vertical'}}
+                    placeholder={`https://drive.google.com/file/d/...
 https://drive.google.com/file/d/...`}
-  />
-</div>
+                  />
+                </div>
                 {/* ── Section: Optional Sections ── */}
                 <div className="sh">📦 Optional Sections (title + content + links + PDF)</div>
                 <div style={{background:'#e8f4fd',border:'1px solid #90caf9',borderRadius:9,padding:'9px 14px',marginBottom:12,fontSize:'.78rem',color:'#1a3a5c',lineHeight:1.75}}>
@@ -2181,7 +2230,6 @@ https://drive.google.com/file/d/...`}
               </div>
               <div style={{ padding:'14px 24px',borderTop:'1px solid #d4e0ec',display:'flex',justifyContent:'flex-end',gap:10 }}>
                 <button type="button" onClick={()=>setShowInfoModal(false)} style={bS}>Cancel</button>
-                {/* 🖨️ PRINT PREVIEW BUTTON FOR INFO */}
                 <button type="button" onClick={() => {
                   const w = window.open('', '_blank')
                   if (!w) return
@@ -2248,11 +2296,14 @@ ${inf.officialLink ? `<div class="row"><span class="label">Official Website</spa
         </div>
       )}
 
-      {/* ════════════════════ ADD PDF FORM MODAL ════════════════════ */}
+      {/* ════════════════════ ADD/EDIT PDF FORM MODAL ════════════════════ */}
       {showPdfModal && (
         <div className="ovl">
           <div style={{ background:'#fff',borderRadius:18,width:'100%',maxWidth:620,boxShadow:'0 30px 80px rgba(0,0,0,.35)',margin:'auto',maxHeight:'90vh',overflow:'auto' }}>
-            <div className="mhd"><h2>📄 Add PDF Form to Library</h2><button onClick={()=>setShowPdfModal(false)} style={{ width:28,height:28,borderRadius:7,background:'#f0f4f8',border:'1.5px solid #d4e0ec',cursor:'pointer' }}>✕</button></div>
+            <div className="mhd">
+              <h2>{editPdf ? '✏️ Edit PDF Form' : '📄 Add PDF Form to Library'}</h2>
+              <button onClick={()=>setShowPdfModal(false)} style={{ width:28,height:28,borderRadius:7,background:'#f0f4f8',border:'1.5px solid #d4e0ec',cursor:'pointer' }}>✕</button>
+            </div>
             <form onSubmit={savePdfForm} style={{ padding:'20px 24px' }}>
 
               {/* Drive tip */}
@@ -2297,7 +2348,6 @@ ${inf.officialLink ? `<div class="row"><span class="label">Official Website</spa
 
               <div style={{ display:'flex',justifyContent:'flex-end',gap:10,marginTop:14 }}>
                 <button type="button" onClick={()=>setShowPdfModal(false)} style={bS}>Cancel</button>
-                {/* 🖨️ PRINT PREVIEW BUTTON FOR PDF FORMS */}
                 <button type="button" onClick={() => {
                   const w = window.open('', '_blank')
                   if (!w) return
@@ -2348,7 +2398,7 @@ ${pf.keywords ? `
                 }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
                   🖨️ Preview & Print
                 </button>
-                <button type="submit" style={bP}>➕ Add to Library</button>
+                <button type="submit" style={bP}>{editPdf ? '💾 Update PDF Form' : '➕ Add to Library'}</button>
               </div>
             </form>
           </div>
@@ -2465,7 +2515,6 @@ ${pf.keywords ? `
               {/* Save buttons */}
               <div style={{display:'flex',justifyContent:'flex-end',gap:10,marginTop:8}}>
                 <button type="button" onClick={()=>setShowAffModal(false)} style={bS}>Cancel</button>
-                {/* 🖨️ PRINT PREVIEW BUTTON FOR AFFILIATE */}
                 <button type="button" onClick={() => {
                   const w = window.open('', '_blank')
                   if (!w) return

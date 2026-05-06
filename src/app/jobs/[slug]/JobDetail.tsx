@@ -11,7 +11,7 @@ type Post    = { id:string; name:string; dept:string; vacancy:number; qualificat
 type AdvPdf  = { name:string; url:string; size?:string; label?:string; type?:string }
 type DateExt = { date:string; note:string; extendedOn:string }
 type Job     = {
-  id:number; slug?: string; logo:string; title:string; org:string; category:string
+  id:number; slug?: string; logo:string; imageUrl?:string; title:string; org:string; category:string
   district:string; status:string; vacancy:string; qualification:string; ageLimit:string
   salary:string; lastDate:string; applyLink:string
   posts?:Post[]; advPdfs?:AdvPdf[]; dateHistory?:DateExt[]
@@ -279,7 +279,12 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
       <div className="hero-sec" style={{background:`linear-gradient(135deg,${N},#0a3050)`,padding:'26px 20px 22px'}}>
         <div style={{maxWidth:1200,margin:'0 auto'}}>
           <div style={{display:'flex',gap:16,alignItems:'flex-start',flexWrap:'wrap' as const}}>
-            <div style={{width:66,height:66,borderRadius:15,background:`${sc}22`,border:`2px solid ${sc}55`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2.1rem',flexShrink:0}}>{job.logo||'🏛️'}</div>
+            <div style={{width:66,height:66,borderRadius:15,background:`${sc}22`,border:`2px solid ${sc}55`,overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2.1rem',flexShrink:0}}>
+  {job.imageUrl
+    ? <img src={job.imageUrl} alt={job.title} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+    : job.logo||'🏛️'
+  }
+</div>
             <div style={{flex:1,minWidth:0,maxWidth:'100%'}}>
               <div style={{display:'flex',gap:7,flexWrap:'wrap' as const,marginBottom:9}}>
                 <span style={{background:`${sc}28`,color:sc,border:`1px solid ${sc}55`,padding:'3px 11px',borderRadius:99,fontSize:'.72rem',fontWeight:800}}>● {job.status}</span>

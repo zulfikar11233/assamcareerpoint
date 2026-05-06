@@ -26,9 +26,9 @@ function Logo({ size=38 }:{size?:number}) {
 }
 
 type Job = { id:number; logo:string; title:string; org:string; category:string; district:string; status:string; vacancy:string; lastDate:string; description?:string; posts?:{vacancy:number}[]; slug?:string; createdAt?:string }
-type Exam         = { id:number; emoji:string; title:string; conductedBy:string; category:string; applicationLastDate:string; paymentLastDate:string; examDate:string; examTime:string; status:string; slug?:string }
+type Exam         = { id:number; emoji:string; title:string; conductedBy:string; category:string; applicationLastDate:string; paymentLastDate:string; examDate:string; examTime:string; status:string; slug?:string; createdAt?:string }
 type Info         = { id:number; emoji:string; title:string; category:string; description:string; lastDate?:string; status:string; importantDates:{label:string;date:string;time?:string}[]; slug?:string; createdAt?:string }
-type Result       = { id:number; emoji?:string; title:string; org?:string; category?:string; resultDate?:string; slug?:string }
+type Result       = { id:number; emoji?:string; title:string; org?:string; category?:string; resultDate?:string; slug?:string; createdAt?:string }
 type Announcement = { id:number; emoji?:string; title:string; category?:string; description?:string; createdAt:string; slug?:string; published?:boolean }
 type Guide        = { id:number; emoji?:string; title:string; category?:string; description?:string; createdAt:string; slug?:string; published?:boolean }
 type Service      = { id:number; emoji?:string; title:string; category?:string; description?:string; createdAt:string; slug?:string; published?:boolean }
@@ -46,7 +46,8 @@ type AnyPost = {
   subCl: string
   date: number
   desc?: string   // description preview (2 lines)
-  meta?: string   // extra info: org / conductedBy / category
+  meta?: string   // extra info: org / conductedBy
+  imageUrl?: string // optional thumbnail
 }
 
 // ✅ Updated CATS array (6 boxes, one line)
@@ -109,6 +110,14 @@ export default function HomePage() {
   const [tickerItems,   setTickerItems]   = useState<string[]>([])
   const [loading,       setLoading]       = useState(true)
 
+  // Pagination
+  const POSTS_PER_PAGE = 10
+  const [currentPage, setCurrentPage] = useState(1)
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [sec])
+
   useEffect(() => {
     Promise.all([
       fetchWithRetry('/api/data/jobs'),
@@ -147,7 +156,6 @@ export default function HomePage() {
           setInfo(active.length ? active.slice(0,6) : sorted.slice(0,6))
         }
 
-        // Save to localStorage (optional)
         if (Array.isArray(resultsData)       && resultsData.length > 0) localStorage.setItem('acp_results',       JSON.stringify(resultsData))
         if (Array.isArray(announcementsData) && announcementsData.length > 0) localStorage.setItem('acp_announcements', JSON.stringify(announcementsData))
         if (Array.isArray(guidesData)        && guidesData.length > 0) localStorage.setItem('acp_guides',        JSON.stringify(guidesData))
@@ -202,7 +210,7 @@ export default function HomePage() {
 
   const closeMenu = () => setMenuOpen(false)
 
-  // ── Build ALL POSTS unified list with desc & meta ─────────────────
+  // ── Build ALL POSTS unified list with desc, meta & imageUrl ─────────────────
   const allPosts: AnyPost[] = [
     ...jobs.map(j => ({
       id: `j${j.id}`,
@@ -215,6 +223,7 @@ export default function HomePage() {
       date: new Date(j.createdAt||'').getTime() || 0,
       desc: j.description || '',
       meta: `${j.org || ''} · ${j.district || ''}`,
+      imageUrl: (j.logo && j.logo.startsWith('http')) ? j.logo : '',
     })),
     ...exams.map(e => ({
       id: `e${e.id}`,
@@ -224,10 +233,10 @@ export default function HomePage() {
       tag: 'EXAM', tagBg: '#f4a261', tagCl: '#0d1b2a',
       href: `/exams/${e.slug || e.id}`,
       subCl: '#f4a261',
-      // ✅ FIX: use createdAt, fallback to applicationLastDate, then 0
       date: new Date((e as any).createdAt || e.applicationLastDate || '').getTime() || 0,
       desc: `Apply by: ${fmt(e.applicationLastDate)} · Exam: ${fmt(e.examDate)}`,
       meta: `Conducted by ${e.conductedBy || ''}`,
+      imageUrl: (ex as any).imageUrl || '',
     })),
     ...info.map(i => ({
       id: `i${i.id}`,
@@ -240,6 +249,7 @@ export default function HomePage() {
       date: new Date(i.createdAt||'').getTime() || 0,
       desc: i.description || '',
       meta: i.category || '',
+      imageUrl: (inf as any).imageUrl || '',
     })),
     ...results.map(r => ({
       id: `r${r.id}`,
@@ -252,6 +262,7 @@ export default function HomePage() {
       date: new Date(r.resultDate||'').getTime() || 0,
       desc: r.resultDate ? `Result declared: ${fmt(r.resultDate)}` : '',
       meta: r.org || '',
+      imageUrl: (r as any).imageUrl || '',
     })),
     ...announcements.map(a => ({
       id: `a${a.id}`,
@@ -264,6 +275,7 @@ export default function HomePage() {
       date: new Date(a.createdAt||'').getTime() || 0,
       desc: a.description || '',
       meta: a.category || '',
+      imageUrl: (a as any).imageUrl || '',
     })),
     ...services.map(s => ({
       id: `s${s.id}`,
@@ -276,6 +288,7 @@ export default function HomePage() {
       date: new Date(s.createdAt||'').getTime() || 0,
       desc: s.description || '',
       meta: s.category || '',
+      imageUrl: (s as any).imageUrl || '',
     })),
     ...guides.map(g => ({
       id: `g${g.id}`,
@@ -288,8 +301,28 @@ export default function HomePage() {
       date: new Date(g.createdAt||'').getTime() || 0,
       desc: g.description || '',
       meta: g.category || '',
+      imageUrl: (g as any).imageUrl || '',
     })),
   ].sort((a, b) => b.date - a.date)
+
+  // Helper to get current items based on active tab
+  const getCurrentItems = () => {
+    switch(sec) {
+      case 'all': return allPosts
+      case 'jobs': return jobs
+      case 'exams': return exams
+      case 'info': return info
+      case 'results': return results
+      case 'announcements': return announcements
+      case 'services': return services
+      case 'guides': return guides
+      default: return []
+    }
+  }
+
+  const currentItems = getCurrentItems()
+  const totalPages = Math.ceil(currentItems.length / POSTS_PER_PAGE)
+  const visibleItems = currentItems.slice((currentPage-1)*POSTS_PER_PAGE, currentPage*POSTS_PER_PAGE)
 
   // ── Latest Alerts for sidebar ────────────────────────────────
   const alertItems = allPosts.slice(0, 10)
@@ -369,38 +402,34 @@ export default function HomePage() {
         .info-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:12px; }
         .res-grid  { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:11px; }
 
-        /* ✅ Updated category grid: 6 columns desktop, 3 tablet, 2 mobile */
         .cg {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 132px), 1fr));
-  gap: 8px;
-  width: 100%;
-  overflow-x: hidden;
-  grid-auto-rows: 1fr;
-}
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(min(100%, 132px), 1fr));
+          gap: 8px;
+          width: 100%;
+          overflow-x: hidden;
+          grid-auto-rows: 1fr;
+        }
         .cg > a { display:block; height:100%; }
 
-        /* Responsive */
         @media(max-width:900px) {
-  .hg { grid-template-columns:1fr !important; }
-  .alerts-box { display:none !important; }
-  /* Remove the old .cg override - let auto-fill handle it */
-  .exam-grid,.info-grid,.res-grid { grid-template-columns:1fr !important; }
-  .desk-nav  { display:none !important; }
-  .desk-lang { display:none !important; }
-  .ham-btn   { display:flex !important; }
-}
+          .hg { grid-template-columns:1fr !important; }
+          .alerts-box { display:none !important; }
+          .exam-grid,.info-grid,.res-grid { grid-template-columns:1fr !important; }
+          .desk-nav  { display:none !important; }
+          .desk-lang { display:none !important; }
+          .ham-btn   { display:flex !important; }
+        }
         @media(max-width:480px) {
-  .cg { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px !important; }
-  /* Remove the old .cg override - let auto-fill handle it */
-  .stat-num { font-size:1rem !important; }
-  .jr { flex-wrap:wrap !important; padding:11px 12px !important; }
-  .job-badges { width:100% !important; justify-content:flex-start !important; flex-direction:row !important; }
-  .hero-btns { flex-direction:column !important; }
-  .hero-btns a { width:100% !important; justify-content:center !important; }
-  .tab-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
-  .tab-scroll::-webkit-scrollbar { display:none; }
-}
+          .cg { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px !important; }
+          .stat-num { font-size:1rem !important; }
+          .jr { flex-wrap:wrap !important; padding:11px 12px !important; }
+          .job-badges { width:100% !important; justify-content:flex-start !important; flex-direction:row !important; }
+          .hero-btns { flex-direction:column !important; }
+          .hero-btns a { width:100% !important; justify-content:center !important; }
+          .tab-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+          .tab-scroll::-webkit-scrollbar { display:none; }
+        }
       `}</style>
 
       {/* TICKER */}
@@ -425,7 +454,6 @@ export default function HomePage() {
               <div style={{fontSize:'.48rem',color:'rgba(255,255,255,.6)'}}>assamcareerpoint-info.com</div>
             </div>
           </Link>
-          {/* ✅ Desktop nav — pill borders */}
           <nav className="desk-nav" style={{gap:6}}>
             {NAV_LINKS.map(([l,h])=>(
               <Link key={h} href={h} style={{
@@ -575,7 +603,7 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* ── ALL POSTS TAB with rich preview (desc + meta) ── */}
+              {/* ── ALL POSTS TAB with rich preview (desc + meta) AND LEFT IMAGE THUMBNAIL ── */}
               {sec==='all' && (
                 loading ? (
                   <div style={{padding:'18px'}}>
@@ -589,66 +617,59 @@ export default function HomePage() {
                       </div>
                     ))}
                   </div>
-                ) : allPosts.length === 0 ? (
+                ) : visibleItems.length === 0 ? (
                   <div style={{padding:'40px',textAlign:'center' as const,color:'#5a6a7a'}}>
                     <div style={{fontSize:'2rem',marginBottom:8}}>📋</div>
                     <div style={{fontWeight:700}}>No content yet — add from admin panel</div>
                   </div>
                 ) : (
                   <div>
-                    {allPosts.map((item, i) => (
+                    {visibleItems.map((item, i) => (
                       <Link key={item.id} href={item.href} style={{textDecoration:'none'}}>
                         <div className="jr" style={{
-                          display:'flex', gap:12, padding:'14px 20px',
-                          borderBottom: i<allPosts.length-1 ? '1px solid #f0f4f8' : 'none',
-                          cursor:'pointer', alignItems:'flex-start',
+                          display:'flex', gap:14, padding:'14px 20px',
+                          borderBottom: i<visibleItems.length-1 ? '1px solid #f0f4f8' : 'none',
+                          cursor:'pointer', alignItems:'flex-start'
                         }}>
-                          {/* Icon */}
-                          <div style={{width:44,height:44,borderRadius:10,
-                            background:`${item.tagBg}18`, border:`1.5px solid ${item.tagBg}33`,
-                            display:'flex',alignItems:'center',justifyContent:'center',
-                            fontSize:'1.25rem', flexShrink:0, marginTop:2}}>
-                            {item.icon}
+                          {/* LEFT IMAGE BOX */}
+                          <div style={{
+                            width: 72, height: 72, flexShrink: 0, borderRadius: 10,
+                            background: '#f0f4f8', border: '1.5px solid #e0e8f0',
+                            overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                          }}>
+                            {item.imageUrl ? (
+                              <img src={item.imageUrl} alt={item.title} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                            ) : (
+                              <span style={{ fontSize: '1.8rem' }}>{item.icon}</span>
+                            )}
                           </div>
 
-                          {/* Content */}
-                          <div style={{flex:1, minWidth:0}}>
-                            {/* Title row */}
-                            <div style={{display:'flex', gap:8, alignItems:'flex-start', flexWrap:'wrap' as const}}>
-                              <div style={{fontFamily:'Sora,sans-serif', fontWeight:700,
-                                fontSize:'.92rem', color:'#1a1a2e', lineHeight:1.3, flex:1, minWidth:0}}>
+                          {/* RIGHT CONTENT */}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8, marginBottom:4 }}>
+                              <h3 style={{ fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:'.9rem', color:'#0d1b2a', margin:0, lineHeight:1.35 }}>
                                 {item.title}
-                              </div>
-                              {/* Type badge */}
-                              <span style={{background:item.tagBg, color:item.tagCl,
-                                fontSize:'.62rem', fontWeight:700, padding:'3px 8px',
-                                borderRadius:99, flexShrink:0, marginTop:2}}>
+                              </h3>
+                              <span style={{
+                                flexShrink:0, fontSize:'.65rem', fontWeight:800, padding:'2px 8px', borderRadius:99,
+                                background: item.tag==='JOB'?'#e8f5e9': item.tag==='EXAM'?'#e3f2fd': item.tag==='RESULT'?'#fff8e1':'#f3e5f5',
+                                color: item.tag==='JOB'?'#2e7d32': item.tag==='EXAM'?'#1565c0': item.tag==='RESULT'?'#e65100':'#6a0dad',
+                              }}>
                                 {item.tag}
                               </span>
                             </div>
-
-                            {/* Meta — org / conductedBy */}
                             {item.meta && (
-                              <div style={{fontSize:'.75rem', color:'#5a6a7a', marginTop:3}}>
-                                {item.meta}
-                              </div>
+                              <div style={{ fontSize:'.75rem', color:'#8a9ab0', margin:'0 0 5px' }}>{item.meta}</div>
                             )}
-
-                            {/* Description preview — 2 lines */}
                             {item.desc && (
                               <div style={{
-                                fontSize:'.8rem', color:'#4a5a6a', marginTop:5,
-                                lineHeight:1.65,
-                                overflow:'hidden', display:'-webkit-box',
-                                WebkitLineClamp:2, WebkitBoxOrient:'vertical' as const,
+                                fontSize:'.78rem', color:'#5a6a7a', margin:0,
+                                display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden', lineHeight:1.5
                               }}>
-                                {item.desc}
+                                {item.desc.slice(0,120)}
                               </div>
                             )}
-
-                            {/* Sub — posts count / deadline */}
-                            <div style={{fontSize:'.74rem', color:item.subCl,
-                              fontWeight:700, marginTop:5}}>
+                            <div style={{ fontSize:'.74rem', color:item.subCl, fontWeight:700, marginTop:5 }}>
                               {item.sub}
                             </div>
                           </div>
@@ -659,7 +680,7 @@ export default function HomePage() {
                 )
               )}
 
-              {/* JOBS TAB (unchanged) */}
+              {/* JOBS TAB (with pagination) */}
               {sec==='jobs' && (
                 loading ? (
                   <div style={{padding:'18px'}}>
@@ -673,17 +694,17 @@ export default function HomePage() {
                       </div>
                     ))}
                   </div>
-                ) : jobs.length === 0 ? (
+                ) : visibleItems.length === 0 ? (
                   <div style={{padding:'40px',textAlign:'center' as const,color:'#5a6a7a'}}>
                     <div style={{fontSize:'2rem',marginBottom:8}}>💼</div>
                     <div style={{fontWeight:700}}>No job vacancies yet</div>
                   </div>
-                ) : jobs.map((j,i)=>{
+                ) : (visibleItems as Job[]).map((j,i)=>{
                   const totalV = j.posts?.reduce((a,p)=>a+p.vacancy,0) || parseInt(j.vacancy||'0')
                   const d = days(j.lastDate)
                   return (
                     <Link key={j.id} href={`/jobs/${j.slug || j.id}`} style={{textDecoration:'none'}}>
-                      <div className="jr" style={{display:'flex',alignItems:'center',gap:12,padding:'13px 20px',borderBottom:i<jobs.length-1?'1px solid #f0f4f8':'none',cursor:'pointer'}}>
+                      <div className="jr" style={{display:'flex',alignItems:'center',gap:12,padding:'13px 20px',borderBottom:i<visibleItems.length-1?'1px solid #f0f4f8':'none',cursor:'pointer'}}>
                         <div style={{width:44,height:44,borderRadius:10,background:'linear-gradient(135deg,#e0f7fc,#b2ebf5)',border:'1.5px solid #d4e0ec',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.3rem',flexShrink:0}}>
                           {j.logo||'🏛️'}
                         </div>
@@ -708,16 +729,16 @@ export default function HomePage() {
                 })
               )}
 
-              {/* EXAMS TAB (unchanged) */}
+              {/* EXAMS TAB (with pagination) */}
               {sec==='exams' && (
-                exams.length === 0 ? (
+                visibleItems.length === 0 ? (
                   <div style={{padding:'40px',textAlign:'center' as const,color:'#5a6a7a'}}>
                     <div style={{fontSize:'2rem',marginBottom:8}}>📚</div><div style={{fontWeight:700}}>No exams yet</div>
                   </div>
                 ) : (
                   <div style={{padding:'14px 18px'}}>
                     <div className="exam-grid">
-                      {exams.map(ex=>(
+                      {(visibleItems as Exam[]).map(ex=>(
                         <Link key={ex.id} href={`/exams/${ex.slug || ex.id}`} style={{textDecoration:'none'}}>
                           <div className="ec">
                             <div style={{display:'flex',gap:10,marginBottom:9}}>
@@ -744,16 +765,16 @@ export default function HomePage() {
                 )
               )}
 
-              {/* INFO TAB (unchanged) */}
+              {/* INFO TAB (with pagination) */}
               {sec==='info' && (
-                info.length === 0 ? (
+                visibleItems.length === 0 ? (
                   <div style={{padding:'40px',textAlign:'center' as const,color:'#5a6a7a'}}>
                     <div style={{fontSize:'2rem',marginBottom:8}}>ℹ️</div><div style={{fontWeight:700}}>No information yet</div>
                   </div>
                 ) : (
                   <div style={{padding:'14px 18px'}}>
                     <div className="info-grid">
-                      {info.map(item=>(
+                      {(visibleItems as Info[]).map(item=>(
                         <Link key={item.id} href={`/information/${item.slug || item.id}`} style={{textDecoration:'none'}}>
                           <div className="ic">
                             <div style={{display:'flex',gap:10,marginBottom:9}}>
@@ -783,11 +804,11 @@ export default function HomePage() {
                 )
               )}
 
-              {/* RESULTS TAB (unchanged) */}
+              {/* RESULTS TAB (with pagination) */}
               {sec==='results' && (
                 <div style={{padding:'14px 18px'}}>
                   <div className="res-grid">
-                    {results.map(r=>(
+                    {(visibleItems as Result[]).map(r=>(
                       <Link key={r.id} href={`/results/${r.slug || r.id}`} className="rc">
                         <div style={{width:40,height:40,borderRadius:9,background:'#e0f7fc',border:'1.5px solid #b2ebf5',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.2rem',flexShrink:0}}>{r.emoji||'📊'}</div>
                         <div style={{flex:1,minWidth:0}}>
@@ -801,10 +822,10 @@ export default function HomePage() {
                 </div>
               )}
 
-              {/* ANNOUNCEMENTS TAB (unchanged) */}
+              {/* ANNOUNCEMENTS TAB (with pagination) */}
               {sec==='announcements' && (
                 <div style={{padding:'14px 18px',display:'flex',flexDirection:'column' as const,gap:9}}>
-                  {announcements.map(a=>(
+                  {(visibleItems as Announcement[]).map(a=>(
                     <Link key={a.id} href={`/announcements/${a.slug || a.id}`} style={{textDecoration:'none'}}>
                       <div style={{background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:11,padding:'13px 15px',display:'flex',gap:11,alignItems:'center',transition:'.15s'}}>
                         <div style={{width:38,height:38,borderRadius:9,background:'#fde8ea',border:'1.5px solid #f7bcc0',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem',flexShrink:0}}>{a.emoji||'📢'}</div>
@@ -822,13 +843,13 @@ export default function HomePage() {
                 </div>
               )}
 
-              {/* SERVICES TAB (unchanged) */}
+              {/* SERVICES TAB (with pagination) */}
               {sec==='services' && (
-                services.length === 0 ? (
+                visibleItems.length === 0 ? (
                   <div style={{padding:'40px',textAlign:'center' as const,color:'#5a6a7a'}}><div style={{fontSize:'2rem',marginBottom:8}}>🏛️</div><div style={{fontWeight:700}}>No services yet</div></div>
                 ) : (
                   <div style={{padding:'14px 18px',display:'flex',flexDirection:'column' as const,gap:9}}>
-                    {services.map(s=>(
+                    {(visibleItems as Service[]).map(s=>(
                       <Link key={s.id} href={`/services/${s.slug || s.id}`} style={{textDecoration:'none'}}>
                         <div style={{background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:11,padding:'13px 15px',display:'flex',gap:11,alignItems:'center',transition:'.15s'}}>
                           <div style={{width:38,height:38,borderRadius:9,background:'#f3e5f5',border:'1.5px solid #ce93d8',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem',flexShrink:0}}>{s.emoji||'⚙️'}</div>
@@ -844,13 +865,13 @@ export default function HomePage() {
                 )
               )}
 
-              {/* GUIDES TAB (unchanged) */}
+              {/* GUIDES TAB (with pagination) */}
               {sec==='guides' && (
-                guides.length === 0 ? (
+                visibleItems.length === 0 ? (
                   <div style={{padding:'40px',textAlign:'center' as const,color:'#5a6a7a'}}><div style={{fontSize:'2rem',marginBottom:8}}>📖</div><div style={{fontWeight:700}}>No guides yet</div></div>
                 ) : (
                   <div style={{padding:'14px 18px',display:'flex',flexDirection:'column' as const,gap:9}}>
-                    {guides.map(g=>(
+                    {(visibleItems as Guide[]).map(g=>(
                       <Link key={g.id} href={`/guides/${g.slug || g.id}`} style={{textDecoration:'none'}}>
                         <div style={{background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:11,padding:'13px 15px',display:'flex',gap:11,alignItems:'center',transition:'.15s'}}>
                           <div style={{width:38,height:38,borderRadius:9,background:'#e0f7fc',border:'1.5px solid #b2ebf5',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem',flexShrink:0}}>{g.emoji||'📖'}</div>
@@ -864,6 +885,29 @@ export default function HomePage() {
                     ))}
                   </div>
                 )
+              )}
+
+              {/* Universal Pagination (shows only when totalPages > 1) */}
+              {totalPages > 1 && (
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', margin: '20px 16px 16px', padding:'14px 16px', background:'#fff', border:'1.5px solid #e8eef5', borderRadius:12 }}>
+                  <button
+                    onClick={() => { setCurrentPage(p => Math.max(1, p-1)); window.scrollTo({top:0,behavior:'smooth'}) }}
+                    disabled={currentPage === 1}
+                    style={{ display:'flex', alignItems:'center', gap:6, padding:'9px 18px', borderRadius:8, border:'1.5px solid #d4e0ec', background: currentPage===1?'#f8fafc':'#fff', color: currentPage===1?'#b0bec5':'#0d1b2a', fontWeight:700, fontSize:'.83rem', cursor: currentPage===1?'not-allowed':'pointer', fontFamily:'Nunito,sans-serif' }}
+                  >
+                    ← Newer Posts
+                  </button>
+                  <span style={{ fontSize:'.8rem', color:'#8a9ab0', fontWeight:600 }}>
+                    Page {currentPage} of {totalPages} &nbsp;·&nbsp; {currentItems.length} total
+                  </span>
+                  <button
+                    onClick={() => { setCurrentPage(p => Math.min(totalPages, p+1)); window.scrollTo({top:0,behavior:'smooth'}) }}
+                    disabled={currentPage === totalPages}
+                    style={{ display:'flex', alignItems:'center', gap:6, padding:'9px 18px', borderRadius:8, border:'1.5px solid #d4e0ec', background: currentPage===totalPages?'#f8fafc':'#fff', color: currentPage===totalPages?'#b0bec5':'#0d1b2a', fontWeight:700, fontSize:'.83rem', cursor: currentPage===totalPages?'not-allowed':'pointer', fontFamily:'Nunito,sans-serif' }}
+                  >
+                    Older Posts →
+                  </button>
+                </div>
               )}
 
             </div>

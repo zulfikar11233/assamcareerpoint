@@ -94,26 +94,26 @@ export default function WordCounterClient() {
   )
 
   return (
-    <main style={S.page}>
+    <main style={{ fontFamily:'Nunito,sans-serif', background:'#f0f4f8', minHeight:'100vh', color:'#1a1a2e' }}>
       <div style={{ overflowX: 'hidden' }}>
         <ToolsNavbar />
 
         <style>{`
-          .tool-wrap { max-width: 1040px; margin: 0 auto; padding: 28px 16px; }
-          .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 18px; }
-          .tool-sidebar { position: sticky; top: 78px; }
-          @media (max-width: 700px) {
-            .tool-grid-sidebar { grid-template-columns: 1fr !important; }
-            .tool-sidebar { position: static !important; }
-            .tool-hide-mobile { display: none !important; }
+          .wc-outer { max-width: 1380px; margin: 0 auto; padding: 32px 28px; }
+          .wc-grid { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 24px; align-items: start; }
+          .wc-sidebar { position: sticky; top: 82px; }
+          @media (max-width: 900px) {
+            .wc-grid { grid-template-columns: 1fr !important; }
+            .wc-sidebar { position: static !important; }
+            .wc-outer { padding: 16px 14px !important; }
           }
         `}</style>
         
         <ToolHeader title="Word Counter"
           desc="Count words, characters, sentences and reading time. Includes exam word limit checker, keyword density, sentence flow analysis, find & replace and case converter." />
 
-        <div style={{ maxWidth:'1200px', margin:'0 auto', padding:'40px 20px' }}>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap:'24px', alignItems:'start' }}>
+        <div className="wc-outer">
+          <div className="wc-grid">
 
             {/* ── MAIN AREA ── */}
             <div style={{ display:'flex', flexDirection:'column', gap:'20px' }}>
@@ -332,7 +332,7 @@ export default function WordCounterClient() {
             </div>
 
             {/* ── SIDEBAR ── */}
-            <div style={{ ...S.card, position:'sticky', top:'20px' }}>
+            <div className="wc-sidebar" style={{ ...S.card }}>
               <h2 style={{ fontSize:'17px', fontWeight:800, color:C.navy, margin:'0 0 16px' }}>Quick Stats</h2>
               {[
                 { l:'Words',           v:words.toLocaleString(),    c:C.teal },
@@ -363,7 +363,7 @@ export default function WordCounterClient() {
               <p style={{ fontSize:'12px', color:C.gray400, marginTop:'14px' }}>💾 Auto-saved in browser</p>
             </div>
           </div> {/* closes grid */}
-        </div> {/* closes padding container */}
+        </div> {/* closes wc-outer */}
       </div> {/* closes overflowX: 'hidden' div */}
     </main>
   )

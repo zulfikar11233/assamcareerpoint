@@ -1,8 +1,5 @@
+// src/app/pdf-forms/page.tsx
 'use client'
-// src/app/pdf-forms/page.tsx — ACPI PDF Forms Library
-// ✅ Loads from server API — visible to ALL devices and visitors
-// ✅ Falls back to localStorage if server has no data yet
-
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
@@ -13,6 +10,11 @@ type PdfForm = {
   driveLink: string
   uploadedAt: string
   downloads: number
+  slug?: string
+}
+
+function generatePdfSlug(title: string, id: number) {
+  return title.toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').trim() + '-' + id
 }
 
 const SAMPLE: PdfForm[] = [
@@ -35,7 +37,16 @@ const CAT_ICONS: Record<string,string> = {
   'Answer Keys':'🔑','Govt Documents':'🏛️','Results':'📊','Other':'📄',
 }
 
-const NAV = [['Home','/'],['Govt Jobs','/govt-jobs'],['Exams','/exams'],['Information','/information'],['PDF Forms','/pdf-forms']]
+const NAV = [
+  ['Home','/'],
+  ['Govt Jobs','/govt-jobs'],
+  ['Exams','/exams'],
+  ['Information','/information'],
+  ['PDF Forms','/pdf-forms'],
+  ['Results','/results'],
+  ['Announcements','/announcements'],
+  ['Tools','/tools'],
+]
 
 export default function PdfFormsPage() {
   const [forms,    setForms]   = useState<PdfForm[]>([])
@@ -45,14 +56,12 @@ export default function PdfFormsPage() {
   const [loading,  setLoading] = useState(true)
 
   useEffect(() => {
-    // ── Load from server API — visible to ALL devices ──
     fetch('/api/data/pdfforms', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
           setForms(data)
         } else {
-          // Fall back to localStorage if server has no data yet
           try {
             const sp = localStorage.getItem('acp_pdfforms_v6')
             setForms(sp ? JSON.parse(sp) : SAMPLE)
@@ -61,7 +70,6 @@ export default function PdfFormsPage() {
         setLoading(false)
       })
       .catch(() => {
-        // Fall back to localStorage on error
         try {
           const sp = localStorage.getItem('acp_pdfforms_v6')
           setForms(sp ? JSON.parse(sp) : SAMPLE)
@@ -69,7 +77,6 @@ export default function PdfFormsPage() {
         setLoading(false)
       })
 
-    // Load download tracking from localStorage (device-specific is fine)
     try {
       const st = localStorage.getItem('acp_pdf_dl')
       if (st) setTracked(JSON.parse(st))
@@ -94,11 +101,13 @@ export default function PdfFormsPage() {
         *, *::before, *::after { box-sizing: border-box; }
         html, body { overflow-x: hidden; max-width: 100vw; margin: 0; font-family: Nunito, sans-serif; background: #f0f4f8; color: #1a1a2e; }
         @import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Nunito:wght@400;600;700&display=swap');
-        .nav a:hover { color:#fff !important; }
+        .nav-lnk { color:rgba(255,255,255,.65); font-size:.82rem; font-weight:600; padding:7px 11px; border-radius:8px; text-decoration:none; white-space:nowrap; transition:.15s; }
+        .nav-lnk:hover { color:#00b4d8 !important; background:rgba(255,255,255,.08); }
+        .nav-lnk.active { color:#00b4d8 !important; }
         .cat-btn { padding:7px 14px;border-radius:99px;font-size:.77rem;font-weight:700;cursor:pointer;border:1.5px solid #d4e0ec;background:#fff;color:#5a6a7a;font-family:Nunito,sans-serif;transition:.15s; }
         .cat-btn.on { background:#0d1b2a;color:#fff;border-color:#0d1b2a; }
         .cat-btn:hover:not(.on) { border-color:#00b4d8;color:#00b4d8; }
-        .pcard { background:#fff;border:1.5px solid #d4e0ec;border-radius:13px;padding:18px 20px;transition:.2s;display:flex;flex-direction:column;gap:10px; }
+        .pcard { background:#fff;border:1.5px solid #d4e0ec;border-radius:13px;padding:18px 20px;transition:.2s;display:block;text-decoration:none;color:inherit; }
         .pcard:hover { transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.09); }
         .pgrid { display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px; }
         .dl-btn { display:flex;align-items:center;justify-content:center;gap:7px;padding:10px 16px;border-radius:9px;background:linear-gradient(135deg,#0d1b2a,#1b2f45);color:#fff;font-weight:700;font-size:.82rem;border:none;cursor:pointer;font-family:Nunito,sans-serif;width:100%;transition:.15s; }
@@ -121,7 +130,7 @@ export default function PdfFormsPage() {
           </Link>
           <nav style={{ display:'flex',gap:2,flexWrap:'wrap' as const }}>
             {NAV.map(([l,h])=>(
-              <Link key={h} href={h} style={{ color: h==='/pdf-forms' ? '#00b4d8' : 'rgba(255,255,255,.65)', fontSize:'.82rem',fontWeight:600,padding:'7px 10px',borderRadius:8,textDecoration:'none',whiteSpace:'nowrap' as const }}>{l}</Link>
+              <Link key={h} href={h} className={`nav-lnk${h==='/pdf-forms'?' active':''}`}>{l}</Link>
             ))}
           </nav>
         </div>
@@ -184,7 +193,7 @@ export default function PdfFormsPage() {
         ) : (
           <div className="pgrid">
             {visible.map(form => (
-              <div key={form.id} className="pcard">
+              <Link key={form.id} href={`/pdf-forms/${form.slug || generatePdfSlug(form.title, form.id)}`} style={{textDecoration:'none',color:'inherit'}} className="pcard">
                 <div style={{ display:'flex',gap:12,alignItems:'flex-start' }}>
                   <div style={{ width:44,height:44,borderRadius:10,background:'#f3e5f5',border:'1.5px solid #ce93d8',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.4rem',flexShrink:0 }}>
                     {CAT_ICONS[form.category]||'📄'}
@@ -205,14 +214,14 @@ export default function PdfFormsPage() {
                 </div>
 
                 <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:8 }}>
-                  <button className="prev-btn" onClick={()=>window.open(form.driveLink,'_blank')}>
+                  <button className="prev-btn" onClick={(e)=>{e.preventDefault();e.stopPropagation();window.open(form.driveLink,'_blank')}}>
                     👁️ View
                   </button>
-                  <button className="dl-btn" onClick={()=>openDrive(form)}>
+                  <button className="dl-btn" onClick={(e)=>{e.preventDefault();e.stopPropagation();openDrive(form)}}>
                     ⬇️ Open / Download
                   </button>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

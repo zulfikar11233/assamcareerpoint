@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params   // ✅ was { id } — folder is [slug] so must be slug
+  const { slug } = await params
   const list = await getCollection('exams') as any[]
   const exam = list.find(e => e.slug === slug || String(e.id) === slug)
   if (!exam) return { title: 'Exam Not Found' }
@@ -18,6 +18,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: `${exam.title} | Assam Career Point & Info`,
       description: exam.description || '',
       url: `https://www.assamcareerpoint-info.com/exams/${exam.slug || exam.id}`,
+      images: exam.imageUrl
+        ? [{ url: exam.imageUrl, width: 1200, height: 630, alt: exam.title }]
+        : [{ url: 'https://assamcareerpoint-info.com/og-default.png' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      images: exam.imageUrl ? [exam.imageUrl] : [],
     },
     alternates: {
       canonical: `https://www.assamcareerpoint-info.com/exams/${exam.slug || exam.id}`,
@@ -26,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function ExamPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params   // ✅ was { id }
+  const { slug } = await params
   const list = await getCollection('exams') as any[]
   const exam = list.find(e => e.slug === slug || String(e.id) === slug)
 

@@ -8,7 +8,6 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  // ✅ FIX: was { id: string } — folder is [slug] so param name must be "slug"
   const { slug } = await params
   const list = await getCollection('jobs') as any[]
   const job  = list.find(j => j.slug === slug || String(j.id) === slug)
@@ -20,6 +19,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title:       `${job.title} | Assam Career Point & Info`,
       description: job.description || '',
       url:         `https://www.assamcareerpoint-info.com/jobs/${job.slug || job.id}`,
+      images: job.imageUrl
+        ? [{ url: job.imageUrl, width: 1200, height: 630, alt: job.title }]
+        : [{ url: 'https://assamcareerpoint-info.com/og-default.png' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      images: job.imageUrl ? [job.imageUrl] : [],
     },
     alternates: {
       canonical: `https://www.assamcareerpoint-info.com/jobs/${job.slug || job.id}`,
@@ -28,7 +34,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function JobPage({ params }: { params: Promise<{ slug: string }> }) {
-  // ✅ FIX: was { id: string } — folder is [slug] so param name must be "slug"
   const { slug } = await params
   const list     = await getCollection('jobs') as any[]
   const job      = list.find(j => j.slug === slug || String(j.id) === slug)

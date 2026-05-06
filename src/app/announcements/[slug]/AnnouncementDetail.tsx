@@ -34,6 +34,7 @@ type OthersPost = {
   category?: string
   createdAt: string
   updatedAt?: string
+  imageUrl?: string
   sections: Array<{
     id: string
     title?: string
@@ -125,7 +126,12 @@ export default function AnnouncementDetail({ post }: { post: OthersPost }) {
             )}
           </div>
           <div className="detail-hero-row" style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-            <span style={{ fontSize: '2.5rem', flexShrink: 0 }}>{post.emoji}</span>
+            <span style={{ fontSize: '2.5rem', flexShrink: 0, width: 64, height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+  {post.imageUrl
+    ? <img src={post.imageUrl} alt={post.title} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+    : post.emoji || '📢'
+  }
+</span>
             <div>
               <h1 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, color: '#fff', fontSize: '1.3rem', margin: '0 0 8px', lineHeight: 1.3, overflowWrap:'anywhere' }}>
                 {post.title}

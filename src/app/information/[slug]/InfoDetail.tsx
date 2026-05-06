@@ -63,6 +63,7 @@ type InfoItem = {
   fullDescription?: string
   fullDescTitle?: string
   sections?: any[]
+  imageUrl?: string
 }
 
 const SC: Record<string,string> = { 'Active':'#22c55e', 'Upcoming':'#f59e0b', 'Expired':'#8fa3b8' }
@@ -194,7 +195,12 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
       {/* HERO */}
       <div className="detail-hero" style={{background:`linear-gradient(135deg,${N},#0a3050)`,padding:'16px 20px 12px'}}>
         <div style={{maxWidth:1180,margin:'0 auto',display:'flex',gap:16,alignItems:'flex-start',flexWrap:'wrap' as const}}>
-          <div style={{width:64,height:64,borderRadius:15,background:`${T}22`,border:`2px solid ${T}55`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2rem',flexShrink:0}}>{item.emoji}</div>
+          <div style={{width:64,height:64,borderRadius:15,background:`${T}22`,border:`2px solid ${T}55`,overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2rem',flexShrink:0}}>
+  {item.imageUrl
+    ? <img src={item.imageUrl} alt={item.title} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+    : item.emoji
+  }
+</div>
           <div style={{flex:1,minWidth:220}}>
             <div style={{display:'flex',gap:8,flexWrap:'wrap' as const,marginBottom:9}}>
               <span style={{background:`${sc}22`,color:sc,border:`1px solid ${sc}44`,padding:'3px 12px',borderRadius:99,fontSize:'.72rem',fontWeight:800}}>● {item.status}</span>

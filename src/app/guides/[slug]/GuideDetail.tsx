@@ -34,6 +34,7 @@ type OthersPost = {
   category?: string
   createdAt: string
   updatedAt?: string
+  imageUrl?: string
   sections: Array<{
     id: string
     title?: string
@@ -113,7 +114,12 @@ export default function GuideDetail({ post }: { post: OthersPost }) {
             {post.category && <span style={{ padding: '3px 12px', borderRadius: 20, background: G + '33', color: G, fontSize: '.72rem', fontWeight: 700 }}>{post.category}</span>}
           </div>
           <div className="detail-hero-row" style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-            <span style={{ fontSize: '2.5rem', flexShrink: 0 }}>{post.emoji}</span>
+            <div style={{ width: 64, height: 64, borderRadius: 15, background: '#1dbfad22', border: '2px solid #1dbfad55', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', flexShrink: 0 }}>
+  {post.imageUrl
+    ? <img src={post.imageUrl} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+    : post.emoji || '📖'
+  }
+</div>
             <div>
               <h1 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, color: '#fff', fontSize: '1.3rem', margin: '0 0 8px', lineHeight: 1.3, overflowWrap:'anywhere' }}>{post.title}</h1>
               {post.titleAs && <div style={{ color: '#8fa3b8', fontSize: '.9rem', marginBottom: 8 }}>{post.titleAs}</div>}

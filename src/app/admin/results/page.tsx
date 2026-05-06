@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 // src/app/admin/results/page.tsx
 // ✅ Admin CMS for Results (Merit Lists, Answer Keys, Cut-off Marks, etc.)
 // ✅ RichTextEditor for all content fields (TinyMCE)
+// ✅ Added imageUrl field for homepage thumbnail
 
 import { useState, useEffect, useCallback } from 'react'
 import { signOut } from 'next-auth/react'
@@ -22,6 +23,10 @@ const RichTextEditor = dynamicImport(
 
 // ─── Colors ───────────────────────────────────────────────────────────────────
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
+
+// ─── Extend ResultPost locally to include imageUrl (will be saved/loaded)
+// In production, also update the lib/results-db.ts type definition.
+type ResultPostWithImage = ResultPost & { imageUrl?: string }
 
 // ─── Shared styles ────────────────────────────────────────────────────────────
 const si: React.CSSProperties = {
@@ -158,7 +163,6 @@ function SectionBuilder({ sections, onChange }: {
     <div>
       {sections.map((sec, idx) => (
         <div key={sec.id} style={{ border: '1.5px solid #d4e0ec', borderRadius: 10, marginBottom: 12, background: '#fafcff', overflow: 'hidden' }}>
-          {/* Section header bar */}
           <div style={{ background: '#eef3f9', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid #d4e0ec' }}>
             <span style={{ fontSize: '.78rem', fontWeight: 800, color: '#3a5068', fontFamily: 'Nunito,sans-serif' }}>
               Section {idx + 1}
@@ -168,15 +172,12 @@ function SectionBuilder({ sections, onChange }: {
             <button type="button" onClick={() => moveDown(idx)} style={{ ...bS, padding: '3px 8px', fontSize: '.75rem' }}>↓</button>
             <button type="button" onClick={() => removeSection(idx)} style={{ ...bDanger, padding: '3px 10px' }}>✕ Remove</button>
           </div>
-
           <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {/* Title */}
             <div>
               <label style={lb}>Section Title *</label>
               <input value={sec.title} onChange={e => update(idx, { title: e.target.value })}
                 style={si} placeholder="e.g. Merit List Details / How to Check / Cut-off Marks" />
             </div>
-            {/* Content - RichTextEditor */}
             <div>
               <label style={lb}>Content / Details</label>
               <RichTextEditor
@@ -187,7 +188,6 @@ function SectionBuilder({ sections, onChange }: {
                 placeholder="Write the details for this section. Use the toolbar to add tables, lists, links..."
               />
             </div>
-            {/* PDF Link */}
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 10 }}>
               <div>
                 <label style={lb}>📄 Google Drive PDF Link (optional)</label>
@@ -200,7 +200,6 @@ function SectionBuilder({ sections, onChange }: {
                   style={si} placeholder="e.g. Download Merit List" />
               </div>
             </div>
-            {/* Links Table */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                 <label style={{ ...lb, marginBottom: 0 }}>🔗 Important Links ({sec.links.length}/10)</label>
@@ -258,22 +257,23 @@ function SectionBuilder({ sections, onChange }: {
   )
 }
 
-// ─── Add / Edit Modal ─────────────────────────────────────────────────────────
+// ─── Add / Edit Modal (with imageUrl) ─────────────────────────────────────────
 function PostModal({ initial, onSave, onClose }: {
-  initial: ResultPost | null
-  onSave: (p: ResultPost) => void
+  initial: ResultPostWithImage | null
+  onSave: (p: ResultPostWithImage) => void
   onClose: () => void
 }) {
-  const blank = (): Omit<ResultPost, 'id' | 'createdAt'> => ({
+  const blank = (): Omit<ResultPostWithImage, 'id' | 'createdAt'> => ({
     emoji: '📊', title: '', titleAs: '', slug: '',
     category: 'Merit List', org: '', totalPosts: '',
     description: '', descriptionAs: '', resultDate: '',
     sections: [], affiliateLink: '', affiliateLinkText: '',
     published: false, metaTitle: '', metaDescription: '',
     fullDescription: '', fullDescTitle: '',
+    imageUrl: '',  // ✅ added
   })
 
-  const [form, setForm] = useState<Omit<ResultPost, 'id' | 'createdAt'>>(
+  const [form, setForm] = useState<Omit<ResultPostWithImage, 'id' | 'createdAt'>>(
     initial ? { ...initial } : blank()
   )
   const [tab, setTab] = useState<'basic' | 'sections' | 'seo'>('basic')
@@ -288,7 +288,7 @@ function PostModal({ initial, onSave, onClose }: {
     if (!form.title.trim()) { alert('Title is required'); return }
     if (!form.slug.trim()) { alert('Slug is required'); return }
     const now = new Date().toISOString()
-    const post: ResultPost = {
+    const post: ResultPostWithImage = {
       ...form,
       id: initial?.id ?? Date.now(),
       createdAt: initial?.createdAt ?? now,
@@ -367,6 +367,23 @@ function PostModal({ initial, onSave, onClose }: {
               <div style={{ fontSize: '.68rem', color: '#8fa3b8', marginTop: 3 }}>
                 Public URL: assamcareerpoint-info.com/results/{form.slug || '...'}
               </div>
+            </div>
+
+            {/* ✅ Image URL field (new) */}
+            <div>
+              <label style={lb}>
+                🖼️ Thumbnail Image URL
+                <span style={{ color: '#8fa3b8', fontWeight: 400, fontSize: '.7rem', marginLeft: 6 }}>
+                  (shows on homepage — paste any image URL)
+                </span>
+              </label>
+              <input
+                type="url"
+                value={form.imageUrl || ''}
+                onChange={e => p('imageUrl')(e.target.value)}
+                style={si}
+                placeholder="https://example.com/image.jpg"
+              />
             </div>
 
             {/* Category + Org */}
@@ -590,9 +607,9 @@ function catColor(cat: string) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function ResultsAdmin() {
-  const [posts, setPosts] = useState<ResultPost[]>([])
+  const [posts, setPosts] = useState<ResultPostWithImage[]>([])
   const [showModal, setShowModal] = useState(false)
-  const [editPost, setEditPost] = useState<ResultPost | null>(null)
+  const [editPost, setEditPost] = useState<ResultPostWithImage | null>(null)
   const [search, setSearch] = useState('')
   const [filterCat, setFilterCat] = useState('All')
   const { msg: toastMsg, toast } = useToast()
@@ -602,14 +619,14 @@ export default function ResultsAdmin() {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) setPosts(data)
-        else setPosts(getResultPosts())
+        else setPosts(getResultPosts().map(p => ({ ...p, imageUrl: (p as any).imageUrl || '' })))
       })
-      .catch(() => setPosts(getResultPosts()))
+      .catch(() => setPosts(getResultPosts().map(p => ({ ...p, imageUrl: (p as any).imageUrl || '' }))))
   }, [])
 
-  const save = (updated: ResultPost[]) => {
+  const save = (updated: ResultPostWithImage[]) => {
     setPosts(updated)
-    saveResultPosts(updated)
+    saveResultPosts(updated as any) // cast to original type
     fetch('/api/data/results', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -617,7 +634,7 @@ export default function ResultsAdmin() {
     })
   }
 
-  const handleSave = (post: ResultPost) => {
+  const handleSave = (post: ResultPostWithImage) => {
     const updated = editPost
       ? posts.map(p => p.id === editPost.id ? post : p)
       : [...posts, post]
@@ -764,7 +781,7 @@ export default function ResultsAdmin() {
                           )}
                         </div>
                       </td>
-                    </tr>
+                    </table>
                   ))}
                 </tbody>
               </table>
