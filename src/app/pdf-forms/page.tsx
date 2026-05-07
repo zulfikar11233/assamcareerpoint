@@ -13,8 +13,15 @@ type PdfForm = {
   slug?: string
 }
 
+// ✅ SEO‑optimised slug generator – same as in [slug]/page.tsx
 function generatePdfSlug(title: string, id: number) {
-  return title.toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').trim() + '-' + id
+  const base = title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim()
+  return `${base}-pdf-download-${id}`
 }
 
 const SAMPLE: PdfForm[] = [

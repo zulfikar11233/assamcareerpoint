@@ -320,7 +320,7 @@ function SectionBuilder({ sections, onChange }: {
                 💡 Use the Table button (▦) to insert vacancy tables, exam pattern tables etc.
               </div>
             </div>
-            <div style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:9}}>
+            <div className="g2" style={{display:'grid',gap:9}}>
               <div>
                 <label style={sbLb}>📄 PDF Link (Google Drive — optional)</label>
                 <input value={sec.pdfLink||''} onChange={e=>update(idx,{pdfLink:e.target.value})} style={sbSi} placeholder="https://drive.google.com/file/d/..." />
@@ -743,11 +743,15 @@ export default function AdminDashboard() {
           .admin-stats { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
         }
         @media(max-width:560px) {
-          .admin-stats { grid-template-columns:1fr!important; }
-          .prgrid,.idrow { grid-template-columns:1fr!important; }
+          .admin-stats { grid-template-columns:1fr !important; }
+          .prgrid, .idrow { grid-template-columns:1fr !important; }
           .lgrid { grid-template-columns:repeat(4,1fr); }
-          .mbdy { padding:16px; }
-          .tst { left:16px!important;right:16px!important;bottom:16px!important;text-align:center; }
+          .mbdy { padding:12px !important; }
+	  .ovl { padding:8px !important; }
+          .tst { left:16px!important; right:16px!important; bottom:16px!important; text-align:center; }
+}	
+	  @media(max-width:420px) {
+  .ovl > div { border-radius:12px !important; padding:16px !important; }
         }
       `}</style>
 
@@ -2324,7 +2328,7 @@ ${inf.officialLink ? `<div class="row"><span class="label">Official Website</spa
 
               {/* Required fields */}
               <div className="fg"><label style={lb}>Document Title * <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.72rem'}}>(include year e.g. "APSC CCE Syllabus 2026")</span></label><input required value={pf.title} onChange={e=>setPf(p=>({...p,title:e.target.value}))} style={si} placeholder="e.g. APSC CCE Prelims Syllabus 2026" /></div>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+              <div className="g2" style={{display:'grid',gap:12}}>
                 <div className="fg"><label style={lb}>Category</label><select value={pf.category} onChange={e=>setPf(p=>({...p,category:e.target.value}))} style={{...si,cursor:'pointer'}}>{PDF_CATS.map(c=><option key={c}>{c}</option>)}</select></div>
                 <div className="fg"><label style={lb}>Language</label><select value={pf.language} onChange={e=>setPf(p=>({...p,language:e.target.value}))} style={{...si,cursor:'pointer'}}>{['English','Assamese','Both'].map(l=><option key={l}>{l}</option>)}</select></div>
               </div>
@@ -2349,8 +2353,7 @@ ${inf.officialLink ? `<div class="row"><span class="label">Official Website</spa
                     placeholder="e.g. voter id form 6 pdf assam, voter registration form assam 2026, form 6 download assam" />
                   <div style={{fontSize:'.7rem',color:'#8fa3b8',marginTop:4}}>💡 Tip: Think of what someone would type in Google to find this form.</div>
                 </div>
-
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+                <div className="g2" style={{display:'grid',gap:12}}>
                   <div className="fg"><label style={lb}>Official Source</label><input value={pf.source} onChange={e=>setPf(p=>({...p,source:e.target.value}))} style={si} placeholder="e.g. Election Commission of India"/></div>
                   <div className="fg"><label style={lb}>File Size</label><input value={pf.fileSize} onChange={e=>setPf(p=>({...p,fileSize:e.target.value}))} style={si} placeholder="e.g. 1.2 MB"/></div>
                 </div>
@@ -2431,7 +2434,7 @@ ${pf.keywords ? `
                 💡 <strong>Tip:</strong> Get your affiliate link from Testbook (testbook.com/affiliate), Adda247 (adda247.com/affiliate), or Amazon Associates (affiliate-program.amazon.in). Paste your unique link in the "Affiliate URL" field below.
               </div>
 
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+              <div className="g2" style={{display:'grid',gap:14}}>
                 {/* Category */}
                 <div className="fg">
                   <label style={lb}>Category *</label>
@@ -2468,7 +2471,7 @@ ${pf.keywords ? `
                 <div style={{fontSize:'.7rem',color:'#8fa3b8',marginTop:4}}>This is YOUR personal affiliate link. When someone clicks and buys, you earn commission.</div>
               </div>
 
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+              <div className="g2" style={{display:'grid',gap:14}}>
                 <div className="fg">
                   <label style={lb}>Price</label>
                   <input value={af.price} onChange={e=>setAf(p=>({...p,price:e.target.value}))} style={si} placeholder="₹299/month"/>
@@ -2479,7 +2482,7 @@ ${pf.keywords ? `
                 </div>
               </div>
 
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+              <div className="g2" style={{display:'grid',gap:14}}>
                 <div className="fg">
                   <label style={lb}>Badge Text</label>
                   <input value={af.badge} onChange={e=>setAf(p=>({...p,badge:e.target.value}))} style={si} placeholder="Best for Assam"/>
@@ -2493,7 +2496,7 @@ ${pf.keywords ? `
               {/* Highlights */}
               <div style={{background:'#f8fbff',border:'1px solid #d4e0ec',borderRadius:10,padding:'14px',marginBottom:14}}>
                 <label style={{...lb,display:'block',marginBottom:10}}>✓ Highlights (up to 4 bullet points)</label>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:9}}>
+                <div className="g2" style={{display:'grid',gap:9}}>
                   {(['h1','h2','h3','h4'] as const).map((k,i)=>(
                     <input key={k} value={af[k]} onChange={e=>setAf(p=>({...p,[k]:e.target.value}))} style={si} placeholder={`Highlight ${i+1} (e.g. 10,000+ Mock Tests)`}/>
                   ))}

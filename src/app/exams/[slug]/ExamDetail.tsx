@@ -422,25 +422,28 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
               </div>
             ))}
 
+                        {/* Other Exams */}
             {others.length > 0 && (
               <div>
-                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'1rem',color:N,marginBottom:12}}>📋 Other Exams</h2>
-                <div style={{display:'flex',flexDirection:'column' as const,gap:9}}>
-                  {others.map(e=>(
-                    <Link key={e.id} href={`/exams/${e.slug || e.id}`} className="re-card">
-                      <div style={{width:42,height:42,borderRadius:10,background:`${SC[e.status]||'#8fa3b8'}18`,border:`1.5px solid ${SC[e.status]||'#8fa3b8'}44`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.3rem',flexShrink:0}}>{e.emoji}</div>
-                      <div style={{flex:1,minWidth:0}}>
-                        <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.84rem',color:N,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const}}>{e.title}</div>
-                        <div style={{fontSize:'.73rem',color:'#5a6a7a',marginTop:3}}>{e.conductedBy} · Apply by {fmt(e.applicationLastDate)}</div>
-                      </div>
-                      <span style={{background:`${SC[e.status]||'#8fa3b8'}20`,color:SC[e.status]||'#8fa3b8',padding:'3px 9px',borderRadius:99,fontSize:'.65rem',fontWeight:800,flexShrink:0}}>{e.status}</span>
-                    </Link>
-                  ))}
-                </div>
+                <h2>📋 Other Exams</h2>
+                <div>...</div>
+              </div>
+            )}
+
+            {/* ── Related PDF Document (if exists) ── */}
+            {(exam as any).relatedPdfSlug && (
+              <div style={{marginTop:20, background:'#fff', border:'1.5px solid #d4e0ec', borderRadius:12, padding:'16px 20px'}}>
+                <Link href={`/pdf-forms/${(exam as any).relatedPdfSlug}`} style={{textDecoration:'none', display:'flex', alignItems:'center', gap:10, color:'#0d1b2a'}}>
+                  <span style={{fontSize:'1.8rem'}}>📄</span>
+                  <div>
+                    <div style={{fontWeight:700, fontSize:'.9rem'}}>Download Related PDF Document</div>
+                    <div style={{fontSize:'.75rem', color:'#5a6a7a'}}>Official form / syllabus – free download</div>
+                  </div>
+                  <span style={{marginLeft:'auto', background:'#1dbfad', color:'#0b1f33', padding:'4px 12px', borderRadius:99, fontWeight:800, fontSize:'.75rem'}}>Download →</span>
+                </Link>
               </div>
             )}
           </div>
-
           {/* SIDEBAR */}
           <div style={{width:290,flexShrink:0,minWidth:0}}>
             {timerOn && canCountdown && (

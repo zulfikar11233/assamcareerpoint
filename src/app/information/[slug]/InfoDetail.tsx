@@ -352,7 +352,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
             <strong>⚠️ Disclaimer:</strong> This information is for awareness purposes only. Always verify from the official government website before taking any action. Assam Career Point & Info is not affiliated with any government body.
           </div>
 
-          {/* Related */}
+                    {/* Related Information */}
           {others.length > 0 && (
             <div style={{marginTop:20}}>
               <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'1rem',color:N,marginBottom:14}}>📋 Related Information</h2>
@@ -370,6 +370,21 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
               </div>
             </div>
           )}
+
+          {/* ── Related PDF Document (if exists) ── */}
+          {(item as any).relatedPdfSlug && (
+            <div style={{marginTop:20, background:'#fff', border:'1.5px solid #d4e0ec', borderRadius:12, padding:'16px 20px'}}>
+              <Link href={`/pdf-forms/${(item as any).relatedPdfSlug}`} style={{textDecoration:'none', display:'flex', alignItems:'center', gap:10, color:'#0d1b2a'}}>
+                <span style={{fontSize:'1.8rem'}}>📄</span>
+                <div>
+                  <div style={{fontWeight:700, fontSize:'.9rem'}}>Download Related PDF Document</div>
+                  <div style={{fontSize:'.75rem', color:'#5a6a7a'}}>Official form / syllabus – free download</div>
+                </div>
+                <span style={{marginLeft:'auto', background:'#1dbfad', color:'#0b1f33', padding:'4px 12px', borderRadius:99, fontWeight:800, fontSize:'.75rem'}}>Download →</span>
+              </Link>
+            </div>
+          )}
+
         </div>
 
         {/* SIDEBAR */}
