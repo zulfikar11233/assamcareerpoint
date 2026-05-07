@@ -722,7 +722,9 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                 })}
               </div>
             </div>
-	   {/* ── Related PDF Document (if exists) ── */}
+          )}
+
+          {/* Related PDF Document (if exists) */}
           {(job as any).relatedPdfSlug && (
             <div style={{marginTop:20, background:'#fff', border:'1.5px solid #d4e0ec', borderRadius:12, padding:'16px 20px'}}>
               <Link href={`/pdf-forms/${(job as any).relatedPdfSlug}`} style={{textDecoration:'none', display:'flex', alignItems:'center', gap:10, color:'#0d1b2a'}}>
