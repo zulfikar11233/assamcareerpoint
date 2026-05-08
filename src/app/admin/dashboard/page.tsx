@@ -639,25 +639,51 @@ export default function AdminDashboard() {
 
   // ── PDF FORM HELPERS ─────────────────────────────────────────────────────
   function openAddPdf() {
-    setEditPdf(null)
-    setPf({ title:'', category:'Application Forms', driveLink:'', description:'', keywords:'', fileSize:'', pages:'', language:'English', source:'' })
-    setShowPdfModal(true)
-  }
-  function openEditPdf(pdf: PdfForm) {
-    setEditPdf(pdf)
-    setPf({
-      title: pdf.title,
-      category: pdf.category,
-      driveLink: pdf.driveLink,
-      description: pdf.description || '',
-      keywords: pdf.keywords || '',
-      fileSize: pdf.fileSize || '',
-      pages: pdf.pages || '',
-      language: pdf.language || 'English',
-      source: pdf.source || ''
-    })
-    setShowPdfModal(true)
-  }
+  setEditPdf(null)
+  setPf({
+    title: '',
+    titleAs: '',
+    category: 'Application Forms',
+    driveLink: '',
+    slug: '',
+    imageUrl: '',
+    year: new Date().getFullYear().toString(),
+    pages: '',
+    fileSize: '',
+    language: 'English',
+    source: '',
+    officialUrl: '',
+    description: '',
+    descriptionAs: '',
+    keywords: '',
+    howToFill: '',
+    howToFillAs: ''
+  })
+  setShowPdfModal(true)
+}
+ function openEditPdf(pdf: PdfForm) {
+  setEditPdf(pdf)
+  setPf({
+    title: pdf.title || '',
+    titleAs: (pdf as any).titleAs || '',
+    category: pdf.category || 'Application Forms',
+    driveLink: pdf.driveLink || '',
+    slug: pdf.slug || '',
+    imageUrl: pdf.imageUrl || '',
+    year: (pdf as any).year || new Date().getFullYear().toString(),
+    pages: pdf.pages || '',
+    fileSize: pdf.fileSize || '',
+    language: pdf.language || 'English',
+    source: pdf.source || '',
+    officialUrl: (pdf as any).officialUrl || '',
+    description: pdf.description || '',
+    descriptionAs: (pdf as any).descriptionAs || '',
+    keywords: pdf.keywords || '',
+    howToFill: (pdf as any).howToFill || '',
+    howToFillAs: (pdf as any).howToFillAs || ''
+  })
+  setShowPdfModal(true)
+}
   function savePdfForm(e:React.FormEvent) {
     e.preventDefault()
     if (!pf.title||!pf.driveLink) { alert('Title and Google Drive link required.'); return }
