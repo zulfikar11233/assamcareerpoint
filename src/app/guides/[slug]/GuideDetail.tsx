@@ -2,6 +2,7 @@
 // src/app/guides/[slug]/GuideDetail.tsx — Client component (only rendering, no data fetching)
 import Link from 'next/link'
 import { useEffect } from 'react'
+import FreeToolsBar from '@/components/FreeToolsBar'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 const PATH = 'guides'
@@ -243,6 +244,7 @@ export default function GuideDetail({ post }: { post: OthersPost }) {
               </Link>
             </div>
           )}
+	<FreeToolsBar context="general" />
         <div style={{ marginTop: 24 }}>
           <Link href={`/${PATH}`} style={{ color: T, fontWeight: 700, textDecoration: 'none', fontSize: '.88rem' }}>
             ← Back to Guides

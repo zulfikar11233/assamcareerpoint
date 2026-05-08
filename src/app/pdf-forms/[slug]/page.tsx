@@ -53,10 +53,22 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-// Main page component
+// Main page component with robust 3-layer matching
 export default async function PdfSlugPage({ params }: { params: { slug: string } }) {
   const all = await getCollection('pdfforms') as PdfForm[]
-  const form = all.find(f => (f.slug || generateSlug(f.title, f.id)) === params.slug)
+
+  // ── ROBUST 3-LAYER MATCHING ──
+  // Layer 1: exact stored slug
+  // Layer 2: generated slug from title+id
+  // Layer 3: ID at end of slug (most reliable fallback)
+  const slugId = parseInt(params.slug.split('-').pop() || '0')
+
+  const form = all.find(f =>
+    f.slug === params.slug ||
+    generateSlug(f.title, f.id) === params.slug ||
+    f.id === slugId
+  )
+
   if (!form) notFound()
 
   // Schema.org markup (DigitalDocument + BreadcrumbList) – critical for SEO ranking

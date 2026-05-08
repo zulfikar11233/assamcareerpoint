@@ -3,6 +3,7 @@
 // ✅ PageSpeed fixes + RichContent for TinyMCE
 import Link from 'next/link'
 import { useEffect } from 'react'
+import FreeToolsBar from '@/components/FreeToolsBar'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 const PATH = 'services'
@@ -246,6 +247,7 @@ export default function ServiceDetail({ post }: { post: OthersPost }) {
               </Link>
             </div>
           )}
+	  <FreeToolsBar context="general" />
           <div style={{ marginTop: 24 }}>
             <Link href={`/${PATH}`} style={{ color: '#0e8a7e', fontWeight: 700, textDecoration: 'none', fontSize: '.88rem' }}>
               ← Back to Public Services

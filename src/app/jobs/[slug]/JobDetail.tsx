@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { getTargetDate } from '@/lib/dataHelper'
 import { useState, useEffect } from 'react'
+import FreeToolsBar from '@/components/FreeToolsBar'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 
@@ -737,6 +738,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
               </Link>
             </div>
           )}
+	<FreeToolsBar context="job" />
         </div>
 
         {/* SIDEBAR */}

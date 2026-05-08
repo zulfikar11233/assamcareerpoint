@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { getTargetDate } from '@/lib/dataHelper'   // ✅ import the helper
+import FreeToolsBar from '@/components/FreeToolsBar'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 
@@ -384,7 +385,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
               </Link>
             </div>
           )}
-
+	<FreeToolsBar context="info" />
         </div>
 
         {/* SIDEBAR */}

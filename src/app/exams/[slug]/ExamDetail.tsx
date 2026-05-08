@@ -10,6 +10,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { getTargetDate } from '@/lib/dataHelper'          // ✅ FIX: import the helper
+import FreeToolsBar from '@/components/FreeToolsBar'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 
@@ -443,6 +444,7 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
                 </Link>
               </div>
             )}
+	   <FreeToolsBar context="exam" />
           </div>
           {/* SIDEBAR */}
           <div style={{width:290,flexShrink:0,minWidth:0}}>

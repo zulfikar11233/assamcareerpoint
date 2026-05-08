@@ -2,6 +2,7 @@
 // src/app/results/[slug]/ResultDetail.tsx — Client component (only rendering, no data fetching)
 import Link from 'next/link'
 import { useEffect } from 'react'
+import FreeToolsBar from '@/components/FreeToolsBar'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 
@@ -146,11 +147,11 @@ export default function ResultDetail({ post }: { post: ResultPost }) {
 
           <div className="detail-hero-row" style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
             <div style={{ width: 70, height: 70, borderRadius: 15, background: `${color}22`, border: `2px solid ${color}55`, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', flexShrink: 0 }}>
-  {post.imageUrl
-    ? <img src={post.imageUrl} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-    : post.emoji
-  }
-</div>
+              {post.imageUrl
+                ? <img src={post.imageUrl} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : post.emoji
+              }
+            </div>
             <div>
               <h1 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, color: '#fff', fontSize: '1.35rem', margin: '0 0 8px', lineHeight: 1.3, overflowWrap:'anywhere' }}>
                 {post.title}
@@ -260,19 +261,23 @@ export default function ResultDetail({ post }: { post: ResultPost }) {
             </a>
           </div>
         )}
-	          {/* ── Related PDF Document (if exists) ── */}
-          {(post as any).relatedPdfSlug && (
-            <div style={{marginTop:20, background:'#fff', border:'1.5px solid #d4e0ec', borderRadius:12, padding:'16px 20px'}}>
-              <Link href={`/pdf-forms/${(post as any).relatedPdfSlug}`} style={{textDecoration:'none', display:'flex', alignItems:'center', gap:10, color:'#0d1b2a'}}>
-                <span style={{fontSize:'1.8rem'}}>📄</span>
-                <div>
-                  <div style={{fontWeight:700, fontSize:'.9rem'}}>Download Related PDF Document</div>
-                  <div style={{fontSize:'.75rem', color:'#5a6a7a'}}>Official form / syllabus – free download</div>
-                </div>
-                <span style={{marginLeft:'auto', background:'#1dbfad', color:'#0b1f33', padding:'4px 12px', borderRadius:99, fontWeight:800, fontSize:'.75rem'}}>Download →</span>
-              </Link>
-            </div>
-          )}
+
+        {/* ── Related PDF Document (if exists) ── */}
+        {(post as any).relatedPdfSlug && (
+          <div style={{marginTop:20, background:'#fff', border:'1.5px solid #d4e0ec', borderRadius:12, padding:'16px 20px'}}>
+            <Link href={`/pdf-forms/${(post as any).relatedPdfSlug}`} style={{textDecoration:'none', display:'flex', alignItems:'center', gap:10, color:'#0d1b2a'}}>
+              <span style={{fontSize:'1.8rem'}}>📄</span>
+              <div>
+                <div style={{fontWeight:700, fontSize:'.9rem'}}>Download Related PDF Document</div>
+                <div style={{fontSize:'.75rem', color:'#5a6a7a'}}>Official form / syllabus – free download</div>
+              </div>
+              <span style={{marginLeft:'auto', background:'#1dbfad', color:'#0b1f33', padding:'4px 12px', borderRadius:99, fontWeight:800, fontSize:'.75rem'}}>Download →</span>
+            </Link>
+          </div>
+        )}
+
+        <FreeToolsBar context="result" />
+
         <div style={{ marginTop: 26 }}>
           <Link href="/results" style={{ color: T, fontWeight: 700, textDecoration: 'none', fontSize: '.9rem' }}>
             ← Back to Results

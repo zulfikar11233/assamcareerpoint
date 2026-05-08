@@ -177,18 +177,31 @@ type InfoItem = {
 
 // PDF Forms library — Google Drive links only (NOT base64, NOT job advert PDFs)
 type PdfForm = {
-  id: number
-  title: string
-  category: string
-  driveLink: string
+  id:          number
+  title:       string
+  category:    string
+  driveLink:   string
   uploadedAt?: string
-  downloads?: number
-  description?: string
-  keywords?: string
-  fileSize?: string
-  pages?: string
-  language?: string
-  source?: string
+  downloads?:  number
+  // URL
+  slug?:         string   // SEO slug — auto-generated, editable
+  // Media
+  imageUrl?:     string   // thumbnail image URL
+  // Document info
+  year?:         string   // e.g. "2026"
+  pages?:        string   // e.g. "4"
+  fileSize?:     string   // e.g. "1.2 MB"
+  language?:     string   // "English" | "Assamese" | "Bilingual" | "Hindi"
+  source?:       string   // official issuing authority
+  officialUrl?:  string   // official government website URL
+  // SEO — English
+  description?:  string   // 2-3 sentence English description
+  keywords?:     string   // comma-separated search phrases
+  howToFill?:    string   // brief filling instructions (English)
+  // Bilingual — Assamese
+  titleAs?:      string   // Assamese title
+  descriptionAs?:string   // Assamese description
+  howToFillAs?:  string   // Assamese filling instructions
 }
 
 // Affiliate items
@@ -442,7 +455,13 @@ export default function AdminDashboard() {
   const [infDates, setInfDates] = useState<{label:string;date:string;time:string}[]>([])
 
   // PDF form form (for add/edit)
-  const [pf, setPf] = useState({ title:'', category:'Application Forms', driveLink:'', description:'', keywords:'', fileSize:'', pages:'', language:'English', source:'' })
+  const [pf, setPf] = useState({
+  title:'', titleAs:'', category:'Application Forms', driveLink:'',
+  slug:'', imageUrl:'', year: new Date().getFullYear().toString(),
+  pages:'', fileSize:'', language:'English', source:'', officialUrl:'',
+  description:'', descriptionAs:'',
+  keywords:'', howToFill:'', howToFillAs:''
+})
 
   const [search,   setSearch]   = useState('')
   const [toastMsg, setToastMsg] = useState('')
@@ -690,7 +709,7 @@ export default function AdminDashboard() {
   return (
     <>
       <style>{`
-        *, *::before, *::after { box-sizing: border-box; }
+                        *, *::before, *::after { box-sizing: border-box; }
         html, body { overflow-x: hidden; max-width: 100vw; margin: 0; font-family: Nunito, sans-serif; }
         .nbtn { display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:9px;font-size:.83rem;font-weight:600;margin-bottom:2px;cursor:pointer;border:1px solid transparent;transition:.15s;width:100%;background:none;text-align:left;color:rgba(255,255,255,.5);font-family:Nunito,sans-serif; }
         .nbtn:hover { background:rgba(255,255,255,.07); }
@@ -728,30 +747,93 @@ export default function AdminDashboard() {
         nav::-webkit-scrollbar-track { background:transparent; }
         nav::-webkit-scrollbar-thumb { background:rgba(255,255,255,.15);border-radius:99px; }
         nav::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,.3); }
+
+        /* ── TABLET (900px) ── */
         @media(max-width:900px) {
           .g2,.g3 { grid-template-columns:1fr; }
           .prgrid { grid-template-columns:1fr 1fr; }
           .lgrid { grid-template-columns:repeat(6,1fr); }
-          .admin-shell { flex-direction:column; }
-          .admin-sidebar { position:relative!important;width:100%!important;height:auto!important;max-height:none!important; }
-          .admin-sidebar nav { display:flex;gap:6px;overflow-x:auto!important;overflow-y:hidden!important;padding:10px!important; }
-          .admin-sidebar .nbtn { flex:0 0 auto; }
-          .admin-main { margin-left:0!important;width:100%!important; }
-          .admin-topbar { position:relative!important;top:auto!important;align-items:flex-start!important;flex-direction:column!important;padding:12px 16px!important; }
-          .admin-topbar input { width:100%!important; }
-          .admin-content { padding:16px!important; }
           .admin-stats { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
         }
+
+        /* ── MOBILE (768px) — FULL FIX ── */
+        @media screen and (max-width:768px) {
+          div.admin-shell {
+            flex-direction: column !important;
+          }
+          aside.admin-sidebar {
+            position: sticky !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            min-height: 0 !important;
+            max-height: none !important;
+            overflow: visible !important;
+            z-index: 200 !important;
+            flex-shrink: 0 !important;
+          }
+          aside.admin-sidebar > div:first-child {
+            padding: 10px 14px !important;
+          }
+          aside.admin-sidebar nav {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            -webkit-overflow-scrolling: touch !important;
+            gap: 4px !important;
+            padding: 6px 10px 8px !important;
+            max-height: 52px !important;
+            scrollbar-width: none !important;
+          }
+          aside.admin-sidebar nav::-webkit-scrollbar { display: none !important; }
+          .nbtn {
+            flex: 0 0 auto !important;
+            font-size: .72rem !important;
+            padding: 6px 10px !important;
+            white-space: nowrap !important;
+            border-radius: 8px !important;
+          }
+          aside.admin-sidebar .pub-links { display: none !important; }
+          div.admin-main {
+            margin-left: 0 !important;
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+          .admin-topbar {
+            position: relative !important;
+            top: auto !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            padding: 10px 14px !important;
+            gap: 8px !important;
+          }
+          .admin-topbar input { width: 100% !important; }
+          .admin-content { padding: 14px !important; }
+          .admin-stats { grid-template-columns: 1fr !important; }
+        }
+
+        /* ── SMALL MOBILE (560px) ── */
         @media(max-width:560px) {
-          .admin-stats { grid-template-columns:1fr !important; }
-          .prgrid, .idrow { grid-template-columns:1fr !important; }
-          .lgrid { grid-template-columns:repeat(4,1fr); }
-          .mbdy { padding:12px !important; }
-	  .ovl { padding:8px !important; }
-          .tst { left:16px!important; right:16px!important; bottom:16px!important; text-align:center; }
-}	
-	  @media(max-width:420px) {
-  .ovl > div { border-radius:12px !important; padding:16px !important; }
+          .prgrid, .idrow { grid-template-columns: 1fr !important; }
+          .lgrid { grid-template-columns: repeat(4,1fr); }
+          .mbdy { padding: 14px !important; }
+          .tst { left:12px !important; right:12px !important; bottom:14px !important; text-align:center; }
+          .nbtn span { display: none; }
+        }
+
+        /* Scroll hint arrow for mobile nav */
+        @media screen and (max-width:768px) {
+          aside.admin-sidebar::after {
+            content: '→';
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            font-size: .65rem;
+            color: rgba(255,255,255,.3);
+            pointer-events: none;
+          }
         }
       `}</style>
 
@@ -2311,57 +2393,187 @@ ${inf.officialLink ? `<div class="row"><span class="label">Official Website</spa
         </div>
       )}
 
-      {/* ════════════════════ ADD/EDIT PDF FORM MODAL ════════════════════ */}
+      {/* ════════════════════ ADD/EDIT PDF FORM MODAL (RICH VERSION) ════════════════════ */}
       {showPdfModal && (
         <div className="ovl">
-          <div style={{ background:'#fff',borderRadius:18,width:'100%',maxWidth:620,boxShadow:'0 30px 80px rgba(0,0,0,.35)',margin:'auto',maxHeight:'90vh',overflow:'auto' }}>
+          <div style={{ background:'#fff', borderRadius:18, width:'100%', maxWidth:820, boxShadow:'0 30px 80px rgba(0,0,0,.35)', margin:'auto', maxHeight:'90vh', overflow:'auto' }}>
             <div className="mhd">
               <h2>{editPdf ? '✏️ Edit PDF Form' : '📄 Add PDF Form to Library'}</h2>
               <button onClick={()=>setShowPdfModal(false)} style={{ width:28,height:28,borderRadius:7,background:'#f0f4f8',border:'1.5px solid #d4e0ec',cursor:'pointer' }}>✕</button>
             </div>
+
             <form onSubmit={savePdfForm} style={{ padding:'20px 24px' }}>
 
               {/* Drive tip */}
-              <div style={{ background:'#e8f5e9',border:'1.5px solid #a5d6a7',borderRadius:9,padding:'11px 14px',marginBottom:16,fontSize:'.8rem',color:'#1b5e20' }}>
-                📌 Upload PDF to <strong>Google Drive</strong> → Right-click → Share → "Anyone with the link" → Copy link → paste below.
+              <div style={{background:'#e8f5e9', border:'1.5px solid #a5d6a7', borderRadius:9, padding:'11px 14px', marginBottom:16, fontSize:'.8rem', color:'#1b5e20'}}>
+                📌 Upload PDF to <strong>Google Drive</strong> → Share → "Anyone with the link" → Copy → paste below.
               </div>
 
-              {/* Required fields */}
-              <div className="fg"><label style={lb}>Document Title * <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.72rem'}}>(include year e.g. "APSC CCE Syllabus 2026")</span></label><input required value={pf.title} onChange={e=>setPf(p=>({...p,title:e.target.value}))} style={si} placeholder="e.g. APSC CCE Prelims Syllabus 2026" /></div>
-              <div className="g2" style={{display:'grid',gap:12}}>
-                <div className="fg"><label style={lb}>Category</label><select value={pf.category} onChange={e=>setPf(p=>({...p,category:e.target.value}))} style={{...si,cursor:'pointer'}}>{PDF_CATS.map(c=><option key={c}>{c}</option>)}</select></div>
-                <div className="fg"><label style={lb}>Language</label><select value={pf.language} onChange={e=>setPf(p=>({...p,language:e.target.value}))} style={{...si,cursor:'pointer'}}>{['English','Assamese','Both'].map(l=><option key={l}>{l}</option>)}</select></div>
+              {/* ── SECTION 1: BASIC INFO ── */}
+              <div style={{fontFamily:"'Sora',sans-serif", fontWeight:700, fontSize:'.78rem', color:'#0b1f33', marginBottom:10, paddingBottom:6, borderBottom:'1.5px solid #f0f4f8'}}>
+                📋 Basic Information
               </div>
+
+              <div className="fg">
+                <label style={lb}>Document Title (English) *</label>
+                <input required value={pf.title}
+                  onChange={e => {
+                    const t = e.target.value
+                    // Auto-generate slug from title if slug not manually set
+                    const autoSlug = t.toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').trim() + '-pdf-download'
+                    setPf(p => ({ ...p, title:t, slug: p.slug && p.slug !== autoSlug.slice(0,-12)+'pdf-download' ? p.slug : autoSlug }))
+                  }}
+                  style={si} placeholder="e.g. APSC CCE Prelims Syllabus 2026" />
+              </div>
+
+              <div className="fg">
+                <label style={lb}>
+                  Document Title (Assamese) &nbsp;
+                  <span style={{color:'#8fa3b8', fontWeight:400, fontSize:'.7rem'}}>optional but good for local SEO</span>
+                </label>
+                <input value={pf.titleAs||''} onChange={e=>setPf(p=>({...p, titleAs:e.target.value}))}
+                  style={si} placeholder="e.g. APSC CCE প্ৰিলিমছ পাঠ্যক্ৰম ২০২৬" />
+              </div>
+
+              <div className="g2" style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:12}}>
+                <div className="fg">
+                  <label style={lb}>Category</label>
+                  <select value={pf.category} onChange={e=>setPf(p=>({...p, category:e.target.value}))} style={{...si, cursor:'pointer'}}>
+                    {PDF_CATS.map(c=><option key={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div className="fg">
+                  <label style={lb}>Language</label>
+                  <select value={pf.language} onChange={e=>setPf(p=>({...p, language:e.target.value}))} style={{...si, cursor:'pointer'}}>
+                    {['English','Assamese','Bilingual','Hindi'].map(l=><option key={l}>{l}</option>)}
+                  </select>
+                </div>
+                <div className="fg">
+                  <label style={lb}>Year</label>
+                  <input value={pf.year||''} onChange={e=>setPf(p=>({...p, year:e.target.value}))} style={si} placeholder="2026" />
+                </div>
+                <div className="fg">
+                  <label style={lb}>Pages</label>
+                  <input value={pf.pages||''} onChange={e=>setPf(p=>({...p, pages:e.target.value}))} style={si} placeholder="e.g. 4" />
+                </div>
+                <div className="fg">
+                  <label style={lb}>File Size</label>
+                  <input value={pf.fileSize||''} onChange={e=>setPf(p=>({...p, fileSize:e.target.value}))} style={si} placeholder="e.g. 1.2 MB" />
+                </div>
+                <div className="fg">
+                  <label style={lb}>Official Source</label>
+                  <input value={pf.source||''} onChange={e=>setPf(p=>({...p, source:e.target.value}))} style={si} placeholder="e.g. Election Commission" />
+                </div>
+              </div>
+
+              <div className="fg">
+                <label style={lb}>Official Government URL</label>
+                <input type="url" value={pf.officialUrl||''} onChange={e=>setPf(p=>({...p, officialUrl:e.target.value}))} style={si} placeholder="https://eci.gov.in" />
+              </div>
+
+              {/* ── SECTION 2: FILES ── */}
+              <div style={{fontFamily:"'Sora',sans-serif", fontWeight:700, fontSize:'.78rem', color:'#0b1f33', margin:'16px 0 10px', paddingBottom:6, borderBottom:'1.5px solid #f0f4f8'}}>
+                🔗 Files & Media
+              </div>
+
               <div className="fg">
                 <label style={lb}>Google Drive Link *</label>
-                <input required type="url" value={pf.driveLink} onChange={e=>setPf(p=>({...p,driveLink:e.target.value}))} style={si} placeholder="https://drive.google.com/file/d/xxxxx/view?usp=sharing" />
+                <input required type="url" value={pf.driveLink} onChange={e=>setPf(p=>({...p, driveLink:e.target.value}))}
+                  style={si} placeholder="https://drive.google.com/file/d/xxxxx/view?usp=sharing" />
               </div>
 
-              {/* SEO section */}
-              <div style={{background:'#c9a22714',border:'1.5px solid #c9a22733',borderRadius:10,padding:'14px',marginBottom:4,marginTop:8}}>
-                <div style={{fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.82rem',color:'#0b1f33',marginBottom:12}}>🔍 SEO Fields — Fill these to get Google traffic</div>
-
-                <div className="fg">
-                  <label style={{...lb,color:'#c9a227'}}>Description * <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.72rem'}}>(2-3 sentences using keywords people search)</span></label>
-                  <textarea required value={pf.description} onChange={e=>setPf(p=>({...p,description:e.target.value}))} style={{...si,minHeight:80,resize:'vertical' as const}}
-                    placeholder="e.g. Download Voter ID Form 6 PDF for new voter registration in Assam 2026. Required for citizens who have turned 18. Fill and submit at voters.eci.gov.in or local BLO office. Free download." />
-                </div>
-
-                <div className="fg">
-                  <label style={{...lb,color:'#c9a227'}}>Keywords <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.72rem'}}>(exact phrases people type in Google, comma-separated)</span></label>
-                  <input value={pf.keywords} onChange={e=>setPf(p=>({...p,keywords:e.target.value}))} style={si}
-                    placeholder="e.g. voter id form 6 pdf assam, voter registration form assam 2026, form 6 download assam" />
-                  <div style={{fontSize:'.7rem',color:'#8fa3b8',marginTop:4}}>💡 Tip: Think of what someone would type in Google to find this form.</div>
-                </div>
-                <div className="g2" style={{display:'grid',gap:12}}>
-                  <div className="fg"><label style={lb}>Official Source</label><input value={pf.source} onChange={e=>setPf(p=>({...p,source:e.target.value}))} style={si} placeholder="e.g. Election Commission of India"/></div>
-                  <div className="fg"><label style={lb}>File Size</label><input value={pf.fileSize} onChange={e=>setPf(p=>({...p,fileSize:e.target.value}))} style={si} placeholder="e.g. 1.2 MB"/></div>
-                </div>
-                <div className="fg"><label style={lb}>Number of Pages</label><input value={pf.pages} onChange={e=>setPf(p=>({...p,pages:e.target.value}))} style={{...si,maxWidth:140}} placeholder="e.g. 12"/></div>
+              <div className="fg">
+                <label style={lb}>
+                  Thumbnail Image URL &nbsp;
+                  <span style={{color:'#8fa3b8', fontWeight:400, fontSize:'.7rem'}}>(shows on homepage & PDF list — use any direct image URL)</span>
+                </label>
+                <input type="url" value={pf.imageUrl||''} onChange={e=>setPf(p=>({...p, imageUrl:e.target.value}))}
+                  style={si} placeholder="https://example.com/image.jpg" />
               </div>
 
-              <div style={{ display:'flex',justifyContent:'flex-end',gap:10,marginTop:14 }}>
+              {/* ── SECTION 3: SEO (English) ── */}
+              <div style={{background:'#c9a22714', border:'1.5px solid #c9a22733', borderRadius:10, padding:'14px', margin:'16px 0 4px'}}>
+                <div style={{fontFamily:"'Sora',sans-serif", fontWeight:700, fontSize:'.82rem', color:'#0b1f33', marginBottom:12}}>
+                  🔍 SEO — English
+                </div>
+
+                <div className="fg">
+                  <label style={lb}>
+                    URL Slug &nbsp;
+                    <span style={{color:'#8fa3b8', fontWeight:400, fontSize:'.7rem'}}>auto-generated from title — edit if needed</span>
+                  </label>
+                  <div style={{display:'flex', gap:8, alignItems:'center'}}>
+                    <span style={{fontSize:'.72rem', color:'#8fa3b8', flexShrink:0}}>/pdf-forms/</span>
+                    <input value={pf.slug||''} onChange={e=>setPf(p=>({...p, slug:e.target.value.toLowerCase().replace(/[^a-z0-9-]/g,'')}))}
+                      style={{...si, fontFamily:'monospace', fontSize:'.78rem'}} placeholder="auto-generated" />
+                    <span style={{fontSize:'.72rem', color:'#8fa3b8', flexShrink:0}}>-[id]</span>
+                  </div>
+                  <div style={{fontSize:'.68rem', color:'#8fa3b8', marginTop:3}}>
+                    ⚠️ Don't add the ID — it's added automatically. Final URL: /pdf-forms/{pf.slug||'auto'}-[id]
+                  </div>
+                </div>
+
+                <div className="fg">
+                  <label style={{...lb, color:'#c9a227'}}>
+                    Description * &nbsp;
+                    <span style={{color:'#8fa3b8', fontWeight:400, fontSize:'.7rem'}}>2-3 sentences using keywords people search</span>
+                  </label>
+                  <textarea required value={pf.description||''} onChange={e=>setPf(p=>({...p, description:e.target.value}))}
+                    style={{...si, minHeight:80, resize:'vertical' as const}}
+                    placeholder="e.g. Download Voter ID Form 6 PDF for new voter registration in Assam 2026. Required for citizens who have turned 18 years old. Fill and submit at voters.eci.gov.in or your local BLO office. Free PDF download." />
+                </div>
+
+                <div className="fg">
+                  <label style={lb}>
+                    How to Fill / Use this Document &nbsp;
+                    <span style={{color:'#8fa3b8', fontWeight:400, fontSize:'.7rem'}}>(optional — very good for ranking)</span>
+                  </label>
+                  <textarea value={pf.howToFill||''} onChange={e=>setPf(p=>({...p, howToFill:e.target.value}))}
+                    style={{...si, minHeight:70, resize:'vertical' as const}}
+                    placeholder="Step 1: Download and print the form. Step 2: Fill in your name, address, date of birth. Step 3: Attach required documents. Step 4: Submit to..." />
+                </div>
+
+                <div className="fg">
+                  <label style={{...lb, color:'#c9a227'}}>
+                    Keywords &nbsp;
+                    <span style={{color:'#8fa3b8', fontWeight:400, fontSize:'.7rem'}}>exact phrases people type in Google — comma-separated</span>
+                  </label>
+                  <input value={pf.keywords||''} onChange={e=>setPf(p=>({...p, keywords:e.target.value}))}
+                    style={si} placeholder="voter id form 6 pdf assam, form 6 download assam 2026, new voter registration form assam" />
+                  <div style={{fontSize:'.7rem', color:'#8fa3b8', marginTop:3}}>
+                    💡 Think: what would someone type in Google to find this? Include variations with "PDF", "Download", "Assam", year.
+                  </div>
+                </div>
+              </div>
+
+              {/* ── SECTION 4: BILINGUAL (Assamese) ── */}
+              <div style={{background:'#0b1f3308', border:'1.5px solid #1dbfad33', borderRadius:10, padding:'14px', margin:'12px 0 4px'}}>
+                <div style={{fontFamily:"'Sora',sans-serif", fontWeight:700, fontSize:'.82rem', color:'#0b1f33', marginBottom:12}}>
+                  🇮🇳 অসমীয়া — Bilingual Section
+                  <span style={{fontFamily:'Nunito,sans-serif', fontWeight:400, fontSize:'.72rem', color:'#8fa3b8', marginLeft:8}}>
+                    (helps rank for Assamese language Google searches)
+                  </span>
+                </div>
+
+                <div className="fg">
+                  <label style={{...lb, color:'#1dbfad'}}>Assamese Description (বিৱৰণ)</label>
+                  <textarea value={pf.descriptionAs||''} onChange={e=>setPf(p=>({...p, descriptionAs:e.target.value}))}
+                    style={{...si, minHeight:80, resize:'vertical' as const}}
+                    placeholder="e.g. ভোটাৰ আইডি ফৰ্ম ৬ অসম ২০২৬ৰ বাবে বিনামূলীয়া ডাউনলোড। নতুন ভোটাৰ পঞ্জীয়নৰ বাবে প্ৰয়োজনীয়।" />
+                </div>
+
+                <div className="fg">
+                  <label style={{...lb, color:'#1dbfad'}}>Assamese How to Fill (কেনেকৈ পূৰণ কৰিব)</label>
+                  <textarea value={pf.howToFillAs||''} onChange={e=>setPf(p=>({...p, howToFillAs:e.target.value}))}
+                    style={{...si, minHeight:60, resize:'vertical' as const}}
+                    placeholder="পদক্ষেপ ১: ফৰ্মখন ডাউনলোড কৰক আৰু প্ৰিণ্ট কৰক। পদক্ষেপ ২: নাম, ঠিকনা, জন্মতাৰিখ পূৰণ কৰক।" />
+                </div>
+              </div>
+
+              {/* Buttons */}
+              <div style={{display:'flex', justifyContent:'flex-end', gap:10, marginTop:16}}>
                 <button type="button" onClick={()=>setShowPdfModal(false)} style={bS}>Cancel</button>
+                {/* Preview & Print button */}
                 <button type="button" onClick={() => {
                   const w = window.open('', '_blank')
                   if (!w) return
@@ -2383,9 +2595,11 @@ ${inf.officialLink ? `<div class="row"><span class="label">Official Website</spa
 <h2>📋 Document Details</h2>
 <div class="row"><span class="label">Category</span><span class="val">${pf.category}</span></div>
 <div class="row"><span class="label">Language</span><span class="val">${pf.language}</span></div>
-${pf.fileSize ? `<div class="row"><span class="label">File Size</span><span class="val">${pf.fileSize}</span></div>` : ''}
-${pf.pages ? `<div class="row"><span class="label">Pages</span><span class="val">${pf.pages}</span></div>` : ''}
-${pf.source ? `<div class="row"><span class="label">Official Source</span><span class="val">${pf.source}</span></div>` : ''}
+<div class="row"><span class="label">Year</span><span class="val">${pf.year||'—'}</span></div>
+<div class="row"><span class="label">Pages</span><span class="val">${pf.pages||'—'}</span></div>
+<div class="row"><span class="label">File Size</span><span class="val">${pf.fileSize||'—'}</span></div>
+<div class="row"><span class="label">Official Source</span><span class="val">${pf.source||'—'}</span></div>
+<div class="row"><span class="label">Official URL</span><span class="val">${pf.officialUrl ? `<a href="${pf.officialUrl}" target="_blank">${pf.officialUrl}</a>` : '—'}</span></div>
 <div class="row"><span class="label">Google Drive Link</span><span class="val"><a href="${pf.driveLink}" target="_blank">Open in Drive ↗</a></span></div>
 
 ${pf.description ? `
@@ -2393,9 +2607,24 @@ ${pf.description ? `
 <div style="padding:8px 0;line-height:1.6">${pf.description.replace(/\n/g,'<br/>')}</div>
 ` : ''}
 
+${pf.howToFill ? `
+<h2>✏️ How to Fill / Use</h2>
+<div style="padding:8px 0;line-height:1.6">${pf.howToFill.replace(/\n/g,'<br/>')}</div>
+` : ''}
+
 ${pf.keywords ? `
 <h2>🔍 Keywords (for search engines)</h2>
 <div style="padding:8px 0;color:#555">${pf.keywords}</div>
+` : ''}
+
+${pf.descriptionAs ? `
+<h2>🇮🇳 অসমীয়া বিৱৰণ</h2>
+<div style="padding:8px 0;line-height:1.6">${pf.descriptionAs.replace(/\n/g,'<br/>')}</div>
+` : ''}
+
+${pf.howToFillAs ? `
+<h2>✏️ কেনেকৈ পূৰণ কৰিব</h2>
+<div style="padding:8px 0;line-height:1.6">${pf.howToFillAs.replace(/\n/g,'<br/>')}</div>
 ` : ''}
 
 <br/>
@@ -2414,11 +2643,11 @@ ${pf.keywords ? `
                 </button>
                 <button type="submit" style={bP}>{editPdf ? '💾 Update PDF Form' : '➕ Add to Library'}</button>
               </div>
+
             </form>
           </div>
         </div>
       )}
-
       {/* ════ AFFILIATE ADD/EDIT MODAL ════ */}
       {showAffModal && (
         <div className="ovl">
