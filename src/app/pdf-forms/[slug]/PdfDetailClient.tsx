@@ -40,15 +40,9 @@ function getDriveDownload(link: string): string {
   return id ? `https://drive.google.com/uc?export=download&id=${id}` : link
 }
 
-function getDrivePreview(link: string): string {
-  const id = getDriveId(link)
-  return id ? `https://drive.google.com/file/d/${id}/preview` : ''
-}
-
 export default function PdfDetailClient({ form }: { form: PdfForm }) {
   const [tab, setTab] = useState<'preview'|'info'>('preview')
   const [copied, setCopied] = useState(false)
-  const previewUrl = getDrivePreview(form.driveLink)
 
   function copyLink() {
     navigator.clipboard.writeText(window.location.href)
@@ -150,29 +144,72 @@ export default function PdfDetailClient({ form }: { form: PdfForm }) {
             {/* PREVIEW TAB */}
             {tab==='preview' && (
               <div style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:13,overflow:'hidden'}}>
-                {previewUrl ? (
-                  <>
-                    <div style={{padding:'10px 16px',background:'#f8fafc',borderBottom:'1px solid #e8eef5',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                      <span style={{fontSize:'.78rem',fontWeight:600,color:'#5a6a7a'}}>📄 PDF Preview — via Google Drive</span>
-                      <a href={form.driveLink} target="_blank" rel="nofollow noopener"
-                        style={{fontSize:'.75rem',color:'#00b4d8',fontWeight:700,textDecoration:'none'}}>
-                        Open full screen ↗
-                      </a>
+                <div style={{padding:'10px 16px',background:'#f8fafc',borderBottom:'1px solid #e8eef5',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                  <span style={{fontSize:'.78rem',fontWeight:600,color:'#5a6a7a'}}>📄 PDF Preview</span>
+                  <a href={form.driveLink} target="_blank" rel="nofollow noopener"
+                    style={{fontSize:'.75rem',color:'#00b4d8',fontWeight:700,textDecoration:'none'}}>
+                    Open full screen ↗
+                  </a>
+                </div>
+
+                <div style={{padding:'20px',textAlign:'center' as const}}>
+                  {/* Thumbnail — first page of PDF from Google Drive */}
+                  {getDriveId(form.driveLink) && (
+                    <div style={{marginBottom:20}}>
+                      <img
+                        src={`https://drive.google.com/thumbnail?id=${getDriveId(form.driveLink)}&sz=w600`}
+                        alt={`Preview of ${form.title}`}
+                        style={{
+                          maxWidth:'100%', borderRadius:10,
+                          border:'1.5px solid #e8eef5',
+                          boxShadow:'0 4px 20px rgba(0,0,0,.08)',
+                          display:'block', margin:'0 auto'
+                        }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none'
+                        }}
+                      />
+                      <p style={{fontSize:'.72rem',color:'#8fa3b8',marginTop:8}}>
+                        ↑ Preview of first page
+                      </p>
                     </div>
-                    <iframe
-                      src={previewUrl}
-                      className="preview-frame"
-                      allow="autoplay"
-                      title={form.title}
-                    />
-                  </>
-                ) : (
-                  <div style={{padding:'40px 24px',textAlign:'center' as const,color:'#5a6a7a'}}>
-                    <div style={{fontSize:'2.5rem',marginBottom:12}}>📄</div>
-                    <p style={{fontWeight:600}}>Preview not available</p>
-                    <p style={{fontSize:'.82rem'}}>Use the Download button to view this document.</p>
+                  )}
+
+                  {/* Primary open button */}
+                  <a
+                    href={form.driveLink}
+                    target="_blank"
+                    rel="nofollow noopener"
+                    style={{
+                      display:'inline-flex',alignItems:'center',gap:10,
+                      padding:'14px 28px',borderRadius:12,
+                      background:'linear-gradient(135deg,#0d1b2a,#1b3a5c)',
+                      color:'#fff',fontWeight:800,fontSize:'1rem',
+                      textDecoration:'none',marginBottom:12,
+                      boxShadow:'0 4px 16px rgba(0,0,0,.2)'
+                    }}
+                  >
+                    👁️ View PDF in Google Drive
+                  </a>
+
+                  <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap' as const}}>
+                    <a href={getDriveDownload(form.driveLink)} target="_blank" rel="nofollow noopener"
+                      style={{
+                        display:'inline-flex',alignItems:'center',gap:7,
+                        padding:'10px 20px',borderRadius:9,
+                        background:'#e8f5e9',color:'#2e7d32',
+                        fontWeight:700,fontSize:'.85rem',textDecoration:'none',
+                        border:'1.5px solid #a5d6a7'
+                      }}>
+                      ⬇️ Download PDF
+                    </a>
                   </div>
-                )}
+
+                  <p style={{fontSize:'.72rem',color:'#8fa3b8',marginTop:16,lineHeight:1.6}}>
+                    PDF opens in Google Drive viewer. <br/>
+                    To download: click ⬇️ or tap <strong>⋮ → Download</strong> inside Google Drive.
+                  </p>
+                </div>
               </div>
             )}
 

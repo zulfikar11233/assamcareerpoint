@@ -673,48 +673,68 @@ export default function ResultsAdmin() {
         * { box-sizing: border-box; max-width: 100%; }
         body { margin: 0; font-family: Nunito, sans-serif; background: #f0f4f8; overflow-x: hidden; }
 
+        /* ── MOBILE: Sidebar LEFT (same as main admin) ── */
         @media screen and (max-width: 768px) {
-          .res-shell { flex-direction: column !important; }
+          .res-shell { flex-direction: row !important; }
 
           .res-sidebar {
-            width: 100% !important;
-            min-height: 0 !important;
-            height: auto !important;
-            position: sticky !important;
+            width: 150px !important;
+            position: fixed !important;
             top: 0 !important;
+            left: 0 !important;
+            height: 100vh !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
             z-index: 100 !important;
             flex-shrink: 0 !important;
           }
 
+          /* Nav: vertical column, all items visible */
           .res-sidebar nav {
-            display: flex !important;
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            overflow-x: auto !important;
-            overflow-y: hidden !important;
-            -webkit-overflow-scrolling: touch !important;
-            padding: 6px 10px 8px !important;
-            gap: 4px !important;
-            scrollbar-width: none !important;
-            max-height: 48px !important;
+            display: block !important;
+            flex-direction: unset !important;
+            overflow-x: hidden !important;
+            overflow-y: visible !important;
+            max-height: none !important;
+            padding: 8px 6px !important;
           }
-          .res-sidebar nav::-webkit-scrollbar { display: none !important; }
-          .res-sidebar nav a {
-            flex: 0 0 auto !important;
-            white-space: nowrap !important;
-            font-size: .72rem !important;
-            padding: 6px 11px !important;
-            border-radius: 8px !important;
-          }
-          .res-sidebar nav > div { display: none !important; }
-          .res-pub-links { display: none !important; }
-          .res-sidebar > div:last-child { display: none !important; }
 
-          main { padding: 14px !important; overflow-x: hidden !important; }
+          /* Nav links: compact with full text */
+          .res-sidebar nav a {
+            width: 100% !important;
+            flex: none !important;
+            white-space: normal !important;
+            font-size: .67rem !important;
+            padding: 7px 8px !important;
+            border-radius: 7px !important;
+            margin-bottom: 2px !important;
+            line-height: 1.3 !important;
+            display: block !important;
+          }
+
+          /* Hide public pages and dividers on mobile */
+          .res-pub-links { display: none !important; }
+          .res-sidebar nav > div { display: none !important; }
+
+          /* Main content: push right of sidebar */
+          main {
+            margin-left: 150px !important;
+            flex: 1 !important;
+            min-width: 0 !important;
+            overflow-x: hidden !important;
+            max-width: calc(100vw - 150px) !important;
+            padding: 14px !important;
+          }
         }
+
         @media screen and (max-width: 480px) {
-          .res-sidebar nav a { font-size: .68rem !important; padding: 5px 9px !important; }
-          main { padding: 10px !important; }
+          .res-sidebar { width: 125px !important; }
+          main {
+            margin-left: 125px !important;
+            max-width: calc(100vw - 125px) !important;
+            padding: 10px !important;
+          }
+          .res-sidebar nav a { font-size: .62rem !important; padding: 6px 6px !important; }
         }
       `}</style>
 

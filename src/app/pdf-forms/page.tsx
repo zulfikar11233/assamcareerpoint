@@ -59,7 +59,6 @@ export default function PdfFormsPage() {
   const [forms,    setForms]   = useState<PdfForm[]>([])
   const [cat,      setCat]     = useState('All')
   const [search,   setSearch]  = useState('')
-  const [tracked,  setTracked] = useState<Record<number,number>>({})
   const [loading,  setLoading] = useState(true)
 
   useEffect(() => {
@@ -84,18 +83,7 @@ export default function PdfFormsPage() {
         setLoading(false)
       })
 
-    try {
-      const st = localStorage.getItem('acp_pdf_dl')
-      if (st) setTracked(JSON.parse(st))
-    } catch {}
   }, [])
-
-  function openDrive(form: PdfForm) {
-    const updated = { ...tracked, [form.id]: (tracked[form.id] || 0) + 1 }
-    setTracked(updated)
-    localStorage.setItem('acp_pdf_dl', JSON.stringify(updated))
-    window.open(form.driveLink, '_blank')
-  }
 
   const visible = forms.filter(f =>
     (cat === 'All' || f.category === cat) &&
@@ -210,7 +198,7 @@ export default function PdfFormsPage() {
                     <div style={{ display:'flex',gap:7,flexWrap:'wrap' as const,alignItems:'center' }}>
                       <span style={{ display:'inline-block',background:'#f3e5f5',color:'#6a0dad',padding:'2px 8px',borderRadius:99,fontSize:'.68rem',fontWeight:700 }}>{form.category}</span>
                       <span style={{ fontSize:'.68rem',color:'#5a6a7a' }}>📅 {form.uploadedAt}</span>
-                      <span style={{ fontSize:'.68rem',color:'#5a6a7a' }}>⬇️ {((tracked[form.id]||0)+(form.downloads||0)).toLocaleString()} views</span>
+                      <span style={{ fontSize:'.68rem',color:'#5a6a7a' }}>⬇️ {(form.downloads||0).toLocaleString()} views</span>
                     </div>
                   </div>
                 </div>
@@ -220,13 +208,13 @@ export default function PdfFormsPage() {
                   <span>Stored on <strong style={{color:'#0d1b2a'}}>Google Drive</strong> — opens in browser</span>
                 </div>
 
-                <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:8 }}>
-                  <button className="prev-btn" onClick={(e)=>{e.preventDefault();e.stopPropagation();window.open(form.driveLink,'_blank')}}>
-                    👁️ View
-                  </button>
-                  <button className="dl-btn" onClick={(e)=>{e.preventDefault();e.stopPropagation();openDrive(form)}}>
-                    ⬇️ Open / Download
-                  </button>
+                <div style={{
+                  display:'flex', alignItems:'center', justifyContent:'space-between',
+                  padding:'8px 12px', background:'#f0f4f8', borderRadius:9,
+                  fontSize:'.78rem', color:'#00b4d8', fontWeight:700
+                }}>
+                  <span>📄 View Full Details & Download</span>
+                  <span>→</span>
                 </div>
               </Link>
             ))}

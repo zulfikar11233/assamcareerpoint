@@ -93,9 +93,6 @@ function buildInit(preset: RtePreset, minHeight?: number): Record<string, unknow
       li { margin-bottom: 4px; }
       a { color: #0096b7; }
     `,
-    // Paste as plain text by default — avoids messy Word/Google Docs paste
-    paste_as_text: false,
-    paste_word_valid_elements: 'b,strong,i,em,h2,h3,p,ul,ol,li,table,tr,th,td',
     // Prevent empty paragraphs becoming &nbsp;
     forced_root_block: 'p',
     remove_trailing_brs: true,
