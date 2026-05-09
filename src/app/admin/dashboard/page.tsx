@@ -792,89 +792,106 @@ export default function AdminDashboard() {
           .admin-stats { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
         }
 
-        /* ── MOBILE (768px) — FULL FIX ── */
+        /* ── MOBILE (768px) — Sidebar LEFT, Content RIGHT ── */
         @media screen and (max-width:768px) {
-          div.admin-shell {
-            flex-direction: column !important;
-          }
+          /* Sidebar stays on LEFT — just narrower */
+          div.admin-shell { flex-direction: row !important; }
+
           aside.admin-sidebar {
-            position: sticky !important;
+            width: 155px !important;
+            position: fixed !important;
             top: 0 !important;
-            width: 100% !important;
-            height: auto !important;
-            min-height: 0 !important;
-            max-height: none !important;
-            overflow: visible !important;
-            z-index: 200 !important;
+            left: 0 !important;
+            height: 100vh !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            z-index: 100 !important;
             flex-shrink: 0 !important;
           }
-          aside.admin-sidebar > div:first-child {
-            padding: 10px 14px !important;
-          }
+
+          /* Sidebar nav: vertical column, all items visible */
           aside.admin-sidebar nav {
-            display: flex !important;
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            overflow-x: auto !important;
-            overflow-y: hidden !important;
-            -webkit-overflow-scrolling: touch !important;
-            gap: 4px !important;
-            padding: 6px 10px 8px !important;
-            max-height: 52px !important;
-            scrollbar-width: none !important;
+            display: block !important;
+            flex-direction: unset !important;
+            flex-wrap: unset !important;
+            overflow-x: hidden !important;
+            overflow-y: visible !important;
+            max-height: none !important;
+            padding: 8px 7px !important;
           }
-          aside.admin-sidebar nav::-webkit-scrollbar { display: none !important; }
+
+          /* Nav buttons: compact with icon + text */
           .nbtn {
-            flex: 0 0 auto !important;
-            font-size: .72rem !important;
-            padding: 6px 10px !important;
-            white-space: nowrap !important;
+            width: 100% !important;
+            flex: none !important;
+            font-size: .67rem !important;
+            padding: 7px 7px !important;
+            gap: 5px !important;
+            white-space: normal !important;
+            text-align: left !important;
+            line-height: 1.25 !important;
+            margin-bottom: 2px !important;
             border-radius: 8px !important;
           }
-          aside.admin-sidebar .pub-links { display: none !important; }
+          .nbtn span {
+            font-size: .88rem !important;
+            width: 16px !important;
+            flex-shrink: 0 !important;
+          }
+          /* Active item: teal background clearly visible */
+          .nbtn.on {
+            background: rgba(0,180,216,.2) !important;
+            color: #00b4d8 !important;
+            border-color: rgba(0,180,216,.3) !important;
+          }
+
+          /* Brand area: compact */
+          aside.admin-sidebar > div:first-child {
+            padding: 10px 9px 8px !important;
+          }
+
+          /* Main content: margin = sidebar width */
           div.admin-main {
-            margin-left: 0 !important;
-            width: 100% !important;
+            margin-left: 155px !important;
+            flex: 1 !important;
             min-width: 0 !important;
+            overflow-x: hidden !important;
+            max-width: calc(100vw - 155px) !important;
           }
+
+          /* Top bar */
           .admin-topbar {
-            position: relative !important;
-            top: auto !important;
-            flex-direction: column !important;
-            align-items: flex-start !important;
-            padding: 10px 14px !important;
-            gap: 8px !important;
+            position: sticky !important;
+            top: 0 !important;
+            padding: 8px 10px !important;
+            flex-wrap: wrap !important;
+            gap: 6px !important;
+            z-index: 50 !important;
           }
-          .admin-topbar input { width: 100% !important; }
-          .admin-content { padding: 14px !important; }
-          .admin-stats { grid-template-columns: 1fr !important; }
+          .admin-topbar h1 { font-size: .85rem !important; }
+          .admin-topbar p  { font-size: .7rem !important; }
+          .admin-topbar input { width: 100% !important; flex: 1 1 100% !important; }
+
+          /* Content area */
+          .admin-content { padding: 10px !important; }
+          .admin-stats   { grid-template-columns: 1fr !important; }
         }
-	@media screen and (max-width:768px) {
-  .mobile-nav-hint { display:block !important; }
-}
 
         /* ── SMALL MOBILE (560px) ── */
-@media(max-width:560px) {
-  .prgrid, .idrow { grid-template-columns: 1fr !important; }
-  .lgrid { grid-template-columns: repeat(4,1fr); }
-  .mbdy { padding: 14px !important; }
-  .tst { left:12px !important; right:12px !important; bottom:14px !important; text-align:center; }
-  /* CORRECTED: hide the label text node after the span, show only emoji */
-  .nbtn { font-size: 0 !important; }         /* hide text nodes */
-  .nbtn span { font-size: .95rem !important; display:inline-flex !important; } /* show emoji */
-  .nbtn.on span { color: #00b4d8; }
-}
+        @media(max-width:560px) {
+          aside.admin-sidebar { width: 130px !important; }
+          div.admin-main { margin-left: 130px !important; max-width: calc(100vw - 130px) !important; }
+          .nbtn { font-size: .62rem !important; padding: 6px 5px !important; }
+          .prgrid, .idrow { grid-template-columns: 1fr !important; }
+          .lgrid { grid-template-columns: repeat(4,1fr); }
+          .mbdy { padding: 12px !important; }
+          .tst { left:8px !important; right:8px !important; bottom:12px !important; text-align:center; }
+        }
 
-        /* Scroll hint arrow for mobile nav */
+        /* Scroll hint arrow — mobile only */
         @media screen and (max-width:768px) {
           aside.admin-sidebar::after {
-            content: '→';
-            position: absolute;
-            right: 8px;
-            bottom: 8px;
-            font-size: .65rem;
-            color: rgba(255,255,255,.3);
-            pointer-events: none;
+            content: none !important;  /* remove the old hint */
           }
         }
       `}</style>

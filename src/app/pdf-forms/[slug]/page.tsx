@@ -1,4 +1,3 @@
-// src/app/pdf-forms/[slug]/page.tsx
 import { getCollection } from '@/lib/mysql'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
@@ -17,7 +16,8 @@ type PdfForm = {
 }
 
 function generateSlug(title: string, id: number) {
-  const base = title.toLowerCase()
+  const base = (title || '')
+    .toLowerCase()
     .replace(/[^a-z0-9\s]/g, '')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
@@ -25,8 +25,6 @@ function generateSlug(title: string, id: number) {
   return `${base}-pdf-download-${id}`
 }
 
-// ── cache() deduplicates the MySQL call so it runs ONCE
-// even though both generateMetadata and the page need it
 const getAllForms = cache(async (): Promise<PdfForm[]> => {
   try {
     const data = await getCollection('pdfforms')
@@ -38,20 +36,23 @@ const getAllForms = cache(async (): Promise<PdfForm[]> => {
 })
 
 function findForm(all: PdfForm[], slug: string): PdfForm | undefined {
+  if (!slug) return undefined
   const slugId = parseInt(slug.split('-').pop() || '0')
   return all.find(f =>
     f.slug === slug ||
     generateSlug(f.title, f.id) === slug ||
     f.id === slugId ||
-    String(f.id) === String(slugId)  // handles string/number mismatch from MySQL
+    String(f.id) === String(slugId)
   )
 }
 
+// ✅ Next.js 15/16: params is a Promise — must await
 export async function generateMetadata(
-  { params }: { params: { slug: string } }
+  props: { params: Promise<{ slug: string }> }
 ): Promise<Metadata> {
+  const { slug } = await props.params          // ← THE FIX
   const all  = await getAllForms()
-  const form = findForm(all, params.slug)
+  const form = findForm(all, slug)
   if (!form) return { title: 'PDF Not Found | Assam Career Point' }
   return {
     title: `${form.title} — Free PDF Download | Assam Career Point`,
@@ -64,22 +65,21 @@ export async function generateMetadata(
         ? [{ url: form.imageUrl, width: 1200, height: 630, alt: form.title }]
         : [{ url: 'https://assamcareerpoint-info.com/og-default.png' }],
     },
-    twitter: {
-      card: 'summary_large_image',
-      images: form.imageUrl ? [form.imageUrl] : [],
-    },
+    twitter: { card: 'summary_large_image',
+      images: form.imageUrl ? [form.imageUrl] : [] },
     alternates: {
-      canonical: `https://assamcareerpoint-info.com/pdf-forms/${params.slug}`,
+      canonical: `https://assamcareerpoint-info.com/pdf-forms/${slug}`,
     },
   }
 }
 
+// ✅ Next.js 15/16: params is a Promise — must await
 export default async function PdfSlugPage(
-  { params }: { params: { slug: string } }
+  props: { params: Promise<{ slug: string }> }
 ) {
-  const all  = await getAllForms()   // uses cached result — no second MySQL call
-  const form = findForm(all, params.slug)
-
+  const { slug } = await props.params          // ← THE FIX
+  const all  = await getAllForms()
+  const form = findForm(all, slug)
   if (!form) notFound()
 
   const jsonLd = {
@@ -88,7 +88,7 @@ export default async function PdfSlugPage(
     "name": form.title,
     "description": form.description ||
       `Download ${form.title} PDF for free. Official ${form.category} document.`,
-    "url": `https://assamcareerpoint-info.com/pdf-forms/${params.slug}`,
+    "url": `https://assamcareerpoint-info.com/pdf-forms/${slug}`,
     "datePublished": form.uploadedAt,
     "publisher": {
       "@type": "Organization",
