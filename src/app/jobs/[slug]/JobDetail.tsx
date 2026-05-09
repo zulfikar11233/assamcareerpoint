@@ -1,6 +1,7 @@
 'use client'
 // src/app/jobs/[slug]/JobDetail.tsx
 import Link from 'next/link'
+import { AcpiBrand } from '@/components/AcpiLogo'
 import { getTargetDate } from '@/lib/dataHelper'
 import { useState, useEffect } from 'react'
 import FreeToolsBar from '@/components/FreeToolsBar'
@@ -116,23 +117,6 @@ function CountdownInline({ dateStr, timeStr, now }: { dateStr: string; timeStr?:
     </div>
   )
 }
-function Logo({ size=38 }:{size?:number}) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 100 100">
-      <defs><linearGradient id="ig" x1="30" y1="15" x2="70" y2="55" gradientUnits="userSpaceOnUse"><stop offset="0%" stopColor={T}/><stop offset="100%" stopColor={G}/></linearGradient></defs>
-      <circle cx="50" cy="50" r="47" fill={N} stroke={G} strokeWidth="3"/>
-      <rect x="33" y="16" width="34" height="34" rx="8" fill="url(#ig)"/>
-      <circle cx="50" cy="33" r="10" stroke={N} strokeWidth="2.2" fill="none"/>
-      <circle cx="50" cy="33" r="5.5" stroke={N} strokeWidth="2" fill="none"/>
-      <circle cx="50" cy="33" r="2" fill={N}/>
-      <text x="50" y="66" textAnchor="middle" fontFamily="Arial Black,sans-serif" fontWeight="900" fontSize="10.5" fill={G} letterSpacing="1.5">ASSAM</text>
-      <text x="50" y="77" textAnchor="middle" fontFamily="Arial Black,sans-serif" fontWeight="900" fontSize="10.5" fill={W}>CAREER</text>
-      <line x1="22" y1="80" x2="78" y2="80" stroke={T} strokeWidth="0.8"/>
-      <text x="50" y="90" textAnchor="middle" fontFamily="Arial,sans-serif" fontWeight="700" fontSize="8" fill={T} letterSpacing="2">POINT</text>
-    </svg>
-  )
-}
-
 export default function JobDetail({ job, others }: { job: Job; others: Job[] }) {
   const [timerOn, setTimerOn] = useState<boolean>(() => {
     if (typeof window === 'undefined') return true
@@ -253,11 +237,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
       <header style={{background:N,borderBottom:`2px solid ${G}`,position:'sticky',top:0,zIndex:100,boxShadow:'0 2px 20px rgba(0,0,0,.4)'}}>
         <div className="header-inner" style={{maxWidth:1200,margin:'0 auto',padding:'10px 20px',display:'flex',alignItems:'center',gap:14,flexWrap:'wrap' as const,minWidth:0}}>
           <Link href="/" style={{display:'flex',alignItems:'center',gap:10,textDecoration:'none',flexShrink:0}}>
-            <Logo size={40}/><div>
-              <div style={{fontFamily:'Arial Black,sans-serif',fontSize:'.78rem'}}><span style={{color:G}}>ASSAM </span><span style={{color:W}}>CAREER</span></div>
-              <div style={{fontFamily:'Arial Black,sans-serif',fontSize:'.65rem',color:T,letterSpacing:'.12em'}}>◆ POINT ◆</div>
-            </div>
-          </Link>
+            <AcpiBrand size={42} textSize=".72rem" stacked /></Link>
           <nav className="nav-wrap">
             {([['🏠 Home','/'],['💼 Jobs','/govt-jobs'],['📚 Exams','/exams'],['ℹ️ Info','/information'],['📄 PDFs','/pdf-forms'],['📊 Results','/results']] as [string,string][]).map(([l,h])=>(
               <Link key={h} href={h} className="nav-a">{l}</Link>

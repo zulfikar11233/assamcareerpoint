@@ -1,29 +1,10 @@
 'use client'
 // src/app/govt-jobs/GovtJobsList.tsx — Client component (receives jobs from server, no fetch)
 import Link from 'next/link'
+import { AcpiBrand } from '@/components/AcpiLogo'
 import { useState } from 'react'   // useEffect removed
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
-
-function Logo({ size = 38 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 100 100">
-      <defs><linearGradient id="lg" x1="30" y1="15" x2="70" y2="55" gradientUnits="userSpaceOnUse"><stop offset="0%" stopColor={T}/><stop offset="100%" stopColor={G}/></linearGradient></defs>
-      <circle cx="50" cy="50" r="47" fill={N} stroke={G} strokeWidth="3"/>
-      <circle cx="50" cy="50" r="41" fill="none" stroke={T} strokeWidth="0.6" opacity="0.5"/>
-      <rect x="33" y="16" width="34" height="34" rx="8" fill="url(#lg)"/>
-      <circle cx="50" cy="33" r="10" stroke={N} strokeWidth="2.2" fill="none"/>
-      <circle cx="50" cy="33" r="5.5" stroke={N} strokeWidth="2" fill="none"/>
-      <circle cx="50" cy="33" r="2" fill={N}/>
-      <text x="50" y="66" textAnchor="middle" fontFamily="Arial Black,sans-serif" fontWeight="900" fontSize="10.5" fill={G} letterSpacing="1.5">ASSAM</text>
-      <text x="50" y="77" textAnchor="middle" fontFamily="Arial Black,sans-serif" fontWeight="900" fontSize="10.5" fill={W}>CAREER</text>
-      <line x1="22" y1="80" x2="78" y2="80" stroke={T} strokeWidth="0.8"/>
-      <text x="27" y="90" textAnchor="middle" fontSize="5" fill={T}>◆</text>
-      <text x="50" y="90" textAnchor="middle" fontFamily="Arial,sans-serif" fontWeight="700" fontSize="8" fill={T} letterSpacing="2">POINT</text>
-      <text x="73" y="90" textAnchor="middle" fontSize="5" fill={T}>◆</text>
-    </svg>
-  )
-}
 
 type Job = { id:number; logo:string; title:string; org:string; category:string; district:string; status:string; vacancy:string; lastDate:string; fee:string; salary:string; slug?:string; createdAt:string; posts?:{vacancy:number}[] }
 
@@ -83,11 +64,7 @@ export default function GovtJobsList({ initialJobs }: { initialJobs: Job[] }) {
       <header style={{background:N,borderBottom:`2px solid ${G}`,position:'sticky',top:0,zIndex:100,boxShadow:'0 2px 20px rgba(0,0,0,.4)'}}>
         <div style={{maxWidth:1180,margin:'0 auto',padding:'10px 20px',display:'flex',alignItems:'center',gap:14,flexWrap:'wrap' as const}}>
           <Link href="/" style={{display:'flex',alignItems:'center',gap:10,textDecoration:'none',flexShrink:0}}>
-            <Logo size={40}/><div>
-              <div style={{fontFamily:'Arial Black,sans-serif',fontSize:'.78rem'}}><span style={{color:G}}>ASSAM </span><span style={{color:W}}>CAREER</span></div>
-              <div style={{fontFamily:'Arial Black,sans-serif',fontSize:'.65rem',color:T,letterSpacing:'.12em'}}>◆ POINT ◆</div>
-            </div>
-          </Link>
+            <AcpiBrand size={42} textSize=".72rem" stacked /></Link>
           <nav style={{display:'flex',gap:2,flexWrap:'wrap' as const}}>
             {([['🏠 Home','/'],['💼 Jobs','/govt-jobs'],['📚 Exams','/exams'],['ℹ️ Info','/information'],['📄 PDF Forms','/pdf-forms']] as [string,string][]).map(([l,h])=>(
               <Link key={h} href={h} className={`nav-a${h==='/govt-jobs'?' on':''}`}>{l}</Link>

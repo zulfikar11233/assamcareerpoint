@@ -1,6 +1,7 @@
 'use client'
 // src/app/results/[slug]/ResultDetail.tsx — Client component (only rendering, no data fetching)
 import Link from 'next/link'
+import { AcpiBrand } from '@/components/AcpiLogo'
 import { useEffect } from 'react'
 import FreeToolsBar from '@/components/FreeToolsBar'
 
@@ -105,8 +106,8 @@ export default function ResultDetail({ post }: { post: ResultPost }) {
 
       {/* Header */}
       <header className="detail-header" style={{ background: N, borderBottom: `3px solid ${G}`, padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="/" style={{ fontFamily: 'Arial Black,sans-serif', fontSize: '.9rem', textDecoration: 'none' }}>
-          <span style={{ color: G }}>ASSAM </span><span style={{ color: W }}>CAREER</span><span style={{ color: T }}> POINT</span>
+        <Link href="/" style={{ textDecoration: 'none' }}>
+          <AcpiBrand size={36} textSize=".74rem" />
         </Link>
         <nav className="detail-nav" style={{ display: 'flex', gap: 18 }}>
           {[['/', 'Home'], ['/govt-jobs', 'Govt Jobs'], ['/exams', 'Exams'], ['/results', 'Results']].map(([href, label]) => (

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { AcpiBrand } from '@/components/AcpiLogo'
 import { ResultPost, RESULT_CATEGORIES } from '@/lib/results-db'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
@@ -45,8 +46,8 @@ export default function ResultsClient({ initialPosts }: { initialPosts: ResultPo
 
       {/* Header */}
       <header style={{ background: N, borderBottom: `3px solid ${G}`, padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="/" style={{ fontFamily: 'Arial Black,sans-serif', fontSize: '.9rem', textDecoration: 'none' }}>
-          <span style={{ color: G }}>ASSAM </span><span style={{ color: W }}>CAREER</span><span style={{ color: T }}> POINT</span>
+        <Link href="/" style={{ textDecoration: 'none' }}>
+          <AcpiBrand size={36} textSize=".74rem" />
         </Link>
         <nav style={{ display: 'flex', gap: 18, flexWrap: 'wrap' }}>
           {[['/', 'Home'], ['/govt-jobs', 'Govt Jobs'], ['/exams', 'Exams'], ['/information', 'Info'], ['/results', 'Results']].map(([href, label]) => (

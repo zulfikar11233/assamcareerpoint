@@ -4,6 +4,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { AcpiBrand } from '@/components/AcpiLogo'
 import { OthersPost, getOthersPosts } from '@/lib/others-db'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
@@ -54,8 +55,8 @@ useEffect(() => {
 
       {/* Header */}
       <header style={{ background: N, borderBottom: `3px solid ${G}`, padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="/" style={{ fontFamily: 'Arial Black,sans-serif', fontSize: '.9rem', textDecoration: 'none' }}>
-          <span style={{ color: G }}>ASSAM </span><span style={{ color: W }}>CAREER</span><span style={{ color: T }}> POINT</span>
+        <Link href="/" style={{ textDecoration: 'none' }}>
+          <AcpiBrand size={36} textSize=".74rem" />
         </Link>
         <nav style={{ display: 'flex', gap: 16 }}>
           {[['/', 'Home'], ['/govt-jobs', 'Jobs'], ['/exams', 'Exams'], ['/announcements', 'Announcements'], ['/guides', 'Guides'], ['/services', 'Services']].map(([href, label]) => (

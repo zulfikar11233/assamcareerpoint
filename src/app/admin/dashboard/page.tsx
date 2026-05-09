@@ -14,6 +14,7 @@ import { useState, useEffect, useRef } from 'react'
 import { signOut } from 'next-auth/react'
 import { ContentSection, ContentSectionLink, newContentSectionId, newContentLinkId } from '@/lib/section-types'
 import dynamicImport from 'next/dynamic'
+import { AcpiBrand } from '@/components/AcpiLogo'
 
 const RichTextEditor = dynamicImport(
   () => import('@/components/admin/RichTextEditor'),
@@ -908,10 +909,7 @@ export default function AdminDashboard() {
           {/* Brand */}
           <div style={{ padding:'16px 16px 13px', borderBottom:'1px solid rgba(255,255,255,.07)' }}>
             <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-              <div style={{ width:38,height:38,background:'linear-gradient(135deg,#e63946,#f4a261)',borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'Sora',sans-serif",fontWeight:800,color:'#fff',fontSize:'1.05rem',flexShrink:0 }}>A</div>
-              <div>
-                <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:800,fontSize:'.83rem',color:'#fff',lineHeight:1.2 }}>Assam Career<br/><span style={{color:'#00b4d8'}}>Point & Info</span></div>
-              </div>
+              <AcpiBrand size={42} textSize=".68rem" stacked />
             </div>
             <div style={{ fontSize:'.58rem',color:'rgba(255,255,255,.22)',letterSpacing:'.08em',marginTop:6 }}>ADMIN PANEL v6</div>
           </div>

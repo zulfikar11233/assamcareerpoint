@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import { AcpiBrand } from '@/components/AcpiLogo'
 import { useState } from 'react'
 
 export const C = {
@@ -298,11 +299,7 @@ export function ToolsNavbar() {
 
           {/* Logo */}
           <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '9px', flexShrink: 0 }}>
-            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: C.teal, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: 800, color: C.navy, flexShrink: 0 }}>A</div>
-            <div style={{ lineHeight: 1.2 }}>
-              <div style={{ fontSize: '13px', fontWeight: 800, color: C.white }}>Assam Career</div>
-              <div style={{ fontSize: '11px', color: C.teal }}>Point & Info</div>
-            </div>
+            <AcpiBrand size={34} textSize=".74rem" />
           </Link>
 
           {/* Desktop nav links */}

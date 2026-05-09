@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import { AcpiBrand } from '@/components/AcpiLogo'
 import { useState } from 'react'
 
 type PdfForm = {
@@ -83,11 +84,7 @@ export default function PdfDetailClient({ form }: { form: PdfForm }) {
       <header style={{background:'#0d1b2a',position:'sticky',top:0,zIndex:100,boxShadow:'0 2px 20px rgba(0,0,0,.28)'}}>
         <div style={{maxWidth:1180,margin:'0 auto',padding:'11px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:14}}>
           <Link href="/" style={{display:'flex',alignItems:'center',gap:10,textDecoration:'none',flexShrink:0}}>
-            <div style={{width:36,height:36,background:'linear-gradient(135deg,#e63946,#f4a261)',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:800,color:'#fff',fontSize:'.95rem'}}>A</div>
-            <div>
-              <div style={{fontWeight:800,fontSize:'.86rem',color:'#fff',lineHeight:1.1}}>Assam Career<span style={{color:'#00b4d8'}}>Point</span></div>
-              <div style={{fontSize:'.6rem',color:'rgba(255,255,255,.35)'}}>& Info</div>
-            </div>
+            <AcpiBrand size={38} textSize=".76rem" stacked />
           </Link>
           <nav style={{display:'flex',gap:2,flexWrap:'wrap' as const}}>
             {NAV.map(([l,h]) => (

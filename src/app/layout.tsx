@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     description:  SITE_DESC,
     locale:      'en_IN',
     images: [{
-      url:    `${SITE_URL}/og-image.png`,
+      url:    `${SITE_URL}/acpi-logo.png.png`,
       width:   1200,
       height:  630,
       alt:    `${SITE_NAME} — Govt Jobs, Exams & Information Portal`,
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     creator:     '@AssamCareerPt',
     title:       `${SITE_NAME} — Govt Jobs & Exams`,
     description:  SITE_DESC,
-    images:      [`${SITE_URL}/og-image.png`],
+    images:      [`${SITE_URL}/acpi-logo.png.png`],
   },
   robots: {
     index:  true,
@@ -120,7 +120,7 @@ const orgSchema = {
   '@type':     'Organization',
   name:         SITE_NAME,
   url:          SITE_URL,
-  logo:        `${SITE_URL}/logo.png`,
+  logo:        `${SITE_URL}/acpi-logo.png.png`,
   description:  SITE_DESC,
   sameAs: [
     'https://t.me/assamcareerpoint',
@@ -149,9 +149,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en-IN" dir="ltr" className={`${sora.variable} ${nunito.variable}`}>
       <head>
         <link rel="icon"             type="image/x-icon"            href="/favicon.ico" />
-        <link rel="icon"             type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon"             type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="apple-touch-icon" sizes="180x180"                href="/apple-touch-icon.png" />
+        <link rel="icon"             type="image/png" href="/acpi-logo.png.png" />
+        <link rel="apple-touch-icon" href="/acpi-logo.png.png" />
 
         <script
           type="application/ld+json"

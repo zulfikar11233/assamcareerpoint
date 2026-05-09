@@ -9,6 +9,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { signOut } from 'next-auth/react'
 import Link from 'next/link'
 import dynamicImport from 'next/dynamic'
+import AcpiLogo, { AcpiBrand } from '@/components/AcpiLogo'
 import {
   ResultPost, ResultSection, ResultLink,
   getResultPosts, saveResultPosts,
@@ -71,11 +72,7 @@ function Sidebar() {
       padding: '0 0 20px', position: 'sticky', top: 0, flexShrink: 0,
     }}>
       <div style={{ padding: '18px 16px 14px', borderBottom: `1px solid #ffffff18` }}>
-        <div style={{ fontFamily: 'Arial Black,sans-serif', fontSize: '.88rem', lineHeight: 1.3 }}>
-          <span style={{ color: G }}>ASSAM </span>
-          <span style={{ color: W }}>CAREER</span>
-          <span style={{ color: T }}> POINT</span>
-        </div>
+        <AcpiBrand size={42} textSize=".68rem" stacked />
         <div style={{ color: '#8fa3b8', fontSize: '.68rem', marginTop: 2 }}>ADMIN PANEL v6</div>
       </div>
       <nav style={{ padding: '12px 10px', flex: 1 }}>
@@ -124,7 +121,7 @@ function Sidebar() {
 	</div>
       </nav>
       <div style={{ padding: '10px 14px', borderTop: `1px solid #ffffff18`, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <div style={{ width: 32, height: 32, borderRadius: 8, background: T, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: N, fontSize: '.9rem' }}>A</div>
+        <AcpiLogo size={32} />
         <div style={{ flex: 1 }}>
           <div style={{ color: W, fontSize: '.8rem', fontWeight: 700 }}>Admin</div>
           <div style={{ color: '#6a8099', fontSize: '.68rem' }}>Super Admin</div>

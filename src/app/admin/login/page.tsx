@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 // src/app/admin/login/page.tsx
 
 import { signIn } from 'next-auth/react'
+import AcpiLogo from '@/components/AcpiLogo'
 import { useState } from 'react'
 
 const G = '#c9a227', N = '#0b1f33'
@@ -70,12 +71,9 @@ export default function AdminLogin() {
       }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <div style={{
-            width: 56, height: 56, borderRadius: '50%',
-            background: N, display: 'inline-flex',
-            alignItems: 'center', justifyContent: 'center',
-            fontSize: '1.6rem', marginBottom: 12,
-          }}>🔒</div>
+          <div style={{ display: 'inline-flex', marginBottom: 12 }}>
+            <AcpiLogo size={72} />
+          </div>
           <div style={{ fontFamily: 'Arial Black, sans-serif', fontSize: '1.1rem', color: N, fontWeight: 900 }}>
             ACPI Admin
           </div>

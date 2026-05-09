@@ -2,6 +2,7 @@
 // src/app/services/[slug]/ServiceDetail.tsx
 // ✅ PageSpeed fixes + RichContent for TinyMCE
 import Link from 'next/link'
+import { AcpiBrand } from '@/components/AcpiLogo'
 import { useEffect } from 'react'
 import FreeToolsBar from '@/components/FreeToolsBar'
 
@@ -97,8 +98,8 @@ export default function ServiceDetail({ post }: { post: OthersPost }) {
       `}</style>
 
       <header className="detail-header" style={{ background: N, borderBottom: `3px solid ${G}`, padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="/" style={{ fontFamily: 'Arial Black,sans-serif', fontSize: '.9rem', textDecoration: 'none' }}>
-          <span style={{ color: G }}>ASSAM </span><span style={{ color: W }}>CAREER</span><span style={{ color: T }}> POINT</span>
+        <Link href="/" style={{ textDecoration: 'none' }}>
+          <AcpiBrand size={36} textSize=".74rem" />
         </Link>
         <nav className="detail-nav" style={{ display: 'flex', gap: 6 }}>
           {([['/', '🏠 Home'], [`/${PATH}`, '🏛️ Services'], ['/announcements', '📢 Announcements']] as [string,string][]).map(([href, label]) => (

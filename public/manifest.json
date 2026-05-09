@@ -4,9 +4,9 @@
   "description": "Govt Jobs, Exams & Information for Assam",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0b1f33",
-  "theme_color": "#0b1f33",
+  "background_color": "#061b33",
+  "theme_color": "#061b33",
   "icons": [
-    { "src": "/favicon.ico", "sizes": "64x64", "type": "image/x-icon" }
+    { "src": "/acpi-logo.png.png", "sizes": "512x512", "type": "image/png" }
   ]
 }
