@@ -1,26 +1,23 @@
-// Server component – fetches data, generates metadata, and injects Schema.org markup
 // src/app/pdf-forms/[slug]/page.tsx
 import { getCollection } from '@/lib/mysql'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
+import { cache } from 'react'
 import PdfDetailClient from './PdfDetailClient'
 
-// Type definition – includes optional slug and imageUrl for SEO
+export const dynamic = 'force-dynamic'
+
 type PdfForm = {
-  id: number;
-  title: string;
-  category: string;
-  driveLink: string;
-  uploadedAt: string;
-  downloads: number;
-  slug?: string;
-  imageUrl?: string;   // for Open Graph image
+  id: number; title: string; titleAs?: string; category: string
+  driveLink: string; uploadedAt?: string; downloads?: number
+  slug?: string; imageUrl?: string; year?: string; pages?: string
+  fileSize?: string; language?: string; source?: string; officialUrl?: string
+  description?: string; descriptionAs?: string; keywords?: string
+  howToFill?: string; howToFillAs?: string
 }
 
-// Helper: generate a clean URL slug from title + id (SEO‑optimised with -pdf-download-)
 function generateSlug(title: string, id: number) {
-  const base = title
-    .toLowerCase()
+  const base = title.toLowerCase()
     .replace(/[^a-z0-9\s]/g, '')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
@@ -28,14 +25,38 @@ function generateSlug(title: string, id: number) {
   return `${base}-pdf-download-${id}`
 }
 
-// Generate SEO metadata (title, description, Open Graph, Twitter card)
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const all = await getCollection('pdfforms') as PdfForm[]
-  const form = all.find(f => (f.slug || generateSlug(f.title, f.id)) === params.slug)
-  if (!form) return { title: 'PDF Not Found' }
+// ── cache() deduplicates the MySQL call so it runs ONCE
+// even though both generateMetadata and the page need it
+const getAllForms = cache(async (): Promise<PdfForm[]> => {
+  try {
+    const data = await getCollection('pdfforms')
+    return Array.isArray(data) ? data as PdfForm[] : []
+  } catch (err) {
+    console.error('[PDF slug] getCollection failed:', err)
+    return []
+  }
+})
+
+function findForm(all: PdfForm[], slug: string): PdfForm | undefined {
+  const slugId = parseInt(slug.split('-').pop() || '0')
+  return all.find(f =>
+    f.slug === slug ||
+    generateSlug(f.title, f.id) === slug ||
+    f.id === slugId ||
+    String(f.id) === String(slugId)  // handles string/number mismatch from MySQL
+  )
+}
+
+export async function generateMetadata(
+  { params }: { params: { slug: string } }
+): Promise<Metadata> {
+  const all  = await getAllForms()
+  const form = findForm(all, params.slug)
+  if (!form) return { title: 'PDF Not Found | Assam Career Point' }
   return {
-    title: `${form.title} — Download PDF | Assam Career Point`,
-    description: `Download ${form.title} PDF for free. ${form.category} document available on Assam Career Point & Info portal.`,
+    title: `${form.title} — Free PDF Download | Assam Career Point`,
+    description: form.description ||
+      `Download ${form.title} PDF for free. ${form.category} document on Assam Career Point & Info.`,
     openGraph: {
       title: form.title,
       description: `Free PDF download — ${form.category}`,
@@ -53,30 +74,20 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-// Main page component with robust 3-layer matching
-export default async function PdfSlugPage({ params }: { params: { slug: string } }) {
-  const all = await getCollection('pdfforms') as PdfForm[]
-
-  // ── ROBUST 3-LAYER MATCHING ──
-  // Layer 1: exact stored slug
-  // Layer 2: generated slug from title+id
-  // Layer 3: ID at end of slug (most reliable fallback)
-  const slugId = parseInt(params.slug.split('-').pop() || '0')
-
-  const form = all.find(f =>
-    f.slug === params.slug ||
-    generateSlug(f.title, f.id) === params.slug ||
-    f.id === slugId
-  )
+export default async function PdfSlugPage(
+  { params }: { params: { slug: string } }
+) {
+  const all  = await getAllForms()   // uses cached result — no second MySQL call
+  const form = findForm(all, params.slug)
 
   if (!form) notFound()
 
-  // Schema.org markup (DigitalDocument + BreadcrumbList) – critical for SEO ranking
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "DigitalDocument",
     "name": form.title,
-    "description": `Download ${form.title} PDF for free. Official ${form.category} document.`,
+    "description": form.description ||
+      `Download ${form.title} PDF for free. Official ${form.category} document.`,
     "url": `https://assamcareerpoint-info.com/pdf-forms/${params.slug}`,
     "datePublished": form.uploadedAt,
     "publisher": {
@@ -89,9 +100,12 @@ export default async function PdfSlugPage({ params }: { params: { slug: string }
     "breadcrumb": {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://assamcareerpoint-info.com" },
-        { "@type": "ListItem", "position": 2, "name": "PDF Forms", "item": "https://assamcareerpoint-info.com/pdf-forms" },
-        { "@type": "ListItem", "position": 3, "name": form.category, "item": `https://assamcareerpoint-info.com/pdf-forms?cat=${encodeURIComponent(form.category)}` },
+        { "@type": "ListItem", "position": 1, "name": "Home",
+          "item": "https://assamcareerpoint-info.com" },
+        { "@type": "ListItem", "position": 2, "name": "PDF Forms",
+          "item": "https://assamcareerpoint-info.com/pdf-forms" },
+        { "@type": "ListItem", "position": 3, "name": form.category,
+          "item": `https://assamcareerpoint-info.com/pdf-forms?cat=${encodeURIComponent(form.category)}` },
         { "@type": "ListItem", "position": 4, "name": form.title }
       ]
     }
@@ -99,7 +113,6 @@ export default async function PdfSlugPage({ params }: { params: { slug: string }
 
   return (
     <>
-      {/* Inject JSON-LD script tag for Schema.org */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

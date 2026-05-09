@@ -687,27 +687,37 @@ export default function AdminDashboard() {
   function savePdfForm(e:React.FormEvent) {
     e.preventDefault()
     if (!pf.title||!pf.driveLink) { alert('Title and Google Drive link required.'); return }
+
     if (editPdf) {
-      setPdfForms(prev => prev.map(p => p.id===editPdf.id ? { ...p, ...pf, uploadedAt: p.uploadedAt, downloads: p.downloads } : p))
+      // ── EDIT existing PDF ──
+      setPdfForms(prev => prev.map(p => p.id === editPdf.id ? {
+        ...p,
+        ...pf,
+        uploadedAt: p.uploadedAt,   // keep original date
+        downloads:  p.downloads,    // keep download count
+      } : p))
       toast('✅ PDF Form updated!')
     } else {
+      // ── ADD new PDF ──
+      const newId = Date.now()
+      const autoSlug = pf.title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g,'')
+        .replace(/\s+/g,'-')
+        .replace(/-+/g,'-')
+        .trim() + '-pdf-download'
       setPdfForms(prev => [{
-        id:Date.now(),
-        title:pf.title,
-        category:pf.category,
-        driveLink:pf.driveLink,
-        uploadedAt:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),
-        downloads:0,
-        description:pf.description||undefined,
-        keywords:pf.keywords||undefined,
-        fileSize:pf.fileSize||undefined,
-        pages:pf.pages||undefined,
-        language:pf.language||undefined,
-        source:pf.source||undefined,
+        id:         newId,
+        ...pf,
+        slug:       pf.slug ? `${pf.slug}-${newId}` : `${autoSlug}-${newId}`,
+        uploadedAt: new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),
+        downloads:  0,
       }, ...prev])
       toast('✅ PDF Form added!')
     }
-    setShowPdfModal(false);
+
+    setEditPdf(null)
+    setShowPdfModal(false)
   }
 
   // ── STYLES ───────────────────────────────────────────────────────────────
@@ -839,15 +849,21 @@ export default function AdminDashboard() {
           .admin-content { padding: 14px !important; }
           .admin-stats { grid-template-columns: 1fr !important; }
         }
+	@media screen and (max-width:768px) {
+  .mobile-nav-hint { display:block !important; }
+}
 
         /* ── SMALL MOBILE (560px) ── */
-        @media(max-width:560px) {
-          .prgrid, .idrow { grid-template-columns: 1fr !important; }
-          .lgrid { grid-template-columns: repeat(4,1fr); }
-          .mbdy { padding: 14px !important; }
-          .tst { left:12px !important; right:12px !important; bottom:14px !important; text-align:center; }
-          .nbtn span { display: none; }
-        }
+@media(max-width:560px) {
+  .prgrid, .idrow { grid-template-columns: 1fr !important; }
+  .lgrid { grid-template-columns: repeat(4,1fr); }
+  .mbdy { padding: 14px !important; }
+  .tst { left:12px !important; right:12px !important; bottom:14px !important; text-align:center; }
+  /* CORRECTED: hide the label text node after the span, show only emoji */
+  .nbtn { font-size: 0 !important; }         /* hide text nodes */
+  .nbtn span { font-size: .95rem !important; display:inline-flex !important; } /* show emoji */
+  .nbtn.on span { color: #00b4d8; }
+}
 
         /* Scroll hint arrow for mobile nav */
         @media screen and (max-width:768px) {
@@ -896,6 +912,15 @@ export default function AdminDashboard() {
 
           {/* Nav */}
           <nav style={{ flex:1,padding:'11px 10px',overflowY:'auto' }}>
+  {/* Mobile scroll hint — hidden on desktop via CSS */}
+  <div className="mobile-nav-hint" style={{
+    display:'none', // shown via CSS on mobile
+    fontSize:'.6rem',color:'rgba(255,255,255,.3)',
+    padding:'2px 4px 4px',textAlign:'center' as const,
+    width:'100%',flexShrink:0
+  }}>
+    ← scroll for more →
+  </div>
             {navItems.map(n => (
               <button key={n.tab} onClick={()=>setActiveTab(n.tab)} className={`nbtn ${activeTab===n.tab?'on':''}`}>
                 <span style={{ width:20,textAlign:'center' as const,fontSize:'.95rem' }}>{n.icon}</span>

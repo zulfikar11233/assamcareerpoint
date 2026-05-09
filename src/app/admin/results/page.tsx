@@ -65,7 +65,7 @@ function useToast() {
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 function Sidebar() {
   return (
-    <aside style={{
+    <aside className="res-sidebar" style={{
       width: 230, minHeight: '100vh', background: N,
       borderRight: `2px solid ${G}33`, display: 'flex', flexDirection: 'column',
       padding: '0 0 20px', position: 'sticky', top: 0, flexShrink: 0,
@@ -105,9 +105,10 @@ function Sidebar() {
           color: '#b0c4d8', fontFamily: 'Nunito,sans-serif', marginBottom: 2,
         }}>📂 Others CMS</Link>
         <div style={{ height: 1, background: '#ffffff18', margin: '10px 6px' }} />
-        <div style={{ padding: '4px 6px', fontSize: '.68rem', color: '#6a8099', fontWeight: 700, letterSpacing: 1 }}>
+        <div className="res-pub-links" style={{ padding: '4px 6px', fontSize: '.68rem', color: '#6a8099', fontWeight: 700, letterSpacing: 1 }}>
           PUBLIC PAGES ↗
         </div>
+        <div className="res-pub-links">
         {[
           ['/', '🏠', 'Home'],
           ['/govt-jobs', '💼', 'Govt Jobs'],
@@ -120,6 +121,7 @@ function Sidebar() {
             color: '#6a8099', fontFamily: 'Nunito,sans-serif',
           }}>{icon} {label}</Link>
         ))}
+	</div>
       </nav>
       <div style={{ padding: '10px 14px', borderTop: `1px solid #ffffff18`, display: 'flex', alignItems: 'center', gap: 8 }}>
         <div style={{ width: 32, height: 32, borderRadius: 8, background: T, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: N, fontSize: '.9rem' }}>A</div>
@@ -668,8 +670,52 @@ export default function ResultsAdmin() {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Nunito:wght@400;600;700&display=swap');
-        * { box-sizing: border-box }
-        body { margin: 0; font-family: Nunito, sans-serif; background: #f0f4f8 }
+        * { box-sizing: border-box; max-width: 100%; }
+        body { margin: 0; font-family: Nunito, sans-serif; background: #f0f4f8; overflow-x: hidden; }
+
+        @media screen and (max-width: 768px) {
+          .res-shell { flex-direction: column !important; }
+
+          .res-sidebar {
+            width: 100% !important;
+            min-height: 0 !important;
+            height: auto !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 100 !important;
+            flex-shrink: 0 !important;
+          }
+
+          .res-sidebar nav {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            -webkit-overflow-scrolling: touch !important;
+            padding: 6px 10px 8px !important;
+            gap: 4px !important;
+            scrollbar-width: none !important;
+            max-height: 48px !important;
+          }
+          .res-sidebar nav::-webkit-scrollbar { display: none !important; }
+          .res-sidebar nav a {
+            flex: 0 0 auto !important;
+            white-space: nowrap !important;
+            font-size: .72rem !important;
+            padding: 6px 11px !important;
+            border-radius: 8px !important;
+          }
+          .res-sidebar nav > div { display: none !important; }
+          .res-pub-links { display: none !important; }
+          .res-sidebar > div:last-child { display: none !important; }
+
+          main { padding: 14px !important; overflow-x: hidden !important; }
+        }
+        @media screen and (max-width: 480px) {
+          .res-sidebar nav a { font-size: .68rem !important; padding: 5px 9px !important; }
+          main { padding: 10px !important; }
+        }
       `}</style>
 
       {/* Toast */}
@@ -682,7 +728,7 @@ export default function ResultsAdmin() {
         }}>{toastMsg}</div>
       )}
 
-      <div style={{ display: 'flex', minHeight: '100vh' }}>
+      <div className="res-shell" style={{ display: 'flex', minHeight: '100vh' }}>
         <Sidebar />
 
         <main style={{ flex: 1, padding: '28px 32px', overflowX: 'auto' }}>
