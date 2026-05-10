@@ -2,6 +2,7 @@
 import { Sora, Nunito } from 'next/font/google';
 import type { Metadata, Viewport } from 'next'
 import Providers from '@/components/Providers'   // ← NEW IMPORT
+import AlertBanner from '@/components/AlertBanner'
 
 const sora = Sora({
   subsets: ['latin'],
@@ -181,6 +182,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
       <body style={{ margin: 0, padding: 0, fontFamily: 'var(--font-nunito), sans-serif' }}>
         <Providers>       {/* ← THIS IS THE FIX — wraps all pages with SessionProvider */}
+          <AlertBanner />
           {children}
         </Providers>
       </body>
