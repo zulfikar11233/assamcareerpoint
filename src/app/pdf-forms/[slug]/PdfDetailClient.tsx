@@ -3,6 +3,18 @@ import Link from 'next/link'
 import { AcpiBrand } from '@/components/AcpiLogo'
 import { useState } from 'react'
 
+function toImgSrc(url?: string): string {
+  if (!url || typeof url !== 'string') return ''
+  const u = url.trim()
+  if (!u.startsWith('http')) return ''
+  if (u.includes('drive.google.com')) {
+    const m = u.match(/\/d\/([a-zA-Z0-9_-]+)/) ||
+              u.match(/[?&]id=([a-zA-Z0-9_-]+)/)
+    if (m) return `https://lh3.googleusercontent.com/d/${m[1]}`
+  }
+  return u
+}
+
 type PdfForm = {
   id: number; title: string; titleAs?: string; category: string
   driveLink: string; uploadedAt?: string; downloads?: number
@@ -323,7 +335,23 @@ export default function PdfDetailClient({ form }: { form: PdfForm }) {
 
             {/* Download Card */}
             <div style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:13,padding:'20px 18px'}}>
-              <div style={{display:'flex',gap:10,alignItems:'flex-start',marginBottom:16}}>
+              {toImgSrc(form.imageUrl) && (
+                <div style={{
+                  height:160, borderRadius:'10px 10px 0 0',
+                  overflow:'hidden', marginTop:-20, marginLeft:-18,
+                  marginRight:-18, marginBottom:16,
+                  width:'calc(100% + 36px)',
+                  background:`${cc}18`,
+                }}>
+                  <img
+                    src={toImgSrc(form.imageUrl)}
+                    alt={form.title}
+                    style={{width:'100%',height:'100%',objectFit:'cover'}}
+                    onError={(e)=>{ (e.target as HTMLImageElement).parentElement!.style.display='none' }}
+                  />
+                </div>
+              )}
+              <div style={{display:toImgSrc(form.imageUrl)?'none':'flex',gap:10,alignItems:'flex-start',marginBottom:16}}>
                 <div style={{width:50,height:50,borderRadius:10,background:`${cc}18`,border:`1.5px solid ${cc}33`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.6rem',flexShrink:0,overflow:'hidden'}}>
                   {form.imageUrl && form.imageUrl.startsWith('http')
                     ? <img src={form.imageUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} />

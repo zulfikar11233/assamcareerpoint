@@ -50,6 +50,18 @@ type InfoItem = {
 
 const SC: Record<string,string> = { 'Active':'#22c55e', 'Upcoming':'#f59e0b', 'Expired':'#8fa3b8' }
 
+function toImgSrc(url?: string): string {
+  if (!url || typeof url !== 'string') return ''
+  const u = url.trim()
+  if (!u.startsWith('http')) return ''
+  if (u.includes('drive.google.com')) {
+    const m = u.match(/\/d\/([a-zA-Z0-9_-]+)/) ||
+              u.match(/[?&]id=([a-zA-Z0-9_-]+)/)
+    if (m) return `https://lh3.googleusercontent.com/d/${m[1]}`
+  }
+  return u
+}
+
 export default function InfoDetail({ item, others }: { item: InfoItem; others: InfoItem[] }) {
   // ─────────────────────────────────────────────────────────
   // ✅ Countdown timer for lastDate (if exists)
@@ -174,8 +186,8 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
       <div className="detail-hero" style={{background:`linear-gradient(135deg,${N},#0a3050)`,padding:'16px 20px 12px'}}>
         <div style={{maxWidth:1180,margin:'0 auto',display:'flex',gap:16,alignItems:'flex-start',flexWrap:'wrap' as const}}>
           <div style={{width:64,height:64,borderRadius:15,background:`${T}22`,border:`2px solid ${T}55`,overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2rem',flexShrink:0}}>
-  {item.imageUrl
-    ? <img src={item.imageUrl} alt={item.title} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+  {toImgSrc((item as any).imageUrl)
+    ? <img src={toImgSrc((item as any).imageUrl)} alt={item.title} style={{width:'100%',height:'100%',objectFit:'cover'}} onError={(e)=>{ (e.target as HTMLImageElement).style.display='none' }} />
     : item.emoji
   }
 </div>

@@ -72,6 +72,18 @@ function driveImgUrl(url: string): string {
   return `https://lh3.googleusercontent.com/d/${id}`
 }
 
+function toImgSrc(url?: string): string {
+  if (!url || typeof url !== 'string') return ''
+  const u = url.trim()
+  if (!u.startsWith('http')) return ''
+  if (u.includes('drive.google.com')) {
+    const m = u.match(/\/d\/([a-zA-Z0-9_-]+)/) ||
+              u.match(/[?&]id=([a-zA-Z0-9_-]+)/)
+    if (m) return `https://lh3.googleusercontent.com/d/${m[1]}`
+  }
+  return u
+}
+
 function sanitizeHttpUrl(raw: string | undefined | null): string {
   if (!raw || typeof raw !== 'string') return ''
   const t = raw.trim()
@@ -261,8 +273,8 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
         <div style={{maxWidth:1200,margin:'0 auto'}}>
           <div style={{display:'flex',gap:16,alignItems:'flex-start',flexWrap:'wrap' as const}}>
             <div style={{width:66,height:66,borderRadius:15,background:`${sc}22`,border:`2px solid ${sc}55`,overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2.1rem',flexShrink:0}}>
-  {job.imageUrl
-    ? <img src={job.imageUrl} alt={job.title} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+  {toImgSrc((job as any).imageUrl)
+    ? <img src={toImgSrc((job as any).imageUrl)} alt={job.title} style={{width:'100%',height:'100%',objectFit:'cover'}} onError={(e)=>{ (e.target as HTMLImageElement).style.display='none' }} />
     : job.logo||'🏛️'
   }
 </div>

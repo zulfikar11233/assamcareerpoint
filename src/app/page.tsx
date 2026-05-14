@@ -65,21 +65,30 @@ function fmtCount(n:number):string {
   return `${n}+`
 }
 
-// Converts Google Drive share links to direct image URLs
-function toThumbUrl(url?: string): string {
+function toImgSrc(url?: string): string {
   if (!url || typeof url !== 'string') return ''
-  const t = url.trim()
-  if (!t.startsWith('http')) return ''
-  if (t.includes('drive.google.com')) {
-    const m = t.match(/\/d\/([a-zA-Z0-9_-]+)/)
-    return m ? `https://lh3.googleusercontent.com/d/${m[1]}` : ''
+  const u = url.trim()
+  if (!u.startsWith('http')) return ''
+  if (u.includes('drive.google.com')) {
+    const m = u.match(/\/d\/([a-zA-Z0-9_-]+)/) ||
+              u.match(/[?&]id=([a-zA-Z0-9_-]+)/)
+    if (m) return `https://lh3.googleusercontent.com/d/${m[1]}`
   }
-  return t
+  return u
 }
 
 // Strip HTML tags from description
 function stripHtml(html: string): string {
   return html.replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim()
+}
+
+function fmtDate(d?: string): string {
+  if (!d) return ''
+  try {
+    return new Date(d).toLocaleDateString('en-IN', {
+      day:'2-digit', month:'short', year:'numeric'
+    })
+  } catch { return d }
 }
 
 async function fetchWithRetry(url: string, retries = 2): Promise<any> {
@@ -223,7 +232,7 @@ export default function HomePage() {
       date: new Date(j.createdAt||'').getTime() || 0,
       desc: j.description || '',
       meta: `${j.org || ''} · ${j.district || ''}`,
-      imageUrl: toThumbUrl((j as any).imageUrl),
+      imageUrl: toImgSrc((j as any).imageUrl),
       lastDate: j.lastDate || '',
       postsCount: (j.posts?.reduce((a,p)=>a+p.vacancy,0)||parseInt(j.vacancy||'0')) > 0
         ? `${(j.posts?.reduce((a,p)=>a+p.vacancy,0)||parseInt(j.vacancy||'0')).toLocaleString()} Posts`
@@ -241,7 +250,7 @@ export default function HomePage() {
       date: new Date((e as any).createdAt || e.applicationLastDate || '').getTime() || 0,
       desc: `Apply by: ${fmt(e.applicationLastDate)} · Exam: ${fmt(e.examDate)}`,
       meta: `Conducted by ${e.conductedBy || ''}`,
-      imageUrl: toThumbUrl((e as any).imageUrl),
+      imageUrl: toImgSrc((e as any).imageUrl),
       lastDate: e.applicationLastDate || '',
       postsCount: '',
       examDate: e.examDate || '',
@@ -257,7 +266,7 @@ export default function HomePage() {
       date: new Date(i.createdAt||'').getTime() || 0,
       desc: i.description || '',
       meta: i.category || '',
-      imageUrl: toThumbUrl((i as any).imageUrl),
+      imageUrl: toImgSrc((i as any).imageUrl),
       lastDate: i.lastDate || '',
       postsCount: '',
       examDate: '',
@@ -273,7 +282,7 @@ export default function HomePage() {
       date: new Date(r.resultDate||'').getTime() || 0,
       desc: r.resultDate ? `Result declared: ${fmt(r.resultDate)}` : '',
       meta: r.org || '',
-      imageUrl: toThumbUrl((r as any).imageUrl),
+      imageUrl: toImgSrc((r as any).imageUrl),
       lastDate: '',
       postsCount: '',
       examDate: '',
@@ -289,7 +298,7 @@ export default function HomePage() {
       date: new Date(a.createdAt||'').getTime() || 0,
       desc: a.description || '',
       meta: a.category || '',
-      imageUrl: toThumbUrl((a as any).imageUrl),
+      imageUrl: toImgSrc((a as any).imageUrl),
       lastDate: '',
       postsCount: '',
       examDate: '',
@@ -305,7 +314,7 @@ export default function HomePage() {
       date: new Date(s.createdAt||'').getTime() || 0,
       desc: s.description || '',
       meta: s.category || '',
-      imageUrl: toThumbUrl((s as any).imageUrl),
+      imageUrl: toImgSrc((s as any).imageUrl),
       lastDate: '',
       postsCount: '',
       examDate: '',
@@ -321,7 +330,7 @@ export default function HomePage() {
       date: new Date(g.createdAt||'').getTime() || 0,
       desc: g.description || '',
       meta: g.category || '',
-      imageUrl: toThumbUrl((g as any).imageUrl),
+      imageUrl: toImgSrc((g as any).imageUrl),
       lastDate: '',
       postsCount: '',
       examDate: '',
@@ -648,12 +657,12 @@ export default function HomePage() {
                         }}>
                           {/* LEFT — RECTANGLE THUMBNAIL */}
                           <div style={{
-                            width: 130, height: 86, flexShrink: 0, borderRadius: 10,
+                            width: 115, height: 100, flexShrink: 0, borderRadius: 10,
                             background: '#f0f4f8', border: '1.5px solid #e0e8f0',
                             overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center'
                           }}>
-                            {item.imageUrl && item.imageUrl.startsWith('http') ? (
-                              <img src={item.imageUrl} alt={item.title} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                            {toImgSrc(item.imageUrl) ? (
+                              <img src={toImgSrc(item.imageUrl)} alt={item.title} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
                             ) : (
                               <span style={{ fontSize: '2rem' }}>{item.icon}</span>
                             )}
@@ -665,9 +674,11 @@ export default function HomePage() {
                             {/* Row 1: Title + Tag badge */}
                             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8, marginBottom:3 }}>
                               <h3 style={{
-                                fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:'1.1rem',
-                                color:'#0d1b2a', margin:0, lineHeight:1.35,
-                                display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden'
+                                fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:'.97rem',
+                                color:'#0d1b2a', margin:'0 0 4px', lineHeight:1.45,
+                                display:'-webkit-box', WebkitLineClamp:3,
+                                WebkitBoxOrient:'vertical', overflow:'hidden',
+                                letterSpacing:0,
                               }}>
                                 {item.title}
                               </h3>
@@ -681,7 +692,9 @@ export default function HomePage() {
 
                             {/* Row 2: Organisation / Category */}
                             {item.meta && (
-                              <div style={{ fontSize:'.73rem', color:'#8a9ab0', marginBottom:3, whiteSpace:'nowrap' as const, overflow:'hidden', textOverflow:'ellipsis' }}>
+                              <div style={{ fontSize:'.74rem', color:'#6a7a90', marginBottom:4,
+                                fontWeight:600, overflow:'hidden', textOverflow:'ellipsis',
+                                whiteSpace:'nowrap' as const }}>
                                 {item.meta}
                               </div>
                             )}
@@ -689,11 +702,11 @@ export default function HomePage() {
                             {/* Row 3: Description — 2 lines, strip HTML */}
                             {item.desc && (
                               <div style={{
-                                fontSize:'.76rem', color:'#5a6a7a', marginBottom:5,
-                                display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical',
-                                overflow:'hidden', lineHeight:1.5
+                                fontSize:'.80rem', color:'#4a5a6a', marginBottom:6,
+                                display:'-webkit-box', WebkitLineClamp:3,
+                                WebkitBoxOrient:'vertical', overflow:'hidden', lineHeight:1.6
                               }}>
-                                {stripHtml(item.desc).slice(0, 160)}
+                                {stripHtml(item.desc).slice(0, 240)}
                               </div>
                             )}
 
@@ -706,7 +719,7 @@ export default function HomePage() {
                               )}
                               {item.lastDate && (
                                 <span style={{ fontSize:'.68rem', fontWeight:700, padding:'2px 8px', borderRadius:99, background:'#fce4ec', color:'#c62828', border:'1px solid #ef9a9a' }}>
-                                  📅 Last Date: {item.lastDate}
+                                  📅 Last Date: {fmtDate(item.lastDate)}
                                 </span>
                               )}
                               {item.examDate && (
@@ -753,7 +766,7 @@ export default function HomePage() {
                   const d = days(j.lastDate)
                   return (
                     <Link key={j.id} href={`/jobs/${j.slug || j.id}`} style={{textDecoration:'none'}}>
-                      <div className="jr" style={{display:'flex',alignItems:'center',gap:12,padding:'13px 20px',borderBottom:i<visibleItems.length-1?'1px solid #f0f4f8':'none',cursor:'pointer'}}>
+                      <div className="jr" style={{display:'flex',alignItems:'center',gap:12,padding:'15px 20px',borderBottom:i<visibleItems.length-1?'1px solid #f0f4f8':'none',cursor:'pointer'}}>
                         <div style={{width:44,height:44,borderRadius:10,background:'linear-gradient(135deg,#e0f7fc,#b2ebf5)',border:'1.5px solid #d4e0ec',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.3rem',flexShrink:0}}>
                           {j.logo||'🏛️'}
                         </div>

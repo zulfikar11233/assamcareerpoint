@@ -1,8 +1,20 @@
-// src/app/pdf-forms/page.tsx
+﻿// src/app/pdf-forms/page.tsx
 'use client'
 import Link from 'next/link'
 import { AcpiBrand } from '@/components/AcpiLogo'
 import { useState, useEffect } from 'react'
+
+function toImgSrc(url?: string): string {
+  if (!url || typeof url !== 'string') return ''
+  const u = url.trim()
+  if (!u.startsWith('http')) return ''
+  if (u.includes('drive.google.com')) {
+    const m = u.match(/\/d\/([a-zA-Z0-9_-]+)/) ||
+              u.match(/[?&]id=([a-zA-Z0-9_-]+)/)
+    if (m) return `https://lh3.googleusercontent.com/d/${m[1]}`
+  }
+  return u
+}
 
 type PdfForm = {
   id: number
@@ -14,7 +26,7 @@ type PdfForm = {
   slug?: string
 }
 
-// ✅ SEO‑optimised slug generator – same as in [slug]/page.tsx
+// âœ… SEOâ€‘optimised slug generator â€“ same as in [slug]/page.tsx
 function generatePdfSlug(title: string, id: number) {
   const base = title
     .toLowerCase()
@@ -30,19 +42,19 @@ const SAMPLE: PdfForm[] = [
   { id:2,  title:'Assam Police SI Application Form 2026',         category:'Application Forms', driveLink:'https://drive.google.com/file/d/example2/view', uploadedAt:'20 Feb 2026', downloads:8200  },
   { id:3,  title:'CTET Previous Year Question Paper 2025',        category:'Question Papers',   driveLink:'https://drive.google.com/file/d/example3/view', uploadedAt:'10 Jan 2026', downloads:6780  },
   { id:4,  title:'NEET UG Answer Key 2025 Official',              category:'Answer Keys',       driveLink:'https://drive.google.com/file/d/example4/view', uploadedAt:'05 Jun 2025', downloads:9100  },
-  { id:5,  title:'Voter ID Form 6 — New Voter Registration',      category:'Govt Documents',    driveLink:'https://drive.google.com/file/d/example5/view', uploadedAt:'01 Jan 2026', downloads:3400  },
+  { id:5,  title:'Voter ID Form 6 â€” New Voter Registration',      category:'Govt Documents',    driveLink:'https://drive.google.com/file/d/example5/view', uploadedAt:'01 Jan 2026', downloads:3400  },
   { id:6,  title:'RRB Group D Syllabus & Exam Pattern 2026',      category:'Syllabus',         driveLink:'https://drive.google.com/file/d/example6/view', uploadedAt:'12 Mar 2026', downloads:5600  },
   { id:7,  title:'SBI Clerk Prelims Question Paper 2024',         category:'Question Papers',   driveLink:'https://drive.google.com/file/d/example7/view', uploadedAt:'28 Nov 2024', downloads:7200  },
   { id:8,  title:'UPSC CSE Prelims GS Paper I 2025',              category:'Question Papers',   driveLink:'https://drive.google.com/file/d/example8/view', uploadedAt:'02 Jun 2025', downloads:11300 },
-  { id:9,  title:'Assam TET Syllabus — Paper I & II',             category:'Syllabus',         driveLink:'https://drive.google.com/file/d/example9/view', uploadedAt:'18 Feb 2026', downloads:4500  },
-  { id:10, title:'PAN–Aadhaar Link Form — Income Tax Dept',       category:'Govt Documents',    driveLink:'https://drive.google.com/file/d/example10/view',uploadedAt:'01 Mar 2026', downloads:2800  },
+  { id:9,  title:'Assam TET Syllabus â€” Paper I & II',             category:'Syllabus',         driveLink:'https://drive.google.com/file/d/example9/view', uploadedAt:'18 Feb 2026', downloads:4500  },
+  { id:10, title:'PANâ€“Aadhaar Link Form â€” Income Tax Dept',       category:'Govt Documents',    driveLink:'https://drive.google.com/file/d/example10/view',uploadedAt:'01 Mar 2026', downloads:2800  },
 ]
 
 const ALL_CATS = ['All','Application Forms','Syllabus','Question Papers','Answer Keys','Govt Documents','Results','Other']
 
 const CAT_ICONS: Record<string,string> = {
-  'All':'📂','Application Forms':'📝','Syllabus':'📖','Question Papers':'📋',
-  'Answer Keys':'🔑','Govt Documents':'🏛️','Results':'📊','Other':'📄',
+  'All':'ðŸ“‚','Application Forms':'ðŸ“','Syllabus':'ðŸ“–','Question Papers':'ðŸ“‹',
+  'Answer Keys':'ðŸ”‘','Govt Documents':'ðŸ›ï¸','Results':'ðŸ“Š','Other':'ðŸ“„',
 }
 
 const NAV = [
@@ -131,20 +143,20 @@ export default function PdfFormsPage() {
       {/* HERO */}
       <div style={{ background:'linear-gradient(135deg,#0d1b2a,#1b2f45)',padding:'40px 20px 34px',textAlign:'center' as const }}>
         <div style={{ display:'inline-flex',alignItems:'center',gap:7,background:'rgba(107,0,173,.2)',border:'1px solid rgba(107,0,173,.4)',borderRadius:99,padding:'4px 13px',fontSize:'.73rem',fontWeight:700,color:'#ce93d8',marginBottom:14 }}>
-          📄 PDF Forms Library
+          ðŸ“„ PDF Forms Library
         </div>
         <h1 style={{ fontFamily:"'Sora',sans-serif",fontSize:'clamp(1.6rem,3.5vw,2.3rem)',fontWeight:800,color:'#fff',marginBottom:10 }}>
           Government PDF Forms & Documents
         </h1>
         <p style={{ color:'rgba(255,255,255,.55)',fontSize:'.95rem',marginBottom:6 }}>
-          Application Forms · Syllabus · Question Papers · Answer Keys · Official Documents
+          Application Forms Â· Syllabus Â· Question Papers Â· Answer Keys Â· Official Documents
         </p>
         <p style={{ color:'rgba(255,255,255,.35)',fontSize:'.78rem' }}>
-          All documents hosted on Google Drive — open directly in browser or download
+          All documents hosted on Google Drive â€” open directly in browser or download
         </p>
         <div style={{ maxWidth:680,margin:'20px auto 0',background:'rgba(255,255,255,.07)',border:'1px solid rgba(255,255,255,.12)',borderRadius:12,padding:'13px 20px',fontSize:'.8rem',color:'rgba(255,255,255,.6)',textAlign:'left' as const }}>
-          <strong style={{color:'rgba(255,255,255,.8)'}}>📌 About this section:</strong> This library contains <strong style={{color:'#00b4d8'}}>official government forms, syllabi, question papers</strong> and similar documents.
-          Job vacancy advertisement PDFs are separate — find them on each individual job page.
+          <strong style={{color:'rgba(255,255,255,.8)'}}>ðŸ“Œ About this section:</strong> This library contains <strong style={{color:'#00b4d8'}}>official government forms, syllabi, question papers</strong> and similar documents.
+          Job vacancy advertisement PDFs are separate â€” find them on each individual job page.
         </div>
       </div>
 
@@ -156,7 +168,7 @@ export default function PdfFormsPage() {
             <input
               value={search}
               onChange={e=>setSearch(e.target.value)}
-              placeholder="🔍 Search forms, syllabus, papers..."
+              placeholder="ðŸ” Search forms, syllabus, papers..."
               style={{ flex:1,minWidth:200,background:'#f0f4f8',border:'1.5px solid #d4e0ec',borderRadius:9,padding:'10px 14px',fontFamily:'Nunito,sans-serif',fontSize:'.84rem',outline:'none',color:'#1a1a2e' }}
             />
             <span style={{ fontSize:'.78rem',color:'#5a6a7a',whiteSpace:'nowrap' as const }}>{visible.length} documents</span>
@@ -178,31 +190,48 @@ export default function PdfFormsPage() {
           </div>
         ) : visible.length === 0 ? (
           <div style={{ textAlign:'center' as const,padding:'60px 20px',color:'#5a6a7a' }}>
-            <div style={{ fontSize:'2.5rem',marginBottom:12 }}>📭</div>
+            <div style={{ fontSize:'2.5rem',marginBottom:12 }}>ðŸ“­</div>
             <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700 }}>No documents found</div>
             <div style={{ fontSize:'.83rem',marginTop:6 }}>Try a different search or category</div>
           </div>
         ) : (
           <div className="pgrid">
-            {visible.map(form => (
-              <Link key={form.id} href={`/pdf-forms/${form.slug || generatePdfSlug(form.title, form.id)}`} style={{textDecoration:'none',color:'inherit'}} className="pcard">
-                <div style={{ display:'flex',gap:12,alignItems:'flex-start' }}>
-                  <div style={{ width:44,height:44,borderRadius:10,background:'#f3e5f5',border:'1.5px solid #ce93d8',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.4rem',flexShrink:0 }}>
-                    {CAT_ICONS[form.category]||'📄'}
-                  </div>
-                  <div style={{ flex:1,minWidth:0 }}>
-                    <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.86rem',color:'#1a1a2e',lineHeight:1.35,marginBottom:5 }}>{form.title}</div>
-                    <div style={{ display:'flex',gap:7,flexWrap:'wrap' as const,alignItems:'center' }}>
-                      <span style={{ display:'inline-block',background:'#f3e5f5',color:'#6a0dad',padding:'2px 8px',borderRadius:99,fontSize:'.68rem',fontWeight:700 }}>{form.category}</span>
-                      <span style={{ fontSize:'.68rem',color:'#5a6a7a' }}>📅 {form.uploadedAt}</span>
-                      <span style={{ fontSize:'.68rem',color:'#5a6a7a' }}>⬇️ {(form.downloads||0).toLocaleString()} views</span>
-                    </div>
-                  </div>
+            {visible.map(form => {
+              const imgSrc = toImgSrc((form as any).imageUrl)
+              return (
+              <Link key={form.id} href={`/pdf-forms/${(form as any).slug || generatePdfSlug(form.title, form.id)}`} style={{textDecoration:'none',color:'inherit'}} className="pcard">
+                <div style={{
+                  height:150, borderRadius:'10px 10px 0 0',
+                  background:'#f3e5f5',
+                  overflow:'hidden', display:'flex',
+                  alignItems:'center', justifyContent:'center',
+                  marginTop:-18, marginLeft:-20,
+                  marginRight:-20, marginBottom:14,
+                  width:'calc(100% + 40px)',
+                }}>
+                  {imgSrc ? (
+                    <img src={imgSrc} alt={form.title}
+                      style={{ width:'100%', height:'100%', objectFit:'cover' }}
+                      onError={(e)=>{ (e.target as HTMLImageElement).style.display='none' }} />
+                  ) : (
+                    <span style={{ fontSize:'3.5rem', opacity:.35 }}>
+                      {CAT_ICONS[form.category]||'ðŸ“„'}
+                    </span>
+                  )}
                 </div>
-
+                <div style={{fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.88rem',color:'#1a1a2e',lineHeight:1.35,marginBottom:7}}>
+                  {form.title}
+                </div>
+                <div style={{display:'flex',gap:7,flexWrap:'wrap' as const,alignItems:'center',marginBottom:10}}>
+                  <span style={{display:'inline-block',background:'#f3e5f5',color:'#6a0dad',padding:'2px 8px',borderRadius:99,fontSize:'.68rem',fontWeight:700}}>
+                    {form.category}
+                  </span>
+                  <span style={{fontSize:'.68rem',color:'#5a6a7a'}}>📅 {form.uploadedAt}</span>
+                  <span style={{fontSize:'.68rem',color:'#5a6a7a'}}>⬇️ {(form.downloads||0).toLocaleString()} views</span>
+                </div>
                 <div style={{ background:'#f0f4f8',borderRadius:8,padding:'8px 11px',fontSize:'.75rem',color:'#5a6a7a',display:'flex',alignItems:'center',gap:7 }}>
-                  <span style={{ fontSize:'1rem' }}>🔗</span>
-                  <span>Stored on <strong style={{color:'#0d1b2a'}}>Google Drive</strong> — opens in browser</span>
+                  <span style={{ fontSize:'1rem' }}>ðŸ”—</span>
+                  <span>Stored on <strong style={{color:'#0d1b2a'}}>Google Drive</strong> â€” opens in browser</span>
                 </div>
 
                 <div style={{
@@ -210,25 +239,26 @@ export default function PdfFormsPage() {
                   padding:'8px 12px', background:'#f0f4f8', borderRadius:9,
                   fontSize:'.78rem', color:'#00b4d8', fontWeight:700
                 }}>
-                  <span>📄 View Full Details & Download</span>
-                  <span>→</span>
+                  <span>ðŸ“„ View Full Details & Download</span>
+                  <span>â†’</span>
                 </div>
               </Link>
-            ))}
+              )
+            })}
           </div>
         )}
 
         {/* How to upload */}
         <div style={{ background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:13,padding:'20px 24px',marginTop:32 }}>
           <h3 style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.95rem',color:'#1a1a2e',marginBottom:14 }}>
-            💡 How to add new documents (for Admin)
+            ðŸ’¡ How to add new documents (for Admin)
           </h3>
           <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:14 }}>
             {[
               ['1','Upload to Drive','Upload the PDF to your Google Drive account'],
-              ['2','Set Sharing','Right-click → Share → "Anyone with the link" → Copy'],
-              ['3','Paste in Admin','Go to Admin → PDF Forms → Add PDF Form → Paste link'],
-              ['4','Publish','Click "Add to Library" — it appears here immediately'],
+              ['2','Set Sharing','Right-click â†’ Share â†’ "Anyone with the link" â†’ Copy'],
+              ['3','Paste in Admin','Go to Admin â†’ PDF Forms â†’ Add PDF Form â†’ Paste link'],
+              ['4','Publish','Click "Add to Library" â€” it appears here immediately'],
             ].map(([n,t,d])=>(
               <div key={n} style={{ display:'flex',gap:11,alignItems:'flex-start' }}>
                 <div style={{ width:28,height:28,borderRadius:8,background:'#0d1b2a',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'Sora',sans-serif",fontWeight:800,fontSize:'.8rem',flexShrink:0 }}>{n}</div>
@@ -245,7 +275,7 @@ export default function PdfFormsPage() {
 
       {/* FOOTER */}
       <footer style={{ background:'#0d1b2a',padding:'18px',textAlign:'center' as const,fontSize:'.73rem',color:'rgba(255,255,255,.28)' }}>
-        © 2025–2026 Assam Career Point & Info — <Link href="/" style={{color:'rgba(255,255,255,.28)',textDecoration:'none'}}>Home</Link>
+        Â© 2025â€“2026 Assam Career Point & Info â€” <Link href="/" style={{color:'rgba(255,255,255,.28)',textDecoration:'none'}}>Home</Link>
       </footer>
     </>
   )

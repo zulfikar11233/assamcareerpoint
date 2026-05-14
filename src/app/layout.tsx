@@ -1,7 +1,7 @@
-// src/app/layout.tsx
+﻿// src/app/layout.tsx
 import { Sora, Nunito } from 'next/font/google';
 import type { Metadata, Viewport } from 'next'
-import Providers from '@/components/Providers'   // ← NEW IMPORT
+import Providers from '@/components/Providers'   // â† NEW IMPORT
 import AlertBanner from '@/components/AlertBanner'
 
 const sora = Sora({
@@ -24,74 +24,49 @@ const nunito = Nunito({
 
 const SITE_URL  = 'https://www.assamcareerpoint-info.com'
 const SITE_NAME = 'Assam Career Point & Info'
-const SITE_DESC = 'Latest Govt Jobs in Assam, Competitive Exams (CTET, NEET, UPSC), and important information like Voter ID, PAN-Aadhaar linking, government schemes — updated daily for Assam & North East India.'
+const SITE_DESC = 'Latest Govt Jobs in Assam, Competitive Exams (CTET, NEET, UPSC), and important information like Voter ID, PAN-Aadhaar linking, government schemes â€” updated daily for Assam & North East India.'
 
 export const metadata: Metadata = {
   title: {
-    default:  `${SITE_NAME} — Govt Jobs, Exams & Information`,
-    template: `%s | ${SITE_NAME}`,
+    default: 'Assam Career Point & Info — Govt Jobs, Exams, Results',
+    template: '%s | Assam Career Point & Info',
   },
-  description: SITE_DESC,
-  keywords: [
-    'Assam govt jobs 2026', 'APSC recruitment', 'Assam Police vacancy',
-    'SLPRB Assam', 'BTC jobs', 'Assam career', 'sarkari naukri Assam',
-    'CTET 2026', 'NEET 2026', 'competitive exams Assam',
-    'voter ID registration Assam', 'PAN Aadhaar linking',
-    'govt schemes Assam', 'NE India jobs', 'assamcareerpoint-info.com',
-  ],
-  authors:     [{ name: 'Assam Career Point & Info', url: SITE_URL }],
-  creator:      'Assam Career Point & Info',
-  publisher:    'Assam Career Point & Info',
-  category:     'Government Jobs & Information Portal',
-  alternates: {
-    languages: { 'en-IN': SITE_URL },
+  description: 'Your gateway to Government Jobs, Competitive Exams, Results and Career Information in Assam & NE India. Updated daily.',
+  keywords: ['Assam government jobs', 'APSC', 'SLPRB', 'Assam police', 'Assam career', 'govt jobs Assam 2026'],
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: '32x32' },
+      { url: '/icon.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: '/apple-icon.png',
+    shortcut: '/favicon.ico',
   },
   openGraph: {
-    type:        'website',
-    url:          SITE_URL,
-    siteName:     SITE_NAME,
-    title:       `${SITE_NAME} — Govt Jobs, Exams & Information`,
-    description:  SITE_DESC,
-    locale:      'en_IN',
+    type: 'website',
+    locale: 'en_IN',
+    url: 'https://assamcareerpoint-info.com',
+    siteName: 'Assam Career Point & Info',
+    title: 'Assam Career Point & Info — Govt Jobs, Exams & Results',
+    description: 'Daily updates on Government Jobs, Exams, Results and Career Information for Assam.',
     images: [{
-      url:    `${SITE_URL}/acpi-logo.png.png`,
-      width:   1200,
-      height:  630,
-      alt:    `${SITE_NAME} — Govt Jobs, Exams & Information Portal`,
+      url: 'https://assamcareerpoint-info.com/og-image.png',
+      width: 1200,
+      height: 630,
+      alt: 'Assam Career Point & Info',
     }],
   },
   twitter: {
-    card:        'summary_large_image',
-    site:        '@AssamCareerPt',
-    creator:     '@AssamCareerPt',
-    title:       `${SITE_NAME} — Govt Jobs & Exams`,
-    description:  SITE_DESC,
-    images:      [`${SITE_URL}/acpi-logo.png.png`],
+    card: 'summary_large_image',
+    title: 'Assam Career Point & Info',
+    description: 'Govt Jobs, Exams, Results & Career Info for Assam.',
+    images: ['https://assamcareerpoint-info.com/og-image.png'],
   },
-  robots: {
-    index:  true,
-    follow: true,
-    googleBot: {
-      index:               true,
-      follow:              true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet':       -1,
-    },
+  metadataBase: new URL('https://assamcareerpoint-info.com'),
+  alternates: {
+    canonical: '/',
   },
-  verification: {
-    google: 'QTg9Okvs2Ox9fTAxT4emmHEcPHrD0apfqn8xxRZ4mkQ',
-  },
-  manifest:    '/manifest.json',
-  appleWebApp: {
-    capable:        true,
-    title:          SITE_NAME,
-    statusBarStyle: 'black-translucent',
-  },
-  applicationName: SITE_NAME,
-  formatDetection: { telephone: false },
 }
-
 export const viewport: Viewport = {
   width:        'device-width',
   initialScale: 1,
@@ -181,7 +156,32 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
 
       <body style={{ margin: 0, padding: 0, fontFamily: 'var(--font-nunito), sans-serif' }}>
-        <Providers>       {/* ← THIS IS THE FIX — wraps all pages with SessionProvider */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Assam Career Point & Info",
+            "url": "https://assamcareerpoint-info.com",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://assamcareerpoint-info.com/og-image.png",
+              "width": 1200,
+              "height": 630
+            },
+            "description": "Government jobs, exams, results and career information portal for Assam and Northeast India.",
+            "address": {
+              "@type": "PostalAddress",
+              "addressRegion": "Assam",
+              "addressCountry": "IN"
+            },
+            "sameAs": [
+              "https://www.facebook.com/assamcareerpoint",
+              "https://www.youtube.com/@assamcareerpoint"
+            ]
+          })}}
+        />
+        <Providers>       {/* â† THIS IS THE FIX â€” wraps all pages with SessionProvider */}
           <AlertBanner />
           {children}
         </Providers>

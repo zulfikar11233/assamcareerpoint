@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="50" fill="#0D0C24"/>
+
+  <!-- Hexagon outline -->
+  <polygon
+    points="50,8 83.5,26 83.5,64 50,82 16.5,64 16.5,26"
+    fill="none" stroke="#10DBA8" stroke-width="3"
+  />
+
+  <!-- Mountain (main) -->
+  <polygon points="50,20 32,70 68,70" fill="#7B65F0"/>
+
+  <!-- Snow cap -->
+  <polygon points="50,20 43,35 57,35" fill="white" opacity=".9"/>
+
+  <!-- Summit dot -->
+  <circle cx="50" cy="18" r="4" fill="#FD8940"/>
+
+  <!-- Path line -->
+  <line x1="33" y1="74" x2="67" y2="74"
+        stroke="#10DBA8" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

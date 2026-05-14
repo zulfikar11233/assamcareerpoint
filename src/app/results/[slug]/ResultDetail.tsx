@@ -61,6 +61,18 @@ function catColor(cat: string) {
   return map[cat] || '#3a5068'
 }
 
+function toImgSrc(url?: string): string {
+  if (!url || typeof url !== 'string') return ''
+  const u = url.trim()
+  if (!u.startsWith('http')) return ''
+  if (u.includes('drive.google.com')) {
+    const m = u.match(/\/d\/([a-zA-Z0-9_-]+)/) ||
+              u.match(/[?&]id=([a-zA-Z0-9_-]+)/)
+    if (m) return `https://lh3.googleusercontent.com/d/${m[1]}`
+  }
+  return u
+}
+
 export default function ResultDetail({ post }: { post: ResultPost }) {
   useEffect(() => {
     const existing = document.getElementById('acp-result-jsonld')
@@ -148,8 +160,8 @@ export default function ResultDetail({ post }: { post: ResultPost }) {
 
           <div className="detail-hero-row" style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
             <div style={{ width: 70, height: 70, borderRadius: 15, background: `${color}22`, border: `2px solid ${color}55`, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', flexShrink: 0 }}>
-              {post.imageUrl
-                ? <img src={post.imageUrl} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              {toImgSrc((post as any).imageUrl)
+                ? <img src={toImgSrc((post as any).imageUrl)} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e)=>{ (e.target as HTMLImageElement).style.display='none' }} />
                 : post.emoji
               }
             </div>

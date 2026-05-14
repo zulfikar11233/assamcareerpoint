@@ -66,6 +66,18 @@ function driveDownloadUrl(url: string): string {
   return id ? `https://drive.google.com/uc?export=download&id=${id}` : url
 }
 
+function toImgSrc(url?: string): string {
+  if (!url || typeof url !== 'string') return ''
+  const u = url.trim()
+  if (!u.startsWith('http')) return ''
+  if (u.includes('drive.google.com')) {
+    const m = u.match(/\/d\/([a-zA-Z0-9_-]+)/) ||
+              u.match(/[?&]id=([a-zA-Z0-9_-]+)/)
+    if (m) return `https://lh3.googleusercontent.com/d/${m[1]}`
+  }
+  return u
+}
+
 // ✅ NAV LINKS — consistent across all pages
 const NAV_LINKS: [string,string][] = [
   ['🏠 Home','/'],['💼 Jobs','/govt-jobs'],['📚 Exams','/exams'],
@@ -197,8 +209,8 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
           <div style={{maxWidth:1180,margin:'0 auto'}}>
             <div className="detail-hero-row" style={{display:'flex',gap:16,alignItems:'flex-start',flexWrap:'wrap' as const}}>
               <div style={{width:64,height:64,borderRadius:14,background:`${sc}22`,border:`2px solid ${sc}55`,overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2rem',flexShrink:0}}>
-  {exam.imageUrl
-    ? <img src={exam.imageUrl} alt={exam.title} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+  {toImgSrc((exam as any).imageUrl)
+    ? <img src={toImgSrc((exam as any).imageUrl)} alt={exam.title} style={{width:'100%',height:'100%',objectFit:'cover'}} onError={(e)=>{ (e.target as HTMLImageElement).style.display='none' }} />
     : exam.emoji
   }
 </div>
