@@ -96,7 +96,7 @@ const orgSchema = {
   '@type':     'Organization',
   name:         SITE_NAME,
   url:          SITE_URL,
-  logo:        `${SITE_URL}/acpi-logo.png.png`,
+  logo:        `${SITE_URL}/og-image.png`,
   description:  SITE_DESC,
   sameAs: [
     'https://t.me/assamcareerpoint',
@@ -124,9 +124,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-IN" dir="ltr" className={`${sora.variable} ${nunito.variable}`}>
       <head>
-        <link rel="icon"             type="image/x-icon"            href="/favicon.ico" />
-        <link rel="icon"             type="image/png" href="/acpi-logo.png.png" />
-        <link rel="apple-touch-icon" href="/acpi-logo.png.png" />
+        <link rel="icon"             type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon"             type="image/png" sizes="192x192" href="/icon.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon.png" />
 
         <script
           type="application/ld+json"
