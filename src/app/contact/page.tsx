@@ -20,7 +20,7 @@ const faqs = [
 const socials = [
   { ico: '✈️', name: 'Telegram',  color: '#0088cc', sub: 'Instant alerts',  href: 'https://t.me/assamcareerpoint' },
   { ico: '💬', name: 'WhatsApp',  color: '#25d366', sub: 'Join our channel', href: 'https://whatsapp.com/channel/0029Vb7IqrK42DcoItnDXy3x' },
-  { ico: '▶️', name: 'YouTube',   color: '#ff0000', sub: 'Video guides',     href: 'https://youtube.com/@atech_way?si=PZfu2G3k7xlI0gz7' },
+  { ico: '▶️', name: 'YouTube',   color: '#ff0000', sub: 'Video guides',     href: 'https://www.youtube.com/channel/UCc-DYGiwBzt-Vyr2PvAxsfw' },
   { ico: '📘', name: 'Facebook',  color: '#1877f2', sub: 'Like our page',    href: 'https://www.facebook.com/share/1CZ2MGDNG9/' },
   { ico: '📸', name: 'Instagram', color: '#e1306c', sub: 'Follow us',        href: 'https://www.instagram.com/assam.cpi/' },
   { ico: '🐦', name: 'Twitter/X', color: '#000000', sub: 'Latest updates',   href: 'https://x.com/assam_cpi' },
