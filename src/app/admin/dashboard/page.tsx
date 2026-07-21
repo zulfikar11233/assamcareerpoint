@@ -15,6 +15,7 @@ import { signOut } from 'next-auth/react'
 import { ContentSection, ContentSectionLink, newContentSectionId, newContentLinkId } from '@/lib/section-types'
 import dynamicImport from 'next/dynamic'
 import { AcpiBrand } from '@/components/AcpiLogo'
+import FeaturedImageUploader from '@/components/editor/FeaturedImageUploader'
 
 const RichTextEditor = dynamicImport(
   () => import('@/components/admin/RichTextEditor'),
@@ -1408,13 +1409,7 @@ export default function AdminDashboard() {
                     🖼️ Thumbnail Image URL
                     <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem',marginLeft:6}}>(shows on homepage — paste any image URL)</span>
                   </label>
-                  <input
-                    type="url"
-                    value={(jf as any).imageUrl||''}
-                    onChange={e=>setJf(p=>({...p,imageUrl:e.target.value}))}
-                    style={si}
-                    placeholder="https://example.com/image.jpg"
-                  />
+                  <FeaturedImageUploader value={(jf as any).imageUrl || ''} onChange={(url) => setJf(p => ({ ...p, imageUrl: url }))} />
                 </div>
 
                 <div className="g2">
@@ -2040,13 +2035,7 @@ ${jf.helplinePhone ? `<div class="row"><span class="label">Phone</span><span cla
                     🖼️ Thumbnail Image URL
                     <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem',marginLeft:6}}>(shows on homepage preview)</span>
                   </label>
-                  <input
-                    type="url"
-                    value={(ef as any).imageUrl||''}
-                    onChange={e=>setEf(p=>({...p,imageUrl:e.target.value}))}
-                    style={si}
-                    placeholder="https://example.com/image.jpg"
-                  />
+                  <FeaturedImageUploader value={(ef as any).imageUrl || ''} onChange={(url) => setEf(p => ({ ...p, imageUrl: url }))} />
                 </div>
 
                 {/* ── Assamese Bilingual ── */}
@@ -2299,13 +2288,7 @@ ${ef.examPdfs.map(pdf => `<div class="row"><span class="label">${pdf.label || 'P
                     🖼️ Thumbnail Image URL
                     <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem',marginLeft:6}}>(shows on homepage preview)</span>
                   </label>
-                  <input
-                    type="url"
-                    value={(inf as any).imageUrl||''}
-                    onChange={e=>setInf(p=>({...p,imageUrl:e.target.value}))}
-                    style={si}
-                    placeholder="https://example.com/image.jpg"
-                  />
+                  <FeaturedImageUploader value={(inf as any).imageUrl || ''} onChange={(url) => setInf(p => ({ ...p, imageUrl: url }))} />
                 </div>
 
                 {/* Process — RichTextEditor preset standard */}
@@ -2553,8 +2536,7 @@ ${inf.officialLink ? `<div class="row"><span class="label">Official Website</spa
                   Thumbnail Image URL &nbsp;
                   <span style={{color:'#8fa3b8', fontWeight:400, fontSize:'.7rem'}}>(shows on homepage & PDF list — use any direct image URL)</span>
                 </label>
-                <input type="url" value={pf.imageUrl||''} onChange={e=>setPf(p=>({...p, imageUrl:e.target.value}))}
-                  style={si} placeholder="https://example.com/image.jpg" />
+                <FeaturedImageUploader value={pf.imageUrl || ''} onChange={(url) => setPf(p => ({ ...p, imageUrl: url }))} />
               </div>
 
               {/* ── SECTION 3: SEO (English) ── */}

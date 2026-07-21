@@ -13,7 +13,7 @@ import { usePathname } from 'next/navigation'
 
 // EDIT ONLY THIS SECTION WHEN NEEDED
 const CONFIG = {
-  enabled:  true,                        // TRUE = show  |  FALSE = hide
+  enabled:  false,                        // TRUE = show  |  FALSE = hide
 
   emoji:    '📢',                         // any emoji
   label:    'RESULT OUT',                 // small badge  e.g. "NEW" "URGENT" "IMPORTANT"

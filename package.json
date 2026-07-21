@@ -3,20 +3,45 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "postinstall": "node scripts/copy-tinymce.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
-    "@tinymce/tinymce-react": "^6.3.0",
+    "@tiptap/extension-character-count": "^3.27.3",
+    "@tiptap/extension-code-block-lowlight": "^3.27.3",
+    "@tiptap/extension-color": "^3.27.3",
+    "@tiptap/extension-font-family": "^3.28.0",
+    "@tiptap/extension-highlight": "^3.27.3",
+    "@tiptap/extension-image": "^3.27.3",
+    "@tiptap/extension-link": "^3.27.3",
+    "@tiptap/extension-placeholder": "^3.27.3",
+    "@tiptap/extension-subscript": "^3.27.3",
+    "@tiptap/extension-superscript": "^3.27.3",
+    "@tiptap/extension-table": "^3.27.3",
+    "@tiptap/extension-table-cell": "^3.27.3",
+    "@tiptap/extension-table-header": "^3.27.3",
+    "@tiptap/extension-table-row": "^3.27.3",
+    "@tiptap/extension-task-item": "^3.27.3",
+    "@tiptap/extension-task-list": "^3.27.3",
+    "@tiptap/extension-text-align": "^3.27.3",
+    "@tiptap/extension-text-style": "^3.27.3",
+    "@tiptap/extension-typography": "^3.27.3",
+    "@tiptap/extension-underline": "^3.27.3",
+    "@tiptap/extension-youtube": "^3.27.3",
+    "@tiptap/pm": "^3.27.3",
+    "@tiptap/react": "^3.27.3",
+    "@tiptap/starter-kit": "^3.27.3",
     "@types/better-sqlite3": "^7.6.13",
+    "@types/dompurify": "^3.0.5",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.6.2",
+    "dompurify": "^3.4.11",
     "dotenv": "^17.3.1",
     "html2canvas": "file:html2canvas-1.4.1.tgz",
     "jspdf": "file:jspdf-2.5.1.tgz",
+    "lowlight": "^3.3.0",
     "multer": "^2.1.0",
     "mysql2": "^3.20.0",
     "next": "16.1.6",
@@ -24,7 +49,7 @@
     "qrcode": "file:qrcode-1.5.3.tgz",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "tinymce": "^8.4.0"
+    "sharp": "^0.35.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -44,5 +69,12 @@
     "last 2 Firefox versions",
     "last 2 Safari versions",
     "last 2 Edge versions"
-  ]
+  ],
+  "overrides": {
+    "prosemirror-model": "$prosemirror-model",
+    "prosemirror-state": "$prosemirror-state",
+    "prosemirror-view": "$prosemirror-view",
+    "prosemirror-transform": "$prosemirror-transform",
+    "prosemirror-keymap": "$prosemirror-keymap"
+  }
 }

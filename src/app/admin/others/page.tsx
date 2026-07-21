@@ -12,6 +12,7 @@ import { signOut } from 'next-auth/react'
 import Link from 'next/link'
 import dynamicImport from 'next/dynamic'
 import AcpiLogo, { AcpiBrand } from '@/components/AcpiLogo'
+import FeaturedImageUploader from '@/components/editor/FeaturedImageUploader'
 import {
   OthersPost, OthersSection, OthersLink,
   getOthersPosts, saveOthersPosts, generateSlug,
@@ -416,13 +417,7 @@ function PostModal({
                   (shows on homepage — paste any image URL)
                 </span>
               </label>
-              <input
-                type="url"
-                value={form.imageUrl || ''}
-                onChange={e => p('imageUrl')(e.target.value)}
-                style={si}
-                placeholder="https://example.com/image.jpg"
-              />
+              <FeaturedImageUploader value={form.imageUrl || ''} onChange={(url) => p('imageUrl')(url)} />
             </div>
 
             <div>
