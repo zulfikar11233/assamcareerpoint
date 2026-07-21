@@ -69,12 +69,5 @@
     "last 2 Firefox versions",
     "last 2 Safari versions",
     "last 2 Edge versions"
-  ],
-  "overrides": {
-    "prosemirror-model": "$prosemirror-model",
-    "prosemirror-state": "$prosemirror-state",
-    "prosemirror-view": "$prosemirror-view",
-    "prosemirror-transform": "$prosemirror-transform",
-    "prosemirror-keymap": "$prosemirror-keymap"
-  }
+  ]
 }
