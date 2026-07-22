@@ -4,7 +4,7 @@ import type { JSONContent } from '@tiptap/core'
 import type { Editor } from '@tiptap/react'
 import type { ImageInsert } from './ImageUploader'
 import TableControls from './TableControls'
-import { useState } from 'react'  // <-- NEW import for emoji size state
+import { useState } from 'react'
 
 type TablePortalBlock = { type: 'table'; rows: number; cols: number; withHeaderRow: boolean }
 type ContentPortalBlock = { type: 'content'; content: JSONContent[] }
@@ -36,7 +36,6 @@ function driveImgUrl(url: string): string {
 }
 
 export default function Toolbar({ editor, onLink, onInsertPortalBlock, uploadImage, disabled, imageInputId }: { editor: Editor; onLink: () => void; onInsertPortalBlock: (id: string) => void; uploadImage: ImageInsert; onSource: () => void; onPreview: () => void; disabled?: boolean; imageInputId?: string }) {
-  // ─── NEW: emoji size state ───
   const [emojiSize, setEmojiSize] = useState('1.5rem')
 
   const run = (command: () => boolean) => () => command()
@@ -66,13 +65,12 @@ export default function Toolbar({ editor, onLink, onInsertPortalBlock, uploadIma
       <select aria-label="Font size" defaultValue="" onChange={event => { if (event.target.value) editor.chain().focus().setMark('textStyle', { fontSize: event.target.value }).run() }}><option value="">Font size</option>{['12px','14px','16px','18px','20px','24px','28px'].map(size => <option key={size}>{size}</option>)}</select>
     </div>
     <div style={row}>
-      <details style={menu}><summary style={{ cursor: 'pointer' }}>Alignment ▾</summary><div style={menuContent}>{button('Left', () => editor.chain().focus().setTextAlign('left').run())}{button('Center', () => editor.chain().focus().setTextAlign('center').run())}{button('Right', () => editor.chain().focus().setTextAlign('right').run())}</div></details>
-      <details style={menu}><summary style={{ cursor: 'pointer' }}>Lists ▾</summary><div style={menuContent}>{button('Bullet list', () => editor.chain().focus().toggleBulletList().run())}{button('Ordered list', () => editor.chain().focus().toggleOrderedList().run())}{button('Task list', () => editor.chain().focus().toggleTaskList().run())}</div></details>
+      <details name="toolbar-menu" style={menu}><summary style={{ cursor: 'pointer' }}>Alignment ▾</summary><div style={menuContent}>{button('Left', () => editor.chain().focus().setTextAlign('left').run())}{button('Center', () => editor.chain().focus().setTextAlign('center').run())}{button('Right', () => editor.chain().focus().setTextAlign('right').run())}</div></details>
+      <details name="toolbar-menu" style={menu}><summary style={{ cursor: 'pointer' }}>Lists ▾</summary><div style={menuContent}>{button('Bullet list', () => editor.chain().focus().toggleBulletList().run())}{button('Ordered list', () => editor.chain().focus().toggleOrderedList().run())}{button('Task list', () => editor.chain().focus().toggleTaskList().run())}</div></details>
       {button('Quote', () => editor.chain().focus().toggleBlockquote().run())}{button('Code', () => editor.chain().focus().toggleCode().run())}{button('Code block', () => editor.chain().focus().toggleCodeBlock().run())}{button('HR', () => editor.chain().focus().setHorizontalRule().run())}
     </div>
     <div style={row}>
-      {/* ─── REPLACED IMAGE DROPDOWN ─── */}
-      <details style={menu}><summary style={{ cursor: 'pointer' }}>Image ▾</summary><div style={{ ...menuContent, width: 320 }}>
+      <details name="toolbar-menu" style={menu}><summary style={{ cursor: 'pointer' }}>Image ▾</summary><div style={{ ...menuContent, width: 320 }}>
         <button type="button" onClick={e => { const d = e.currentTarget.closest('details') as HTMLDetailsElement | null; if (d) d.open = false }} style={{ fontWeight: 700 }}>✕ Close</button>
         <div style={{ width: '100%' }} />
         <button type="button" disabled={disabled} onClick={() => { const url = window.prompt('Paste Google Drive image URL:'); if (url) editor.chain().focus().setImage({ src: driveImgUrl(url) }).run() }}>Insert image (URL)</button>
@@ -96,15 +94,13 @@ export default function Toolbar({ editor, onLink, onInsertPortalBlock, uploadIma
 
       <TableControls editor={editor} />
 
-      {/* ─── UPDATED LINK DROPDOWN WITH CLOSE BUTTON ─── */}
-      <details style={menu}><summary style={{ cursor: 'pointer' }}>Link ▾</summary><div style={menuContent}>
+      <details name="toolbar-menu" style={menu}><summary style={{ cursor: 'pointer' }}>Link ▾</summary><div style={menuContent}>
         <button type="button" onClick={e => { const d = e.currentTarget.closest('details') as HTMLDetailsElement | null; if (d) d.open = false }} style={{ fontWeight: 700 }}>✕ Close</button>
         <button type="button" onClick={onLink}>Link</button>
         {button('Unlink', () => editor.chain().focus().unsetLink().run())}
       </div></details>
 
-      {/* ─── REPLACED YOUTUBE DROPDOWN ─── */}
-      <details style={menu}><summary style={{ cursor: 'pointer' }}>YouTube ▾</summary><div style={{ ...menuContent, width: 280 }}>
+      <details name="toolbar-menu" style={menu}><summary style={{ cursor: 'pointer' }}>YouTube ▾</summary><div style={{ ...menuContent, width: 280 }}>
         <button type="button" onClick={e => { const d = e.currentTarget.closest('details') as HTMLDetailsElement | null; if (d) d.open = false }} style={{ fontWeight: 700 }}>✕ Close</button>
         <div style={{ width: '100%' }} />
         <button type="button" onClick={() => { const url = window.prompt('YouTube URL'); if (url) editor.commands.setYoutubeVideo({ src: url }) }}>Insert / Replace video</button>
@@ -118,8 +114,7 @@ export default function Toolbar({ editor, onLink, onInsertPortalBlock, uploadIma
         <button type="button" onClick={() => editor.chain().focus().deleteSelection().run()} style={{ color: '#c0392b', fontWeight: 700 }}>🗑 Remove video</button>
       </div></details>
 
-      {/* ─── REPLACED EMOJI DROPDOWN ─── */}
-      <details style={menu}><summary style={{ cursor: 'pointer' }}>Emoji ▾</summary><div style={{ ...menuContent, maxWidth: 280 }}>
+      <details name="toolbar-menu" style={menu}><summary style={{ cursor: 'pointer' }}>Emoji ▾</summary><div style={{ ...menuContent, maxWidth: 280 }}>
         <button type="button" onClick={e => { const d = e.currentTarget.closest('details') as HTMLDetailsElement | null; if (d) d.open = false }} style={{ fontWeight: 700 }}>✕ Close</button>
         <div style={{ width: '100%' }} />
         <span style={{ alignSelf: 'center', fontSize: '.75rem', fontWeight: 700 }}>Size:</span>

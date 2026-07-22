@@ -224,18 +224,20 @@ export default function TiptapEditor({
   const noopUploadImage: ImageInsert = async () => {}
 
   return (
-    <div style={{ border: '1.5px solid #d4e0ec', borderRadius: 8, overflow: 'hidden', background: '#fff' }}>
-      <Toolbar
-        editor={editor}
-        onLink={() => setLinkOpen(true)}
-        onInsertPortalBlock={handleInsertPortalBlock}
-        uploadImage={noopUploadImage}
-        onSource={() => {}}
-        onPreview={() => {}}
-        disabled={disabled}
-      />
+    <div style={{ border: '1.5px solid #d4e0ec', borderRadius: 8, background: '#fff', maxHeight: minHeight * 2.2 + 60, overflowY: 'auto' as const }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 20, background: '#fff' }}>
+        <Toolbar
+          editor={editor}
+          onLink={() => setLinkOpen(true)}
+          onInsertPortalBlock={handleInsertPortalBlock}
+          uploadImage={noopUploadImage}
+          onSource={() => {}}
+          onPreview={() => {}}
+          disabled={disabled}
+        />
+      </div>
 
-      <div style={{ minHeight, maxHeight: minHeight * 2.2, overflowY: 'auto' as const, padding: '10px 12px' }}>
+      <div style={{ minHeight, padding: '10px 12px' }}>
         <EditorContent editor={editor} />
       </div>
 

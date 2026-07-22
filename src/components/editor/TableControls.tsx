@@ -3,7 +3,7 @@ import type { Editor } from '@tiptap/react'
 
 export default function TableControls({ editor }: { editor: Editor }) {
   const action = (fn: () => boolean) => () => fn()
-  return <details style={{ position: 'relative' }}><summary style={{ cursor: 'pointer' }}>Table ▾</summary><span style={{ position: 'absolute', zIndex: 10, top: 'calc(100% + 4px)', left: 0, display: 'flex', gap: 4, flexWrap: 'wrap', width: 320, padding: 8, border: '1px solid var(--border,#d4e0ec)', borderRadius: 6, background: 'var(--card-bg,#fff)' }}>
+  return <details name="toolbar-menu" style={{ position: 'relative' }}><summary style={{ cursor: 'pointer' }}>Table ▾</summary><span style={{ position: 'absolute', zIndex: 10, top: 'calc(100% + 4px)', left: 0, display: 'flex', gap: 4, flexWrap: 'wrap', width: 320, padding: 8, border: '1px solid var(--border,#d4e0ec)', borderRadius: 6, background: 'var(--card-bg,#fff)' }}>
     <button type="button" onClick={e => { const d = e.currentTarget.closest('details') as HTMLDetailsElement | null; if (d) d.open = false }} style={{ fontWeight: 700 }}>✕ Close</button>
     <span style={{ width: '100%' }} />
     <button type="button" onClick={action(() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run())}>Insert table</button>
