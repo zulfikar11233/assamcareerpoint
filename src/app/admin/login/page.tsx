@@ -20,21 +20,9 @@ export default function AdminLogin() {
     setLoading(true)
     setError('')
 
-    // Get client IP for rate limiting
-    let clientIp = 'unknown'
-    try {
-      const res  = await fetch('https://api.ipify.org?format=json')
-      const data = await res.json()
-      clientIp = data.ip || 'unknown'
-    } catch {
-      // If ipify is unreachable, just use 'unknown'
-      clientIp = 'unknown'
-    }
-
     const result = await signIn('credentials', {
       username:  form.username.trim(),
       password:  form.password,
-      clientIp,
       redirect:  false,
     })
 
