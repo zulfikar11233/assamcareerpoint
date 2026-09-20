@@ -54,9 +54,12 @@ export const authOptions: NextAuthOptions = {
         const isCorrectUser =
           credentials.username.trim() === (process.env.ADMIN_USERNAME || 'acpi_admin').trim()
 
-        const hashToCheck = (
-  (process.env.ADMIN_PASSWORD_HASH || '').trim().replace(/\\\$/g, '$')
-) || '$2b$12$5SizkMx6rK1WJwfR1Ee8f.4LVEUlMnqaQqboirxwnG5A.QhykMOXG'
+        const rawHash = process.env.ADMIN_PASSWORD_HASH
+if (!rawHash) {
+  console.error('ADMIN_PASSWORD_HASH is not set — refusing all logins.')
+  return null
+}
+const hashToCheck = rawHash.trim().replace(/\\\$/g, '$')
 
         console.log('Hash length used:', hashToCheck.length)
         console.log('Hash starts with:', hashToCheck.substring(0, 10))
