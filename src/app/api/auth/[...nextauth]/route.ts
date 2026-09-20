@@ -23,6 +23,19 @@ function resetRateLimit(ip: string) {
   attempts.delete(ip)
 }
 
+function getClientIp(req?: { headers?: Record<string, string | string[] | undefined> }): string {
+  const headers = req?.headers
+  if (!headers) return 'unknown'
+  const realIp = headers['x-real-ip']
+  if (typeof realIp === 'string' && realIp) return realIp
+  const forwarded = headers['x-forwarded-for']
+  if (typeof forwarded === 'string' && forwarded) {
+    const ips = forwarded.split(',').map(s => s.trim())
+    return ips[ips.length - 1] || 'unknown'  // last entry = closest to your server, hardest to fake
+  }
+  return 'unknown'
+}
+
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   session: { strategy: 'jwt', maxAge: 8 * 60 * 60 },
@@ -34,13 +47,12 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         username: { label: 'Username', type: 'text'     },
         password: { label: 'Password', type: 'password' },
-        clientIp: { label: 'IP',       type: 'text'     },
       },
 
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         if (!credentials?.username || !credentials?.password) return null
 
-        const ip = credentials.clientIp || 'unknown'
+        const ip = getClientIp(req as { headers?: Record<string, string | string[] | undefined> })
 
         // ── DEBUG ──
         console.log('=== LOGIN ATTEMPT ===')
