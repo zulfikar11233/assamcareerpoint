@@ -54,12 +54,6 @@ export const authOptions: NextAuthOptions = {
 
         const ip = getClientIp(req as { headers?: Record<string, string | string[] | undefined> })
 
-        // ── DEBUG ──
-        console.log('=== LOGIN ATTEMPT ===')
-        console.log('Username received:', credentials.username)
-        console.log('Expected username:', process.env.ADMIN_USERNAME || 'acpi_admin')
-        console.log('Hash from env:', process.env.ADMIN_PASSWORD_HASH ? 'EXISTS len=' + process.env.ADMIN_PASSWORD_HASH.length : 'MISSING')
-
         const { allowed } = checkRateLimit(ip)
         if (!allowed) throw new Error('RATE_LIMIT')
 
@@ -73,13 +67,7 @@ if (!rawHash) {
 }
 const hashToCheck = rawHash.trim().replace(/\\\$/g, '$')
 
-        console.log('Hash length used:', hashToCheck.length)
-        console.log('Hash starts with:', hashToCheck.substring(0, 10))
-
         const isCorrectPass = await bcrypt.compare(credentials.password, hashToCheck)
-
-        console.log('Username match:', isCorrectUser)
-        console.log('Password match:', isCorrectPass)
 
         if (!isCorrectUser || !isCorrectPass) return null
 
