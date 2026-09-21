@@ -388,6 +388,54 @@ function SectionBuilder({ sections, onChange }: {
     </div>
   )
 }
+	// ── Shared FAQ Builder ────────────────────────────────────────────────────
+function FaqBuilder({ faqs, onChange }: {
+  faqs: FaqItem[]
+  onChange: (f: FaqItem[]) => void
+}) {
+  const update = (idx: number, patch: Partial<FaqItem>) =>
+    onChange(faqs.map((f,i) => i===idx ? {...f,...patch} : f))
+  const remove = (idx: number) => onChange(faqs.filter((_,i) => i!==idx))
+  const moveUp = (idx: number) => {
+    if (idx===0) return
+    const a=[...faqs]; [a[idx-1],a[idx]]=[a[idx],a[idx-1]]; onChange(a)
+  }
+  const moveDown = (idx: number) => {
+    if (idx===faqs.length-1) return
+    const a=[...faqs]; [a[idx],a[idx+1]]=[a[idx+1],a[idx]]; onChange(a)
+  }
+  return (
+    <div>
+      {faqs.map((f,idx) => (
+        <div key={f.id} style={{border:'1.5px solid #d4e0ec',borderRadius:10,marginBottom:10,background:'#fafcff',overflow:'hidden'}}>
+          <div style={{background:'#eef3f9',padding:'7px 11px',display:'flex',alignItems:'center',gap:7,borderBottom:'1px solid #d4e0ec'}}>
+            <span style={{fontSize:'.76rem',fontWeight:800,color:'#3a5068',fontFamily:'Nunito,sans-serif'}}>FAQ {idx+1}</span>
+            <div style={{flex:1}}/>
+            <button type="button" onClick={()=>moveUp(idx)} style={{padding:'2px 7px',borderRadius:6,background:'#f0f4f8',border:'1.5px solid #d4e0ec',cursor:'pointer',fontSize:'.73rem',fontWeight:700}}>↑</button>
+            <button type="button" onClick={()=>moveDown(idx)} style={{padding:'2px 7px',borderRadius:6,background:'#f0f4f8',border:'1.5px solid #d4e0ec',cursor:'pointer',fontSize:'.73rem',fontWeight:700}}>↓</button>
+            <button type="button" onClick={()=>remove(idx)} style={{padding:'2px 9px',borderRadius:6,background:'#fff0f0',color:'#c0392b',border:'1.5px solid #f5c6c6',cursor:'pointer',fontSize:'.73rem',fontWeight:700}}>✕ Remove</button>
+          </div>
+          <div style={{padding:'11px 13px',display:'flex',flexDirection:'column' as const,gap:9}}>
+            <div>
+              <label style={sbLb}>Question *</label>
+              <input value={f.question} onChange={e=>update(idx,{question:e.target.value})} style={sbSi} placeholder="e.g. How many posts are vacant?" />
+            </div>
+            <div>
+              <label style={sbLb}>Answer *</label>
+              <input value={f.answer} onChange={e=>update(idx,{answer:e.target.value})} style={sbSi} placeholder="e.g. There are 23759 vacancies under this recruitment." />
+            </div>
+          </div>
+        </div>
+      ))}
+      {faqs.length < 8 && (
+        <button type="button" onClick={()=>onChange([...faqs,{id:newFaqId(),question:'',answer:''}])}
+          style={{width:'100%',padding:'9px',borderRadius:8,background:'#f0f4f8',border:'1.5px dashed #d4e0ec',cursor:'pointer',fontSize:'.82rem',fontWeight:700,color:'#3a5068',fontFamily:'Nunito,sans-serif',textAlign:'center' as const}}>
+          ➕ Add FAQ {faqs.length+1}
+        </button>
+      )}
+    </div>
+  )
+}
 
 export default function AdminDashboard() {
   // Auth handled by middleware — no useSession needed
