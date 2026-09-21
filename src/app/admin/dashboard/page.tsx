@@ -495,6 +495,7 @@ export default function AdminDashboard() {
   const [jaImgRef] = useState<React.MutableRefObject<HTMLInputElement|null>>({current:null})
   const [dateHistory, setDateHistory] = useState<DateExt[]>([])
   const [jobSections,  setJobSections]  = useState<ContentSection[]>([])
+  const [jobFaqs,       setJobFaqs]     = useState<FaqItem[]>([])
   const [examSections, setExamSections] = useState<ContentSection[]>([])
   const [infoSections, setInfoSections] = useState<ContentSection[]>([])
 
@@ -586,6 +587,7 @@ export default function AdminDashboard() {
     setJf({ logo:j.logo, imageUrl:j.imageUrl||'', title:j.title, slug: j.slug || '', org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'',howToApplyImages: (j as any).howToApplyImages || [], detailsImages: (j as any).detailsImages || [], youtubeLink:j.youtubeLink||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageBirthRange:(j as any).ageBirthRange||'', ageRelaxation:j.ageRelaxation||'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:j.feeRefund||'', lastDateTime:j.lastDateTime||'23:59 Hrs', paymentLastDate:j.paymentLastDate||'', paymentLastDateTime:j.paymentLastDateTime||'23:59 Hrs', correctionWindow:j.correctionWindow||'', applicationStart:j.applicationStart||'', helplineEmail:j.helplineEmail||'', helplinePhone:j.helplinePhone||'', selectionDetails:j.selectionDetails||'', syllabusDetails:j.syllabusDetails||'', zoneWiseVacancy:j.zoneWiseVacancy||'', fullDescription:(j as any).fullDescription||'', fullDescTitle:(j as any).fullDescTitle||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
     setPosts(j.posts||[]); setAdvPdfs(j.advPdfs||[]); setJobAffiliates(j.jobAffiliates||[]); setDateHistory(j.dateHistory||[])
     setJobSections((j as any).sections||[])
+    setJobFaqs((j as any).faqs||[])
     setShowJobModal(true)
   }
   function addPost() {
@@ -615,7 +617,7 @@ export default function AdminDashboard() {
     const latestLD = posts.length ? [...posts].sort((a,b)=>b.lastDate.localeCompare(a.lastDate))[0].lastDate : editJob?.lastDate||''
     const finalLD  = dateHistory.length ? dateHistory.at(-1)!.date : latestLD
     const base: Partial<Job> = {
-      ...jf, posts, advPdfs, jobAffiliates, dateHistory, sections: jobSections,
+      ...jf, posts, advPdfs, jobAffiliates, dateHistory, sections: jobSections, faqs: jobFaqs,
       vacancy:     totalV ? String(totalV) : (editJob?.vacancy||'0'),
       lastDate:    finalLD,
       applyLink:   posts[0]?.applyLink || editJob?.applyLink || '',
@@ -1811,6 +1813,12 @@ export default function AdminDashboard() {
                   Add extra sections with custom content, important links, and PDF downloads. These appear on the public job detail page below the main content.
                 </div>
                 <SectionBuilder sections={jobSections} onChange={setJobSections} />
+		{/* ── Section: FAQs ── */}
+                <div className="sh">❓ FAQs (shown at the bottom of the job page)</div>
+                <div style={{background:'#e8f4fd',border:'1px solid #90caf9',borderRadius:9,padding:'9px 14px',marginBottom:12,fontSize:'.78rem',color:'#1a3a5c',lineHeight:1.75}}>
+                  Add 2–4 short questions and answers. These help the page show up better in Google search results.
+                </div>
+                <FaqBuilder faqs={jobFaqs} onChange={setJobFaqs} />
               </div>
               <div style={{ padding:'14px 24px',borderTop:'1px solid #d4e0ec',display:'flex',justifyContent:'flex-end',gap:10 }}>
                 <button type="button" onClick={()=>setShowJobModal(false)} style={bS}>Cancel</button>
