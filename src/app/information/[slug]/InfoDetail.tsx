@@ -25,6 +25,34 @@ function RichContent({ content, className, style }: { content?: string | null; c
   )
 }
 
+function FaqAccordion({ faqs }: { faqs?: {id:string;question:string;answer:string}[] }) {
+  const [openId, setOpenId] = useState<string|null>(null)
+  const items = (faqs||[]).filter(f=>f.question && f.answer)
+  if (items.length===0) return null
+  return (
+    <div style={{background:'#fff',border:'1.5px solid #e8eef4',borderRadius:13,overflow:'hidden',marginBottom:18}}>
+      <div style={{background:`linear-gradient(90deg,${N},#102a45)`,padding:'13px 20px'}}>
+        <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,color:W,fontSize:'1rem',margin:0}}>❓ Frequently Asked Questions</h2>
+      </div>
+      <div style={{padding:'10px 16px 16px'}}>
+        {items.map((f,idx)=>{
+          const isOpen = openId===f.id
+          return (
+            <div key={f.id||idx} style={{borderBottom: idx<items.length-1 ? '1px solid #f0f4f8':'none'}}>
+              <button type="button" onClick={()=>setOpenId(isOpen?null:f.id)}
+                style={{width:'100%',textAlign:'left' as const,background:'none',border:'none',cursor:'pointer',padding:'13px 4px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:10}}>
+                <span style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.88rem',color:N}}>{f.question}</span>
+                <span style={{fontSize:'.8rem',color:T,flexShrink:0,transform:isOpen?'rotate(180deg)':'none',transition:'transform .2s'}}>▼</span>
+              </button>
+              {isOpen && <p style={{margin:'0 4px 14px',fontSize:'.85rem',color:'#5a6a7a',lineHeight:1.7}}>{f.answer}</p>}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 type InfoItem = {
   id: number
   slug?: string
@@ -46,6 +74,7 @@ type InfoItem = {
   fullDescTitle?: string
   sections?: any[]
   imageUrl?: string
+  faqs?: {id:string; question:string; answer:string}[]
 }
 
 const SC: Record<string,string> = { 'Active':'#22c55e', 'Upcoming':'#f59e0b', 'Expired':'#8fa3b8' }
@@ -336,6 +365,9 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
               </div>
             </div>
           ))}
+
+          {/* FAQs */}
+          <FaqAccordion faqs={(item as any).faqs} />
 
           {/* Disclaimer */}
           <div style={{background:'#fff8e1',border:'1.5px solid #ffe082',borderRadius:12,padding:'14px 18px',fontSize:'.82rem',color:'#5a3a00',lineHeight:1.8}}>
