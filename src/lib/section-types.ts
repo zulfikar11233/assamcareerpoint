@@ -20,3 +20,12 @@ export const newContentSectionId = () =>
   `sec_${Date.now()}_${Math.random().toString(36).slice(2,6)}`
 export const newContentLinkId = () =>
   `lnk_${Date.now()}_${Math.random().toString(36).slice(2,6)}`
+
+export type FaqItem = {
+  id: string
+  question: string
+  answer: string
+}
+
+export const newFaqId = () =>
+  `faq_${Date.now()}_${Math.random().toString(36).slice(2,6)}`
