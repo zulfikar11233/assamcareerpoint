@@ -12,7 +12,7 @@ import Link from 'next/link'
 import { generateSlug } from '@/lib/dataHelper'
 import { useState, useEffect, useRef } from 'react'
 import { signOut } from 'next-auth/react'
-import { ContentSection, ContentSectionLink, newContentSectionId, newContentLinkId } from '@/lib/section-types'
+import { ContentSection, ContentSectionLink, newContentSectionId, newContentLinkId, FaqItem, newFaqId } from '@/lib/section-types'
 import dynamicImport from 'next/dynamic'
 import { AcpiBrand } from '@/components/AcpiLogo'
 import FeaturedImageUploader from '@/components/editor/FeaturedImageUploader'
@@ -83,6 +83,7 @@ type Job = {
   howToApplyImages?: string[]
   detailsImages?: string[]
   sections?: ContentSection[]
+  faqs?: FaqItem[]
   youtubeLink?: string
   createdAt?: string
   // SEO & Description
@@ -139,6 +140,7 @@ type Exam = {
   eligibility?: string
   syllabus?: string
   sections?: ContentSection[]
+  faqs?: FaqItem[]
   officialSite?: string
   applyLink?: string
   admitCardLink?: string
@@ -166,6 +168,7 @@ type InfoItem = {
   lastDate?: string
   process?: string
   officialLink?: string
+  faqs?: FaqItem[]
   importantDates?: { label: string; date: string; time?: string }[]
   status: 'Active' | 'Upcoming' | 'Expired'
   fullDescription?: string
