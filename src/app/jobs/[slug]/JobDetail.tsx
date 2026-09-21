@@ -29,6 +29,7 @@ type Job     = {
   titleAs?:string; orgAs?:string; descriptionAs?:string; howToApplyAs?:string; selectionAs?:string
   howToApplyImages?:string[]
   detailsImages?:string[]
+  faqs?: {id:string; question:string; answer:string}[]
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -44,6 +45,34 @@ function RichContent({ content, className, style }: { content?: string | null; c
   return (
     <div className={className} style={style}>
       {content.split('\n').map((line, i) => <p key={i} style={{ margin: '4px 0' }}>{line}</p>)}
+    </div>
+  )
+}
+
+function FaqAccordion({ faqs }: { faqs?: {id:string;question:string;answer:string}[] }) {
+  const [openId, setOpenId] = useState<string|null>(null)
+  const items = (faqs||[]).filter(f=>f.question && f.answer)
+  if (items.length===0) return null
+  return (
+    <div style={{background:'#fff',border:'1.5px solid #e8eef4',borderRadius:13,overflow:'hidden',marginBottom:18}}>
+      <div style={{background:`linear-gradient(90deg,${N},#102a45)`,padding:'13px 20px'}}>
+        <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,color:W,fontSize:'1rem',margin:0}}>❓ Frequently Asked Questions</h2>
+      </div>
+      <div style={{padding:'10px 16px 16px'}}>
+        {items.map((f,idx)=>{
+          const isOpen = openId===f.id
+          return (
+            <div key={f.id||idx} style={{borderBottom: idx<items.length-1 ? '1px solid #f0f4f8':'none'}}>
+              <button type="button" onClick={()=>setOpenId(isOpen?null:f.id)}
+                style={{width:'100%',textAlign:'left' as const,background:'none',border:'none',cursor:'pointer',padding:'13px 4px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:10}}>
+                <span style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.88rem',color:N}}>{f.question}</span>
+                <span style={{fontSize:'.8rem',color:T,flexShrink:0,transform:isOpen?'rotate(180deg)':'none',transition:'transform .2s'}}>▼</span>
+              </button>
+              {isOpen && <p style={{margin:'0 4px 14px',fontSize:'.85rem',color:'#5a6a7a',lineHeight:1.7}}>{f.answer}</p>}
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -694,6 +723,9 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
               </div>
             </div>
           ))}
+
+          {/* FAQs */}
+          <FaqAccordion faqs={(job as any).faqs} />
 
           {/* Related jobs */}
           {others.length>0&&(
