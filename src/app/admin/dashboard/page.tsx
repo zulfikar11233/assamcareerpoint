@@ -497,6 +497,7 @@ export default function AdminDashboard() {
   const [jobSections,  setJobSections]  = useState<ContentSection[]>([])
   const [jobFaqs,       setJobFaqs]     = useState<FaqItem[]>([])
   const [examSections, setExamSections] = useState<ContentSection[]>([])
+  const [examFaqs,      setExamFaqs]      = useState<FaqItem[]>([])
   const [infoSections, setInfoSections] = useState<ContentSection[]>([])
 
   // Exam form
@@ -640,11 +641,11 @@ export default function AdminDashboard() {
   }
   // ── EXAM HELPERS ─────────────────────────────────────────────────────────
   function openAddExam()  { setEditExam(null); setEf(blankExam); setExamSections([]); setShowExamModal(true) }
-  function openEditExam(x:Exam) { setEditExam(x); setEf({ emoji:x.emoji, title:x.title, slug: x.slug || '', conductedBy:x.conductedBy, category:x.category, description:x.description||'', applicationStart:x.applicationStart||'', applicationLastDate:x.applicationLastDate||'', paymentLastDate:x.paymentLastDate||'', examDate:x.examDate||'', examTime:x.examTime||'', admitCardDate:x.admitCardDate||'', resultDate:x.resultDate||'', fee:x.fee||'', eligibility:x.eligibility||'', syllabus:x.syllabus||'', officialSite:x.officialSite||'', applyLink:x.applyLink||'', admitCardLink:x.admitCardLink||'', status:x.status, titleAs:x.titleAs||'', descriptionAs:x.descriptionAs||'', eligibilityAs:x.eligibilityAs||'', fullDescription:(x as any).fullDescription||'', fullDescTitle:(x as any).fullDescTitle||'', examPdfs:x.examPdfs||[], examAffiliates:x.examAffiliates||[], imageUrl:x.imageUrl||'' }); setExamSections((x as any).sections || []); setShowExamModal(true) }
+  function openEditExam(x:Exam) { setEditExam(x); setEf({ emoji:x.emoji, title:x.title, slug: x.slug || '', conductedBy:x.conductedBy, category:x.category, description:x.description||'', applicationStart:x.applicationStart||'', applicationLastDate:x.applicationLastDate||'', paymentLastDate:x.paymentLastDate||'', examDate:x.examDate||'', examTime:x.examTime||'', admitCardDate:x.admitCardDate||'', resultDate:x.resultDate||'', fee:x.fee||'', eligibility:x.eligibility||'', syllabus:x.syllabus||'', officialSite:x.officialSite||'', applyLink:x.applyLink||'', admitCardLink:x.admitCardLink||'', status:x.status, titleAs:x.titleAs||'', descriptionAs:x.descriptionAs||'', eligibilityAs:x.eligibilityAs||'', fullDescription:(x as any).fullDescription||'', fullDescTitle:(x as any).fullDescTitle||'', examPdfs:x.examPdfs||[], examAffiliates:x.examAffiliates||[], imageUrl:x.imageUrl||'' }); setExamSections((x as any).sections || []); setExamFaqs((x as any).faqs || []); setShowExamModal(true) }
   function saveExam(e:React.FormEvent) {
     e.preventDefault()
     if (!ef.title) { alert('Title required.'); return }
-    if (editExam) setExams(prev => prev.map(x => x.id===editExam.id ? {...editExam,...ef, sections: examSections} : x))
+        if (editExam) setExams(prev => prev.map(x => x.id===editExam.id ? {...editExam,...ef, sections: examSections, faqs: examFaqs} : x))
     else {
       const newId   = Date.now()
       const newExam = {
@@ -652,7 +653,8 @@ export default function AdminDashboard() {
         slug:      generateSlug(ef.title, newId),
         createdAt: new Date().toISOString(),
         ...ef,
-        sections: examSections
+        sections: examSections,
+        faqs: examFaqs
       }
       setExams(prev => [newExam, ...prev])
     }
@@ -2177,7 +2179,13 @@ ${jf.helplinePhone ? `<div class="row"><span class="label">Phone</span><span cla
                 <div style={{background:'#e8f4fd',border:'1px solid #90caf9',borderRadius:9,padding:'9px 14px',marginBottom:12,fontSize:'.78rem',color:'#1a3a5c',lineHeight:1.75}}>
                   Add extra sections with custom content, important links, and PDF downloads. These will appear on the public exam detail page.
                 </div>
-                <SectionBuilder sections={examSections} onChange={setExamSections} />
+                                <SectionBuilder sections={examSections} onChange={setExamSections} />
+                {/* ── Section: FAQs ── */}
+                <div className="sh">❓ FAQs (shown at the bottom of the exam page)</div>
+                <div style={{background:'#e8f4fd',border:'1px solid #90caf9',borderRadius:9,padding:'9px 14px',marginBottom:12,fontSize:'.78rem',color:'#1a3a5c',lineHeight:1.75}}>
+                  Add 2–4 short questions and answers. These help the page show up better in Google search results.
+                </div>
+                <FaqBuilder faqs={examFaqs} onChange={setExamFaqs} />
               </div>
               <div style={{ padding:'14px 24px',borderTop:'1px solid #d4e0ec',display:'flex',justifyContent:'flex-end',gap:10 }}>
                 <button type="button" onClick={()=>setShowExamModal(false)} style={bS}>Cancel</button>
