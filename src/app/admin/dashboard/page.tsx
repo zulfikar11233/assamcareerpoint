@@ -494,39 +494,29 @@ export default function AdminDashboard() {
     })
   }, [])
   // ── SECURITY: write key prevents unauthorized localStorage writes ──
-  function safeSet(key:string, val:unknown) {
-    const wk = sessionStorage.getItem('__acp_wk')
-    if (!wk) { console.warn('Write key missing — session may have expired'); return }
-    try { localStorage.setItem(key, JSON.stringify(val)) }
-    catch(e) { alert('⚠️ Storage quota exceeded!\n\nMake sure job banners and PDFs use Google Drive links — NOT file uploads.\n\nDelete old jobs with uploaded images/PDFs to free space.') }
-  }
-  useEffect(() => {
+  
+    useEffect(() => {
     if (!dataLoaded) return
-    safeSet('acp_jobs_v6', jobs)
     fetch('/api/data/jobs', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(jobs) })
   }, [jobs])
 
   useEffect(() => {
     if (!dataLoaded) return
-    safeSet('acp_exams_v6', exams)
     fetch('/api/data/exams', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(exams) })
   }, [exams])
 
   useEffect(() => {
     if (!dataLoaded) return
-    safeSet('acp_info_v6', infoList)
     fetch('/api/data/info', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(infoList) })
   }, [infoList])
 
   useEffect(() => {
     if (!dataLoaded) return
-    safeSet('acp_pdfforms_v6', pdfForms)
     fetch('/api/data/pdfforms', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(pdfForms) })
   }, [pdfForms])
 
   useEffect(() => {
     if (!dataLoaded) return
-    safeSet('acp_affiliate_v1', affiliates)
     fetch('/api/data/affiliate', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(affiliates) })
   }, [affiliates])
   const toast = (msg:string) => { setToastMsg(msg); setTimeout(()=>setToastMsg(''), 2800) }
