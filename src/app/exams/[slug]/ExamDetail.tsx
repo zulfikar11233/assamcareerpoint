@@ -73,7 +73,7 @@ type Exam = {
   status: 'Upcoming'|'Registration Open'|'Registration Closed'|'Exam Ongoing'|'Result Declared'
   createdAt?: string; titleAs?: string; descriptionAs?: string; eligibilityAs?: string
   examPdfs?: ExamPdf[]; examAffiliates?: ExamAffiliate[]
-  fullDescription?: string; fullDescTitle?: string; sections?: any[]
+  sections?: any[]
   faqs?: {id:string; question:string; answer:string}[]
 }
 
@@ -396,15 +396,6 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
                   ))}
                 </div>
                 <div style={{fontSize:'.7rem',color:'#8fa3b8',marginTop:10}}>* Affiliate links — purchasing supports this free portal</div>
-              </div>
-            )}
-
-            {(exam as any).fullDescription && (
-              <div style={{marginTop:22}}>
-                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>
-                  📄 {(exam as any).fullDescTitle || 'Detailed Information'}
-                </h2>
-                <RichContent content={(exam as any).fullDescription} className="rte-content" style={{background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'16px 18px'}} />
               </div>
             )}
 
