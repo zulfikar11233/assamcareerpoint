@@ -82,7 +82,6 @@ type Job = {
   howToApply?: string
   sections?: ContentSection[]
   faqs?: FaqItem[]
-  youtubeLink?: string
   createdAt?: string
   // SEO & Description
   description?: string
@@ -90,18 +89,9 @@ type Job = {
   // Age Details
   ageLimitDate?: string
   ageRelaxation?: string
-  ageBirthRange?: string
-  // Fee Details
-  feeRefund?: string
   // Important Dates extras
   lastDateTime?: string
-  paymentLastDate?: string
-  paymentLastDateTime?: string
-  correctionWindow?: string
   applicationStart?: string
-  // Helpline
-  helplineEmail?: string
-  helplinePhone?: string
   // Job-specific affiliate products
   jobAffiliates?: JobAffiliate[]
   titleAs?: string
@@ -121,7 +111,6 @@ type Exam = {
   description?: string
   applicationStart?: string
   applicationLastDate?: string
-  paymentLastDate?: string
   examDate?: string
   examTime?: string
   admitCardDate?: string
@@ -152,10 +141,10 @@ type InfoItem = {
   category: string
   slug?: string
   description?: string
-  processImages?: string[]
   lastDate?: string
   process?: string
   officialLink?: string
+  sections?: ContentSection[]
   faqs?: FaqItem[]
   importantDates?: { label: string; date: string; time?: string }[]
   status: 'Active' | 'Upcoming' | 'Expired'
@@ -473,7 +462,7 @@ export default function AdminDashboard() {
   const [dataLoaded, setDataLoaded] = useState(false)
 
   // Job form
-  const BLANK_JF = { logo:'🏛️', imageUrl:'', title:'', slug:'', org:'', category:'Govt Job', district:'All Districts', status:'Live' as Job['status'], fee:'', selection:'', website:'', howToApply:'', youtubeLink:'', description:'', advtNo:'', ageLimitDate:'',ageBirthRange:'', ageRelaxation:'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:'', lastDateTime:'23:59 Hrs', paymentLastDate:'', paymentLastDateTime:'23:59 Hrs', correctionWindow:'', applicationStart:'', helplineEmail:'', helplinePhone:'', titleAs:'', orgAs:'', descriptionAs:'', howToApplyAs:'', selectionAs:'' }
+  const BLANK_JF = { logo:'🏛️', imageUrl:'', title:'', slug:'', org:'', category:'Govt Job', district:'All Districts', status:'Live' as Job['status'], fee:'', selection:'', website:'', howToApply:'', description:'', advtNo:'', ageLimitDate:'', ageRelaxation:'', lastDateTime:'23:59 Hrs', applicationStart:'', titleAs:'', orgAs:'', descriptionAs:'', howToApplyAs:'', selectionAs:'' }
   const [jf, setJf] = useState(BLANK_JF)
   const [posts,       setPosts]       = useState<Post[]>([])
   const [advPdfs,     setAdvPdfs]     = useState<AdvPdf[]>([])
@@ -488,11 +477,11 @@ export default function AdminDashboard() {
   const [infoFaqs, setInfoFaqs] = useState<FaqItem[]>([])
 
   // Exam form
-  const blankExam = { emoji:'📚', title:'', slug: '', conductedBy:'', category:'Teaching', description:'', applicationStart:'', applicationLastDate:'', paymentLastDate:'', examDate:'', examTime:'', admitCardDate:'', resultDate:'', fee:'', eligibility:'', syllabus:'', officialSite:'', applyLink:'', admitCardLink:'', status:'Upcoming' as Exam['status'], titleAs:'', descriptionAs:'', eligibilityAs:'', examPdfs:[] as {label:string;url:string}[], examAffiliates:[] as {id:string;title:string;link:string;img?:string;badge?:string}[], imageUrl:'' }
+  const blankExam = { emoji:'📚', title:'', slug: '', conductedBy:'', category:'Teaching', description:'', applicationStart:'', applicationLastDate:'', examDate:'', examTime:'', admitCardDate:'', resultDate:'', fee:'', eligibility:'', syllabus:'', officialSite:'', applyLink:'', admitCardLink:'', status:'Upcoming' as Exam['status'], titleAs:'', descriptionAs:'', eligibilityAs:'', examPdfs:[] as {label:string;url:string}[], examAffiliates:[] as {id:string;title:string;link:string;img?:string;badge?:string}[], imageUrl:'' }
   const [ef, setEf] = useState(blankExam)
 
   // Info form
-  const blankInfo = { emoji:'🗳️', title:'', slug:'', category:'Electoral', description:'', lastDate:'', process:'',processImages: [], officialLink:'', status:'Active' as InfoItem['status'], titleAs:'', descriptionAs:'', processAs:'', imageUrl:'' }
+  const blankInfo = { emoji:'🗳️', title:'', slug:'', category:'Electoral', description:'', lastDate:'', process:'', officialLink:'', status:'Active' as InfoItem['status'], titleAs:'', descriptionAs:'', processAs:'', imageUrl:'' }
   const [inf, setInf]       = useState(blankInfo)
   const [infDates, setInfDates] = useState<{label:string;date:string;time:string}[]>([])
 
@@ -572,7 +561,7 @@ export default function AdminDashboard() {
   }
   function openEditJob(j:Job) {
     setEditJob(j)
-    setJf({ logo:j.logo, imageUrl:j.imageUrl||'', title:j.title, slug: j.slug || '', org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'', youtubeLink:j.youtubeLink||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageBirthRange:(j as any).ageBirthRange||'', ageRelaxation:j.ageRelaxation||'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:j.feeRefund||'', lastDateTime:j.lastDateTime||'23:59 Hrs', paymentLastDate:j.paymentLastDate||'', paymentLastDateTime:j.paymentLastDateTime||'23:59 Hrs', correctionWindow:j.correctionWindow||'', applicationStart:j.applicationStart||'', helplineEmail:j.helplineEmail||'', helplinePhone:j.helplinePhone||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
+    setJf({ logo:j.logo, imageUrl:j.imageUrl||'', title:j.title, slug: j.slug || '', org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageRelaxation:j.ageRelaxation||'', lastDateTime:j.lastDateTime||'23:59 Hrs', applicationStart:j.applicationStart||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
     setPosts(j.posts||[]); setAdvPdfs(j.advPdfs||[]); setJobAffiliates(j.jobAffiliates||[]); setDateHistory(j.dateHistory||[])
     setJobSections((j as any).sections||[])
     setJobFaqs((j as any).faqs||[])
@@ -628,7 +617,7 @@ export default function AdminDashboard() {
   }
   // ── EXAM HELPERS ─────────────────────────────────────────────────────────
   function openAddExam()  { setEditExam(null); setEf(blankExam); setExamSections([]); setShowExamModal(true) }
-  function openEditExam(x:Exam) { setEditExam(x); setEf({ emoji:x.emoji, title:x.title, slug: x.slug || '', conductedBy:x.conductedBy, category:x.category, description:x.description||'', applicationStart:x.applicationStart||'', applicationLastDate:x.applicationLastDate||'', paymentLastDate:x.paymentLastDate||'', examDate:x.examDate||'', examTime:x.examTime||'', admitCardDate:x.admitCardDate||'', resultDate:x.resultDate||'', fee:x.fee||'', eligibility:x.eligibility||'', syllabus:x.syllabus||'', officialSite:x.officialSite||'', applyLink:x.applyLink||'', admitCardLink:x.admitCardLink||'', status:x.status, titleAs:x.titleAs||'', descriptionAs:x.descriptionAs||'', eligibilityAs:x.eligibilityAs||'', examPdfs:x.examPdfs||[], examAffiliates:x.examAffiliates||[], imageUrl:x.imageUrl||'' }); setExamSections((x as any).sections || []); setExamFaqs((x as any).faqs || []); setShowExamModal(true) }
+  function openEditExam(x:Exam) { setEditExam(x); setEf({ emoji:x.emoji, title:x.title, slug: x.slug || '', conductedBy:x.conductedBy, category:x.category, description:x.description||'', applicationStart:x.applicationStart||'', applicationLastDate:x.applicationLastDate||'', examDate:x.examDate||'', examTime:x.examTime||'', admitCardDate:x.admitCardDate||'', resultDate:x.resultDate||'', fee:x.fee||'', eligibility:x.eligibility||'', syllabus:x.syllabus||'', officialSite:x.officialSite||'', applyLink:x.applyLink||'', admitCardLink:x.admitCardLink||'', status:x.status, titleAs:x.titleAs||'', descriptionAs:x.descriptionAs||'', eligibilityAs:x.eligibilityAs||'', examPdfs:x.examPdfs||[], examAffiliates:x.examAffiliates||[], imageUrl:x.imageUrl||'' }); setExamSections((x as any).sections || []); setExamFaqs((x as any).faqs || []); setShowExamModal(true) }
   function saveExam(e:React.FormEvent) {
     e.preventDefault()
     if (!ef.title) { alert('Title required.'); return }
@@ -650,7 +639,7 @@ export default function AdminDashboard() {
 
   // ── INFO HELPERS ─────────────────────────────────────────────────────────
   function openAddInfo()  { setEditInfo(null); setInf(blankInfo); setInfDates([]); setInfoSections([]); setInfoFaqs([]); setShowInfoModal(true) }
-  function openEditInfo(i:InfoItem) { setEditInfo(i); setInf({ emoji:i.emoji, title:i.title, slug: i.slug || '', category:i.category, description:i.description||'', processImages: (i as any).processImages || [], lastDate:i.lastDate||'', process:i.process||'', officialLink:i.officialLink||'', status:i.status, titleAs:i.titleAs||'', descriptionAs:i.descriptionAs||'', processAs:i.processAs||'', imageUrl:i.imageUrl||'' }); setInfDates((i.importantDates||[]).map(d=>({label:d.label,date:d.date,time:d.time||''}))); setInfoSections((i as any).sections||[]); setInfoFaqs((i as any).faqs||[]); setShowInfoModal(true) }
+  function openEditInfo(i:InfoItem) { setEditInfo(i); setInf({ emoji:i.emoji, title:i.title, slug: i.slug || '', category:i.category, description:i.description||'', lastDate:i.lastDate||'', process:i.process||'', officialLink:i.officialLink||'', status:i.status, titleAs:i.titleAs||'', descriptionAs:i.descriptionAs||'', processAs:i.processAs||'', imageUrl:i.imageUrl||'' }); setInfDates((i.importantDates||[]).map(d=>({label:d.label,date:d.date,time:d.time||''}))); setInfoSections((i as any).sections||[]); setInfoFaqs((i as any).faqs||[]); setShowInfoModal(true) }
   function saveInfo(e:React.FormEvent) {
     e.preventDefault()
     if (!inf.title) { alert('Title required.'); return }
@@ -1167,7 +1156,6 @@ export default function AdminDashboard() {
                   <table className="tbl">
                     <thead>
                       <tr>
-                        <th>Exam</th><th>By</th><th>Category</th><th>Apply By</th><th>💳 Payment By</th><th>📅 Exam Date & Time</th><th>Status</th><th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1184,7 +1172,6 @@ export default function AdminDashboard() {
                             <td style={{ fontSize:'.77rem', color:'#5a6a7a', whiteSpace:'nowrap' as const }}>{x.conductedBy}</td>
                             <td><span className="chip cO">{x.category}</span></td>
                             <td style={{ fontSize:'.76rem', color:'#e63946', fontWeight:700, whiteSpace:'nowrap' as const }}>{fmt(x.applicationLastDate)}</td>
-                            <td style={{ fontSize:'.76rem', color:'#6a0dad', fontWeight:700, whiteSpace:'nowrap' as const }}>{fmt(x.paymentLastDate)}</td>
                             <td style={{ fontSize:'.76rem', whiteSpace:'nowrap' as const }}><strong>{fmt(x.examDate)}</strong><br/><span style={{ color:'#5a6a7a', fontSize:'.67rem' }}>{x.examTime}</span></td>
                             <td><span className={`chip ${x.status==='Registration Open'?'cG':x.status==='Upcoming'?'cT':'cGr'}`}>{x.status}</span></td>
                             <td>
@@ -1496,8 +1483,6 @@ export default function AdminDashboard() {
                   />
                 </div>
 
-                <div className="fg"><label style={lb}>YouTube Video Link (optional)</label><input value={jf.youtubeLink} onChange={e=>setJf(p=>({...p,youtubeLink:e.target.value}))} style={si} placeholder="https://youtube.com/watch?v=..." /></div>
-
                 {/* ── Section: SEO Description & Advt No ── */}
                 <div className="sh">📝 Job Description & SEO</div>
                 <div style={{background:'#e8f5e9',border:'1.5px solid #a5d6a7',borderRadius:9,padding:'9px 13px',marginBottom:12,fontSize:'.78rem',color:'#1b5e20'}}>
@@ -1509,10 +1494,7 @@ export default function AdminDashboard() {
                   <div className="fg"><label style={lb}>Application Opening Date</label><input type="date" value={jf.applicationStart} onChange={e=>setJf(p=>({...p,applicationStart:e.target.value}))} style={si} /></div>
                 </div>
                 <div className="g2">
-                  <div className="fg"><label style={lb}>Last Date Time</label><input value={jf.lastDateTime} onChange={e=>setJf(p=>({...p,lastDateTime:e.target.value}))} style={si} placeholder="23:59 Hrs" /></div>
-                  <div className="fg"><label style={lb}>Correction Window Dates</label><input value={jf.correctionWindow} onChange={e=>setJf(p=>({...p,correctionWindow:e.target.value}))} style={si} placeholder="12 March – 21 March 2026" /></div>
-                  <div className="fg"><label style={lb}>Payment / Fee Last Date</label><input type="date" value={jf.paymentLastDate} onChange={e=>setJf(p=>({...p,paymentLastDate:e.target.value}))} style={si} /></div>
-                  <div className="fg"><label style={lb}>Payment Last Date Time</label><input value={jf.paymentLastDateTime} onChange={e=>setJf(p=>({...p,paymentLastDateTime:e.target.value}))} style={si} placeholder="23:59 Hrs" /></div>
+		                  <div className="fg"><label style={lb}>Last Date Time</label><input value={jf.lastDateTime} onChange={e=>setJf(p=>({...p,lastDateTime:e.target.value}))} style={si} placeholder="23:59 Hrs" /></div>
                 </div>
 
                 {/* ── Section: Age Details ── */}
@@ -1520,10 +1502,6 @@ export default function AdminDashboard() {
                 <div className="g2">
                   <div className="fg"><label style={lb}>Age Limit (range)</label><input value={jf.ageLimitDate?`(as on ${jf.ageLimitDate})`:'as on date'} readOnly style={{...si,color:'#8fa3b8',cursor:'not-allowed'}} /></div>
                   <div className="fg"><label style={lb}>Age Limit "as on" Date</label><input type="date" value={jf.ageLimitDate} onChange={e=>setJf(p=>({...p,ageLimitDate:e.target.value}))} style={si} /></div>
-                  <div className="fg">
-                    <label style={lb}>Birth Date Range (if applicable)</label>
-                    <input value={(jf as any).ageBirthRange||''} onChange={e=>setJf((p:any)=>({...p,ageBirthRange:e.target.value}))} style={si} placeholder="e.g. Born between 01-07-2005 to 01-07-2009" />
-                  </div>
                 </div>
 
                 {/* Age Relaxation — replaced with RichTextEditor preset standard */}
@@ -1536,25 +1514,6 @@ export default function AdminDashboard() {
                     placeholder="Use Table button to insert a proper SC/ST/OBC/PwD relaxation table..."
                     hint="💡 Insert a table: Category | Relaxation | Notes"
                   />
-                </div>
-
-                {/* Fee Refund — replaced with RichTextEditor preset simple */}
-                <div className="sh">💳 Fee & Refund Details</div>
-                <div className="fg">
-                  <RichTextEditor
-                    label="Fee Refund Details"
-                    value={jf.feeRefund}
-                    onChange={(val) => setJf(p => ({...p, feeRefund: val}))}
-                    preset="simple"
-                    placeholder="Describe fee refund policy..."
-                  />
-                </div>
-
-                {/* ── Section: Helpline ── */}
-                <div className="sh">📞 Helpline / Contact</div>
-                <div className="g2">
-                  <div className="fg"><label style={lb}>Helpline Email</label><input type="email" value={jf.helplineEmail} onChange={e=>setJf(p=>({...p,helplineEmail:e.target.value}))} style={si} placeholder="rrb.help@csc.gov.in" /></div>
-                  <div className="fg"><label style={lb}>Helpline Phone</label><input value={jf.helplinePhone} onChange={e=>setJf(p=>({...p,helplinePhone:e.target.value}))} style={si} placeholder="9592001188 / 01725653333" /></div>
                 </div>
 
                                 {/* ── Section: Posts ── */}
@@ -1784,8 +1743,6 @@ export default function AdminDashboard() {
 <h2>📅 Important Dates</h2>
 ${jf.applicationStart ? `<div class="row"><span class="label">Application Start</span><span class="val">${jf.applicationStart}</span></div>` : ''}
 <div class="row"><span class="label">Last Date to Apply</span><span class="val">${posts[0]?.lastDate || '—'}</span></div>
-${jf.paymentLastDate ? `<div class="row"><span class="label">Fee Payment Last Date</span><span class="val">${jf.paymentLastDate}</span></div>` : ''}
-${jf.correctionWindow ? `<div class="row"><span class="label">Correction Window</span><span class="val">${jf.correctionWindow}</span></div>` : ''}
 
 <h2>💳 Application Fee</h2>
 <div style="padding:8px 0;line-height:1.8">${(jf.fee || 'Check official notification').replace(/\n/g,'<br/>')}</div>
@@ -1832,12 +1789,6 @@ ${(jf as any).advPdfs?.length > 0 ? `
 ${(jf as any).advPdfs.map((pdf:any) => `
   <div class="row"><span class="label">📄 ${pdf.name||'PDF'}</span><span class="val">${pdf.url||'—'}</span></div>
 `).join('')}` : ''}
-
-${jf.helplineEmail || jf.helplinePhone ? `
-<h2>📞 Helpline</h2>
-${jf.helplineEmail ? `<div class="row"><span class="label">Email</span><span class="val">${jf.helplineEmail}</span></div>` : ''}
-${jf.helplinePhone ? `<div class="row"><span class="label">Phone</span><span class="val">${jf.helplinePhone}</span></div>` : ''}
-` : ''}
 
 <br/>
 <p style="color:#888;font-size:.75rem;border-top:1px solid #eee;padding-top:10px">
@@ -1945,11 +1896,6 @@ ${jf.helplinePhone ? `<div class="row"><span class="label">Phone</span><span cla
                   <div className="fg"><label style={lb}>Application Last Date *</label><input type="date" value={ef.applicationLastDate} onChange={e=>setEf(p=>({...p,applicationLastDate:e.target.value}))} style={si} /></div>
                 </div>
                 <div className="g2">
-                  <div className="fg">
-                    <label style={{...lb,color:'#6a0dad'}}>💳 Payment Last Date (separate!) *</label>
-                    <input type="date" value={ef.paymentLastDate} onChange={e=>setEf(p=>({...p,paymentLastDate:e.target.value}))} style={{...si,borderColor:'#ce93d8'}} />
-                    <div style={{ fontSize:'.67rem',color:'#6a0dad',marginTop:3 }}>Often 1–2 days AFTER form last date</div>
-                  </div>
                   <div className="fg"><label style={lb}>Admit Card Date</label><input value={ef.admitCardDate||''} onChange={e=>setEf(p=>({...p,admitCardDate:e.target.value}))} style={si} placeholder="e.g. 10 May 2026 OR 10-12 May 2026"/></div>
                 </div>
                 <div className="g2">
@@ -2118,7 +2064,6 @@ ${jf.helplinePhone ? `<div class="row"><span class="label">Phone</span><span cla
 <h2>📅 Important Dates</h2>
 ${ef.applicationStart ? `<div class="row"><span class="label">Application Opens</span><span class="val">${ef.applicationStart}</span></div>` : ''}
 <div class="row"><span class="label">Application Last Date</span><span class="val">${ef.applicationLastDate || '—'}</span></div>
-<div class="row"><span class="label">Payment Last Date</span><span class="val">${ef.paymentLastDate || '—'}</span></div>
 <div class="row"><span class="label">Exam Date</span><span class="val">${ef.examDate || '—'} ${ef.examTime ? `at ${ef.examTime}` : ''}</span></div>
 ${ef.admitCardDate ? `<div class="row"><span class="label">Admit Card Date</span><span class="val">${ef.admitCardDate}</span></div>` : ''}
 ${ef.resultDate ? `<div class="row"><span class="label">Result Date</span><span class="val">${ef.resultDate}</span></div>` : ''}
@@ -2295,22 +2240,6 @@ ${ef.examPdfs.map(pdf => `<div class="row"><span class="label">${pdf.label || 'P
                     preset="simple"
                     labelStyle={{ color: '#5d4037' }}
                     placeholder="অসমীয়াত পদক্ষেপ লিখক..."
-                  />
-                </div>
-
-                <div className="fg">
-                  <label style={{...lb,color:'#2a9d8f'}}>
-                    🖼️ Process Images
-                    <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>
-                      (shown after steps — max 5, one URL per line)
-                    </span>
-                  </label>
-                  <textarea
-                    value={(inf as any).processImages?.join('\n') || ''}
-                    onChange={e=>setInf((p:any)=>({...p,processImages:e.target.value.split(/[\n\s]+/).map((s:string)=>s.trim()).filter(Boolean)}))}
-                    style={{...si,minHeight:80,resize:'vertical'}}
-                    placeholder={`https://drive.google.com/file/d/...
-https://drive.google.com/file/d/...`}
                   />
                 </div>
                 {/* ── Section: Optional Sections ── */}
