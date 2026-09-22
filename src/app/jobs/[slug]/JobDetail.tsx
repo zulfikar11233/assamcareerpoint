@@ -18,12 +18,10 @@ type Job     = {
   salary:string; lastDate:string; applyLink:string
   posts?:Post[]; advPdfs?:AdvPdf[]; dateHistory?:DateExt[]
   fee?:string; selection?:string; website?:string
-  howToApply?:string; youtubeLink?:string; createdAt?:string
+  howToApply?:string; createdAt?:string
   description?:string; advtNo?:string; ageLimitDate?:string; ageRelaxation?:string
-  feeRefund?:string; lastDateTime?:string; paymentLastDate?:string; paymentLastDateTime?:string
-  correctionWindow?:string; applicationStart?:string
-  helplineEmail?:string; helplinePhone?:string;
-  ageBirthRange?:string
+  lastDateTime?:string
+  applicationStart?:string
   jobAffiliates?:JobAffiliate[]
   titleAs?:string; orgAs?:string; descriptionAs?:string; howToApplyAs?:string; selectionAs?:string
   howToApplyImages?:string[]
@@ -382,9 +380,6 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                     ...(job.applicationStart?[{l:'Application Opens',v:job.applicationStart,hi:false,d:true}]:[]),
                     {l:'Last Date to Apply',v:job.lastDate,hi:true,d:true},
                     ...(job.lastDateTime?[{l:'Last Date Time',v:job.lastDateTime,hi:true,d:false}]:[]),
-                    ...(job.paymentLastDate?[{l:'Fee Payment Last Date',v:job.paymentLastDate,hi:false,d:true}]:[]),
-                    ...(job.paymentLastDateTime?[{l:'Payment Last Time',v:job.paymentLastDateTime,hi:false,d:false}]:[]),
-                    ...(job.correctionWindow?[{l:'Correction Window',v:job.correctionWindow,hi:false,d:false}]:[]),
                   ].map((item:any,i:number)=>(
                     <div key={i} style={{background:item.hi?`${G}14`:'#f8fbff',border:`1.5px solid ${item.hi?G+'55':'#d4e0ec'}`,borderRadius:10,padding:'11px 14px'}}>
                       <div style={{fontSize:'.62rem',fontWeight:700,color:'#5a6a7a',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:5}}>{item.l}</div>
@@ -446,7 +441,6 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                       {posts.length?`${ageMin}–${ageMax} years`:job.ageLimit||'—'}
                     </div>
                     {job.ageLimitDate&&<div style={{fontSize:'.76rem',color:'#5a6a7a',marginBottom:6}}>As on: {fmtLong(job.ageLimitDate)}</div>}
-                    {job.ageBirthRange&&<div style={{fontSize:'.76rem',color:'#5a6a7a',marginBottom:6}}>{job.ageBirthRange}</div>}
                     {ageRows.length>0&&(
                       <div style={{marginTop:8,borderTop:'1px solid #e8eef6',paddingTop:8}}>
                         <div style={{fontSize:'.7rem',fontWeight:700,color:'#8fa3b8',textTransform:'uppercase' as const,letterSpacing:'.04em',marginBottom:6}}>Relaxation</div>
@@ -465,7 +459,6 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                         </div>
                       ))
                     ):<div style={{fontSize:'.82rem',color:'#5a6a7a'}}>Check official notification</div>}
-                    {job.feeRefund && <RichContent content={job.feeRefund} className="rte-content" style={{ fontSize:'.74rem', color:'#2e7d32', marginTop:8, fontWeight:700 }} />}
                   </div>
                 </div>
 
@@ -480,27 +473,6 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                           {i<arr.length-1&&<span style={{color:G,fontWeight:900,fontSize:'1rem'}}>→</span>}
                         </div>
                       ))}
-                    </div>
-                  </>
-                )}
-
-                {/* Helpline */}
-                {(job.helplineEmail||job.helplinePhone)&&(
-                  <>
-                    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>📞 Helpline for Candidates</h2>
-                    <div style={{background:`${N}08`,border:'1.5px solid #d4e0ec',borderRadius:10,padding:'14px 18px',marginBottom:20,display:'flex',gap:22,flexWrap:'wrap' as const}}>
-                      {job.helplineEmail&&(
-                        <div>
-                          <div style={{fontSize:'.65rem',fontWeight:700,color:'#8fa3b8',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:4}}>📧 Email</div>
-                          <a href={`mailto:${job.helplineEmail}`} style={{color:T,fontWeight:700,fontSize:'.85rem',textDecoration:'none'}}>{job.helplineEmail}</a>
-                        </div>
-                      )}
-                      {job.helplinePhone&&(
-                        <div>
-                          <div style={{fontSize:'.65rem',fontWeight:700,color:'#8fa3b8',textTransform:'uppercase' as const,letterSpacing:'.05em',marginBottom:4}}>📱 Phone</div>
-                          <div style={{color:N,fontWeight:700,fontSize:'.85rem'}}>{job.helplinePhone}</div>
-                        </div>
-                      )}
                     </div>
                   </>
                 )}
@@ -568,15 +540,6 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                     </a>
                   )}
                 </div>
-                {(() => {
-                  const yt = sanitizeHttpUrl(job.youtubeLink)
-                  return yt ? (
-                    <a href={yt} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',gap:10,padding:'12px 16px',background:'#fde8ea',border:'1.5px solid #f7bcc0',borderRadius:10,textDecoration:'none',color:'#c62828',fontWeight:700,fontSize:'.84rem',marginTop:12}}>▶️ Watch Video Guide on YouTube</a>
-                  ) : null
-                })()}
-              </div>
-            )}
-          </div>
 
           {/* Affiliate Products */}
           {(job.jobAffiliates||[]).filter(ja=>ja.title&&ja.link).length > 0 && (
@@ -702,7 +665,6 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
               {l:'Category',      v:job.category},
               {l:'District',      v:job.district},
               ...(job.advtNo?[{l:'Advt. No',v:job.advtNo}]:[]),
-              ...(job.paymentLastDate?[{l:'Fee Last Date',v:fmtLong(job.paymentLastDate)+(job.paymentLastDateTime?' · '+job.paymentLastDateTime:'')}]:[]),
               {l:'Total Posts',   v:totalV.toLocaleString('en-IN')},
               {l:'Pay Scale',     v:job.salary},
               {l:'Qualification', v:job.qualification||(posts[0]?.qualification||'—')},
