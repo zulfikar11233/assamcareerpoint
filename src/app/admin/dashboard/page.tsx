@@ -107,8 +107,6 @@ type Job = {
   // Selection & Syllabus
   selectionDetails?: string
   syllabusDetails?: string
-  // Zone/Region-wise vacancy
-  zoneWiseVacancy?: string
   // Job-specific affiliate products
   jobAffiliates?: JobAffiliate[]
   // Bilingual — Assamese (all optional)
@@ -487,7 +485,7 @@ export default function AdminDashboard() {
   const [dataLoaded, setDataLoaded] = useState(false)
 
   // Job form
-  const BLANK_JF = { logo:'🏛️', imageUrl:'', title:'', slug:'', org:'', category:'Govt Job', district:'All Districts', status:'Live' as Job['status'], fee:'', selection:'', website:'', howToApply:'',howToApplyImages: [], detailsImages: [], youtubeLink:'', description:'', advtNo:'', ageLimitDate:'',ageBirthRange:'', ageRelaxation:'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:'', lastDateTime:'23:59 Hrs', paymentLastDate:'', paymentLastDateTime:'23:59 Hrs', correctionWindow:'', applicationStart:'', helplineEmail:'', helplinePhone:'', selectionDetails:'', syllabusDetails:'', zoneWiseVacancy:'', fullDescription:'', fullDescTitle:'', titleAs:'', orgAs:'', descriptionAs:'', howToApplyAs:'', selectionAs:'' }
+  const BLANK_JF = { logo:'🏛️', imageUrl:'', title:'', slug:'', org:'', category:'Govt Job', district:'All Districts', status:'Live' as Job['status'], fee:'', selection:'', website:'', howToApply:'',howToApplyImages: [], detailsImages: [], youtubeLink:'', description:'', advtNo:'', ageLimitDate:'',ageBirthRange:'', ageRelaxation:'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:'', lastDateTime:'23:59 Hrs', paymentLastDate:'', paymentLastDateTime:'23:59 Hrs', correctionWindow:'', applicationStart:'', helplineEmail:'', helplinePhone:'', selectionDetails:'', syllabusDetails:'', fullDescription:'', fullDescTitle:'', titleAs:'', orgAs:'', descriptionAs:'', howToApplyAs:'', selectionAs:'' }
   const [jf, setJf] = useState(BLANK_JF)
   const [posts,       setPosts]       = useState<Post[]>([])
   const [advPdfs,     setAdvPdfs]     = useState<AdvPdf[]>([])
@@ -586,7 +584,7 @@ export default function AdminDashboard() {
   }
   function openEditJob(j:Job) {
     setEditJob(j)
-    setJf({ logo:j.logo, imageUrl:j.imageUrl||'', title:j.title, slug: j.slug || '', org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'',howToApplyImages: (j as any).howToApplyImages || [], detailsImages: (j as any).detailsImages || [], youtubeLink:j.youtubeLink||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageBirthRange:(j as any).ageBirthRange||'', ageRelaxation:j.ageRelaxation||'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:j.feeRefund||'', lastDateTime:j.lastDateTime||'23:59 Hrs', paymentLastDate:j.paymentLastDate||'', paymentLastDateTime:j.paymentLastDateTime||'23:59 Hrs', correctionWindow:j.correctionWindow||'', applicationStart:j.applicationStart||'', helplineEmail:j.helplineEmail||'', helplinePhone:j.helplinePhone||'', selectionDetails:j.selectionDetails||'', syllabusDetails:j.syllabusDetails||'', zoneWiseVacancy:j.zoneWiseVacancy||'', fullDescription:(j as any).fullDescription||'', fullDescTitle:(j as any).fullDescTitle||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
+    setJf({ logo:j.logo, imageUrl:j.imageUrl||'', title:j.title, slug: j.slug || '', org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'',howToApplyImages: (j as any).howToApplyImages || [], detailsImages: (j as any).detailsImages || [], youtubeLink:j.youtubeLink||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageBirthRange:(j as any).ageBirthRange||'', ageRelaxation:j.ageRelaxation||'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:j.feeRefund||'', lastDateTime:j.lastDateTime||'23:59 Hrs', paymentLastDate:j.paymentLastDate||'', paymentLastDateTime:j.paymentLastDateTime||'23:59 Hrs', correctionWindow:j.correctionWindow||'', applicationStart:j.applicationStart||'', helplineEmail:j.helplineEmail||'', helplinePhone:j.helplinePhone||'', selectionDetails:j.selectionDetails||'', syllabusDetails:j.syllabusDetails||'', fullDescription:(j as any).fullDescription||'', fullDescTitle:(j as any).fullDescTitle||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
     setPosts(j.posts||[]); setAdvPdfs(j.advPdfs||[]); setJobAffiliates(j.jobAffiliates||[]); setDateHistory(j.dateHistory||[])
     setJobSections((j as any).sections||[])
     setJobFaqs((j as any).faqs||[])
@@ -1624,22 +1622,7 @@ export default function AdminDashboard() {
                   />
                 </div>
 
-                {/* ── Section: Zone-wise Vacancy ── */}
-                <div className="sh">🗺️ Zone / Region-wise Vacancy (optional)</div>
-                <div className="fg">
-                  <label style={lb}>Zone-wise Vacancy Breakdown</label>
-                  <div style={{background:'#e3f2fd',border:'1px solid #90caf9',borderRadius:7,padding:'8px 12px',marginBottom:8,fontSize:'.75rem',color:'#0d47a1'}}>Format: "Zone Name: Vacancies" — one per line. e.g. "Northeast Frontier Railway (Guwahati): 1776"</div>
-                  {/* Zone-wise Vacancy — RichTextEditor preset standard */}
-                  <RichTextEditor
-                    value={jf.zoneWiseVacancy}
-                    onChange={(val) => setJf(p => ({...p, zoneWiseVacancy: val}))}
-                    preset="standard"
-                    placeholder="Use Table button to create Zone/State-wise vacancy breakdown..."
-                    hint="💡 Perfect for tables: State | SC | ST | OBC | EWS | UR | Total"
-                  />
-                </div>
-
-                {/* ── Section: Posts ── */}
+                                {/* ── Section: Posts ── */}
                 <div className="sh">
                   📊 Post-wise Vacancy Details
                   <button type="button" onClick={addPost} style={{ ...bT,marginLeft:'auto',fontSize:'.75rem',padding:'5px 13px' }}>+ Add Post</button>
