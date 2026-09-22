@@ -23,7 +23,7 @@ type Job     = {
   feeRefund?:string; lastDateTime?:string; paymentLastDate?:string; paymentLastDateTime?:string
   correctionWindow?:string; applicationStart?:string
   helplineEmail?:string; helplinePhone?:string; selectionDetails?:string
-  syllabusDetails?:string; zoneWiseVacancy?:string
+  syllabusDetails?:string;
   ageBirthRange?:string
   jobAffiliates?:JobAffiliate[]
   titleAs?:string; orgAs?:string; descriptionAs?:string; howToApplyAs?:string; selectionAs?:string
@@ -185,7 +185,6 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
   const ageRows   = (job.ageRelaxation||'').split('\n').filter(s=>s.trim())
   const selLines  = (job.selectionDetails||'').split('\n')
   const sylSecs   = (job.syllabusDetails||'').split('\n\n').filter(s=>s.trim())
-  const zones     = (job.zoneWiseVacancy||'').split('\n').filter(s=>s.trim())
   const sc        = job.status==='Live'?'#22c55e':job.status==='Closing'?'#f59e0b':'#8fa3b8'
 
     const dl = (() => {
@@ -481,16 +480,6 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                     {job.feeRefund && <RichContent content={job.feeRefund} className="rte-content" style={{ fontSize:'.74rem', color:'#2e7d32', marginTop:8, fontWeight:700 }} />}
                   </div>
                 </div>
-
-                {/* Zone-wise vacancy */}
-                {zones.length>0&&(
-                  <>
-                    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>🗺️ Zone / District-wise Vacancy</h2>
-                    <div style={{background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'14px 16px',marginBottom:20}}>
-                      <RichContent content={job.zoneWiseVacancy} className="rte-content" />
-                    </div>
-                  </>
-                )}
 
                 {/* Selection process (brief) */}
                 {job.selection&&(
