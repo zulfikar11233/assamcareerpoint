@@ -499,6 +499,7 @@ export default function AdminDashboard() {
   const [examSections, setExamSections] = useState<ContentSection[]>([])
   const [examFaqs,      setExamFaqs]      = useState<FaqItem[]>([])
   const [infoSections, setInfoSections] = useState<ContentSection[]>([])
+  const [infoFaqs, setInfoFaqs] = useState<FaqItem[]>([])
 
   // Exam form
   const blankExam = { emoji:'📚', title:'', slug: '', conductedBy:'', category:'Teaching', description:'', applicationStart:'', applicationLastDate:'', paymentLastDate:'', examDate:'', examTime:'', admitCardDate:'', resultDate:'', fee:'', eligibility:'', fullDescription:'', fullDescTitle:'', syllabus:'', officialSite:'', applyLink:'', admitCardLink:'', status:'Upcoming' as Exam['status'], titleAs:'', descriptionAs:'', eligibilityAs:'', examPdfs:[] as {label:string;url:string}[], examAffiliates:[] as {id:string;title:string;link:string;img?:string;badge?:string}[], imageUrl:'' }
@@ -662,13 +663,13 @@ export default function AdminDashboard() {
   }
 
   // ── INFO HELPERS ─────────────────────────────────────────────────────────
-  function openAddInfo()  { setEditInfo(null); setInf(blankInfo); setInfDates([]); setInfoSections([]); setShowInfoModal(true) }
-  function openEditInfo(i:InfoItem) { setEditInfo(i); setInf({ emoji:i.emoji, title:i.title, slug: i.slug || '', category:i.category, description:i.description||'', processImages: (i as any).processImages || [], lastDate:i.lastDate||'', process:i.process||'', officialLink:i.officialLink||'', fullDescription:(i as any).fullDescription||'', fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||'', descriptionAs:i.descriptionAs||'', processAs:i.processAs||'', imageUrl:i.imageUrl||'' }); setInfDates((i.importantDates||[]).map(d=>({label:d.label,date:d.date,time:d.time||''}))); setInfoSections((i as any).sections||[]); setShowInfoModal(true) }
+  function openAddInfo()  { setEditInfo(null); setInf(blankInfo); setInfDates([]); setInfoSections([]); setInfoFaqs([]); setShowInfoModal(true) }
+  function openEditInfo(i:InfoItem) { setEditInfo(i); setInf({ emoji:i.emoji, title:i.title, slug: i.slug || '', category:i.category, description:i.description||'', processImages: (i as any).processImages || [], lastDate:i.lastDate||'', process:i.process||'', officialLink:i.officialLink||'', fullDescription:(i as any).fullDescription||'', fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||'', descriptionAs:i.descriptionAs||'', processAs:i.processAs||'', imageUrl:i.imageUrl||'' }); setInfDates((i.importantDates||[]).map(d=>({label:d.label,date:d.date,time:d.time||''}))); setInfoSections((i as any).sections||[]); setInfoFaqs((i as any).faqs||[]); setShowInfoModal(true) }
   function saveInfo(e:React.FormEvent) {
     e.preventDefault()
     if (!inf.title) { alert('Title required.'); return }
     const dates = infDates.filter(d=>d.label&&d.date).map(d => ({label:d.label,date:d.date,...(d.time?{time:d.time}:{})}))
-    if (editInfo) setInfoList(prev => prev.map(x => x.id===editInfo.id ? {...editInfo,...inf,importantDates:dates,sections:infoSections} : x))
+        if (editInfo) setInfoList(prev => prev.map(x => x.id===editInfo.id ? {...editInfo,...inf,importantDates:dates,sections:infoSections,faqs:infoFaqs} : x))
     else {
       const newId = Date.now()
       const newInfo = {
@@ -677,7 +678,8 @@ export default function AdminDashboard() {
         createdAt: new Date().toISOString(),
         ...inf,
         importantDates: dates,
-        sections: infoSections
+        sections: infoSections,
+        faqs: infoFaqs
       }
       setInfoList(prev => [newInfo, ...prev])
     }
@@ -2429,7 +2431,13 @@ https://drive.google.com/file/d/...`}
                 <div style={{background:'#e8f4fd',border:'1px solid #90caf9',borderRadius:9,padding:'9px 14px',marginBottom:12,fontSize:'.78rem',color:'#1a3a5c',lineHeight:1.75}}>
                   Add extra sections with custom content, important links, and PDF downloads. These will appear on the public information detail page.
                 </div>
-                <SectionBuilder sections={infoSections} onChange={setInfoSections} />
+                                <SectionBuilder sections={infoSections} onChange={setInfoSections} />
+                {/* ── Section: FAQs ── */}
+                <div className="sh">❓ FAQs (shown at the bottom of the page)</div>
+                <div style={{background:'#e8f4fd',border:'1px solid #90caf9',borderRadius:9,padding:'9px 14px',marginBottom:12,fontSize:'.78rem',color:'#1a3a5c',lineHeight:1.75}}>
+                  Add 2–4 short questions and answers. These help the page show up better in Google search results.
+                </div>
+                <FaqBuilder faqs={infoFaqs} onChange={setInfoFaqs} />
               </div>
               <div style={{ padding:'14px 24px',borderTop:'1px solid #d4e0ec',display:'flex',justifyContent:'flex-end',gap:10 }}>
                 <button type="button" onClick={()=>setShowInfoModal(false)} style={bS}>Cancel</button>
