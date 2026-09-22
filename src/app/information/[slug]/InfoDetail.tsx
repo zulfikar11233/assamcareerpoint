@@ -70,8 +70,6 @@ type InfoItem = {
   descriptionAs?: string
   processAs?: string
   processImages?: string[]
-  fullDescription?: string
-  fullDescTitle?: string
   sections?: any[]
   imageUrl?: string
   faqs?: {id:string; question:string; answer:string}[]
@@ -319,15 +317,6 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
                 style={{display:'inline-flex',alignItems:'center',gap:8,padding:'12px 22px',borderRadius:10,background:T,color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif'}}>
                 🔗 Visit Official Website
               </a>
-            </div>
-          )}
-
-          {item.fullDescription && (
-            <div style={{marginTop:22}}>
-              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>
-                📄 {item.fullDescTitle || 'Detailed Information'}
-              </h2>
-              <RichContent content={item.fullDescription} className="rte-content" style={{background:'#f8fbff',border:'1.5px solid #d4e0ec',borderRadius:10,padding:'16px 18px'}} />
             </div>
           )}
 
