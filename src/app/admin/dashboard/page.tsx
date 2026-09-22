@@ -80,8 +80,6 @@ type Job = {
   selection?: string
   website?: string
   howToApply?: string
-  howToApplyImages?: string[]
-  detailsImages?: string[]
   sections?: ContentSection[]
   faqs?: FaqItem[]
   youtubeLink?: string
@@ -104,14 +102,8 @@ type Job = {
   // Helpline
   helplineEmail?: string
   helplinePhone?: string
-  // Selection & Syllabus
-  selectionDetails?: string
-  syllabusDetails?: string
   // Job-specific affiliate products
   jobAffiliates?: JobAffiliate[]
-  // Bilingual — Assamese (all optional)
-  fullDescription?: string
-  fullDescTitle?: string
   titleAs?: string
   orgAs?: string
   descriptionAs?: string
@@ -148,8 +140,6 @@ type Exam = {
   descriptionAs?: string
   eligibilityAs?: string
   syllabusAs?: string
-  fullDescription?: string
-  fullDescTitle?: string
   examPdfs?: { label: string; url: string }[]
   examAffiliates?: { id: string; title: string; link: string; img?: string; badge?: string }[]
   imageUrl?: string       // ✅ ADDED
@@ -169,8 +159,6 @@ type InfoItem = {
   faqs?: FaqItem[]
   importantDates?: { label: string; date: string; time?: string }[]
   status: 'Active' | 'Upcoming' | 'Expired'
-  fullDescription?: string
-  fullDescTitle?: string
   createdAt?: string
   titleAs?: string
   descriptionAs?: string
@@ -485,7 +473,7 @@ export default function AdminDashboard() {
   const [dataLoaded, setDataLoaded] = useState(false)
 
   // Job form
-  const BLANK_JF = { logo:'🏛️', imageUrl:'', title:'', slug:'', org:'', category:'Govt Job', district:'All Districts', status:'Live' as Job['status'], fee:'', selection:'', website:'', howToApply:'',howToApplyImages: [], detailsImages: [], youtubeLink:'', description:'', advtNo:'', ageLimitDate:'',ageBirthRange:'', ageRelaxation:'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:'', lastDateTime:'23:59 Hrs', paymentLastDate:'', paymentLastDateTime:'23:59 Hrs', correctionWindow:'', applicationStart:'', helplineEmail:'', helplinePhone:'', selectionDetails:'', syllabusDetails:'', fullDescription:'', fullDescTitle:'', titleAs:'', orgAs:'', descriptionAs:'', howToApplyAs:'', selectionAs:'' }
+  const BLANK_JF = { logo:'🏛️', imageUrl:'', title:'', slug:'', org:'', category:'Govt Job', district:'All Districts', status:'Live' as Job['status'], fee:'', selection:'', website:'', howToApply:'', youtubeLink:'', description:'', advtNo:'', ageLimitDate:'',ageBirthRange:'', ageRelaxation:'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:'', lastDateTime:'23:59 Hrs', paymentLastDate:'', paymentLastDateTime:'23:59 Hrs', correctionWindow:'', applicationStart:'', helplineEmail:'', helplinePhone:'', titleAs:'', orgAs:'', descriptionAs:'', howToApplyAs:'', selectionAs:'' }
   const [jf, setJf] = useState(BLANK_JF)
   const [posts,       setPosts]       = useState<Post[]>([])
   const [advPdfs,     setAdvPdfs]     = useState<AdvPdf[]>([])
@@ -500,11 +488,11 @@ export default function AdminDashboard() {
   const [infoFaqs, setInfoFaqs] = useState<FaqItem[]>([])
 
   // Exam form
-  const blankExam = { emoji:'📚', title:'', slug: '', conductedBy:'', category:'Teaching', description:'', applicationStart:'', applicationLastDate:'', paymentLastDate:'', examDate:'', examTime:'', admitCardDate:'', resultDate:'', fee:'', eligibility:'', fullDescription:'', fullDescTitle:'', syllabus:'', officialSite:'', applyLink:'', admitCardLink:'', status:'Upcoming' as Exam['status'], titleAs:'', descriptionAs:'', eligibilityAs:'', examPdfs:[] as {label:string;url:string}[], examAffiliates:[] as {id:string;title:string;link:string;img?:string;badge?:string}[], imageUrl:'' }
+  const blankExam = { emoji:'📚', title:'', slug: '', conductedBy:'', category:'Teaching', description:'', applicationStart:'', applicationLastDate:'', paymentLastDate:'', examDate:'', examTime:'', admitCardDate:'', resultDate:'', fee:'', eligibility:'', syllabus:'', officialSite:'', applyLink:'', admitCardLink:'', status:'Upcoming' as Exam['status'], titleAs:'', descriptionAs:'', eligibilityAs:'', examPdfs:[] as {label:string;url:string}[], examAffiliates:[] as {id:string;title:string;link:string;img?:string;badge?:string}[], imageUrl:'' }
   const [ef, setEf] = useState(blankExam)
 
   // Info form
-  const blankInfo = { emoji:'🗳️', title:'', slug:'', category:'Electoral', description:'', lastDate:'', process:'',processImages: [], officialLink:'', fullDescription:'', fullDescTitle:'', status:'Active' as InfoItem['status'], titleAs:'', descriptionAs:'', processAs:'', imageUrl:'' }
+  const blankInfo = { emoji:'🗳️', title:'', slug:'', category:'Electoral', description:'', lastDate:'', process:'',processImages: [], officialLink:'', status:'Active' as InfoItem['status'], titleAs:'', descriptionAs:'', processAs:'', imageUrl:'' }
   const [inf, setInf]       = useState(blankInfo)
   const [infDates, setInfDates] = useState<{label:string;date:string;time:string}[]>([])
 
@@ -584,7 +572,7 @@ export default function AdminDashboard() {
   }
   function openEditJob(j:Job) {
     setEditJob(j)
-    setJf({ logo:j.logo, imageUrl:j.imageUrl||'', title:j.title, slug: j.slug || '', org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'',howToApplyImages: (j as any).howToApplyImages || [], detailsImages: (j as any).detailsImages || [], youtubeLink:j.youtubeLink||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageBirthRange:(j as any).ageBirthRange||'', ageRelaxation:j.ageRelaxation||'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:j.feeRefund||'', lastDateTime:j.lastDateTime||'23:59 Hrs', paymentLastDate:j.paymentLastDate||'', paymentLastDateTime:j.paymentLastDateTime||'23:59 Hrs', correctionWindow:j.correctionWindow||'', applicationStart:j.applicationStart||'', helplineEmail:j.helplineEmail||'', helplinePhone:j.helplinePhone||'', selectionDetails:j.selectionDetails||'', syllabusDetails:j.syllabusDetails||'', fullDescription:(j as any).fullDescription||'', fullDescTitle:(j as any).fullDescTitle||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
+    setJf({ logo:j.logo, imageUrl:j.imageUrl||'', title:j.title, slug: j.slug || '', org:j.org, category:j.category, district:j.district, status:j.status, fee:j.fee||'', selection:j.selection||'', website:j.website||'', howToApply:j.howToApply||'', youtubeLink:j.youtubeLink||'', description:j.description||'', advtNo:j.advtNo||'', ageLimitDate:j.ageLimitDate||'', ageBirthRange:(j as any).ageBirthRange||'', ageRelaxation:j.ageRelaxation||'SC/ST: 5 years\nOBC-MOBC: 3 years\nPwD (Unreserved): 10 years\nPwD (OBC): 13 years\nPwD (SC/ST): 15 years\nEx-Serviceman: 3 years', feeRefund:j.feeRefund||'', lastDateTime:j.lastDateTime||'23:59 Hrs', paymentLastDate:j.paymentLastDate||'', paymentLastDateTime:j.paymentLastDateTime||'23:59 Hrs', correctionWindow:j.correctionWindow||'', applicationStart:j.applicationStart||'', helplineEmail:j.helplineEmail||'', helplinePhone:j.helplinePhone||'', titleAs:j.titleAs||'', orgAs:j.orgAs||'', descriptionAs:j.descriptionAs||'', howToApplyAs:j.howToApplyAs||'', selectionAs:j.selectionAs||'' })
     setPosts(j.posts||[]); setAdvPdfs(j.advPdfs||[]); setJobAffiliates(j.jobAffiliates||[]); setDateHistory(j.dateHistory||[])
     setJobSections((j as any).sections||[])
     setJobFaqs((j as any).faqs||[])
@@ -640,7 +628,7 @@ export default function AdminDashboard() {
   }
   // ── EXAM HELPERS ─────────────────────────────────────────────────────────
   function openAddExam()  { setEditExam(null); setEf(blankExam); setExamSections([]); setShowExamModal(true) }
-  function openEditExam(x:Exam) { setEditExam(x); setEf({ emoji:x.emoji, title:x.title, slug: x.slug || '', conductedBy:x.conductedBy, category:x.category, description:x.description||'', applicationStart:x.applicationStart||'', applicationLastDate:x.applicationLastDate||'', paymentLastDate:x.paymentLastDate||'', examDate:x.examDate||'', examTime:x.examTime||'', admitCardDate:x.admitCardDate||'', resultDate:x.resultDate||'', fee:x.fee||'', eligibility:x.eligibility||'', syllabus:x.syllabus||'', officialSite:x.officialSite||'', applyLink:x.applyLink||'', admitCardLink:x.admitCardLink||'', status:x.status, titleAs:x.titleAs||'', descriptionAs:x.descriptionAs||'', eligibilityAs:x.eligibilityAs||'', fullDescription:(x as any).fullDescription||'', fullDescTitle:(x as any).fullDescTitle||'', examPdfs:x.examPdfs||[], examAffiliates:x.examAffiliates||[], imageUrl:x.imageUrl||'' }); setExamSections((x as any).sections || []); setExamFaqs((x as any).faqs || []); setShowExamModal(true) }
+  function openEditExam(x:Exam) { setEditExam(x); setEf({ emoji:x.emoji, title:x.title, slug: x.slug || '', conductedBy:x.conductedBy, category:x.category, description:x.description||'', applicationStart:x.applicationStart||'', applicationLastDate:x.applicationLastDate||'', paymentLastDate:x.paymentLastDate||'', examDate:x.examDate||'', examTime:x.examTime||'', admitCardDate:x.admitCardDate||'', resultDate:x.resultDate||'', fee:x.fee||'', eligibility:x.eligibility||'', syllabus:x.syllabus||'', officialSite:x.officialSite||'', applyLink:x.applyLink||'', admitCardLink:x.admitCardLink||'', status:x.status, titleAs:x.titleAs||'', descriptionAs:x.descriptionAs||'', eligibilityAs:x.eligibilityAs||'', examPdfs:x.examPdfs||[], examAffiliates:x.examAffiliates||[], imageUrl:x.imageUrl||'' }); setExamSections((x as any).sections || []); setExamFaqs((x as any).faqs || []); setShowExamModal(true) }
   function saveExam(e:React.FormEvent) {
     e.preventDefault()
     if (!ef.title) { alert('Title required.'); return }
@@ -662,7 +650,7 @@ export default function AdminDashboard() {
 
   // ── INFO HELPERS ─────────────────────────────────────────────────────────
   function openAddInfo()  { setEditInfo(null); setInf(blankInfo); setInfDates([]); setInfoSections([]); setInfoFaqs([]); setShowInfoModal(true) }
-  function openEditInfo(i:InfoItem) { setEditInfo(i); setInf({ emoji:i.emoji, title:i.title, slug: i.slug || '', category:i.category, description:i.description||'', processImages: (i as any).processImages || [], lastDate:i.lastDate||'', process:i.process||'', officialLink:i.officialLink||'', fullDescription:(i as any).fullDescription||'', fullDescTitle:(i as any).fullDescTitle||'', status:i.status, titleAs:i.titleAs||'', descriptionAs:i.descriptionAs||'', processAs:i.processAs||'', imageUrl:i.imageUrl||'' }); setInfDates((i.importantDates||[]).map(d=>({label:d.label,date:d.date,time:d.time||''}))); setInfoSections((i as any).sections||[]); setInfoFaqs((i as any).faqs||[]); setShowInfoModal(true) }
+  function openEditInfo(i:InfoItem) { setEditInfo(i); setInf({ emoji:i.emoji, title:i.title, slug: i.slug || '', category:i.category, description:i.description||'', processImages: (i as any).processImages || [], lastDate:i.lastDate||'', process:i.process||'', officialLink:i.officialLink||'', status:i.status, titleAs:i.titleAs||'', descriptionAs:i.descriptionAs||'', processAs:i.processAs||'', imageUrl:i.imageUrl||'' }); setInfDates((i.importantDates||[]).map(d=>({label:d.label,date:d.date,time:d.time||''}))); setInfoSections((i as any).sections||[]); setInfoFaqs((i as any).faqs||[]); setShowInfoModal(true) }
   function saveInfo(e:React.FormEvent) {
     e.preventDefault()
     if (!inf.title) { alert('Title required.'); return }
@@ -1508,15 +1496,6 @@ export default function AdminDashboard() {
                   />
                 </div>
 
-                <div className="fg">
-                  <label style={{...lb, color: '#00b4d8'}}>🖼️ How to Apply Images <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>(shown in How to Apply tab — max 5, one URL per line)</span></label>
-                  <textarea value={(jf as any).howToApplyImages?.join('\n')||''} onChange={e=>setJf((p:any)=>({...p,howToApplyImages:e.target.value.split(/[\n\s]+/).map((s:string)=>s.trim()).filter(Boolean)}))}
-                    style={{...si,minHeight:80,resize:'vertical' as const}} placeholder={'https://drive.google.com/file/d/...\nhttps://drive.google.com/file/d/...'}/>
-                </div>
-                <div className="fg">
-                  <label style={{...lb, color: '#00b4d8'}}>🖼️ Details Tab Images <span style={{color:'#8fa3b8',fontWeight:400,fontSize:'.7rem'}}>(shown in Details tab — max 5, one URL per line)</span></label>
-                  <textarea value={(jf as any).detailsImages?.join('\n')||''} onChange={e=>setJf((p:any)=>({...p,detailsImages:e.target.value.split(/[\n\s]+/).map((s:string)=>s.trim()).filter(Boolean)}))}    style={{...si,minHeight:80,resize:'vertical' as const}} placeholder={'https://drive.google.com/file/d/...\nhttps://drive.google.com/file/d/...'}/>
-                </div>
                 <div className="fg"><label style={lb}>YouTube Video Link (optional)</label><input value={jf.youtubeLink} onChange={e=>setJf(p=>({...p,youtubeLink:e.target.value}))} style={si} placeholder="https://youtube.com/watch?v=..." /></div>
 
                 {/* ── Section: SEO Description & Advt No ── */}
@@ -1525,25 +1504,7 @@ export default function AdminDashboard() {
                   💡 <strong>SEO Tip:</strong> Write a 2–3 sentence description using searchable phrases like "RRB Group D 2026 Assam", "10th pass railway jobs Northeast India". This appears on Google search previews.
                 </div>
                 <div className="fg"><label style={lb}>Job Description (SEO paragraph — optional but recommended)</label><textarea value={jf.description} onChange={e=>setJf(p=>({...p,description:e.target.value}))} style={{...si,minHeight:90,resize:'vertical' as const}} placeholder="e.g. Railway Recruitment Board (RRB) has released RRB Group D 2026 notification for 22195 Level-1 posts under various Railway zones including Northeast Frontier Railway (Guwahati) with 1776 vacancies. Eligible 10th pass / ITI candidates from Assam and Northeast India can apply online before 9 March 2026." /></div>
-                <div className="fg">
-                  <label style={{...lb,color:'#457b9d'}}>📄 Full Details Title (optional)</label>
-                  <input value={(jf as any).fullDescTitle||''} onChange={e=>setJf((p:any)=>({...p,fullDescTitle:e.target.value}))} style={si} placeholder="e.g. Complete Details About This Recruitment" />
-                </div>
-
-                {/* Full Description — replaced with RichTextEditor preset full */}
-                <div className="fg">
-                  <RichTextEditor
-                    value={(jf as any).fullDescription || ''}
-                    onChange={(val) => setJf((p: any) => ({...p, fullDescription: val}))}
-                    preset="full"
-                    hint="💡 Use Table button to add vacancy tables, selection process stages. Word count shown in status bar."
-                  />
-                  <div style={{fontSize:'.7rem',color:'#8fa3b8',marginTop:4}}>
-                    Characters: {((jf as any).fullDescription||'').length} / ~15000 recommended for 2000-3000 words
-                  </div>
-                </div>
-
-                <div className="g2">
+                  <div className="g2">
                   <div className="fg"><label style={lb}>Advertisement / Notification No.</label><input value={jf.advtNo} onChange={e=>setJf(p=>({...p,advtNo:e.target.value}))} style={si} placeholder="CEN 09/2025" /></div>
                   <div className="fg"><label style={lb}>Application Opening Date</label><input type="date" value={jf.applicationStart} onChange={e=>setJf(p=>({...p,applicationStart:e.target.value}))} style={si} /></div>
                 </div>
@@ -1594,32 +1555,6 @@ export default function AdminDashboard() {
                 <div className="g2">
                   <div className="fg"><label style={lb}>Helpline Email</label><input type="email" value={jf.helplineEmail} onChange={e=>setJf(p=>({...p,helplineEmail:e.target.value}))} style={si} placeholder="rrb.help@csc.gov.in" /></div>
                   <div className="fg"><label style={lb}>Helpline Phone</label><input value={jf.helplinePhone} onChange={e=>setJf(p=>({...p,helplinePhone:e.target.value}))} style={si} placeholder="9592001188 / 01725653333" /></div>
-                </div>
-
-                {/* ── Section: Selection & Syllabus ── */}
-                <div className="sh">📋 Selection Process & Syllabus</div>
-                <div className="fg">
-                  <label style={lb}>Detailed Selection Process</label>
-                  <div style={{background:'#e8f5e9',border:'1px solid #a5d6a7',borderRadius:7,padding:'8px 12px',marginBottom:8,fontSize:'.75rem',color:'#1b5e20'}}>Enter CBT exam pattern, PET criteria, DV process etc. Each stage on a new line.</div>
-                  {/* Selection Details — RichTextEditor preset full */}
-                  <RichTextEditor
-                    value={jf.selectionDetails}
-                    onChange={(val) => setJf(p => ({...p, selectionDetails: val}))}
-                    preset="full"
-                    placeholder="Add selection stages, exam pattern table, cut-off marks table..."
-                    hint="💡 Great for exam pattern tables: Subject | Questions | Marks | Duration"
-                  />
-                </div>
-                <div className="fg">
-                  <label style={lb}>Exam Syllabus (subject-wise)</label>
-                  {/* Syllabus Details — RichTextEditor preset full */}
-                  <RichTextEditor
-                    value={jf.syllabusDetails}
-                    onChange={(val) => setJf(p => ({...p, syllabusDetails: val}))}
-                    preset="full"
-                    placeholder="Add subject-wise syllabus. Use Table button for structured subject tables..."
-                    hint="💡 Table format: Subject | Topics | Marks Weightage"
-                  />
                 </div>
 
                                 {/* ── Section: Posts ── */}
@@ -1880,7 +1815,6 @@ ${posts.length > 0 ? `
 
 <h2>🏆 Selection Process</h2>
 <div style="padding:8px 0">${(jf.selection || '—').replace(/→/g,' → ')}</div>
-${jf.selectionDetails ? `<div style="padding:8px 0;line-height:1.8;color:#444">${jf.selectionDetails.replace(/\n/g,'<br/>')}</div>` : ''}
 
 ${jf.howToApply ? `
 <h2>✅ How to Apply</h2>
@@ -2002,21 +1936,6 @@ ${jf.helplinePhone ? `<div class="row"><span class="label">Phone</span><span cla
                     preset="simple"
                     minHeight={130}
                     placeholder="Brief description of the exam..."
-                  />
-                </div>
-
-                <div className="fg">
-                  <label style={{...lb,color:'#457b9d'}}>📄 Full Details Title (optional)</label>
-                  <input value={(ef as any).fullDescTitle||''} onChange={e=>setEf((p:any)=>({...p,fullDescTitle:e.target.value}))} style={si} />
-                </div>
-
-                {/* Full Description — RichTextEditor preset full */}
-                <div className="fg">
-                  <RichTextEditor
-                    value={(ef as any).fullDescription || ''}
-                    onChange={(val) => setEf((p: any) => ({...p, fullDescription: val}))}
-                    preset="full"
-                    hint="💡 Add exam pattern table, previous year analysis, preparation tips with proper formatting"
                   />
                 </div>
 
@@ -2301,21 +2220,6 @@ ${ef.examPdfs.map(pdf => `<div class="row"><span class="label">${pdf.label || 'P
                     preset="simple"
                     minHeight={140}
                     placeholder="What is this? Who needs to do it? Why is it important?"
-                  />
-                </div>
-
-                <div className="fg">
-                  <label style={{...lb,color:'#457b9d'}}>📄 Full Details Title</label>
-                  <input value={(inf as any).fullDescTitle||''} onChange={e=>setInf((p:any)=>({...p,fullDescTitle:e.target.value}))} style={si} />
-                </div>
-
-                {/* Full Description — RichTextEditor preset full */}
-                <div className="fg">
-                  <RichTextEditor
-                    value={(inf as any).fullDescription || ''}
-                    onChange={(val) => setInf((p: any) => ({...p, fullDescription: val}))}
-                    preset="full"
-                    hint="💡 Add step-by-step tables, FAQ sections, document checklists with proper formatting"
                   />
                 </div>
 
