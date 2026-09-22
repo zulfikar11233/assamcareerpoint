@@ -22,8 +22,7 @@ type Job     = {
   description?:string; advtNo?:string; ageLimitDate?:string; ageRelaxation?:string
   feeRefund?:string; lastDateTime?:string; paymentLastDate?:string; paymentLastDateTime?:string
   correctionWindow?:string; applicationStart?:string
-  helplineEmail?:string; helplinePhone?:string; selectionDetails?:string
-  syllabusDetails?:string;
+  helplineEmail?:string; helplinePhone?:string;
   ageBirthRange?:string
   jobAffiliates?:JobAffiliate[]
   titleAs?:string; orgAs?:string; descriptionAs?:string; howToApplyAs?:string; selectionAs?:string
@@ -167,7 +166,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
     } catch { return true }
   })
   const [now, setNow] = useState<number>(Date.now())
-  const [activeTab, setActiveTab] = useState<'details'|'syllabus'|'howapply'>('details')
+  const [activeTab, setActiveTab] = useState<'details'|'howapply'>('details')
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000)
@@ -183,8 +182,6 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
   const ageMax    = posts.length ? Math.max(...posts.map(p=>Number(p.ageMax)||0)) : 0
   const steps     = (job.howToApply||'').split('\n').filter(s=>s.trim())
   const ageRows   = (job.ageRelaxation||'').split('\n').filter(s=>s.trim())
-  const selLines  = (job.selectionDetails||'').split('\n')
-  const sylSecs   = (job.syllabusDetails||'').split('\n\n').filter(s=>s.trim())
   const sc        = job.status==='Live'?'#22c55e':job.status==='Closing'?'#f59e0b':'#8fa3b8'
 
     const dl = (() => {
@@ -197,15 +194,6 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
       return        {t:`${diff} days left`,     c:'#22c55e'}
     } catch { return null }
   })()
-
-  const selSections: {title:string;lines:string[]}[] = []
-  let cur: {title:string;lines:string[]}|null = null
-  for (const line of selLines) {
-    const isHead = /^Stage\s+\d|^CBT|^PET|^Physical|^Document|^Medical/.test(line.trim())
-    if (isHead) { if(cur)selSections.push(cur); cur={title:line.trim(),lines:[]} }
-    else if(cur && line.trim()) { cur.lines.push(line.startsWith('-')?line.slice(1).trim():line.trim()) }
-  }
-  if(cur) selSections.push(cur)
 
   const applyHrefMain =
     sanitizeHttpUrl(job.applyLink) ||
@@ -376,9 +364,9 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
           {/* Tabs */}
           <div style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:13,marginBottom:18,overflow:'hidden',maxWidth:'100%'}}>
             <div className="tab-row" style={{display:'flex',borderBottom:'1px solid #e8eef6',minWidth:0,overflowX:'auto',WebkitOverflowScrolling:'touch' as any}}>
-              {(['details','syllabus','howapply'] as const).map(k=>(
+                            {(['details','howapply'] as const).map(k=>(
                 <button key={k} className={`tab-btn${activeTab===k?' on':''}`} onClick={()=>setActiveTab(k)}>
-                  {k==='details'?'📋 Details':k==='syllabus'?'📚 Syllabus & Selection':'✅ How to Apply'}
+                  {k==='details'?'📋 Details':'✅ How to Apply'}
                 </button>
               ))}
             </div>
@@ -493,7 +481,6 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                         </div>
                       ))}
                     </div>
-                    <button onClick={()=>setActiveTab('syllabus')} style={{background:'transparent',border:'none',color:T,fontWeight:700,fontSize:'.82rem',cursor:'pointer',padding:'0 0 18px',fontFamily:'Nunito,sans-serif'}}>📋 See detailed CBT pattern, PET criteria & syllabus →</button>
                   </>
                 )}
 
@@ -553,59 +540,6 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
               </div>
             )}
 
-            {/* Details Tab Images */}
-            {activeTab==='details' && (job.detailsImages||[]).filter(Boolean).length > 0 && (
-              <>
-                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'22px 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>🖼️ Additional Images</h2>
-                {(job.detailsImages||[]).map((u:string)=>u.trim()).filter(Boolean).map((imgUrl,idx)=>{
-                  const src = imgUrl.includes('drive.google.com') ? driveImgUrl(imgUrl) : imgUrl
-                  return (
-                    <div key={idx} style={{borderRadius:10,overflow:'hidden',border:'1.5px solid #d4e0ec',marginBottom:12}}>
-                      <img src={src} alt={`Job image ${idx+1}`}
-                        style={{width:'100%',height:'auto',display:'block',maxHeight:500,objectFit:'contain',background:'#f8fbff'}}
-                        onError={e=>{(e.target as HTMLImageElement).parentElement!.style.display='none'}}
-                      />
-                    </div>
-                  )
-                })}
-              </>
-            )}
-
-            {/* Full Description */}
-            {activeTab==='details' && (job as any).fullDescription && (
-              <div style={{margin:'22px 20px 0'}}>
-                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>
-                  📄 {(job as any).fullDescTitle || 'Detailed Information'}
-                </h2>
-                <RichContent content={(job as any).fullDescription} className="rte-content" style={{ fontSize:'.88rem', color:'#2a3a4a', lineHeight:1.9, background:'#f8fbff', border:'1.5px solid #d4e0ec', borderRadius:10, padding:'16px 18px' }} />
-              </div>
-            )}
-
-            {/* ── SYLLABUS TAB ── */}
-            {activeTab==='syllabus'&&(
-              <div className="tab-panel" style={{padding:'20px'}}>
-                {selSections.length>0&&(
-                  <>
-                    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>🏆 Detailed Selection Process & Exam Pattern</h2>
-                    <RichContent content={job.selectionDetails} className="rte-content" />
-                    <div style={{marginBottom:20}}/>
-                  </>
-                )}
-                {sylSecs.length>0&&(
-                  <>
-                    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📚 Detailed Syllabus</h2>
-                    <RichContent content={job.syllabusDetails} className="rte-content" />
-                  </>
-                )}
-                {!selSections.length&&!sylSecs.length&&(
-                  <div style={{textAlign:'center' as const,padding:'40px',color:'#8fa3b8'}}>
-                    <div style={{fontSize:'2.5rem',marginBottom:12}}>📋</div>
-                    <p>Detailed syllabus and selection process will be added soon.</p>
-                  </div>
-                )}
-              </div>
-            )}
-
             {/* ── HOW TO APPLY TAB ── */}
             {activeTab==='howapply'&&(
               <div className="tab-panel" style={{padding:'20px'}}>
@@ -617,17 +551,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                     <RichContent content={job.howToApplyAs} className="rte-content" />
                   </div>
                 )}
-                {(job.howToApplyImages||[]).map((u:string)=>u.trim()).filter(Boolean).map((imgUrl,idx)=>{
-                  const src = imgUrl.includes('drive.google.com') ? driveImgUrl(imgUrl) : imgUrl
-                  return (
-                    <div key={idx} style={{borderRadius:10,overflow:'hidden',border:'1.5px solid #d4e0ec',marginBottom:12}}>
-                      <img src={src} alt={`How to apply step ${idx+1}`}
-                        style={{width:'100%',height:'auto',display:'block',maxHeight:480,objectFit:'contain',background:'#f8fbff'}}
-                        onError={e=>{(e.target as HTMLImageElement).parentElement!.style.display='none'}}
-                      />
-                    </div>
-                  )
-                })}
+
                 <div style={{display:'flex',gap:10,flexWrap:'wrap' as const,marginTop:18}}>
                   {applyHrefMain ? (
                     <a href={applyHrefMain} target="_blank" rel="noopener noreferrer"
