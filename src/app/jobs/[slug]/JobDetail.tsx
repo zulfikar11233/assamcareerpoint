@@ -638,7 +638,10 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
               </Link>
             </div>
           )}
-	<FreeToolsBar context="job" />
+		<FreeToolsBar context="job" />
+        </div>
+              )}
+          </div>
         </div>
 
         {/* SIDEBAR */}
