@@ -66,7 +66,7 @@ type ExamAffiliate = { id: string; title: string; link: string; img?: string; ba
 type Exam = {
   id: number; slug?: string; emoji: string; imageUrl?: string; title: string; conductedBy: string
   category: string; description?: string; applicationStart?: string
-  applicationLastDate?: string; paymentLastDate?: string; examDate?: string
+  applicationLastDate?: string; examDate?: string
   examTime?: string; admitCardDate?: string; resultDate?: string; fee?: string
   eligibility?: string; syllabus?: string; officialSite?: string
   applyLink?: string; admitCardLink?: string
@@ -260,7 +260,6 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
             <div className="hero-grid-strip" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:10,marginTop:18}}>
               {[
                 {l:'Apply By',   v:fmt(exam.applicationLastDate), hi:true},
-                {l:'Payment By', v:fmt(exam.paymentLastDate),     hi:false},
                 {l:'Exam Date',  v:exam.examDate||'—',            hi:false},
                 {l:'Admit Card', v:exam.admitCardDate||'—',       hi:false},
               ].map(s=>(
@@ -291,7 +290,6 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
                 {[
                   ...(exam.applicationStart    ? [{l:'Application Opens',   v:fmt(exam.applicationStart),    hi:false}] : []),
                   ...(exam.applicationLastDate ? [{l:'Last Date to Apply',   v:fmt(exam.applicationLastDate), hi:true }] : []),
-                  ...(exam.paymentLastDate     ? [{l:'Fee Payment Deadline', v:fmt(exam.paymentLastDate),     hi:true }] : []),
                   ...(exam.examDate            ? [{l:'Exam Date / Schedule', v:exam.examDate,                 hi:false}] : []),
                   ...(exam.admitCardDate       ? [{l:'Admit Card Available', v:exam.admitCardDate,            hi:false}] : []),
                   ...(exam.resultDate          ? [{l:'Result Date',          v:fmt(exam.resultDate),          hi:false}] : []),
