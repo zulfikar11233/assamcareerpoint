@@ -226,7 +226,7 @@ const SAMPLE_JOBS: Job[] = [{
     {id:'p4',name:'Peon / Grade IV',dept:'Various',vacancy:280,qualification:'Class VIII Pass',ageMin:18,ageMax:43,salary:'₹12,000–37,500',lastDate:'2026-03-20',applyLink:'https://slprbassam.in'},
     {id:'p5',name:'Safai Karmachari',dept:'Sanitation',vacancy:110,qualification:'Class VIII Pass',ageMin:18,ageMax:43,salary:'₹12,000–37,500',lastDate:'2026-03-20',applyLink:'https://slprbassam.in'},
   ],
-  advPdfs:[], dateHistory:[], fee:'₹285 (Gen) · ₹185 (SC/ST)', selection:'Written → PET → Medical', website:'slprbassam.in', howToApply:'Visit slprbassam.in and click Apply', youtubeLink:'', createdAt:new Date().toISOString(),
+    advPdfs:[], dateHistory:[], fee:'₹285 (Gen) · ₹185 (SC/ST)', selection:'Written → PET → Medical', website:'slprbassam.in', howToApply:'Visit slprbassam.in and click Apply', createdAt:new Date().toISOString(),
 }]
 
 const SAMPLE_EXAMS: Exam[] = [
