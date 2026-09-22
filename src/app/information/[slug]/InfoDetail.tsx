@@ -69,7 +69,6 @@ type InfoItem = {
   titleAs?: string
   descriptionAs?: string
   processAs?: string
-  processImages?: string[]
   sections?: any[]
   imageUrl?: string
   faqs?: {id:string; question:string; answer:string}[]
@@ -285,26 +284,6 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
                   <RichContent content={item.processAs} className="rte-content" />
                 </div>
               )}
-            </div>
-          )}
-
-          {/* Process Images */}
-          {(item.processImages||[]).filter(Boolean).length > 0 && (
-            <div className="card">
-              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:N,margin:'0 0 14px',paddingBottom:10,borderBottom:'2px solid #f0f4f8'}}>🖼️ Reference Images</h2>
-              {(item.processImages||[]).map((u:string)=>u.trim()).filter(Boolean).map((imgUrl,idx)=>{
-                const src = imgUrl.includes('drive.google.com')
-                  ? `https://lh3.googleusercontent.com/d/${(imgUrl.match(/\/d\/([a-zA-Z0-9_-]+)/)||[])[1]}`
-                  : imgUrl
-                return (
-                  <div key={idx} style={{borderRadius:10,overflow:'hidden',border:'1.5px solid #d4e0ec',marginBottom:12,boxShadow:'0 2px 12px rgba(0,0,0,.06)'}}>
-                    <img src={src} alt={`Reference image ${idx+1}`} width={800} height={500} loading="lazy" decoding="async"
-                      style={{width:'100%',height:'auto',display:'block',maxHeight:500,objectFit:'contain',background:'#f8fbff'}}
-                      onError={e=>{(e.target as HTMLImageElement).parentElement!.style.display='none'}}
-                    />
-                  </div>
-                )
-              })}
             </div>
           )}
 
