@@ -38,9 +38,16 @@ export default async function InfoPage({ params }: { params: Promise<{ slug: str
 
   if (!item) notFound()
 
-  const others = list
+    const others = list
     .filter(i => String(i.id) !== String(item.id) && i.status !== 'Expired')
     .slice(0, 4)
 
-  return <InfoDetail item={item} others={others} />
+  const sameCategory = list
+    .filter(i => i.category === item.category)
+    .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+  const idx   = sameCategory.findIndex(i => String(i.id) === String(item.id))
+  const newer = idx > 0 ? sameCategory[idx - 1] : null
+  const older = idx >= 0 && idx < sameCategory.length - 1 ? sameCategory[idx + 1] : null
+
+  return <InfoDetail item={item} others={others} newer={newer} older={older} />
 }
