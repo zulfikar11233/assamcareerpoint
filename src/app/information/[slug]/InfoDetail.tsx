@@ -53,6 +53,12 @@ function FaqAccordion({ faqs }: { faqs?: {id:string;question:string;answer:strin
   )
 }
 
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,color:W,fontSize:'.88rem',margin:'0 0 12px',padding:'10px 16px',borderRadius:8,background:`linear-gradient(90deg,${N},#102a45)`}}>{children}</h2>
+  )
+}
+
 type InfoItem = {
   id: number
   slug?: string
@@ -259,7 +265,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
 
           {/* At a Glance */}
           <div className="card">
-            <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:N,margin:'0 0 14px',paddingBottom:10,borderBottom:'2px solid #f0f4f8'}}>📌 At a Glance</h2>
+            <SectionHeading>📌 At a Glance</SectionHeading>
             <div style={{overflowX:'auto',borderRadius:10,border:'1.5px solid #d4e0ec'}}>
               <table style={{width:'100%',borderCollapse:'collapse' as const,fontSize:'.85rem'}}>
                 <tbody>
@@ -282,7 +288,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
           {/* Important Dates */}
           {item.importantDates?.length > 0 && (
             <div className="card">
-              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:N,margin:'0 0 14px',paddingBottom:10,borderBottom:'2px solid #f0f4f8'}}>📅 Important Dates</h2>
+              <SectionHeading>📅 Important Dates</SectionHeading>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(min(100%,160px),1fr))',gap:12}}>
                 {(item.importantDates||[]).map((d,i)=>(
                   <div key={i} style={{background:`${G}10`,border:`1.5px solid ${G}33`,borderRadius:10,padding:'12px 14px'}}>
@@ -298,7 +304,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
           {/* Step-by-step process */}
           {item.process && (
             <div className="card">
-              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:N,margin:'0 0 16px',paddingBottom:10,borderBottom:'2px solid #f0f4f8'}}>📋 Step-by-Step Process</h2>
+              <SectionHeading>📋 Step-by-Step Process</SectionHeading>
               <RichContent content={item.process} className="rte-content" />
               {item.processAs && (
                 <div style={{marginTop:14,background:'#fff8e1',border:'1.5px solid #ffe082',borderRadius:10,padding:'12px'}}>
@@ -312,7 +318,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
           {/* Official Link */}
           {item.officialLink && (
             <div className="card" style={{borderLeft:`5px solid ${T}`}}>
-              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:N,margin:'0 0 12px',paddingBottom:10,borderBottom:'2px solid #f0f4f8'}}>🌐 Official Resource</h2>
+              <SectionHeading>🌐 Official Resource</SectionHeading>
               <p style={{fontSize:'.87rem',color:'#4a5a6a',lineHeight:1.75,margin:'0 0 14px'}}>For the most accurate and up-to-date information, always refer to the official government website.</p>
               <a href={item.officialLink} target="_blank" rel="noopener noreferrer"
                 style={{display:'inline-flex',alignItems:'center',gap:8,padding:'12px 22px',borderRadius:10,background:T,color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif'}}>
@@ -367,7 +373,7 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
                     {/* Related Information */}
           {others.length > 0 && (
             <div style={{marginTop:20}}>
-              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'1rem',color:N,marginBottom:14}}>📋 Related Information</h2>
+              <SectionHeading>📋 Related Information</SectionHeading>
               <div style={{display:'flex',flexDirection:'column' as const,gap:10}}>
                 {others.map(o=>(
                   <Link key={o.id} href={`/information/${o.slug || o.id}`} className="re-card">
