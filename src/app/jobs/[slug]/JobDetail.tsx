@@ -74,6 +74,12 @@ function FaqAccordion({ faqs }: { faqs?: {id:string;question:string;answer:strin
   )
 }
 
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,color:W,fontSize:'.88rem',margin:'0 0 12px',padding:'10px 16px',borderRadius:8,background:`linear-gradient(90deg,${N},#102a45)`}}>{children}</h2>
+  )
+}
+
 const fmt     = (d:string|undefined|null) => { if(!d) return '—'; try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) } catch { return d } }
 const fmtLong = (d:string|undefined|null) => { if(!d) return '—'; try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}) } catch { return d } }
 
@@ -374,7 +380,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
               <div className="tab-panel" style={{padding:'20px'}}>
 
                 {/* At a Glance */}
-                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📌 At a Glance</h2>
+                <SectionHeading>📌 At a Glance</SectionHeading>
                 <div className="tbl-wrap" style={{overflowX:'auto',borderRadius:10,border:'1.5px solid #d4e0ec',marginBottom:22}}>
                   <table style={{width:'100%',borderCollapse:'collapse' as const,fontSize:'.85rem'}}>
                     <tbody>
@@ -399,7 +405,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                 </div>
 
                 {/* Important Dates */}
-                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📅 Important Dates</h2>
+                <SectionHeading>📅 Important Dates</SectionHeading>
                 <div className="dates-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))',gap:10,marginBottom:22}}>
                   {[
                     ...(job.applicationStart?[{l:'Application Opens',v:job.applicationStart,hi:false,d:true}]:[]),
@@ -416,7 +422,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                 {/* Post-wise table */}
                 {posts.length>0&&(
                   <>
-                    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📋 Post-wise Vacancy Details</h2>
+                    <SectionHeading>📋 Post-wise Vacancy Details</SectionHeading>
                     <div className="tbl-wrap" style={{overflowX:'auto',borderRadius:10,border:'1.5px solid #d4e0ec',marginBottom:22}}>
                       <table className="tbl">
                         <thead>
@@ -490,7 +496,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                 {/* Selection process (brief) */}
                 {job.selection&&(
                   <>
-                    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>🏆 Selection Process</h2>
+                    <SectionHeading>🏆 Selection Process</SectionHeading>
                     <div className="sel-stages" style={{display:'flex',gap:4,flexWrap:'wrap' as const,alignItems:'center',marginBottom:12}}>
                       {(job.selection||'').split('→').map((s,i,arr)=>(
                         <div key={i} style={{display:'flex',alignItems:'center',gap:4,flexWrap:'wrap' as const,minWidth:0,maxWidth:'100%'}}>
@@ -505,7 +511,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
                 {/* Official PDFs */}
                 {(job.advPdfs||[]).length>0&&(
                   <>
-                    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${T}`}}>📄 Official PDFs</h2>
+                    <SectionHeading>📄 Official PDFs</SectionHeading>
                     {(job.advPdfs||[]).map((pdf,i)=>{
                       const pdfHref = safePdfHref(pdf.url)
                       if (!pdfHref) return null
@@ -540,7 +546,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
             {/* ── HOW TO APPLY TAB ── */}
             {activeTab==='howapply'&&(
               <div className="tab-panel" style={{padding:'20px'}}>
-                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>✅ How to Apply Online</h2>
+                <SectionHeading>✅ How to Apply Online</SectionHeading>
                 <RichContent content={job.howToApply} className="rte-content" />
                 {job.howToApplyAs&&(
                   <div style={{background:'#fff8e1',border:'1.5px solid #ffe082',borderRadius:11,padding:'14px',marginTop:8,marginBottom:4}}>
@@ -569,7 +575,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
           {/* Affiliate Products */}
           {(job.jobAffiliates||[]).filter(ja=>ja.title&&ja.link).length > 0 && (
             <div style={{marginBottom:18}}>
-              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:N,marginBottom:12}}>📚 Recommended Books & Study Material</h2>
+              <SectionHeading>📚 Recommended Books & Study Material</SectionHeading>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(150px,1fr))',gap:12}}>
                 {(job.jobAffiliates||[]).filter(ja=>ja.title&&ja.link&&sanitizeHttpUrl(ja.link)).map(ja=>(
                   <a key={ja.id} href={sanitizeHttpUrl(ja.link)} target="_blank" rel="noopener noreferrer sponsored"
@@ -631,7 +637,7 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
           {/* Related jobs */}
           {others.length>0&&(
             <div>
-              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:N,marginBottom:12}}>💼 Other Job Vacancies</h2>
+              <SectionHeading>💼 Other Job Vacancies</SectionHeading>
               <div style={{display:'flex',flexDirection:'column' as const,gap:9}}>
                 {others.map(j=>{
                   const jsc=j.status==='Live'?'#22c55e':j.status==='Closing'?'#f59e0b':'#8fa3b8'
