@@ -161,7 +161,7 @@ function CountdownInline({ dateStr, timeStr, now }: { dateStr: string; timeStr?:
     </div>
   )
 }
-export default function JobDetail({ job, others }: { job: Job; others: Job[] }) {
+export default function JobDetail({ job, others, newer, older }: { job: Job; others: Job[]; newer?: Job | null; older?: Job | null }) {
   const [timerOn, setTimerOn] = useState<boolean>(() => {
     if (typeof window === 'undefined') return true
     try {
@@ -631,8 +631,20 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
             </div>
           ))}
 
-          {/* FAQs */}
+                    {/* FAQs */}
           <FaqAccordion faqs={(job as any).faqs} />
+
+          {/* Newer / Older navigation */}
+          {(newer || older) && (
+            <div style={{display:'flex',gap:10,marginBottom:18}}>
+              {newer ? (
+                <Link href={`/jobs/${newer.slug || newer.id}`} style={{flex:1,minWidth:0,display:'flex',alignItems:'center',justifyContent:'center',padding:'11px',borderRadius:10,background:N,color:G,fontWeight:800,fontSize:'.78rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif'}}>← Newer Post</Link>
+              ) : <div style={{flex:1}} />}
+              {older ? (
+                <Link href={`/jobs/${older.slug || older.id}`} style={{flex:1,minWidth:0,display:'flex',alignItems:'center',justifyContent:'center',padding:'11px',borderRadius:10,background:N,color:G,fontWeight:800,fontSize:'.78rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif'}}>Older Post →</Link>
+              ) : <div style={{flex:1}} />}
+            </div>
+          )}
 
           {/* Related jobs */}
           {others.length>0&&(
