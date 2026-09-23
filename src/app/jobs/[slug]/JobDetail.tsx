@@ -5,6 +5,7 @@ import { AcpiBrand } from '@/components/AcpiLogo'
 import { getTargetDate } from '@/lib/dataHelper'
 import { useState, useEffect } from 'react'
 import FreeToolsBar from '@/components/FreeToolsBar'
+import SocialCtaBar from '@/components/SocialCtaBar'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 
@@ -685,6 +686,7 @@ export default function JobDetail({ job, others, newer, older }: { job: Job; oth
             </div>
           )}
 				<FreeToolsBar context="job" />
+				<SocialCtaBar />
         </div>
 
         {/* SIDEBAR */}
