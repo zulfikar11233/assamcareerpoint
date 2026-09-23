@@ -60,6 +60,12 @@ function FaqAccordion({ faqs }: { faqs?: {id:string;question:string;answer:strin
   )
 }
 
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,color:W,fontSize:'.88rem',margin:'0 0 12px',padding:'10px 16px',borderRadius:8,background:`linear-gradient(90deg,${N},#102a45)`}}>{children}</h2>
+  )
+}
+
 type ExamPdf      = { label: string; url: string }
 type ExamAffiliate = { id: string; title: string; link: string; img?: string; badge?: string }
 
@@ -279,7 +285,7 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
 
             {/* At a Glance */}
             <div className="card">
-              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📌 At a Glance</h2>
+              <SectionHeading>📌 At a Glance</SectionHeading>
               <div style={{overflowX:'auto',borderRadius:10,border:'1.5px solid #d4e0ec'}}>
                 <table style={{width:'100%',borderCollapse:'collapse' as const,fontSize:'.85rem'}}>
                   <tbody>
@@ -305,14 +311,14 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
 
             {exam.description && (
               <div className="card">
-                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📋 About This Exam</h2>
+                <SectionHeading>📋 About This Exam</SectionHeading>
                 <RichContent content={exam.description} className="rte-content" style={{fontSize:'.88rem',color:'#3a4a5a',lineHeight:1.85,margin:'0 0 4px'}} />
                 {exam.descriptionAs && <RichContent content={exam.descriptionAs} className="rte-content" style={{fontSize:'.86rem',color:'#5d4037',lineHeight:1.8,margin:'8px 0 0',background:'#fff8e1',borderRadius:8,padding:'8px 12px',borderLeft:'3px solid #ffe082'}} />}
               </div>
             )}
 
             <div className="card">
-              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📅 Important Dates & Schedule</h2>
+              <SectionHeading>📅 Important Dates & Schedule</SectionHeading>
               <div className="dates-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:11,marginBottom:14}}>
                 {[
                   ...(exam.applicationStart    ? [{l:'Application Opens',   v:fmt(exam.applicationStart),    hi:false}] : []),
@@ -336,7 +342,7 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
 
             {exam.fee && (
               <div className="card">
-                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>💳 Application Fee</h2>
+                <SectionHeading>💳 Application Fee</SectionHeading>
                 <div style={{background:'#fff8e1',border:'1.5px solid #ffe082',borderRadius:10,padding:'14px 16px',fontSize:'.88rem',color:'#2a3a4a',lineHeight:1.9,whiteSpace:'pre-line' as const}}>
                   {exam.fee}
                 </div>
@@ -345,7 +351,7 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
 
             {exam.eligibility && (
               <div className="card">
-                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>✅ Eligibility Criteria</h2>
+                <SectionHeading>✅ Eligibility Criteria</SectionHeading>
                 <RichContent content={exam.eligibility} className="rte-content" style={{fontSize:'.88rem',color:'#3a4a5a',lineHeight:1.85}} />
                 {exam.eligibilityAs && (
                   <div style={{marginTop:12,background:'#fff8e1',border:'1.5px solid #ffe082',borderRadius:9,padding:'10px 13px',borderLeft:'3px solid #ffe082'}}>
@@ -357,14 +363,14 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
 
             {exam.syllabus && (
               <div className="card">
-                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📚 Exam Syllabus / Pattern</h2>
+                <SectionHeading>📚 Exam Syllabus / Pattern</SectionHeading>
                 <RichContent content={exam.syllabus} className="rte-content" style={{fontSize:'.88rem',color:'#3a4a5a',lineHeight:1.9}} />
               </div>
             )}
 
             {pdfs.length > 0 && (
               <div className="card">
-                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📄 Official Documents & PDFs</h2>
+                <SectionHeading>📄 Official Documents & PDFs</SectionHeading>
                 {pdfs.map((pdf, i) => (
                   <a key={i} href={driveDownloadUrl(pdf.url)} target="_blank" rel="noopener noreferrer" className="pdf-row">
                     <span style={{fontSize:'1.4rem',flexShrink:0}}>📄</span>
@@ -401,7 +407,7 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
 
             {affiliates.length > 0 && (
               <div className="card">
-                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 14px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📚 Recommended Books & Study Material</h2>
+                <SectionHeading>📚 Recommended Books & Study Material</SectionHeading>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:12}}>
                   {affiliates.map(aff=>(
                     <a key={aff.id} href={aff.link} target="_blank" rel="noopener noreferrer sponsored"
