@@ -370,8 +370,33 @@ export default function JobDetail({ job, others }: { job: Job; others: Job[] }) 
             </div>
 
             {/* ── DETAILS TAB ── */}
-            {activeTab==='details'&&(
+                        {activeTab==='details'&&(
               <div className="tab-panel" style={{padding:'20px'}}>
+
+                {/* At a Glance */}
+                <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📌 At a Glance</h2>
+                <div className="tbl-wrap" style={{overflowX:'auto',borderRadius:10,border:'1.5px solid #d4e0ec',marginBottom:22}}>
+                  <table style={{width:'100%',borderCollapse:'collapse' as const,fontSize:'.85rem'}}>
+                    <tbody>
+                      {[
+                        {l:'Organization',      v: job.org},
+                        {l:'Name of Post',      v: posts.length===1 ? posts[0].name : job.title},
+                        {l:'No of Posts',       v: totalV>0 ? totalV.toLocaleString('en-IN') : job.vacancy},
+                        {l:'Qualification',     v: job.qualification || posts[0]?.qualification},
+                        {l:'Age Limit',         v: (posts.length ? `${ageMin}–${ageMax} years` : job.ageLimit||'') + (job.ageLimitDate ? ` (as on ${fmtLong(job.ageLimitDate)})` : '')},
+                        {l:'Application Fee',   v: job.fee, pre:true},
+                        {l:'Advertisement No.', v: job.advtNo},
+                        {l:'Application Start', v: job.applicationStart ? fmtLong(job.applicationStart) : ''},
+                        {l:'Last Date',         v: job.lastDate ? fmtLong(job.lastDate) : ''},
+                      ].filter(r=>r.v && String(r.v).trim()).map((r,i)=>(
+                        <tr key={r.l} style={{background:i%2===0?'#f8fbff':'#fff'}}>
+                          <td style={{padding:'10px 14px',fontWeight:700,color:N,width:'36%',borderBottom:'1px solid #e8eef6',fontFamily:'Sora,sans-serif',fontSize:'.8rem',verticalAlign:'top'}}>{r.l}</td>
+                          <td style={{padding:'10px 14px',color:'#3a4a5a',borderBottom:'1px solid #e8eef6',whiteSpace:r.pre?'pre-line':'normal'}}>{r.v}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
 
                 {/* Important Dates */}
                 <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📅 Important Dates</h2>
