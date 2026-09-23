@@ -51,5 +51,10 @@ export default async function JobPage({ params }: { params: Promise<{ slug: stri
   const newer = idx > 0 ? sameCategory[idx - 1] : null
   const older = idx >= 0 && idx < sameCategory.length - 1 ? sameCategory[idx + 1] : null
 
-  return <JobDetail job={job} others={others} newer={newer} older={older} />
+  const trending = list
+    .filter(j => j.status === 'Live' && String(j.id) !== String(job.id))
+    .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+    .slice(0, 6)
+
+  return <JobDetail job={job} others={others} newer={newer} older={older} trending={trending} />
 }
