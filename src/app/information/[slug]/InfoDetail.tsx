@@ -5,6 +5,7 @@ import { AcpiBrand } from '@/components/AcpiLogo'
 import { useState, useEffect } from 'react'
 import { getTargetDate } from '@/lib/dataHelper'   // ✅ import the helper
 import FreeToolsBar from '@/components/FreeToolsBar'
+import SocialCtaBar from '@/components/SocialCtaBar'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 
@@ -415,6 +416,7 @@ export default function InfoDetail({ item, others, newer, older }: { item: InfoI
             </div>
           )}
 	<FreeToolsBar context="info" />
+	<SocialCtaBar />
         </div>
 
         {/* SIDEBAR */}
