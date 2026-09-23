@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react'
 import { getTargetDate } from '@/lib/dataHelper'          // ✅ FIX: import the helper
 import FreeToolsBar from '@/components/FreeToolsBar'
 import SocialCtaBar from '@/components/SocialCtaBar'
+import TrendingJobs from '@/components/TrendingJobs'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 
@@ -120,7 +121,7 @@ const NAV_LINKS: [string,string][] = [
   ['ℹ️ Info','/information'],['📄 PDFs','/pdf-forms'],['📊 Results','/results'],
 ]
 
-export default function ExamDetail({ exam, others, newer, older }: { exam: Exam; others: Exam[]; newer?: Exam | null; older?: Exam | null }) {
+export default function ExamDetail({ exam, others, newer, older, trending }: { exam: Exam; others: Exam[]; newer?: Exam | null; older?: Exam | null; trending?: any[] }) {
   const [timerOn] = useState<boolean>(() => {
     if (typeof window === 'undefined') return true
     try { const s = localStorage.getItem('acp_settings_v1'); return s ? JSON.parse(s).timerEnabled !== false : true }
@@ -541,6 +542,7 @@ export default function ExamDetail({ exam, others, newer, older }: { exam: Exam;
                 </div>
               ))}
             </div>
+            <TrendingJobs jobs={trending || []} />
 
             {exam.applyLink && exam.status==='Registration Open' && (
               <a href={exam.applyLink} target="_blank" rel="noopener noreferrer"
