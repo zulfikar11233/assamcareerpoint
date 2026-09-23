@@ -274,8 +274,35 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
 
         <div className="layout detail-content" style={{maxWidth:1180,margin:'0 auto',padding:'20px 20px 60px',display:'flex',gap:20,alignItems:'flex-start'}}>
 
-          {/* MAIN */}
+                    {/* MAIN */}
           <div style={{flex:1,minWidth:0}}>
+
+            {/* At a Glance */}
+            <div className="card">
+              <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📌 At a Glance</h2>
+              <div style={{overflowX:'auto',borderRadius:10,border:'1.5px solid #d4e0ec'}}>
+                <table style={{width:'100%',borderCollapse:'collapse' as const,fontSize:'.85rem'}}>
+                  <tbody>
+                    {[
+                      {l:'Conducted By',       v: exam.conductedBy},
+                      {l:'Category',           v: exam.category},
+                      {l:'Application Opens',  v: exam.applicationStart ? fmt(exam.applicationStart) : ''},
+                      {l:'Application Last Date', v: exam.applicationLastDate ? fmt(exam.applicationLastDate) : ''},
+                      {l:'Exam Date',          v: exam.examDate},
+                      {l:'Exam Timing',        v: exam.examTime},
+                      {l:'Application Fee',    v: exam.fee, pre:true},
+                      {l:'Official Site',      v: exam.officialSite},
+                    ].filter(r=>r.v && String(r.v).trim()).map((r,i)=>(
+                      <tr key={r.l} style={{background:i%2===0?'#f8fbff':'#fff'}}>
+                        <td style={{padding:'10px 14px',fontWeight:700,color:N,width:'36%',borderBottom:'1px solid #e8eef6',fontFamily:'Sora,sans-serif',fontSize:'.8rem',verticalAlign:'top'}}>{r.l}</td>
+                        <td style={{padding:'10px 14px',color:'#3a4a5a',borderBottom:'1px solid #e8eef6',whiteSpace:r.pre?'pre-line':'normal'}}>{r.v}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
             {exam.description && (
               <div className="card">
                 <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.93rem',color:N,margin:'0 0 12px',paddingBottom:8,borderBottom:`2px solid ${G}`}}>📋 About This Exam</h2>
