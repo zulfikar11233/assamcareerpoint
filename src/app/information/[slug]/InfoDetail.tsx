@@ -254,8 +254,30 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
 
       <div className="layout detail-content" style={{maxWidth:1180,margin:'0 auto',padding:'22px 20px 60px',display:'flex',gap:22,alignItems:'flex-start'}}>
 
-        {/* MAIN */}
+                {/* MAIN */}
         <div style={{flex:1,minWidth:0}}>
+
+          {/* At a Glance */}
+          <div className="card">
+            <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:'.95rem',color:N,margin:'0 0 14px',paddingBottom:10,borderBottom:'2px solid #f0f4f8'}}>📌 At a Glance</h2>
+            <div style={{overflowX:'auto',borderRadius:10,border:'1.5px solid #d4e0ec'}}>
+              <table style={{width:'100%',borderCollapse:'collapse' as const,fontSize:'.85rem'}}>
+                <tbody>
+                  {[
+                    {l:'Category',          v: item.category},
+                    {l:'Status',            v: item.status},
+                    {l:'Last Date',         v: item.lastDate ? fmt(item.lastDate) : ''},
+                    {l:'Official Website',  v: item.officialLink ? (()=>{ try { return new URL(item.officialLink).hostname } catch { return item.officialLink } })() : ''},
+                  ].filter(r=>r.v && String(r.v).trim()).map((r,i)=>(
+                    <tr key={r.l} style={{background:i%2===0?'#f8fbff':'#fff'}}>
+                      <td style={{padding:'10px 14px',fontWeight:700,color:N,width:'36%',borderBottom:'1px solid #e8eef6',fontFamily:'Sora,sans-serif',fontSize:'.8rem',verticalAlign:'top'}}>{r.l}</td>
+                      <td style={{padding:'10px 14px',color:'#3a4a5a',borderBottom:'1px solid #e8eef6'}}>{r.v}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
           {/* Important Dates */}
           {item.importantDates?.length > 0 && (
