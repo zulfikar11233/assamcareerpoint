@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { getTargetDate } from '@/lib/dataHelper'   // ✅ import the helper
 import FreeToolsBar from '@/components/FreeToolsBar'
 import SocialCtaBar from '@/components/SocialCtaBar'
+import TrendingJobs from '@/components/TrendingJobs'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 
@@ -95,7 +96,7 @@ function toImgSrc(url?: string): string {
   return u
 }
 
-export default function InfoDetail({ item, others, newer, older }: { item: InfoItem; others: InfoItem[]; newer?: InfoItem | null; older?: InfoItem | null }) {
+export default function InfoDetail({ item, others, newer, older, trending }: { item: InfoItem; others: InfoItem[]; newer?: InfoItem | null; older?: InfoItem | null; trending?: any[] }) {
   // ─────────────────────────────────────────────────────────
   // ✅ Countdown timer for lastDate (if exists)
   // ─────────────────────────────────────────────────────────
@@ -439,6 +440,7 @@ export default function InfoDetail({ item, others, newer, older }: { item: InfoI
               </div>
             ))}
           </div>
+          <TrendingJobs jobs={trending || []} />
 
           {item.officialLink && (
             <a href={item.officialLink} target="_blank" rel="noopener noreferrer"
