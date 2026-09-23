@@ -40,9 +40,16 @@ export default async function JobPage({ params }: { params: Promise<{ slug: stri
 
   if (!job) notFound()
 
-  const others = list
+    const others = list
     .filter(j => String(j.id) !== String(job.id) && j.status !== 'Draft')
     .slice(0, 4)
 
-  return <JobDetail job={job} others={others} />
+  const sameCategory = list
+    .filter(j => j.category === job.category)
+    .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+  const idx   = sameCategory.findIndex(j => String(j.id) === String(job.id))
+  const newer = idx > 0 ? sameCategory[idx - 1] : null
+  const older = idx >= 0 && idx < sameCategory.length - 1 ? sameCategory[idx + 1] : null
+
+  return <JobDetail job={job} others={others} newer={newer} older={older} />
 }
