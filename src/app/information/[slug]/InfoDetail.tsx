@@ -94,7 +94,7 @@ function toImgSrc(url?: string): string {
   return u
 }
 
-export default function InfoDetail({ item, others }: { item: InfoItem; others: InfoItem[] }) {
+export default function InfoDetail({ item, others, newer, older }: { item: InfoItem; others: InfoItem[]; newer?: InfoItem | null; older?: InfoItem | null }) {
   // ─────────────────────────────────────────────────────────
   // ✅ Countdown timer for lastDate (if exists)
   // ─────────────────────────────────────────────────────────
@@ -362,8 +362,20 @@ export default function InfoDetail({ item, others }: { item: InfoItem; others: I
             </div>
           ))}
 
-          {/* FAQs */}
+                    {/* FAQs */}
           <FaqAccordion faqs={(item as any).faqs} />
+
+          {/* Newer / Older navigation */}
+          {(newer || older) && (
+            <div style={{display:'flex',gap:10,marginBottom:18}}>
+              {newer ? (
+                <Link href={`/information/${newer.slug || newer.id}`} style={{flex:1,minWidth:0,display:'flex',alignItems:'center',justifyContent:'center',padding:'11px',borderRadius:10,background:N,color:G,fontWeight:800,fontSize:'.78rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif'}}>← Newer Info</Link>
+              ) : <div style={{flex:1}} />}
+              {older ? (
+                <Link href={`/information/${older.slug || older.id}`} style={{flex:1,minWidth:0,display:'flex',alignItems:'center',justifyContent:'center',padding:'11px',borderRadius:10,background:N,color:G,fontWeight:800,fontSize:'.78rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif'}}>Older Info →</Link>
+              ) : <div style={{flex:1}} />}
+            </div>
+          )}
 
           {/* Disclaimer */}
           <div style={{background:'#fff8e1',border:'1.5px solid #ffe082',borderRadius:12,padding:'14px 18px',fontSize:'.82rem',color:'#5a3a00',lineHeight:1.8}}>
