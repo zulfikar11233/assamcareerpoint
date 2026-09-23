@@ -119,7 +119,7 @@ const NAV_LINKS: [string,string][] = [
   ['ℹ️ Info','/information'],['📄 PDFs','/pdf-forms'],['📊 Results','/results'],
 ]
 
-export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[] }) {
+export default function ExamDetail({ exam, others, newer, older }: { exam: Exam; others: Exam[]; newer?: Exam | null; older?: Exam | null }) {
   const [timerOn] = useState<boolean>(() => {
     if (typeof window === 'undefined') return true
     try { const s = localStorage.getItem('acp_settings_v1'); return s ? JSON.parse(s).timerEnabled !== false : true }
@@ -462,8 +462,20 @@ export default function ExamDetail({ exam, others }: { exam: Exam; others: Exam[
               </div>
             ))}
 
-            {/* FAQs */}
+                        {/* FAQs */}
             <FaqAccordion faqs={(exam as any).faqs} />
+
+            {/* Newer / Older navigation */}
+            {(newer || older) && (
+              <div style={{display:'flex',gap:10,marginBottom:18}}>
+                {newer ? (
+                  <Link href={`/exams/${newer.slug || newer.id}`} style={{flex:1,minWidth:0,display:'flex',alignItems:'center',justifyContent:'center',padding:'11px',borderRadius:10,background:N,color:G,fontWeight:800,fontSize:'.78rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif'}}>← Newer Exam</Link>
+                ) : <div style={{flex:1}} />}
+                {older ? (
+                  <Link href={`/exams/${older.slug || older.id}`} style={{flex:1,minWidth:0,display:'flex',alignItems:'center',justifyContent:'center',padding:'11px',borderRadius:10,background:N,color:G,fontWeight:800,fontSize:'.78rem',textDecoration:'none',fontFamily:'Arial Black,sans-serif'}}>Older Exam →</Link>
+                ) : <div style={{flex:1}} />}
+              </div>
+            )}
 
                         {/* Other Exams */}
             {others.length > 0 && (
