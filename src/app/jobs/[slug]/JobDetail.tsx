@@ -564,13 +564,16 @@ export default function JobDetail({ job, others, newer, older }: { job: Job; oth
                   ) : (
                     <span style={{flex:1,minWidth:0,padding:'13px',borderRadius:11,background:'#d4e0ec',color:'#5a6a7a',fontWeight:700,fontSize:'.85rem',textAlign:'center' as const}}>Apply link not available</span>
                   )}
-                  {siteHref&&(
+                                    {siteHref&&(
                     <a href={siteHref} target="_blank" rel="noopener noreferrer"
                       style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,padding:'13px 18px',borderRadius:11,background:'#f0f4f8',color:N,fontWeight:900,fontSize:'.88rem',textDecoration:'none',border:'1.5px solid #d4e0ec',fontFamily:'Arial Black,sans-serif',overflowWrap:'anywhere',wordBreak:'break-word',minWidth:0,maxWidth:'100%'}}>
                       🌐 Official Site
                     </a>
                   )}
                 </div>
+              </div>
+            )}
+          </div>
 
           {/* Affiliate Products */}
           {(job.jobAffiliates||[]).filter(ja=>ja.title&&ja.link).length > 0 && (
@@ -681,10 +684,7 @@ export default function JobDetail({ job, others, newer, older }: { job: Job; oth
               </Link>
             </div>
           )}
-		<FreeToolsBar context="job" />
-        </div>
-              )}
-          </div>
+				<FreeToolsBar context="job" />
         </div>
 
         {/* SIDEBAR */}
