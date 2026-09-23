@@ -6,6 +6,7 @@ import { getTargetDate } from '@/lib/dataHelper'
 import { useState, useEffect } from 'react'
 import FreeToolsBar from '@/components/FreeToolsBar'
 import SocialCtaBar from '@/components/SocialCtaBar'
+import TrendingJobs from '@/components/TrendingJobs'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 
@@ -162,7 +163,7 @@ function CountdownInline({ dateStr, timeStr, now }: { dateStr: string; timeStr?:
     </div>
   )
 }
-export default function JobDetail({ job, others, newer, older }: { job: Job; others: Job[]; newer?: Job | null; older?: Job | null }) {
+export default function JobDetail({ job, others, newer, older, trending }: { job: Job; others: Job[]; newer?: Job | null; older?: Job | null; trending?: Job[] }) {
   const [timerOn, setTimerOn] = useState<boolean>(() => {
     if (typeof window === 'undefined') return true
     try {
@@ -723,6 +724,7 @@ export default function JobDetail({ job, others, newer, older }: { job: Job; oth
               </div>
             ))}
           </div>
+          <TrendingJobs jobs={trending || []} />
           <div style={{background:'#f8fbff',border:'1px solid #d4e0ec',borderRadius:12,padding:'14px',textAlign:'center' as const,marginBottom:15}}>
             <div style={{fontSize:'.74rem',color:'#5a6a7a',fontWeight:700,marginBottom:10}}>📢 Share this job</div>
             <div style={{display:'flex',gap:8,justifyContent:'center',flexWrap:'wrap' as const}}>
