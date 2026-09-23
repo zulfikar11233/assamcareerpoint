@@ -12,6 +12,7 @@ import { AcpiBrand } from '@/components/AcpiLogo'
 import { useState, useEffect } from 'react'
 import { getTargetDate } from '@/lib/dataHelper'          // ✅ FIX: import the helper
 import FreeToolsBar from '@/components/FreeToolsBar'
+import SocialCtaBar from '@/components/SocialCtaBar'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 
@@ -499,6 +500,7 @@ export default function ExamDetail({ exam, others, newer, older }: { exam: Exam;
               </div>
             )}
 	   <FreeToolsBar context="exam" />
+	   <SocialCtaBar />
           </div>
           {/* SIDEBAR */}
           <div style={{width:290,flexShrink:0,minWidth:0}}>
