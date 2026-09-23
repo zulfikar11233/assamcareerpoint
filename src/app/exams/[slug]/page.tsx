@@ -39,9 +39,16 @@ export default async function ExamPage({ params }: { params: Promise<{ slug: str
 
   if (!exam) notFound()
 
-  const others = list
+    const others = list
     .filter(e => String(e.id) !== String(exam.id) && e.status !== 'Result Declared')
     .slice(0, 4)
 
-  return <ExamDetail exam={exam} others={others} />
+  const sameCategory = list
+    .filter(e => e.category === exam.category)
+    .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+  const idx   = sameCategory.findIndex(e => String(e.id) === String(exam.id))
+  const newer = idx > 0 ? sameCategory[idx - 1] : null
+  const older = idx >= 0 && idx < sameCategory.length - 1 ? sameCategory[idx + 1] : null
+
+  return <ExamDetail exam={exam} others={others} newer={newer} older={older} />
 }
