@@ -50,5 +50,11 @@ export default async function ExamPage({ params }: { params: Promise<{ slug: str
   const newer = idx > 0 ? sameCategory[idx - 1] : null
   const older = idx >= 0 && idx < sameCategory.length - 1 ? sameCategory[idx + 1] : null
 
-  return <ExamDetail exam={exam} others={others} newer={newer} older={older} />
+  const jobsList = await getCollection('jobs') as any[]
+  const trending = jobsList
+    .filter(j => j.status === 'Live')
+    .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+    .slice(0, 6)
+
+  return <ExamDetail exam={exam} others={others} newer={newer} older={older} trending={trending} />
 }
