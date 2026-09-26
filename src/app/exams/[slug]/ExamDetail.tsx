@@ -14,6 +14,7 @@ import { getTargetDate } from '@/lib/dataHelper'          // ✅ FIX: import the
 import FreeToolsBar from '@/components/FreeToolsBar'
 import SocialCtaBar from '@/components/SocialCtaBar'
 import TrendingJobs from '@/components/TrendingJobs'
+import ImportantLinks from '@/components/ImportantLinks'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 
@@ -549,8 +550,15 @@ export default function ExamDetail({ exam, others, newer, older, trending }: { e
                     : <span style={{fontSize:'.76rem',fontWeight:700,color:r.c||N,textAlign:'right' as const,lineHeight:1.3}}>{r.v}</span>
                   }
                 </div>
-              ))}
+               ))}
             </div>
+            <ImportantLinks links={[
+              { label:'Apply Online', url: exam.applyLink, icon:'📝' },
+              { label:'Download Admit Card', url: exam.admitCardLink, icon:'🪪' },
+              ...(exam.examPdfs||[]).filter(p=>p.url && p.label).map(pdf => ({ label: pdf.label, url: pdf.url, icon:'📄' })),
+              { label:'Share on WhatsApp', icon:'💬', url:`https://wa.me/?text=${encodeURIComponent(`${exam.title}\nApply by: ${fmt(exam.applicationLastDate)}\n\nhttps://www.assamcareerpoint-info.com/exams/${exam.slug||exam.id}`)}` },
+              { label:'Share on Telegram', icon:'✈️', url:`https://t.me/share/url?url=${encodeURIComponent(`https://www.assamcareerpoint-info.com/exams/${exam.slug||exam.id}`)}&text=${encodeURIComponent(exam.title)}` },
+            ]} />
             <TrendingJobs jobs={trending || []} />
 
             {exam.applyLink && exam.status==='Registration Open' && (
