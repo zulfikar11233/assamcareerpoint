@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import FreeToolsBar from '@/components/FreeToolsBar'
 import SocialCtaBar from '@/components/SocialCtaBar'
 import TrendingJobs from '@/components/TrendingJobs'
+import ImportantLinks from '@/components/ImportantLinks'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 
@@ -265,6 +266,15 @@ export default function JobDetail({ job, others, newer, older, trending }: { job
           .safe-wrap{overflow-wrap:anywhere!important;word-break:break-word!important}
           .job-detail-root{overflow-x:hidden!important;max-width:100vw!important}
         }
+
+        .rte-content { line-height: 1.8; }
+        .rte-content p { margin: 0 0 10px; }
+        .rte-content p:last-child { margin-bottom: 0; }
+        .rte-content p:empty { display: none; }
+        .rte-content ul, .rte-content ol { margin: 8px 0; padding-left: 22px; }
+        .rte-content li { margin-bottom: 4px; }
+        .rte-content h1, .rte-content h2, .rte-content h3, .rte-content h4 { margin: 14px 0 8px; }
+        .rte-content img { max-width: 100%; height: auto; border-radius: 8px; }
       `}</style>
 
       {/* HEADER */}
@@ -722,8 +732,15 @@ export default function JobDetail({ job, others, newer, older, trending }: { job
                 <span style={{fontSize:'.72rem',color:'#8fa3b8',fontWeight:700,flexShrink:0}}>{r.l}</span>
                 <span className="safe-wrap" style={{fontSize:'.76rem',fontWeight:700,color:N,textAlign:'right' as const,lineHeight:1.4,minWidth:0}}>{r.v||'—'}</span>
               </div>
-            ))}
+              ))}
           </div>
+          <ImportantLinks links={[
+            { label:'Apply Online', url: applyHrefMain, icon:'📝' },
+            { label:'Official Website', url: siteHref, icon:'🌐' },
+            ...(job.advPdfs||[]).map(pdf => ({ label: pdf.name || 'Notification PDF', url: safePdfHref(pdf.url), icon:'📄' })),
+            { label:'Share on WhatsApp', icon:'💬', url:`https://wa.me/?text=${encodeURIComponent(safeTitle+'\nVacancy: '+totalV.toLocaleString('en-IN')+' Posts | Last Date: '+fmt(job.lastDate)+'\n\nhttps://www.assamcareerpoint-info.com/jobs/'+(job.slug||job.id))}` },
+            { label:'Share on Telegram', icon:'✈️', url:`https://t.me/share/url?url=${encodeURIComponent('https://www.assamcareerpoint-info.com/jobs/'+(job.slug||job.id))}&text=${encodeURIComponent(safeTitle)}` },
+          ]} />
           <TrendingJobs jobs={trending || []} />
           <div style={{background:'#f8fbff',border:'1px solid #d4e0ec',borderRadius:12,padding:'14px',textAlign:'center' as const,marginBottom:15}}>
             <div style={{fontSize:'.74rem',color:'#5a6a7a',fontWeight:700,marginBottom:10}}>📢 Share this job</div>
