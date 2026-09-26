@@ -7,6 +7,7 @@ import { getTargetDate } from '@/lib/dataHelper'   // ✅ import the helper
 import FreeToolsBar from '@/components/FreeToolsBar'
 import SocialCtaBar from '@/components/SocialCtaBar'
 import TrendingJobs from '@/components/TrendingJobs'
+import ImportantLinks from '@/components/ImportantLinks'
 
 const G = '#c9a227', T = '#1dbfad', N = '#0b1f33', W = '#ffffff'
 
@@ -448,6 +449,12 @@ export default function InfoDetail({ item, others, newer, older, trending }: { i
               </div>
             ))}
           </div>
+          <ImportantLinks links={[
+            { label:'Official Website', url: item.officialLink, icon:'🌐' },
+            ...(item.sections||[]).filter((s:any)=>s.pdfLink).map((s:any) => ({ label: s.title || 'Document', url: s.pdfLink, icon:'📄' })),
+            { label:'Share on WhatsApp', icon:'💬', url:`https://wa.me/?text=${encodeURIComponent(`${item.title}\n\nhttps://www.assamcareerpoint-info.com/information/${item.slug || item.id}`)}` },
+            { label:'Share on Telegram', icon:'✈️', url:`https://t.me/share/url?url=${encodeURIComponent(`https://www.assamcareerpoint-info.com/information/${item.slug || item.id}`)}&text=${encodeURIComponent(item.title)}` },
+          ]} />
           <TrendingJobs jobs={trending || []} />
 
           {item.officialLink && (
