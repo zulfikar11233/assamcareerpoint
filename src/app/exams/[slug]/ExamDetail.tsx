@@ -208,13 +208,22 @@ export default function ExamDetail({ exam, others, newer, older, trending }: { e
           .layout{flex-direction:column!important}
           .layout>div:first-child{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
           .layout>div:last-child{width:100%!important;min-width:0!important;max-width:100%!important}
-        }
+                }
         @media(max-width:600px){
           .dates-grid{grid-template-columns:1fr!important}
           .apply-btns{flex-direction:column!important}
           .apply-btns a{width:100%!important}
           .detail-hero .hero-grid-strip{grid-template-columns:1fr 1fr!important}
         }
+
+        .rte-content { line-height: 1.8; }
+        .rte-content p { margin: 0 0 10px; }
+        .rte-content p:last-child { margin-bottom: 0; }
+        .rte-content p:empty { display: none; }
+        .rte-content ul, .rte-content ol { margin: 8px 0; padding-left: 22px; }
+        .rte-content li { margin-bottom: 4px; }
+        .rte-content h1, .rte-content h2, .rte-content h3, .rte-content h4 { margin: 14px 0 8px; }
+        .rte-content img { max-width: 100%; height: auto; border-radius: 8px; }
       `}</style>
 
       {/* HEADER */}
