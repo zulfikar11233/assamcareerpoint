@@ -175,9 +175,9 @@ export default function InfoDetail({ item, others, newer, older, trending }: { i
         .card{background:#fff;border:1.5px solid #d4e0ec;border-radius:14px;padding:20px;margin-bottom:18px}
         .re-card{background:#fff;border:1.5px solid #d4e0ec;border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;display:flex;gap:12px;padding:12px;transition:.18s}
         .re-card:hover{border-color:${T};transform:translateX(3px)}
-        .cd-box{background:rgba(0,0,0,.4);border-radius:10px;padding:10px 6px;text-align:center}
-        .cd-val{font-family:'Arial Black',sans-serif;font-weight:900;font-size:1.6rem;line-height:1;color:${G}}
-        .cd-lbl{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.5);margin-top:3px}
+        .cd-box{background:rgba(0,0,0,.4);border-radius:10px;padding:7px 5px;text-align:center}
+	.cd-val{font-family:'Arial Black',sans-serif;font-weight:900;font-size:1.15rem;line-height:1;color:${G}}
+	.cd-lbl{font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.5);margin-top:3px}
 
         @media(max-width:860px){
           .detail-header{padding:10px 12px!important}
@@ -192,6 +192,14 @@ export default function InfoDetail({ item, others, newer, older, trending }: { i
           .layout>div:first-child{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
           .layout>div:last-child{width:100%!important;max-width:100%!important}
         }
+	        .rte-content { line-height: 1.8; }
+        .rte-content p { margin: 0 0 10px; }
+        .rte-content p:last-child { margin-bottom: 0; }
+        .rte-content p:empty { display: none; }
+        .rte-content ul, .rte-content ol { margin: 8px 0; padding-left: 22px; }
+        .rte-content li { margin-bottom: 4px; }
+        .rte-content h1, .rte-content h2, .rte-content h3, .rte-content h4 { margin: 14px 0 8px; }
+        .rte-content img { max-width: 100%; height: auto; border-radius: 8px; }
       `}</style>
 
       <header className="detail-header" style={{background:N,borderBottom:`2px solid ${G}`,position:'sticky',top:0,zIndex:100,boxShadow:'0 2px 20px rgba(0,0,0,.4)'}}>
@@ -241,7 +249,7 @@ export default function InfoDetail({ item, others, newer, older, trending }: { i
 
         {/* ✅ Countdown Timer for lastDate */}
         {timerOn && canCountdown && (
-          <div suppressHydrationWarning style={{marginTop:12, background:'rgba(0,0,0,.3)', border:`1px solid ${G}66`, borderRadius:12, padding:'10px 14px', maxWidth:390}}>
+          <div suppressHydrationWarning style={{marginTop:12, background:'rgba(0,0,0,.3)', border:`1px solid ${G}66`, borderRadius:12, padding:'10px 14px', maxWidth:320}}>
             <div style={{fontSize:'.7rem', color:'rgba(255,255,255,.5)', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8}}>⏱ Deadline Countdown</div>
             <div style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8}}>
               {[
