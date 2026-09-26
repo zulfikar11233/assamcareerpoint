@@ -250,8 +250,10 @@ export default function TiptapEditor({
 
       <style jsx global>{`
         .ProseMirror { outline: none; }
+	.ProseMirror p { margin: 0 0 10px; }
+	.ProseMirror p:last-child { margin-bottom: 0; }
         .ProseMirror .tableWrapper { overflow-x: auto; }
-        .ProseMirror table { border-collapse: collapse; width: 100%; margin: 8px 0; table-layout: fixed; }
+        .ProseMirror table { border-collapse: collapse; width: auto; max-width: 100%; margin: 8px 0; table-layout: fixed; }
         .ProseMirror table td, .ProseMirror table th { border: 1px solid #d4e0ec; padding: 6px 8px; position: relative; }
         .ProseMirror table th { background: #f0f4f8; font-weight: 700; text-align: left; }
         .ProseMirror .column-resize-handle { position: absolute; right: -2px; top: 0; bottom: -2px; width: 4px; background-color: #00b4d8; pointer-events: none; }
