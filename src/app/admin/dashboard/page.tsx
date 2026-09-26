@@ -257,6 +257,89 @@ function driveImgUrl(url: string): string {
   if (m) return `https://lh3.googleusercontent.com/d/${m[1]}`
   return url
 }
+// ── Shared Preview/Print window (used by Job/Exam/Info/PDF/Affiliate) ────────
+function openPreviewWindow(title: string, bodyHtml: string) {
+  const w = window.open('', '_blank')
+  if (!w) return
+  w.document.write(`
+<html><head><title>Preview — ${title || 'Preview'}</title>
+<style>
+  body{font-family:Arial,sans-serif;padding:28px;color:#1a1a2e;max-width:800px;margin:0 auto;font-size:.9rem}
+  h1{font-size:1.4rem;margin:0 0 4px}
+  h2{font-size:1rem;margin:18px 0 8px;padding:6px 10px;background:#0b1f33;color:#c9a227;border-radius:6px}
+  .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;gap:12px}
+  .label{color:#555;font-weight:600;flex-shrink:0}
+  .val{font-weight:700;text-align:right}
+  .badge{display:inline-block;padding:3px 12px;border-radius:99px;font-size:.75rem;font-weight:700;background:#0b1f33;color:#c9a227}
+  .hl{display:inline-block;background:#e8f5e9;padding:4px 12px;border-radius:99px;font-size:.75rem;margin:3px}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.82rem}
+  th{background:#0b1f33;color:#c9a227;padding:7px 10px;text-align:left}
+  td{padding:7px 10px;border-bottom:1px solid #eee}
+  .step{display:flex;gap:10px;padding:5px 0;border-bottom:1px dashed #eee}
+  .num{width:22px;height:22px;border-radius:50%;background:#0b1f33;color:#c9a227;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:.75rem;flex-shrink:0}
+  @media print{button{display:none!important}}
+</style></head><body>
+
+${bodyHtml}
+
+<br/>
+<p style="color:#888;font-size:.75rem;border-top:1px solid #eee;padding-top:10px">
+  Generated from Assam Career Point & Info Admin Panel · assamcareerpoint-info.com
+</p>
+<button onclick="window.print()" style="padding:10px 22px;background:#0b1f33;color:#c9a227;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:8px">
+  🖨️ Print / Save as PDF
+</button>
+
+</body></html>
+`)
+  w.document.close()
+}
+
+// ── Shared SEO Slug field (used by Job/Exam/Info) ─────────────────────────────
+function SlugField({ value, onChange, urlPath, placeholder, inputStyle, labelStyle }: {
+  value: string
+  onChange: (slug: string) => void
+  urlPath: string
+  placeholder: string
+  inputStyle: React.CSSProperties
+  labelStyle: React.CSSProperties
+}) {
+  return (
+    <div>
+      <label style={{ ...labelStyle, color: '#c9a227' }}>
+        SEO Slug
+        <span style={{ color: '#8fa3b8', fontWeight: 400, fontSize: '.7rem', marginLeft: 6 }}>
+          (auto-filled from title — do not change after publishing)
+        </span>
+      </label>
+      <input
+        value={value || ''}
+        onChange={e => onChange(e.target.value
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, '')
+          .replace(/[\s_]+/g, '-')
+          .replace(/-+/g, '-')
+          .trim()
+        )}
+        style={inputStyle}
+        placeholder={placeholder}
+      />
+      <div style={{ fontSize: '.68rem', color: '#8fa3b8', marginTop: 3 }}>
+        Public URL: assamcareerpoint-info.com/{urlPath}/{value || '...'}
+      </div>
+    </div>
+  )
+}
+
+// ── Shared modal header (used by Job/Exam/Info/PDF/Affiliate) ────────────────
+function ModalHeader({ title, onClose }: { title: React.ReactNode; onClose: () => void }) {
+  return (
+    <div className="mhd">
+      <h2>{title}</h2>
+      <button onClick={onClose} style={{ width:28,height:28,borderRadius:7,background:'#f0f4f8',border:'1.5px solid #d4e0ec',cursor:'pointer' }}>✕</button>
+    </div>
+  )
+}
 // ── Shared Section Builder ────────────────────────────────────────────────────
 const sbSi: React.CSSProperties = { width:'100%',padding:'7px 11px',borderRadius:7,border:'1.5px solid #d4e0ec',fontSize:'.85rem',fontFamily:'Nunito,sans-serif',outline:'none',background:'#fafcff' }
 const sbLb: React.CSSProperties = { display:'block',fontSize:'.75rem',fontWeight:700,color:'#3a5068',marginBottom:4,fontFamily:'Nunito,sans-serif' }
@@ -1409,10 +1492,7 @@ export default function AdminDashboard() {
       {showJobModal && (
         <div className="ovl">
           <div className="mdl">
-            <div className="mhd">
-              <h2>{editJob?'✏️ Edit Job Vacancy':'➕ Add Job Vacancy'}</h2>
-              <button onClick={()=>setShowJobModal(false)} style={{ width:28,height:28,borderRadius:7,background:'#f0f4f8',border:'1.5px solid #d4e0ec',cursor:'pointer' }}>✕</button>
-            </div>
+            <ModalHeader title={editJob?'✏️ Edit Job Vacancy':'➕ Add Job Vacancy'} onClose={()=>setShowJobModal(false)} />
             <form onSubmit={saveJob}>
               <div className="mbdy">
 
@@ -1437,29 +1517,7 @@ export default function AdminDashboard() {
                   <div className="fg"><label style={lb}>Organization</label><input value={jf.org} onChange={e=>setJf(p=>({...p,org:e.target.value}))} style={si} placeholder="e.g. SLPRB Assam" /></div>
                 </div>
                 {/* Slug field for Job */}
-                <div>
-                  <label style={{ ...lb, color: '#c9a227' }}>
-                    SEO Slug
-                    <span style={{ color: '#8fa3b8', fontWeight: 400, fontSize: '.7rem', marginLeft: 6 }}>
-                      (auto-filled from title — do not change after publishing)
-                    </span>
-                  </label>
-                  <input
-                    value={jf.slug || ''}
-                    onChange={e => setJf(f => ({...f, slug: e.target.value
-                      .toLowerCase()
-                      .replace(/[^\w\s-]/g, '')
-                      .replace(/[\s_]+/g, '-')
-                      .replace(/-+/g, '-')
-                      .trim()
-                    }))}
-                    style={si}
-                    placeholder="assam-police-recruitment-2026"
-                  />
-                  <div style={{ fontSize: '.68rem', color: '#8fa3b8', marginTop: 3 }}>
-                    Public URL: assamcareerpoint-info.com/jobs/{jf.slug || '...'}
-                  </div>
-                </div>
+                <SlugField value={jf.slug || ''} onChange={(slug) => setJf(f => ({...f, slug}))} urlPath="jobs" placeholder="assam-police-recruitment-2026" inputStyle={si} labelStyle={lb} />
                 <div className="g3">
                   <div className="fg"><label style={lb}>Category</label><select value={jf.category} onChange={e=>setJf(p=>({...p,category:e.target.value}))} style={{...si,cursor:'pointer'}}>{JOB_CATS.map(c=><option key={c}>{c}</option>)}</select></div>
                   <div className="fg"><label style={lb}>District</label><select value={jf.district} onChange={e=>setJf(p=>({...p,district:e.target.value}))} style={{...si,cursor:'pointer'}}>{DISTRICTS.map(d=><option key={d}>{d}</option>)}</select></div>
@@ -1704,27 +1762,8 @@ export default function AdminDashboard() {
               <div style={{ padding:'14px 24px',borderTop:'1px solid #d4e0ec',display:'flex',justifyContent:'flex-end',gap:10 }}>
                 <button type="button" onClick={()=>setShowJobModal(false)} style={bS}>Cancel</button>
                 <button type="button" onClick={() => {
-                  const w = window.open('', '_blank')
-                  if (!w) return
                   const totalVac = posts.reduce((a:number,p:any)=>a+Number(p.vacancy||0),0)
-                  w.document.write(`
-<html><head><title>Preview — ${jf.title || 'Job Preview'}</title>
-<style>
-  body{font-family:Arial,sans-serif;padding:28px;color:#1a1a2e;max-width:800px;margin:0 auto;font-size:.9rem}
-  h1{font-size:1.4rem;margin:0 0 4px}
-  h2{font-size:1rem;margin:18px 0 8px;padding:6px 10px;background:#0b1f33;color:#c9a227;border-radius:6px}
-  .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;gap:12px}
-  .label{color:#555;font-weight:600;flex-shrink:0}
-  .val{font-weight:700;text-align:right}
-  .badge{display:inline-block;padding:3px 12px;border-radius:99px;font-size:.75rem;font-weight:700;background:#0b1f33;color:#c9a227}
-  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.82rem}
-  th{background:#0b1f33;color:#c9a227;padding:7px 10px;text-align:left}
-  td{padding:7px 10px;border-bottom:1px solid #eee}
-  .step{display:flex;gap:10px;padding:5px 0;border-bottom:1px dashed #eee}
-  .num{width:22px;height:22px;border-radius:50%;background:#0b1f33;color:#c9a227;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:.75rem;flex-shrink:0}
-  @media print{button{display:none!important}}
-</style></head><body>
-
+                  openPreviewWindow(jf.title || 'Job Preview', `
 <h1>${jf.title || '—'}</h1>
 <p style="color:#555;margin-bottom:16px">
   ${jf.org || '—'} &nbsp;·&nbsp; <span class="badge">${jf.status}</span>
@@ -1789,18 +1828,7 @@ ${(jf as any).advPdfs?.length > 0 ? `
 ${(jf as any).advPdfs.map((pdf:any) => `
   <div class="row"><span class="label">📄 ${pdf.name||'PDF'}</span><span class="val">${pdf.url||'—'}</span></div>
 `).join('')}` : ''}
-
-<br/>
-<p style="color:#888;font-size:.75rem;border-top:1px solid #eee;padding-top:10px">
-  Generated from Assam Career Point & Info Admin Panel · assamcareerpoint-info.com
-</p>
-<button onclick="window.print()" style="padding:10px 22px;background:#0b1f33;color:#c9a227;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:8px">
-  🖨️ Print / Save as PDF
-</button>
-
-</body></html>
 `)
-                  w.document.close()
                 }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
                   🖨️ Preview & Print
                 </button>
@@ -1830,10 +1858,7 @@ ${(jf as any).advPdfs.map((pdf:any) => `
       {showExamModal && (
         <div className="ovl">
           <div className="mdl">
-            <div className="mhd">
-              <h2>{editExam?'✏️ Edit Exam':'📚 Add Competitive Exam'}</h2>
-              <button onClick={()=>setShowExamModal(false)} style={{ width:28,height:28,borderRadius:7,background:'#f0f4f8',border:'1.5px solid #d4e0ec',cursor:'pointer' }}>✕</button>
-            </div>
+            <ModalHeader title={editExam?'✏️ Edit Exam':'📚 Add Competitive Exam'} onClose={()=>setShowExamModal(false)} />
             <form onSubmit={saveExam}>
               <div className="mbdy">
                 <div className="sh">📋 Basic Details</div>
@@ -1850,29 +1875,7 @@ ${(jf as any).advPdfs.map((pdf:any) => `
   }))
 }} style={si} placeholder="CTET 2026 — Central Teacher Eligibility Test" /></div>
                 {/* Slug field for Exam */}
-                <div>
-                  <label style={{ ...lb, color: '#c9a227' }}>
-                    SEO Slug
-                    <span style={{ color: '#8fa3b8', fontWeight: 400, fontSize: '.7rem', marginLeft: 6 }}>
-                      (auto-filled from title — do not change after publishing)
-                    </span>
-                  </label>
-                  <input
-                    value={ef.slug || ''}
-                    onChange={e => setEf(f => ({...f, slug: e.target.value
-                      .toLowerCase()
-                      .replace(/[^\w\s-]/g, '')
-                      .replace(/[\s_]+/g, '-')
-                      .replace(/-+/g, '-')
-                      .trim()
-                    }))}
-                    style={si}
-                    placeholder="ctet-2026"
-                  />
-                  <div style={{ fontSize: '.68rem', color: '#8fa3b8', marginTop: 3 }}>
-                    Public URL: assamcareerpoint-info.com/exams/{ef.slug || '...'}
-                  </div>
-                </div>
+                <SlugField value={ef.slug || ''} onChange={(slug) => setEf(f => ({...f, slug}))} urlPath="exams" placeholder="ctet-2026" inputStyle={si} labelStyle={lb} />
                 <div className="g2">
                   <div className="fg"><label style={lb}>Conducted By *</label><input required value={ef.conductedBy} onChange={e=>setEf(p=>({...p,conductedBy:e.target.value}))} style={si} placeholder="CBSE / NTA / UPSC / State Board" /></div>
                   <div className="fg"><label style={lb}>Eligibility</label><input value={ef.eligibility} onChange={e=>setEf(p=>({...p,eligibility:e.target.value}))} style={si} placeholder="Graduation + B.Ed" /></div>
@@ -2040,21 +2043,7 @@ ${(jf as any).advPdfs.map((pdf:any) => `
               <div style={{ padding:'14px 24px',borderTop:'1px solid #d4e0ec',display:'flex',justifyContent:'flex-end',gap:10 }}>
                 <button type="button" onClick={()=>setShowExamModal(false)} style={bS}>Cancel</button>
                 <button type="button" onClick={() => {
-                  const w = window.open('', '_blank')
-                  if (!w) return
-                  w.document.write(`
-<html><head><title>Preview — ${ef.title || 'Exam Preview'}</title>
-<style>
-  body{font-family:Arial,sans-serif;padding:28px;color:#1a1a2e;max-width:800px;margin:0 auto;font-size:.9rem}
-  h1{font-size:1.4rem;margin:0 0 4px}
-  h2{font-size:1rem;margin:18px 0 8px;padding:6px 10px;background:#0b1f33;color:#c9a227;border-radius:6px}
-  .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;gap:12px}
-  .label{color:#555;font-weight:600;flex-shrink:0}
-  .val{font-weight:700;text-align:right}
-  .badge{display:inline-block;padding:3px 12px;border-radius:99px;font-size:.75rem;font-weight:700;background:#0b1f33;color:#c9a227}
-  @media print{button{display:none!important}}
-</style></head><body>
-
+                  openPreviewWindow(ef.title || 'Exam Preview', `
 <h1>${ef.title || '—'}</h1>
 <p style="color:#555;margin-bottom:16px">
   ${ef.conductedBy || '—'} &nbsp;·&nbsp; <span class="badge">${ef.status}</span>
@@ -2087,18 +2076,7 @@ ${(ef.examPdfs && ef.examPdfs.length > 0) ? `
 <h2>📄 Official PDFs</h2>
 ${ef.examPdfs.map(pdf => `<div class="row"><span class="label">${pdf.label || 'PDF'}</span><span class="val"><a href="${pdf.url}" target="_blank">Open in Drive</a></span></div>`).join('')}
 ` : ''}
-
-<br/>
-<p style="color:#888;font-size:.75rem;border-top:1px solid #eee;padding-top:10px">
-  Generated from Assam Career Point & Info Admin Panel · assamcareerpoint-info.com
-</p>
-<button onclick="window.print()" style="padding:10px 22px;background:#0b1f33;color:#c9a227;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:8px">
-  🖨️ Print / Save as PDF
-</button>
-
-</body></html>
 `)
-                  w.document.close()
                 }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
                   🖨️ Preview & Print
                 </button>
@@ -2112,10 +2090,7 @@ ${ef.examPdfs.map(pdf => `<div class="row"><span class="label">${pdf.label || 'P
       {showInfoModal && (
         <div className="ovl">
           <div className="mdl">
-            <div className="mhd">
-              <h2>{editInfo?'✏️ Edit Information':'ℹ️ Add Information'}</h2>
-              <button onClick={()=>setShowInfoModal(false)} style={{ width:28,height:28,borderRadius:7,background:'#f0f4f8',border:'1.5px solid #d4e0ec',cursor:'pointer' }}>✕</button>
-            </div>
+            <ModalHeader title={editInfo?'✏️ Edit Information':'ℹ️ Add Information'} onClose={()=>setShowInfoModal(false)} />
             <form onSubmit={saveInfo}>
               <div className="mbdy">
                 <div className="sh">📋 Basic Details</div>
@@ -2132,29 +2107,7 @@ ${ef.examPdfs.map(pdf => `<div class="row"><span class="label">${pdf.label || 'P
   }))
 }} style={si} placeholder="e.g. Voter ID Registration / Correction 2026" /></div>
                 {/* Slug field for Info */}
-                <div>
-                  <label style={{ ...lb, color: '#c9a227' }}>
-                    SEO Slug
-                    <span style={{ color: '#8fa3b8', fontWeight: 400, fontSize: '.7rem', marginLeft: 6 }}>
-                      (auto-filled from title — do not change after publishing)
-                    </span>
-                  </label>
-                  <input
-                    value={inf.slug || ''}
-                    onChange={e => setInf(f => ({...f, slug: e.target.value
-                      .toLowerCase()
-                      .replace(/[^\w\s-]/g, '')
-                      .replace(/[\s_]+/g, '-')
-                      .replace(/-+/g, '-')
-                      .trim()
-                    }))}
-                    style={si}
-                    placeholder="voter-id-registration-2026"
-                  />
-                  <div style={{ fontSize: '.68rem', color: '#8fa3b8', marginTop: 3 }}>
-                    Public URL: assamcareerpoint-info.com/information/{inf.slug || '...'}
-                  </div>
-                </div>
+                <SlugField value={inf.slug || ''} onChange={(slug) => setInf(f => ({...f, slug}))} urlPath="information" placeholder="voter-id-registration-2026" inputStyle={si} labelStyle={lb} />
 
                 {/* Description — RichTextEditor preset simple */}
                 <div className="fg">
@@ -2258,24 +2211,7 @@ ${ef.examPdfs.map(pdf => `<div class="row"><span class="label">${pdf.label || 'P
               <div style={{ padding:'14px 24px',borderTop:'1px solid #d4e0ec',display:'flex',justifyContent:'flex-end',gap:10 }}>
                 <button type="button" onClick={()=>setShowInfoModal(false)} style={bS}>Cancel</button>
                 <button type="button" onClick={() => {
-                  const w = window.open('', '_blank')
-                  if (!w) return
-                  const datesHtml = infDates.map(d => `<div class="row"><span class="label">${d.label}</span><span class="val">${d.date}${d.time ? ' at ' + d.time : ''}</span></div>`).join('')
-                  w.document.write(`
-<html><head><title>Preview — ${inf.title || 'Information Preview'}</title>
-<style>
-  body{font-family:Arial,sans-serif;padding:28px;color:#1a1a2e;max-width:800px;margin:0 auto;font-size:.9rem}
-  h1{font-size:1.4rem;margin:0 0 4px}
-  h2{font-size:1rem;margin:18px 0 8px;padding:6px 10px;background:#0b1f33;color:#c9a227;border-radius:6px}
-  .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;gap:12px}
-  .label{color:#555;font-weight:600;flex-shrink:0}
-  .val{font-weight:700;text-align:right}
-  .badge{display:inline-block;padding:3px 12px;border-radius:99px;font-size:.75rem;font-weight:700;background:#0b1f33;color:#c9a227}
-  .step{display:flex;gap:10px;padding:5px 0;border-bottom:1px dashed #eee}
-  .num{width:22px;height:22px;border-radius:50%;background:#0b1f33;color:#c9a227;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:.75rem;flex-shrink:0}
-  @media print{button{display:none!important}}
-</style></head><body>
-
+                  openPreviewWindow(inf.title || 'Information Preview', `
 <h1>${inf.title || '—'}</h1>
 <p style="color:#555;margin-bottom:16px">
   ${inf.category || '—'} &nbsp;·&nbsp; <span class="badge">${inf.status}</span>
@@ -2301,18 +2237,7 @@ ${infDates.map(d => `<div class="row"><span class="label">${d.label}</span><span
 
 ${inf.lastDate ? `<div class="row"><span class="label">Overall Deadline</span><span class="val">${inf.lastDate}</span></div>` : ''}
 ${inf.officialLink ? `<div class="row"><span class="label">Official Website</span><span class="val"><a href="${inf.officialLink}" target="_blank">${inf.officialLink}</a></span></div>` : ''}
-
-<br/>
-<p style="color:#888;font-size:.75rem;border-top:1px solid #eee;padding-top:10px">
-  Generated from Assam Career Point & Info Admin Panel · assamcareerpoint-info.com
-</p>
-<button onclick="window.print()" style="padding:10px 22px;background:#0b1f33;color:#c9a227;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:8px">
-  🖨️ Print / Save as PDF
-</button>
-
-</body></html>
 `)
-                  w.document.close()
                 }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
                   🖨️ Preview & Print
                 </button>
@@ -2327,10 +2252,7 @@ ${inf.officialLink ? `<div class="row"><span class="label">Official Website</spa
       {showPdfModal && (
         <div className="ovl">
           <div style={{ background:'#fff', borderRadius:18, width:'100%', maxWidth:820, boxShadow:'0 30px 80px rgba(0,0,0,.35)', margin:'auto', maxHeight:'90vh', overflow:'auto' }}>
-            <div className="mhd">
-              <h2>{editPdf ? '✏️ Edit PDF Form' : '📄 Add PDF Form to Library'}</h2>
-              <button onClick={()=>setShowPdfModal(false)} style={{ width:28,height:28,borderRadius:7,background:'#f0f4f8',border:'1.5px solid #d4e0ec',cursor:'pointer' }}>✕</button>
-            </div>
+            <ModalHeader title={editPdf ? '✏️ Edit PDF Form' : '📄 Add PDF Form to Library'} onClose={()=>setShowPdfModal(false)} />
 
             <form onSubmit={savePdfForm} style={{ padding:'20px 24px' }}>
 
@@ -2504,20 +2426,7 @@ ${inf.officialLink ? `<div class="row"><span class="label">Official Website</spa
                 <button type="button" onClick={()=>setShowPdfModal(false)} style={bS}>Cancel</button>
                 {/* Preview & Print button */}
                 <button type="button" onClick={() => {
-                  const w = window.open('', '_blank')
-                  if (!w) return
-                  w.document.write(`
-<html><head><title>Preview — ${pf.title || 'PDF Form Preview'}</title>
-<style>
-  body{font-family:Arial,sans-serif;padding:28px;color:#1a1a2e;max-width:800px;margin:0 auto;font-size:.9rem}
-  h1{font-size:1.4rem;margin:0 0 4px}
-  h2{font-size:1rem;margin:18px 0 8px;padding:6px 10px;background:#0b1f33;color:#c9a227;border-radius:6px}
-  .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;gap:12px}
-  .label{color:#555;font-weight:600;flex-shrink:0}
-  .val{font-weight:700;text-align:right}
-  @media print{button{display:none!important}}
-</style></head><body>
-
+                  openPreviewWindow(pf.title || 'PDF Form Preview', `
 <h1>📄 ${pf.title || '—'}</h1>
 <p style="color:#555;margin-bottom:16px">PDF Document</p>
 
@@ -2555,18 +2464,7 @@ ${pf.howToFillAs ? `
 <h2>✏️ কেনেকৈ পূৰণ কৰিব</h2>
 <div style="padding:8px 0;line-height:1.6">${pf.howToFillAs.replace(/\n/g,'<br/>')}</div>
 ` : ''}
-
-<br/>
-<p style="color:#888;font-size:.75rem;border-top:1px solid #eee;padding-top:10px">
-  Generated from Assam Career Point & Info Admin Panel · assamcareerpoint-info.com
-</p>
-<button onclick="window.print()" style="padding:10px 22px;background:#0b1f33;color:#c9a227;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:8px">
-  🖨️ Print / Save as PDF
-</button>
-
-</body></html>
 `)
-                  w.document.close()
                 }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
                   🖨️ Preview & Print
                 </button>
@@ -2581,10 +2479,7 @@ ${pf.howToFillAs ? `
       {showAffModal && (
         <div className="ovl">
           <div style={{background:'#fff',borderRadius:18,width:'100%',maxWidth:640,boxShadow:'0 30px 80px rgba(0,0,0,.35)',margin:'auto',maxHeight:'90vh',overflow:'auto'}}>
-            <div className="mhd">
-              <h2>{editAff?'✏️ Edit Affiliate Item':'➕ Add Affiliate Item'}</h2>
-              <button onClick={()=>setShowAffModal(false)} style={{width:28,height:28,borderRadius:7,background:'#f0f4f8',border:'1.5px solid #d4e0ec',cursor:'pointer'}}>✕</button>
-            </div>
+            <ModalHeader title={editAff?'✏️ Edit Affiliate Item':'➕ Add Affiliate Item'} onClose={()=>setShowAffModal(false)} />
             <div style={{padding:'20px 24px'}}>
 
               {/* Tip box */}
@@ -2688,22 +2583,7 @@ ${pf.howToFillAs ? `
               <div style={{display:'flex',justifyContent:'flex-end',gap:10,marginTop:8}}>
                 <button type="button" onClick={()=>setShowAffModal(false)} style={bS}>Cancel</button>
                 <button type="button" onClick={() => {
-                  const w = window.open('', '_blank')
-                  if (!w) return
-                  w.document.write(`
-<html><head><title>Preview — ${af.title || 'Affiliate Item'}</title>
-<style>
-  body{font-family:Arial,sans-serif;padding:28px;color:#1a1a2e;max-width:800px;margin:0 auto;font-size:.9rem}
-  h1{font-size:1.4rem;margin:0 0 4px}
-  h2{font-size:1rem;margin:18px 0 8px;padding:6px 10px;background:#0b1f33;color:#c9a227;border-radius:6px}
-  .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;gap:12px}
-  .label{color:#555;font-weight:600;flex-shrink:0}
-  .val{font-weight:700;text-align:right}
-  .badge{display:inline-block;padding:3px 12px;border-radius:99px;font-size:.75rem;font-weight:700;background:#0b1f33;color:#c9a227}
-  .hl{display:inline-block;background:#e8f5e9;padding:4px 12px;border-radius:99px;font-size:.75rem;margin:3px}
-  @media print{button{display:none!important}}
-</style></head><body>
-
+                  openPreviewWindow(af.title || 'Affiliate Item', `
 <h1>🤝 ${af.title || '—'}</h1>
 <p style="color:#555;margin-bottom:16px">
   ${af.category || '—'} &nbsp;·&nbsp; <span class="badge">${af.badge || 'Recommended'}</span>
@@ -2725,18 +2605,7 @@ ${af.originalPrice ? `<div class="row"><span class="label">Original Price</span>
 
 <h2>🔗 Affiliate Link</h2>
 <div class="row"><span class="label">Your Special Link</span><span class="val"><a href="${af.link}" target="_blank">Click to Visit →</a></span></div>
-
-<br/>
-<p style="color:#888;font-size:.75rem;border-top:1px solid #eee;padding-top:10px">
-  Generated from Assam Career Point & Info Admin Panel · assamcareerpoint-info.com
-</p>
-<button onclick="window.print()" style="padding:10px 22px;background:#0b1f33;color:#c9a227;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:8px">
-  🖨️ Print / Save as PDF
-</button>
-
-</body></html>
 `)
-                  w.document.close()
                 }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
                   🖨️ Preview & Print
                 </button>
