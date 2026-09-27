@@ -3,10 +3,35 @@ import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import getDb from '@/lib/db'
 
+// TEMPORARY — diagnostic only, remove after we fix this
+export async function GET(req: NextRequest) {
+  const { getToken } = await import('next-auth/jwt')
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+
+  let userCount = -1
+  let emails: string[] = []
+  try {
+    const db = getDb()
+    const rows = db.prepare('SELECT email FROM users').all() as { email: string }[]
+    userCount = rows.length
+    emails = rows.map(r => r.email)
+  } catch (e) {
+    return NextResponse.json({ dbError: String(e) })
+  }
+
+  return NextResponse.json({
+    tokenExists: !!token,
+    tokenRole: token?.role ?? null,
+    tokenEmail: token?.email ?? null,
+    userCountInSqlite: userCount,
+    emailsInSqlite: emails,
+  })
+}
+
 export async function POST(req: NextRequest) {
   const { getToken } = await import('next-auth/jwt')
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
-  if (!token || token.role !== 'admin' || !token.email) {
+  if (!token || token.role !== 'admin') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -15,7 +40,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'New password must be at least 6 characters' }, { status: 400 })
   }
 
-    const db = getDb()
+  const db = getDb()
   const user = db.prepare('SELECT * FROM users LIMIT 1').get() as { id:number; password:string } | undefined
   if (!user) return NextResponse.json({ error: 'Account not found' }, { status: 404 })
 
