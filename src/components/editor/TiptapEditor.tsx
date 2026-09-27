@@ -6,7 +6,7 @@ import { Underline } from '@tiptap/extension-underline'
 import { Link } from '@tiptap/extension-link'
 import { Placeholder } from '@tiptap/extension-placeholder'
 import { Table } from '@tiptap/extension-table'
-import { TableRow } from '@tiptap/extension-table-row'
+import { CustomTableRow } from './TableRowResize'
 import { TableHeader } from '@tiptap/extension-table-header'
 import { TableCell } from '@tiptap/extension-table-cell'
 import { TextStyle } from '@tiptap/extension-text-style'
@@ -144,6 +144,8 @@ export default function TiptapEditor({
 }: TiptapEditorProps) {
   const isFirstRender = useRef(true)
   const [linkOpen, setLinkOpen] = useState(false)
+  const [fullscreen, setFullscreen] = useState(false)
+  const [stats, setStats] = useState({ words: 0, chars: 0 })
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -163,7 +165,7 @@ export default function TiptapEditor({
       Link.configure({ openOnClick: false, autolink: true }),
       Placeholder.configure({ placeholder }),
       Table.configure({ resizable: true }),
-      TableRow,
+      CustomTableRow,
       CustomTableHeader,
       CustomTableCell,
     ],
@@ -171,14 +173,22 @@ export default function TiptapEditor({
       (draftKey && typeof window !== 'undefined' && localStorage.getItem(draftKey)) ||
       value ||
       '',
-    onUpdate: ({ editor }) => {
+        onUpdate: ({ editor }) => {
       const html = editor.getHTML()
       onChange(html)
+      const text = editor.getText()
+      setStats({ words: text.trim() ? text.trim().split(/\s+/).length : 0, chars: text.length })
       if (draftKey && typeof window !== 'undefined') {
         localStorage.setItem(draftKey, html)
       }
     },
   })
+
+  useEffect(() => {
+    if (!editor) return
+    const text = editor.getText()
+    setStats({ words: text.trim() ? text.trim().split(/\s+/).length : 0, chars: text.length })
+  }, [editor])
 
   // Keep editor in sync if `value` changes from outside (e.g. loading saved data on edit)
   useEffect(() => {
@@ -223,22 +233,46 @@ export default function TiptapEditor({
 
   const noopUploadImage: ImageInsert = async () => {}
 
-  return (
-    <div style={{ border: '1.5px solid #d4e0ec', borderRadius: 8, background: '#fff', maxHeight: minHeight * 2.2 + 60, overflowY: 'auto' as const }}>
-      <div style={{ position: 'sticky', top: 0, zIndex: 20, background: '#fff' }}>
-        <Toolbar
-          editor={editor}
-          onLink={() => setLinkOpen(true)}
-          onInsertPortalBlock={handleInsertPortalBlock}
-          uploadImage={noopUploadImage}
-          onSource={() => {}}
-          onPreview={() => {}}
-          disabled={disabled}
-        />
+    return (
+    <div style={{
+      position: fullscreen ? 'fixed' as const : 'relative' as const,
+      top: fullscreen ? 0 : undefined, left: fullscreen ? 0 : undefined,
+      right: fullscreen ? 0 : undefined, bottom: fullscreen ? 0 : undefined,
+      zIndex: fullscreen ? 9999 : undefined,
+      border: '1.5px solid #d4e0ec', borderRadius: fullscreen ? 0 : 8, background: '#fff',
+      maxHeight: fullscreen ? '100vh' : minHeight * 2.2 + 60, overflowY: 'auto' as const
+    }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 20, background: '#fff', display: 'flex', alignItems: 'center' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <Toolbar
+            editor={editor}
+            onLink={() => setLinkOpen(true)}
+            onInsertPortalBlock={handleInsertPortalBlock}
+            uploadImage={noopUploadImage}
+            onSource={() => {}}
+            onPreview={() => {}}
+            disabled={disabled}
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => setFullscreen(v => !v)}
+          title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+          style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '8px 10px', fontSize: '1rem', flexShrink: 0 }}
+        >
+          {fullscreen ? '✕' : '⛶'}
+        </button>
       </div>
 
-      <div style={{ minHeight, padding: '10px 12px' }}>
+      <div
+        style={{ minHeight, padding: '10px 12px', cursor: 'text' }}
+        onClick={() => editor.chain().focus().run()}
+      >
         <EditorContent editor={editor} />
+      </div>
+
+      <div style={{ padding: '4px 12px 8px', textAlign: 'right' as const, fontSize: '.68rem', color: '#8fa3b8', borderTop: '1px solid #f0f4f8' }}>
+        {stats.words} words · {stats.chars} characters
       </div>
 
       <LinkDialog
@@ -254,7 +288,8 @@ export default function TiptapEditor({
 	.ProseMirror p:last-child { margin-bottom: 0; }
         .ProseMirror .tableWrapper { overflow-x: auto; }
         .ProseMirror table { border-collapse: collapse; width: auto; max-width: 100%; margin: 8px 0; table-layout: fixed; }
-        .ProseMirror table td, .ProseMirror table th { border: 1px solid #d4e0ec; padding: 6px 8px; position: relative; }
+        .ProseMirror table td, .ProseMirror table th { border: 1px solid #d4e0ec; padding: 4px 8px; position: relative; }
+	.ProseMirror table td p, .ProseMirror table th p { margin: 0; }
         .ProseMirror table th { background: #f0f4f8; font-weight: 700; text-align: left; }
         .ProseMirror .column-resize-handle { position: absolute; right: -2px; top: 0; bottom: -2px; width: 4px; background-color: #00b4d8; pointer-events: none; }
         .ProseMirror.resize-cursor { cursor: col-resize; }
