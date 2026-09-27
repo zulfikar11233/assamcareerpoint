@@ -598,10 +598,9 @@ export default function AdminDashboard() {
 
     const [search,   setSearch]   = useState('')
     const [toastMsg, setToastMsg] = useState('')
-    const [settings, setSettings] = useState<{siteName:string;tagline:string;contactEmail:string;whatsappLink:string;telegramLink:string;youtubeLink:string}>({
+     const [settings, setSettings] = useState<{siteName:string;tagline:string;contactEmail:string;whatsappLink:string;telegramLink:string;youtubeLink:string}>({
     siteName:'', tagline:'', contactEmail:'', whatsappLink:'', telegramLink:'', youtubeLink:''
   })
-  const [pwForm, setPwForm] = useState({ current:'', next:'', confirm:'' })
 
   // ── Persistence — Load from SERVER first ─────────────────────────────────
   useEffect(() => {
@@ -657,23 +656,11 @@ export default function AdminDashboard() {
     fetch('/api/data/affiliate', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(affiliates) })
   }, [affiliates])
     const toast = (msg:string) => { setToastMsg(msg); setTimeout(()=>setToastMsg(''), 2800) }
-  const saveSettings = async () => {
+      const saveSettings = async () => {
     const ok = await fetch('/api/data/settings', {
       method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify([settings])
     }).then(r=>r.ok).catch(()=>false)
     toast(ok ? '✅ Settings saved!' : '⚠️ Save failed — try again')
-  }
-  const changePassword = async () => {
-    if (!pwForm.current || !pwForm.next) { toast('⚠️ Fill in all password fields'); return }
-    if (pwForm.next !== pwForm.confirm) { toast('⚠️ New passwords do not match'); return }
-    if (pwForm.next.length < 6) { toast('⚠️ New password must be at least 6 characters'); return }
-    const res = await fetch('/api/admin/change-password', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ currentPassword: pwForm.current, newPassword: pwForm.next })
-    })
-    const j = await res.json().catch(()=>({}))
-    if (res.ok) { toast('✅ Password changed!'); setPwForm({ current:'', next:'', confirm:'' }) }
-    else { toast('⚠️ ' + (j.error || 'Failed to change password')) }
   }
   const fmt   = (d:string|undefined|null) => { if(!d) return '—'; try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) } catch { return d } }
 
@@ -1535,14 +1522,6 @@ export default function AdminDashboard() {
                     <button onClick={saveSettings} style={bR}>💾 Save</button>
                   </div>
                 ))}
-
-                <div style={{ background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:14,padding:'20px 22px',marginBottom:18 }}>
-                  <h2 style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.92rem',color:'#1a1a2e',marginBottom:16,paddingBottom:10,borderBottom:'1px solid #f0f4f8' }}>🔐 Change Password</h2>
-                  <div className="fg"><label style={lb}>Current Password</label><input type="password" style={si} value={pwForm.current} onChange={e=>setPwForm(p=>({...p, current:e.target.value}))} /></div>
-                  <div className="fg"><label style={lb}>New Password</label><input type="password" style={si} value={pwForm.next} onChange={e=>setPwForm(p=>({...p, next:e.target.value}))} /></div>
-                  <div className="fg"><label style={lb}>Confirm Password</label><input type="password" style={si} value={pwForm.confirm} onChange={e=>setPwForm(p=>({...p, confirm:e.target.value}))} /></div>
-                  <button onClick={changePassword} style={bR}>💾 Save</button>
-                </div>
               </div>
             )}
 
