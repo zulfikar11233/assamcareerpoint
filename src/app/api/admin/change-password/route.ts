@@ -15,8 +15,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'New password must be at least 6 characters' }, { status: 400 })
   }
 
-  const db = getDb()
-  const user = db.prepare('SELECT * FROM users WHERE email = ?').get(token.email) as { id:number; password:string } | undefined
+    const db = getDb()
+  const user = db.prepare('SELECT * FROM users LIMIT 1').get() as { id:number; password:string } | undefined
   if (!user) return NextResponse.json({ error: 'Account not found' }, { status: 404 })
 
   const match = await bcrypt.compare(currentPassword, user.password)
