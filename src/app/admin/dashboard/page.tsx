@@ -264,7 +264,14 @@ function openPreviewWindow(title: string, bodyHtml: string) {
   w.document.write(`
 <html><head><title>Preview — ${title || 'Preview'}</title>
 <style>
-  body{font-family:Arial,sans-serif;padding:28px;color:#1a1a2e;max-width:800px;margin:0 auto;font-size:.9rem}
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body{font-family:Arial,sans-serif;padding:0;color:#1a1a2e;max-width:800px;margin:0 auto;font-size:.9rem;position:relative}
+  .acpi-header{background:#0b1f33;color:#c9a227;padding:16px 28px;display:flex;align-items:center;gap:12px}
+  .acpi-header .logo{font-size:1.8rem}
+  .acpi-header .brand{font-weight:900;font-size:1.05rem}
+  .acpi-header .tag{font-size:.7rem;color:#e8d9a0;margin-top:1px}
+  .acpi-watermark{position:fixed;top:45%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:3rem;color:rgba(11,31,51,0.06);font-weight:900;white-space:nowrap;pointer-events:none;z-index:0}
+  .acpi-body{padding:20px 28px 28px;position:relative;z-index:1}
   h1{font-size:1.4rem;margin:0 0 4px}
   h2{font-size:1rem;margin:18px 0 8px;padding:6px 10px;background:#0b1f33;color:#c9a227;border-radius:6px}
   .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;gap:12px}
@@ -280,16 +287,28 @@ function openPreviewWindow(title: string, bodyHtml: string) {
   @media print{button{display:none!important}}
 </style></head><body>
 
+<div class="acpi-watermark">ASSAMCAREERPOINT-INFO.COM</div>
+<div class="acpi-header">
+  <span class="logo">🏔️</span>
+  <div>
+    <div class="brand">ASSAM CAREER POINT & INFO</div>
+    <div class="tag">Jobs · Exams · Information — assamcareerpoint-info.com</div>
+  </div>
+</div>
+<div class="acpi-body">
+
 ${bodyHtml}
 
 <br/>
 <p style="color:#888;font-size:.75rem;border-top:1px solid #eee;padding-top:10px">
-  Generated from Assam Career Point & Info Admin Panel · assamcareerpoint-info.com
+  Generated from Assam Career Point & Info Admin Panel · assamcareerpoint-info.com<br/>
+  📲 Follow us on WhatsApp &amp; Telegram for daily updates — visit assamcareerpoint-info.com
 </p>
 <button onclick="window.print()" style="padding:10px 22px;background:#0b1f33;color:#c9a227;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:8px">
   🖨️ Print / Save as PDF
 </button>
 
+</div>
 </body></html>
 `)
   w.document.close()
@@ -577,21 +596,27 @@ export default function AdminDashboard() {
   keywords:'', howToFill:'', howToFillAs:''
 })
 
-  const [search,   setSearch]   = useState('')
-  const [toastMsg, setToastMsg] = useState('')
+    const [search,   setSearch]   = useState('')
+    const [toastMsg, setToastMsg] = useState('')
+    const [settings, setSettings] = useState<{siteName:string;tagline:string;contactEmail:string;whatsappLink:string;telegramLink:string;youtubeLink:string}>({
+    siteName:'', tagline:'', contactEmail:'', whatsappLink:'', telegramLink:'', youtubeLink:''
+  })
+  const [pwForm, setPwForm] = useState({ current:'', next:'', confirm:'' })
 
   // ── Persistence — Load from SERVER first ─────────────────────────────────
   useEffect(() => {
     sessionStorage.setItem('__acp_wk', crypto.randomUUID())
 
     // Load all data from server — works on ALL devices
-    Promise.all([
+        Promise.all([
       fetch('/api/data/jobs',      { cache: 'no-store' }).then(r => r.json()).catch(() => null),
       fetch('/api/data/exams',      { cache: 'no-store' }).then(r => r.json()).catch(() => null),
       fetch('/api/data/info',      { cache: 'no-store' }).then(r => r.json()).catch(() => null),
       fetch('/api/data/pdfforms',      { cache: 'no-store' }).then(r => r.json()).catch(() => null),
       fetch('/api/data/affiliate',      { cache: 'no-store' }).then(r => r.json()).catch(() => null),
-    ]).then(([jobs, exams, info, pdfs, aff]) => {
+      fetch('/api/data/settings',      { cache: 'no-store' }).then(r => r.json()).catch(() => null),
+    ]).then(([jobs, exams, info, pdfs, aff, sett]) => {
+      setSettings(s => ({ ...s, ...((Array.isArray(sett) && sett[0]) ? sett[0] : {}) }))
       setJobs(Array.isArray(jobs) && jobs.length > 0 ? jobs :
         (() => { try { const s = localStorage.getItem('acp_jobs_v6'); return s ? JSON.parse(s) : SAMPLE_JOBS } catch { return SAMPLE_JOBS } })())
       setExams(Array.isArray(exams) && exams.length > 0 ? exams :
@@ -631,7 +656,25 @@ export default function AdminDashboard() {
     if (!dataLoaded) return
     fetch('/api/data/affiliate', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(affiliates) })
   }, [affiliates])
-  const toast = (msg:string) => { setToastMsg(msg); setTimeout(()=>setToastMsg(''), 2800) }
+    const toast = (msg:string) => { setToastMsg(msg); setTimeout(()=>setToastMsg(''), 2800) }
+  const saveSettings = async () => {
+    const ok = await fetch('/api/data/settings', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify([settings])
+    }).then(r=>r.ok).catch(()=>false)
+    toast(ok ? '✅ Settings saved!' : '⚠️ Save failed — try again')
+  }
+  const changePassword = async () => {
+    if (!pwForm.current || !pwForm.next) { toast('⚠️ Fill in all password fields'); return }
+    if (pwForm.next !== pwForm.confirm) { toast('⚠️ New passwords do not match'); return }
+    if (pwForm.next.length < 6) { toast('⚠️ New password must be at least 6 characters'); return }
+    const res = await fetch('/api/admin/change-password', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ currentPassword: pwForm.current, newPassword: pwForm.next })
+    })
+    const j = await res.json().catch(()=>({}))
+    if (res.ok) { toast('✅ Password changed!'); setPwForm({ current:'', next:'', confirm:'' }) }
+    else { toast('⚠️ ' + (j.error || 'Failed to change password')) }
+  }
   const fmt   = (d:string|undefined|null) => { if(!d) return '—'; try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) } catch { return d } }
 
   // ── JOB HELPERS ──────────────────────────────────────────────────────────
@@ -1108,7 +1151,8 @@ export default function AdminDashboard() {
               </h1>
               <p style={{ fontSize:'.74rem', color:'#5a6a7a', marginTop:1 }}>Assam Career Point & Info — Admin</p>
             </div>
-            <div style={{ display:'flex', gap:9, alignItems:'center', flexWrap:'wrap' as const }}>
+             <div style={{ display:'flex', gap:9, alignItems:'center', flexWrap:'wrap' as const }}>
+              <a href="/admin/backup" target="_blank" rel="noreferrer" style={{ display:'flex', alignItems:'center', gap:6, padding:'7px 14px', borderRadius:8, background:'#f0f4f8', color:'#0b1f33', fontWeight:700, fontSize:'.78rem', textDecoration:'none', border:'1.5px solid #d4e0ec' }}>🗄️ Backup</a>
               {activeTab !== 'dashboard' && activeTab !== 'settings' && (
                 <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 Search..." style={{ ...si, width:190, padding:'7px 12px' }} />
               )}
@@ -1470,17 +1514,35 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {[
-                  {title:'🌐 Site Identity',fields:[{l:'Site Name',t:'text',ph:'Assam Career Point & Info'},{l:'Tagline',t:'text',ph:'Jobs · Exams · Information'},{l:'Contact Email',t:'email',ph:'admin@acpinfo.com'}]},
-                  {title:'📲 Social / Channels',fields:[{l:'WhatsApp Channel',t:'url',ph:'https://wa.me/...'},{l:'Telegram Channel',t:'url',ph:'https://t.me/...'},{l:'YouTube Channel',t:'url',ph:'https://youtube.com/...'}]},
-                  {title:'🔐 Change Password',fields:[{l:'Current Password',t:'password',ph:''},{l:'New Password',t:'password',ph:''},{l:'Confirm Password',t:'password',ph:''}]},
+                                {[
+                  {title:'🌐 Site Identity',fields:[{k:'siteName',l:'Site Name',t:'text',ph:'Assam Career Point & Info'},{k:'tagline',l:'Tagline',t:'text',ph:'Jobs · Exams · Information'},{k:'contactEmail',l:'Contact Email',t:'email',ph:'admin@acpinfo.com'}]},
+                  {title:'📲 Social / Channels',fields:[{k:'whatsappLink',l:'WhatsApp Channel',t:'url',ph:'https://wa.me/...'},{k:'telegramLink',l:'Telegram Channel',t:'url',ph:'https://t.me/...'},{k:'youtubeLink',l:'YouTube Channel',t:'url',ph:'https://youtube.com/...'}]},
                 ].map(s => (
                   <div key={s.title} style={{ background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:14,padding:'20px 22px',marginBottom:18 }}>
                     <h2 style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.92rem',color:'#1a1a2e',marginBottom:16,paddingBottom:10,borderBottom:'1px solid #f0f4f8' }}>{s.title}</h2>
-                    {s.fields.map(f=><div key={f.l} className="fg"><label style={lb}>{f.l}</label><input type={f.t} style={si} placeholder={f.ph}/></div>)}
-                    <button onClick={()=>toast('✅ Settings saved!')} style={bR}>💾 Save</button>
+                    {s.fields.map(f=>(
+                      <div key={f.k} className="fg">
+                        <label style={lb}>{f.l}</label>
+                        <input
+                          type={f.t}
+                          style={si}
+                          placeholder={f.ph}
+                          value={(settings as any)[f.k] || ''}
+                          onChange={e=>setSettings(prev=>({...prev, [f.k]: e.target.value}))}
+                        />
+                      </div>
+                    ))}
+                    <button onClick={saveSettings} style={bR}>💾 Save</button>
                   </div>
                 ))}
+
+                <div style={{ background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:14,padding:'20px 22px',marginBottom:18 }}>
+                  <h2 style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.92rem',color:'#1a1a2e',marginBottom:16,paddingBottom:10,borderBottom:'1px solid #f0f4f8' }}>🔐 Change Password</h2>
+                  <div className="fg"><label style={lb}>Current Password</label><input type="password" style={si} value={pwForm.current} onChange={e=>setPwForm(p=>({...p, current:e.target.value}))} /></div>
+                  <div className="fg"><label style={lb}>New Password</label><input type="password" style={si} value={pwForm.next} onChange={e=>setPwForm(p=>({...p, next:e.target.value}))} /></div>
+                  <div className="fg"><label style={lb}>Confirm Password</label><input type="password" style={si} value={pwForm.confirm} onChange={e=>setPwForm(p=>({...p, confirm:e.target.value}))} /></div>
+                  <button onClick={changePassword} style={bR}>💾 Save</button>
+                </div>
               </div>
             )}
 
@@ -1778,6 +1840,7 @@ export default function AdminDashboard() {
 <div class="row"><span class="label">Age Limit</span><span class="val">${posts.length ? `${Math.min(...posts.map((p:any)=>Number(p.ageMin)||0))}–${Math.max(...posts.map((p:any)=>Number(p.ageMax)||0))} years` : '—'}</span></div>
 <div class="row"><span class="label">Qualification</span><span class="val">${posts[0]?.qualification || '—'}</span></div>
 <div class="row"><span class="label">Official Website</span><span class="val">${jf.website || '—'}</span></div>
+<div class="row"><span class="label">Apply Online</span><span class="val">${(posts[0]?.applyLink || jf.website) || '—'}</span></div>
 
 <h2>📅 Important Dates</h2>
 ${jf.applicationStart ? `<div class="row"><span class="label">Application Start</span><span class="val">${jf.applicationStart}</span></div>` : ''}
@@ -1828,6 +1891,18 @@ ${(jf as any).advPdfs?.length > 0 ? `
 ${(jf as any).advPdfs.map((pdf:any) => `
   <div class="row"><span class="label">📄 ${pdf.name||'PDF'}</span><span class="val">${pdf.url||'—'}</span></div>
 `).join('')}` : ''}
+
+${jobSections.map(sec => `
+<h2>${sec.title || 'Additional Info'}</h2>
+<div style="padding:8px 0;line-height:1.6">${sec.content || ''}</div>
+${sec.pdfLink ? `<div class="row"><span class="label">${sec.pdfName || 'Download PDF'}</span><span class="val"><a href="${sec.pdfLink}" target="_blank">Open</a></span></div>` : ''}
+${(sec.links||[]).map(l => `<div class="row"><span class="label">${l.label||'Link'}</span><span class="val"><a href="${l.url}" target="_blank">${l.url}</a></span></div>`).join('')}
+`).join('')}
+
+${jobFaqs.length > 0 ? `
+<h2>❓ Frequently Asked Questions</h2>
+${jobFaqs.map(f => `<div style="margin-bottom:10px"><div style="font-weight:700">${f.question}</div><div style="color:#555;margin-top:3px">${f.answer}</div></div>`).join('')}
+` : ''}
 `)
                 }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
                   🖨️ Preview & Print
@@ -2076,6 +2151,18 @@ ${(ef.examPdfs && ef.examPdfs.length > 0) ? `
 <h2>📄 Official PDFs</h2>
 ${ef.examPdfs.map(pdf => `<div class="row"><span class="label">${pdf.label || 'PDF'}</span><span class="val"><a href="${pdf.url}" target="_blank">Open in Drive</a></span></div>`).join('')}
 ` : ''}
+
+${examSections.map(sec => `
+<h2>${sec.title || 'Additional Info'}</h2>
+<div style="padding:8px 0;line-height:1.6">${sec.content || ''}</div>
+${sec.pdfLink ? `<div class="row"><span class="label">${sec.pdfName || 'Download PDF'}</span><span class="val"><a href="${sec.pdfLink}" target="_blank">Open</a></span></div>` : ''}
+${(sec.links||[]).map(l => `<div class="row"><span class="label">${l.label||'Link'}</span><span class="val"><a href="${l.url}" target="_blank">${l.url}</a></span></div>`).join('')}
+`).join('')}
+
+${examFaqs.length > 0 ? `
+<h2>❓ Frequently Asked Questions</h2>
+${examFaqs.map(f => `<div style="margin-bottom:10px"><div style="font-weight:700">${f.question}</div><div style="color:#555;margin-top:3px">${f.answer}</div></div>`).join('')}
+` : ''}
 `)
                 }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
                   🖨️ Preview & Print
@@ -2237,6 +2324,18 @@ ${infDates.map(d => `<div class="row"><span class="label">${d.label}</span><span
 
 ${inf.lastDate ? `<div class="row"><span class="label">Overall Deadline</span><span class="val">${inf.lastDate}</span></div>` : ''}
 ${inf.officialLink ? `<div class="row"><span class="label">Official Website</span><span class="val"><a href="${inf.officialLink}" target="_blank">${inf.officialLink}</a></span></div>` : ''}
+
+${infoSections.map(sec => `
+<h2>${sec.title || 'Additional Info'}</h2>
+<div style="padding:8px 0;line-height:1.6">${sec.content || ''}</div>
+${sec.pdfLink ? `<div class="row"><span class="label">${sec.pdfName || 'Download PDF'}</span><span class="val"><a href="${sec.pdfLink}" target="_blank">Open</a></span></div>` : ''}
+${(sec.links||[]).map(l => `<div class="row"><span class="label">${l.label||'Link'}</span><span class="val"><a href="${l.url}" target="_blank">${l.url}</a></span></div>`).join('')}
+`).join('')}
+
+${infoFaqs.length > 0 ? `
+<h2>❓ Frequently Asked Questions</h2>
+${infoFaqs.map(f => `<div style="margin-bottom:10px"><div style="font-weight:700">${f.question}</div><div style="color:#555;margin-top:3px">${f.answer}</div></div>`).join('')}
+` : ''}
 `)
                 }} style={{...bS, background:'#e8f5e9', color:'#2e7d32', border:'1.5px solid #a5d6a7'}}>
                   🖨️ Preview & Print
