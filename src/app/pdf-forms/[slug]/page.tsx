@@ -1,3 +1,4 @@
+// src/app/pdf-forms/[slug]/page.tsx
 import { getCollection } from '@/lib/mysql'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
@@ -63,12 +64,12 @@ export async function generateMetadata(
       description: `Free PDF download — ${form.category}`,
       images: form.imageUrl
         ? [{ url: form.imageUrl, width: 1200, height: 630, alt: form.title }]
-        : [{ url: 'https://assamcareerpoint-info.com/og-default.png' }],
+        : [{ url: 'https://www.assamcareerpoint-info.com/og-image.png' }],
     },
     twitter: { card: 'summary_large_image',
       images: form.imageUrl ? [form.imageUrl] : [] },
     alternates: {
-      canonical: `https://assamcareerpoint-info.com/pdf-forms/${slug}`,
+      canonical: `https://www.assamcareerpoint-info.com/pdf-forms/${slug}`,
     },
   }
 }
@@ -88,12 +89,12 @@ export default async function PdfSlugPage(
     "name": form.title,
     "description": form.description ||
       `Download ${form.title} PDF for free. Official ${form.category} document.`,
-    "url": `https://assamcareerpoint-info.com/pdf-forms/${slug}`,
+    "url": `https://www.assamcareerpoint-info.com/pdf-forms/${slug}`,
     "datePublished": form.uploadedAt,
     "publisher": {
       "@type": "Organization",
       "name": "Assam Career Point & Info",
-      "url": "https://assamcareerpoint-info.com"
+      "url": "https://www.assamcareerpoint-info.com"
     },
     "inLanguage": "en-IN",
     "encodingFormat": "application/pdf",
@@ -101,11 +102,11 @@ export default async function PdfSlugPage(
       "@type": "BreadcrumbList",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "Home",
-          "item": "https://assamcareerpoint-info.com" },
+          "item": "https://www.assamcareerpoint-info.com" },
         { "@type": "ListItem", "position": 2, "name": "PDF Forms",
-          "item": "https://assamcareerpoint-info.com/pdf-forms" },
+          "item": "https://www.assamcareerpoint-info.com/pdf-forms" },
         { "@type": "ListItem", "position": 3, "name": form.category,
-          "item": `https://assamcareerpoint-info.com/pdf-forms?cat=${encodeURIComponent(form.category)}` },
+          "item": `https://www.assamcareerpoint-info.com/pdf-forms?cat=${encodeURIComponent(form.category)}` },
         { "@type": "ListItem", "position": 4, "name": form.title }
       ]
     }
