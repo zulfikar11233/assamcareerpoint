@@ -1,5 +1,6 @@
 // src/app/sitemap.xml/route.ts
 import { NextResponse } from 'next/server'
+import { getCollection } from '@/lib/mysql'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,16 +27,21 @@ export async function GET(request: Request) {
     try { return new Date(d).toISOString().split('T')[0] } catch { return new Date().toISOString().split('T')[0] }
   }
 
+  const pdfSlug = (title: string, id: number) =>
+    `${(title || '').toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim()}-pdf-download-${id}`
+
   // Fetch dynamic data from your own API routes
   let jobs:    any[] = []
   let exams:   any[] = []
   let results: any[] = []
   let info:    any[] = []
+  let pdfs:    any[] = []
 
   try { const r = await fetch(`${apiBase}/api/data/jobs`,    { cache:'no-store' }); if(r.ok) jobs    = await r.json() } catch {}
   try { const r = await fetch(`${apiBase}/api/data/exams`,   { cache:'no-store' }); if(r.ok) exams   = await r.json() } catch {}
   try { const r = await fetch(`${apiBase}/api/data/results`, { cache:'no-store' }); if(r.ok) results = await r.json() } catch {}
   try { const r = await fetch(`${apiBase}/api/data/info`,    { cache:'no-store' }); if(r.ok) info    = await r.json() } catch {}
+  try { const d = await getCollection('pdfforms'); if (Array.isArray(d)) pdfs = d } catch {}
 
   const urls = [
     ...staticPages.map(p => `
@@ -83,6 +89,18 @@ export async function GET(request: Request) {
     <lastmod>${fmt(i.updatedAt||i.createdAt)}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>`),
+
+    ...pdfs
+      .filter((f:any) => f && f.id && f.title)
+      .map((f:any) => `
+  <url>
+    <loc>${base}/pdf-forms/${pdfSlug(f.title, f.id)}</loc>${
+      f.uploadedAt && !isNaN(new Date(f.uploadedAt).getTime())
+        ? `
+    <lastmod>${fmt(f.uploadedAt)}</lastmod>`
+        : ''
+    }
   </url>`),
   ]
 
