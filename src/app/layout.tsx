@@ -1,7 +1,7 @@
-﻿// src/app/layout.tsx
+// src/app/layout.tsx
 import { Sora, Nunito } from 'next/font/google';
 import type { Metadata, Viewport } from 'next'
-import Providers from '@/components/Providers'   // â† NEW IMPORT
+import Providers from '@/components/Providers'
 import AlertBanner from '@/components/AlertBanner'
 
 const sora = Sora({
@@ -45,12 +45,12 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: 'https://assamcareerpoint-info.com',
+    url: 'https://www.assamcareerpoint-info.com',
     siteName: 'Assam Career Point & Info',
     title: 'Assam Career Point & Info — Govt Jobs, Exams & Results',
     description: 'Daily updates on Government Jobs, Exams, Results and Career Information for Assam.',
     images: [{
-      url: 'https://assamcareerpoint-info.com/og-image.png',
+      url: 'https://www.assamcareerpoint-info.com/og-image.png',
       width: 1200,
       height: 630,
       alt: 'Assam Career Point & Info',
@@ -60,12 +60,9 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Assam Career Point & Info',
     description: 'Govt Jobs, Exams, Results & Career Info for Assam.',
-    images: ['https://assamcareerpoint-info.com/og-image.png'],
+    images: ['https://www.assamcareerpoint-info.com/og-image.png'],
   },
-  metadataBase: new URL('https://assamcareerpoint-info.com'),
-  alternates: {
-    canonical: '/',
-  },
+  metadataBase: new URL('https://www.assamcareerpoint-info.com'),
 }
 export const viewport: Viewport = {
   width:        'device-width',
@@ -162,10 +159,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             "@context": "https://schema.org",
             "@type": "Organization",
             "name": "Assam Career Point & Info",
-            "url": "https://assamcareerpoint-info.com",
+            "url": "https://www.assamcareerpoint-info.com",
             "logo": {
               "@type": "ImageObject",
-              "url": "https://assamcareerpoint-info.com/og-image.png",
+              "url": "https://www.assamcareerpoint-info.com/og-image.png",
               "width": 1200,
               "height": 630
             },
@@ -181,7 +178,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             ]
           })}}
         />
-        <Providers>       {/* â† THIS IS THE FIX â€” wraps all pages with SessionProvider */}
+        <Providers>
           <AlertBanner />
           {children}
         </Providers>
