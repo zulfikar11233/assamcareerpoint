@@ -1,6 +1,7 @@
-// src/app/sitemap.xml/route.ts
+// SAVE AS: src/app/sitemap.xml/route.ts   (replace the whole file)
 import { NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mysql'
+import { pdfSlugOf } from '@/lib/pdf-slug'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,8 +28,8 @@ export async function GET(request: Request) {
     try { return new Date(d).toISOString().split('T')[0] } catch { return new Date().toISOString().split('T')[0] }
   }
 
-  const pdfSlug = (title: string, id: number) =>
-    `${(title || '').toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim()}-pdf-download-${id}`
+  // Safe URL segment (slugs are already clean, this only protects odd characters)
+  const seg = (v: any) => encodeURIComponent(String(v))
 
   // Fetch dynamic data from your own API routes
   let jobs:    any[] = []
@@ -41,6 +42,8 @@ export async function GET(request: Request) {
   try { const r = await fetch(`${apiBase}/api/data/exams`,   { cache:'no-store' }); if(r.ok) exams   = await r.json() } catch {}
   try { const r = await fetch(`${apiBase}/api/data/results`, { cache:'no-store' }); if(r.ok) results = await r.json() } catch {}
   try { const r = await fetch(`${apiBase}/api/data/info`,    { cache:'no-store' }); if(r.ok) info    = await r.json() } catch {}
+
+  // PDF forms: read straight from the database (same source as the PDF pages)
   try { const d = await getCollection('pdfforms'); if (Array.isArray(d)) pdfs = d } catch {}
 
   const urls = [
@@ -51,11 +54,12 @@ export async function GET(request: Request) {
     <priority>${p.priority}</priority>
   </url>`),
 
+    // Jobs: slug URL when the job has one (this is the URL the page declares as canonical)
     ...(Array.isArray(jobs) ? jobs : [])
       .filter((j:any) => j.status !== 'Draft')
       .map((j:any) => `
   <url>
-    <loc>${base}/jobs/${j.id}</loc>
+    <loc>${base}/jobs/${seg(j.slug || j.id)}</loc>
     <lastmod>${fmt(j.updatedAt||j.createdAt)}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -65,7 +69,7 @@ export async function GET(request: Request) {
       .filter((e:any) => e.status !== 'Draft')
       .map((e:any) => `
   <url>
-    <loc>${base}/exams/${e.id}</loc>
+    <loc>${base}/exams/${seg(e.slug || e.id)}</loc>
     <lastmod>${fmt(e.updatedAt||e.createdAt)}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -75,7 +79,7 @@ export async function GET(request: Request) {
       .filter((r:any) => r.published)
       .map((r:any) => `
   <url>
-    <loc>${base}/results/${r.slug}</loc>
+    <loc>${base}/results/${seg(r.slug)}</loc>
     <lastmod>${fmt(r.updatedAt||r.createdAt)}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -85,23 +89,25 @@ export async function GET(request: Request) {
       .filter((i:any) => i.status !== 'Expired')
       .map((i:any) => `
   <url>
-    <loc>${base}/information/${i.id}</loc>
+    <loc>${base}/information/${seg(i.slug || i.id)}</loc>
     <lastmod>${fmt(i.updatedAt||i.createdAt)}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>`),
 
+    // PDF forms detail pages
     ...pdfs
       .filter((f:any) => f && f.id && f.title)
-      .map((f:any) => `
+      .map((f:any) => {
+        const hasDate = f.uploadedAt && !isNaN(new Date(f.uploadedAt).getTime())
+        return `
   <url>
-    <loc>${base}/pdf-forms/${pdfSlug(f.title, f.id)}</loc>${
-      f.uploadedAt && !isNaN(new Date(f.uploadedAt).getTime())
-        ? `
-    <lastmod>${fmt(f.uploadedAt)}</lastmod>`
-        : ''
-    }
-  </url>`),
+    <loc>${base}/pdf-forms/${seg(pdfSlugOf(f))}</loc>${hasDate ? `
+    <lastmod>${fmt(f.uploadedAt)}</lastmod>` : ''}
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>`
+      }),
   ]
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
