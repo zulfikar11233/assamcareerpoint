@@ -1,282 +1,59 @@
-﻿// src/app/pdf-forms/page.tsx
-'use client'
-import Link from 'next/link'
-import { AcpiBrand } from '@/components/AcpiLogo'
-import { useState, useEffect } from 'react'
+// SAVE AS: src/app/pdf-forms/page.tsx   (replace the whole file)
+// SERVER component: no 'use client' here. The old client code now lives in PdfFormsClient.tsx.
+import type { Metadata } from 'next'
+import { getCollection } from '@/lib/mysql'
+import { pdfSlugOf } from '@/lib/pdf-slug'
+import PdfFormsClient from './PdfFormsClient'
+import type { PdfListItem } from './PdfFormsClient'
 
-function toImgSrc(url?: string): string {
-  if (!url || typeof url !== 'string') return ''
-  const u = url.trim()
-  if (!u.startsWith('http')) return ''
-  if (u.includes('drive.google.com')) {
-    const m = u.match(/\/d\/([a-zA-Z0-9_-]+)/) ||
-              u.match(/[?&]id=([a-zA-Z0-9_-]+)/)
-    if (m) return `https://lh3.googleusercontent.com/d/${m[1]}`
+export const dynamic = 'force-dynamic'
+
+const PAGE_URL = 'https://www.assamcareerpoint-info.com/pdf-forms'
+const PAGE_TITLE = 'Government PDF Forms, Syllabus & Question Papers - Free Download'
+const PAGE_DESC =
+  'Download free government PDF forms, application forms, syllabus, question papers, answer keys and official documents for Assam and India.'
+
+export const metadata: Metadata = {
+  title: PAGE_TITLE, // the layout adds "| Assam Career Point & Info" automatically
+  description: PAGE_DESC,
+  alternates: { canonical: PAGE_URL },
+  openGraph: {
+    type: 'website',
+    url: PAGE_URL,
+    title: PAGE_TITLE,
+    description: PAGE_DESC,
+    siteName: 'Assam Career Point & Info',
+    images: [{ url: 'https://www.assamcareerpoint-info.com/og-image.png', width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: PAGE_TITLE,
+    description: PAGE_DESC,
+    images: ['https://www.assamcareerpoint-info.com/og-image.png'],
+  },
+}
+
+export default async function PdfFormsPage() {
+  let rows: any[] = []
+  try {
+    const data = await getCollection('pdfforms')
+    if (Array.isArray(data)) rows = data
+  } catch (err) {
+    console.error('[pdf-forms list] getCollection failed:', err)
   }
-  return u
-}
 
-type PdfForm = {
-  id: number
-  title: string
-  category: string
-  driveLink: string
-  uploadedAt: string
-  downloads: number
-  slug?: string
-}
+  // Send the browser only what the cards need (keeps the page light)
+  const forms: PdfListItem[] = rows
+    .filter((f: any) => f && f.id && f.title)
+    .map((f: any) => ({
+      id: Number(f.id),
+      title: String(f.title),
+      category: String(f.category || 'Other'),
+      uploadedAt: f.uploadedAt ? String(f.uploadedAt) : '',
+      downloads: Number(f.downloads) || 0,
+      imageUrl: f.imageUrl ? String(f.imageUrl) : '',
+      href: `/pdf-forms/${pdfSlugOf(f)}`,
+    }))
 
-// âœ… SEOâ€‘optimised slug generator â€“ same as in [slug]/page.tsx
-function generatePdfSlug(title: string, id: number) {
-  const base = title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .trim()
-  return `${base}-pdf-download-${id}`
-}
-
-const SAMPLE: PdfForm[] = [
-  { id:1,  title:'APSC CCE Prelims Syllabus 2026',                category:'Syllabus',         driveLink:'https://drive.google.com/file/d/example1/view', uploadedAt:'15 Feb 2026', downloads:12450 },
-  { id:2,  title:'Assam Police SI Application Form 2026',         category:'Application Forms', driveLink:'https://drive.google.com/file/d/example2/view', uploadedAt:'20 Feb 2026', downloads:8200  },
-  { id:3,  title:'CTET Previous Year Question Paper 2025',        category:'Question Papers',   driveLink:'https://drive.google.com/file/d/example3/view', uploadedAt:'10 Jan 2026', downloads:6780  },
-  { id:4,  title:'NEET UG Answer Key 2025 Official',              category:'Answer Keys',       driveLink:'https://drive.google.com/file/d/example4/view', uploadedAt:'05 Jun 2025', downloads:9100  },
-  { id:5,  title:'Voter ID Form 6 â€” New Voter Registration',      category:'Govt Documents',    driveLink:'https://drive.google.com/file/d/example5/view', uploadedAt:'01 Jan 2026', downloads:3400  },
-  { id:6,  title:'RRB Group D Syllabus & Exam Pattern 2026',      category:'Syllabus',         driveLink:'https://drive.google.com/file/d/example6/view', uploadedAt:'12 Mar 2026', downloads:5600  },
-  { id:7,  title:'SBI Clerk Prelims Question Paper 2024',         category:'Question Papers',   driveLink:'https://drive.google.com/file/d/example7/view', uploadedAt:'28 Nov 2024', downloads:7200  },
-  { id:8,  title:'UPSC CSE Prelims GS Paper I 2025',              category:'Question Papers',   driveLink:'https://drive.google.com/file/d/example8/view', uploadedAt:'02 Jun 2025', downloads:11300 },
-  { id:9,  title:'Assam TET Syllabus â€” Paper I & II',             category:'Syllabus',         driveLink:'https://drive.google.com/file/d/example9/view', uploadedAt:'18 Feb 2026', downloads:4500  },
-  { id:10, title:'PANâ€“Aadhaar Link Form â€” Income Tax Dept',       category:'Govt Documents',    driveLink:'https://drive.google.com/file/d/example10/view',uploadedAt:'01 Mar 2026', downloads:2800  },
-]
-
-const ALL_CATS = ['All','Application Forms','Syllabus','Question Papers','Answer Keys','Govt Documents','Results','Other']
-
-const CAT_ICONS: Record<string,string> = {
-  'All':'ðŸ“‚','Application Forms':'ðŸ“','Syllabus':'ðŸ“–','Question Papers':'ðŸ“‹',
-  'Answer Keys':'ðŸ”‘','Govt Documents':'ðŸ›ï¸','Results':'ðŸ“Š','Other':'ðŸ“„',
-}
-
-const NAV = [
-  ['Home','/'],
-  ['Govt Jobs','/govt-jobs'],
-  ['Exams','/exams'],
-  ['Information','/information'],
-  ['PDF Forms','/pdf-forms'],
-  ['Results','/results'],
-  ['Announcements','/announcements'],
-  ['Tools','/tools'],
-]
-
-export default function PdfFormsPage() {
-  const [forms,    setForms]   = useState<PdfForm[]>([])
-  const [cat,      setCat]     = useState('All')
-  const [search,   setSearch]  = useState('')
-  const [loading,  setLoading] = useState(true)
-
-  useEffect(() => {
-    fetch('/api/data/pdfforms', { cache: 'no-store' })
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          setForms(data)
-        } else {
-          try {
-            const sp = localStorage.getItem('acp_pdfforms_v6')
-            setForms(sp ? JSON.parse(sp) : SAMPLE)
-          } catch { setForms(SAMPLE) }
-        }
-        setLoading(false)
-      })
-      .catch(() => {
-        try {
-          const sp = localStorage.getItem('acp_pdfforms_v6')
-          setForms(sp ? JSON.parse(sp) : SAMPLE)
-        } catch { setForms(SAMPLE) }
-        setLoading(false)
-      })
-
-  }, [])
-
-  const visible = forms.filter(f =>
-    (cat === 'All' || f.category === cat) &&
-    f.title.toLowerCase().includes(search.toLowerCase())
-  )
-
-  return (
-    <>
-      <style>{`
-        *, *::before, *::after { box-sizing: border-box; }
-        html, body { overflow-x: hidden; max-width: 100vw; margin: 0; font-family: Nunito, sans-serif; background: #f0f4f8; color: #1a1a2e; }
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Nunito:wght@400;600;700&display=swap');
-        .nav-lnk { color:rgba(255,255,255,.65); font-size:.82rem; font-weight:600; padding:7px 11px; border-radius:8px; text-decoration:none; white-space:nowrap; transition:.15s; }
-        .nav-lnk:hover { color:#00b4d8 !important; background:rgba(255,255,255,.08); }
-        .nav-lnk.active { color:#00b4d8 !important; }
-        .cat-btn { padding:7px 14px;border-radius:99px;font-size:.77rem;font-weight:700;cursor:pointer;border:1.5px solid #d4e0ec;background:#fff;color:#5a6a7a;font-family:Nunito,sans-serif;transition:.15s; }
-        .cat-btn.on { background:#0d1b2a;color:#fff;border-color:#0d1b2a; }
-        .cat-btn:hover:not(.on) { border-color:#00b4d8;color:#00b4d8; }
-        .pcard { background:#fff;border:1.5px solid #d4e0ec;border-radius:13px;padding:18px 20px;transition:.2s;display:block;text-decoration:none;color:inherit; }
-        .pcard:hover { transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.09); }
-        .pgrid { display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px; }
-        .dl-btn { display:flex;align-items:center;justify-content:center;gap:7px;padding:10px 16px;border-radius:9px;background:linear-gradient(135deg,#0d1b2a,#1b2f45);color:#fff;font-weight:700;font-size:.82rem;border:none;cursor:pointer;font-family:Nunito,sans-serif;width:100%;transition:.15s; }
-        .dl-btn:hover { background:linear-gradient(135deg,#1b2f45,#0a3050);transform:translateY(-1px); }
-        .prev-btn { display:flex;align-items:center;justify-content:center;gap:7px;padding:10px 16px;border-radius:9px;background:#f0f4f8;color:#0d1b2a;font-weight:700;font-size:.82rem;border:1.5px solid #d4e0ec;cursor:pointer;font-family:Nunito,sans-serif;width:100%;transition:.15s; }
-        .prev-btn:hover { background:#e0f7fc;border-color:#00b4d8;color:#0096b7; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @media(max-width:600px) { .pgrid { grid-template-columns:1fr; } }
-      `}</style>
-
-      {/* HEADER */}
-      <header style={{ background:'#0d1b2a',position:'sticky',top:0,zIndex:100,boxShadow:'0 2px 20px rgba(0,0,0,.28)' }}>
-        <div style={{ maxWidth:1180,margin:'0 auto',padding:'11px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:14 }}>
-          <Link href="/" style={{ display:'flex',alignItems:'center',gap:10,textDecoration:'none',flexShrink:0 }}>
-            <AcpiBrand size={38} textSize=".76rem" stacked />
-          </Link>
-          <nav style={{ display:'flex',gap:2,flexWrap:'wrap' as const }}>
-            {NAV.map(([l,h])=>(
-              <Link key={h} href={h} className={`nav-lnk${h==='/pdf-forms'?' active':''}`}>{l}</Link>
-            ))}
-          </nav>
-        </div>
-      </header>
-
-      {/* HERO */}
-      <div style={{ background:'linear-gradient(135deg,#0d1b2a,#1b2f45)',padding:'40px 20px 34px',textAlign:'center' as const }}>
-        <div style={{ display:'inline-flex',alignItems:'center',gap:7,background:'rgba(107,0,173,.2)',border:'1px solid rgba(107,0,173,.4)',borderRadius:99,padding:'4px 13px',fontSize:'.73rem',fontWeight:700,color:'#ce93d8',marginBottom:14 }}>
-          ðŸ“„ PDF Forms Library
-        </div>
-        <h1 style={{ fontFamily:"'Sora',sans-serif",fontSize:'clamp(1.6rem,3.5vw,2.3rem)',fontWeight:800,color:'#fff',marginBottom:10 }}>
-          Government PDF Forms & Documents
-        </h1>
-        <p style={{ color:'rgba(255,255,255,.55)',fontSize:'.95rem',marginBottom:6 }}>
-          Application Forms Â· Syllabus Â· Question Papers Â· Answer Keys Â· Official Documents
-        </p>
-        <p style={{ color:'rgba(255,255,255,.35)',fontSize:'.78rem' }}>
-          All documents hosted on Google Drive â€” open directly in browser or download
-        </p>
-        <div style={{ maxWidth:680,margin:'20px auto 0',background:'rgba(255,255,255,.07)',border:'1px solid rgba(255,255,255,.12)',borderRadius:12,padding:'13px 20px',fontSize:'.8rem',color:'rgba(255,255,255,.6)',textAlign:'left' as const }}>
-          <strong style={{color:'rgba(255,255,255,.8)'}}>ðŸ“Œ About this section:</strong> This library contains <strong style={{color:'#00b4d8'}}>official government forms, syllabi, question papers</strong> and similar documents.
-          Job vacancy advertisement PDFs are separate â€” find them on each individual job page.
-        </div>
-      </div>
-
-      <div style={{ maxWidth:1180,margin:'0 auto',padding:'28px 20px 50px' }}>
-
-        {/* Search + Category Filter */}
-        <div style={{ background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:13,padding:'18px 20px',marginBottom:24 }}>
-          <div style={{ display:'flex',gap:12,alignItems:'center',flexWrap:'wrap' as const,marginBottom:14 }}>
-            <input
-              value={search}
-              onChange={e=>setSearch(e.target.value)}
-              placeholder="ðŸ” Search forms, syllabus, papers..."
-              style={{ flex:1,minWidth:200,background:'#f0f4f8',border:'1.5px solid #d4e0ec',borderRadius:9,padding:'10px 14px',fontFamily:'Nunito,sans-serif',fontSize:'.84rem',outline:'none',color:'#1a1a2e' }}
-            />
-            <span style={{ fontSize:'.78rem',color:'#5a6a7a',whiteSpace:'nowrap' as const }}>{visible.length} documents</span>
-          </div>
-          <div style={{ display:'flex',gap:8,flexWrap:'wrap' as const }}>
-            {ALL_CATS.map(c=>(
-              <button key={c} onClick={()=>setCat(c)} className={`cat-btn ${cat===c?'on':''}`}>
-                {CAT_ICONS[c]} {c}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Loading state */}
-        {loading ? (
-          <div style={{ textAlign:'center' as const,padding:'60px 20px',color:'#5a6a7a' }}>
-            <div style={{ width:36,height:36,border:'4px solid #d4e0ec',borderTopColor:'#00b4d8',borderRadius:'50%',animation:'spin 1s linear infinite',margin:'0 auto 14px' }} />
-            <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700 }}>Loading documents...</div>
-          </div>
-        ) : visible.length === 0 ? (
-          <div style={{ textAlign:'center' as const,padding:'60px 20px',color:'#5a6a7a' }}>
-            <div style={{ fontSize:'2.5rem',marginBottom:12 }}>ðŸ“­</div>
-            <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700 }}>No documents found</div>
-            <div style={{ fontSize:'.83rem',marginTop:6 }}>Try a different search or category</div>
-          </div>
-        ) : (
-          <div className="pgrid">
-            {visible.map(form => {
-              const imgSrc = toImgSrc((form as any).imageUrl)
-              return (
-              <Link key={form.id} href={`/pdf-forms/${(form as any).slug || generatePdfSlug(form.title, form.id)}`} style={{textDecoration:'none',color:'inherit'}} className="pcard">
-                <div style={{
-                  height:150, borderRadius:'10px 10px 0 0',
-                  background:'#f3e5f5',
-                  overflow:'hidden', display:'flex',
-                  alignItems:'center', justifyContent:'center',
-                  marginTop:-18, marginLeft:-20,
-                  marginRight:-20, marginBottom:14,
-                  width:'calc(100% + 40px)',
-                }}>
-                  {imgSrc ? (
-                    <img src={imgSrc} alt={form.title}
-                      style={{ width:'100%', height:'100%', objectFit:'cover' }}
-                      onError={(e)=>{ (e.target as HTMLImageElement).style.display='none' }} />
-                  ) : (
-                    <span style={{ fontSize:'3.5rem', opacity:.35 }}>
-                      {CAT_ICONS[form.category]||'ðŸ“„'}
-                    </span>
-                  )}
-                </div>
-                <div style={{fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.88rem',color:'#1a1a2e',lineHeight:1.35,marginBottom:7}}>
-                  {form.title}
-                </div>
-                <div style={{display:'flex',gap:7,flexWrap:'wrap' as const,alignItems:'center',marginBottom:10}}>
-                  <span style={{display:'inline-block',background:'#f3e5f5',color:'#6a0dad',padding:'2px 8px',borderRadius:99,fontSize:'.68rem',fontWeight:700}}>
-                    {form.category}
-                  </span>
-                  <span style={{fontSize:'.68rem',color:'#5a6a7a'}}>📅 {form.uploadedAt}</span>
-                  <span style={{fontSize:'.68rem',color:'#5a6a7a'}}>⬇️ {(form.downloads||0).toLocaleString()} views</span>
-                </div>
-                <div style={{ background:'#f0f4f8',borderRadius:8,padding:'8px 11px',fontSize:'.75rem',color:'#5a6a7a',display:'flex',alignItems:'center',gap:7 }}>
-                  <span style={{ fontSize:'1rem' }}>ðŸ”—</span>
-                  <span>Stored on <strong style={{color:'#0d1b2a'}}>Google Drive</strong> â€” opens in browser</span>
-                </div>
-
-                <div style={{
-                  display:'flex', alignItems:'center', justifyContent:'space-between',
-                  padding:'8px 12px', background:'#f0f4f8', borderRadius:9,
-                  fontSize:'.78rem', color:'#00b4d8', fontWeight:700
-                }}>
-                  <span>ðŸ“„ View Full Details & Download</span>
-                  <span>â†’</span>
-                </div>
-              </Link>
-              )
-            })}
-          </div>
-        )}
-
-        {/* How to upload */}
-        <div style={{ background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:13,padding:'20px 24px',marginTop:32 }}>
-          <h3 style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.95rem',color:'#1a1a2e',marginBottom:14 }}>
-            ðŸ’¡ How to add new documents (for Admin)
-          </h3>
-          <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:14 }}>
-            {[
-              ['1','Upload to Drive','Upload the PDF to your Google Drive account'],
-              ['2','Set Sharing','Right-click â†’ Share â†’ "Anyone with the link" â†’ Copy'],
-              ['3','Paste in Admin','Go to Admin â†’ PDF Forms â†’ Add PDF Form â†’ Paste link'],
-              ['4','Publish','Click "Add to Library" â€” it appears here immediately'],
-            ].map(([n,t,d])=>(
-              <div key={n} style={{ display:'flex',gap:11,alignItems:'flex-start' }}>
-                <div style={{ width:28,height:28,borderRadius:8,background:'#0d1b2a',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'Sora',sans-serif",fontWeight:800,fontSize:'.8rem',flexShrink:0 }}>{n}</div>
-                <div>
-                  <div style={{ fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:'.82rem',color:'#0d1b2a',marginBottom:2 }}>{t}</div>
-                  <div style={{ fontSize:'.76rem',color:'#5a6a7a' }}>{d}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-      </div>
-
-      {/* FOOTER */}
-      <footer style={{ background:'#0d1b2a',padding:'18px',textAlign:'center' as const,fontSize:'.73rem',color:'rgba(255,255,255,.28)' }}>
-        Â© 2025â€“2026 Assam Career Point & Info â€” <Link href="/" style={{color:'rgba(255,255,255,.28)',textDecoration:'none'}}>Home</Link>
-      </footer>
-    </>
-  )
+  return <PdfFormsClient forms={forms} />
 }
