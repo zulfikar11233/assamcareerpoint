@@ -3,6 +3,7 @@ import { getCollection } from '@/lib/mysql'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { cache } from 'react'
+import { pdfSlugOf } from '@/lib/pdf-slug'
 import PdfDetailClient from './PdfDetailClient'
 
 export const dynamic = 'force-dynamic'
@@ -55,8 +56,9 @@ export async function generateMetadata(
   const all  = await getAllForms()
   const form = findForm(all, slug)
   if (!form) return { title: 'PDF Not Found | Assam Career Point' }
+  const canonicalSlug = pdfSlugOf(form)
   return {
-    title: `${form.title} — Free PDF Download | Assam Career Point`,
+    title: `${form.title} - Free PDF Download`,
     description: form.description ||
       `Download ${form.title} PDF for free. ${form.category} document on Assam Career Point & Info.`,
     openGraph: {
@@ -69,7 +71,7 @@ export async function generateMetadata(
     twitter: { card: 'summary_large_image',
       images: form.imageUrl ? [form.imageUrl] : [] },
     alternates: {
-      canonical: `https://www.assamcareerpoint-info.com/pdf-forms/${slug}`,
+      canonical: `https://www.assamcareerpoint-info.com/pdf-forms/${canonicalSlug}`,
     },
   }
 }
@@ -82,6 +84,7 @@ export default async function PdfSlugPage(
   const all  = await getAllForms()
   const form = findForm(all, slug)
   if (!form) notFound()
+  const canonicalSlug = pdfSlugOf(form)
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -89,7 +92,7 @@ export default async function PdfSlugPage(
     "name": form.title,
     "description": form.description ||
       `Download ${form.title} PDF for free. Official ${form.category} document.`,
-    "url": `https://www.assamcareerpoint-info.com/pdf-forms/${slug}`,
+    "url": `https://www.assamcareerpoint-info.com/pdf-forms/${canonicalSlug}`,
     "datePublished": form.uploadedAt,
     "publisher": {
       "@type": "Organization",
