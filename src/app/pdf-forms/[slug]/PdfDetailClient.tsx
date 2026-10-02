@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { AcpiBrand } from '@/components/AcpiLogo'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 function toImgSrc(url?: string): string {
   if (!url || typeof url !== 'string') return ''
@@ -54,7 +54,8 @@ function getDriveDownload(link: string): string {
 }
 
 export default function PdfDetailClient({ form }: { form: PdfForm }) {
-  const [tab, setTab] = useState<'preview'|'info'>('preview')
+  const [pageUrl, setPageUrl] = useState('')
+  useEffect(() => { setPageUrl(window.location.href) }, [])
   const [copied, setCopied] = useState(false)
 
   function copyLink() {
@@ -144,14 +145,8 @@ export default function PdfDetailClient({ form }: { form: PdfForm }) {
           {/* LEFT — PREVIEW + CONTENT */}
           <div style={{display:'flex',flexDirection:'column' as const,gap:16}}>
 
-            {/* Tab Switcher */}
-            <div style={{display:'flex',gap:8}}>
-              <button onClick={()=>setTab('preview')} className={`tab-btn${tab==='preview'?' on':''}`}>👁️ Preview PDF</button>
-              <button onClick={()=>setTab('info')} className={`tab-btn${tab==='info'?' on':''}`}>📋 Details & FAQ</button>
-            </div>
+            {/* PREVIEW */}
 
-            {/* PREVIEW TAB */}
-            {tab==='preview' && (
               <div style={{background:'#fff',border:'1.5px solid #d4e0ec',borderRadius:13,overflow:'hidden'}}>
                 <div style={{padding:'10px 16px',background:'#f8fafc',borderBottom:'1px solid #e8eef5',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                   <span style={{fontSize:'.78rem',fontWeight:600,color:'#5a6a7a'}}>📄 PDF Preview</span>
@@ -220,10 +215,9 @@ export default function PdfDetailClient({ form }: { form: PdfForm }) {
                   </p>
                 </div>
               </div>
-            )}
 
-            {/* INFO TAB */}
-            {tab==='info' && (
+            {/* DETAILS, ABOUT, FAQ - always in the page HTML (no tab) so Google can read it */}
+
               <div style={{display:'flex',flexDirection:'column' as const,gap:14}}>
 
                 {/* Document Details */}
@@ -327,7 +321,6 @@ export default function PdfDetailClient({ form }: { form: PdfForm }) {
                   ))}
                 </div>
               </div>
-            )}
           </div>
 
           {/* RIGHT SIDEBAR */}
@@ -382,7 +375,7 @@ export default function PdfDetailClient({ form }: { form: PdfForm }) {
 
               <div style={{marginTop:12,paddingTop:12,borderTop:'1px solid #f0f4f8',display:'flex',gap:8}}>
                 {/* WhatsApp Share */}
-                <a href={`https://wa.me/?text=${encodeURIComponent(`📄 ${form.title}\n\nFree PDF Download: ${typeof window!=='undefined'?window.location.href:''}`)}`}
+                <a href={`https://wa.me/?text=${encodeURIComponent(`📄 ${form.title}\n\nFree PDF Download: ${pageUrl}`)}`}
                   target="_blank" rel="nofollow noopener"
                   style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:5,padding:'9px 0',background:'#dcfce7',color:'#16a34a',borderRadius:9,fontSize:'.75rem',fontWeight:700,textDecoration:'none',border:'1.5px solid #bbf7d0'}}>
                   💬 WhatsApp
