@@ -1,4 +1,5 @@
 // SAVE AS: src/app/sitemap.xml/route.ts   (replace the whole file)
+// v2: adds Announcements, Guides and Services (list pages + every detail page)
 import { NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mysql'
 import { pdfSlugOf } from '@/lib/pdf-slug'
@@ -19,6 +20,9 @@ export async function GET(request: Request) {
     { url: `${base}/results`,       priority: '0.8', changefreq: 'daily'   },
     { url: `${base}/information`,   priority: '0.7', changefreq: 'weekly'  },
     { url: `${base}/pdf-forms`,     priority: '0.7', changefreq: 'weekly'  },
+    { url: `${base}/announcements`, priority: '0.6', changefreq: 'weekly'  },
+    { url: `${base}/guides`,        priority: '0.6', changefreq: 'weekly'  },
+    { url: `${base}/services`,      priority: '0.6', changefreq: 'weekly'  },
     { url: `${base}/about-us`,      priority: '0.5', changefreq: 'monthly' },
     { url: `${base}/contact`,       priority: '0.5', changefreq: 'monthly' },
     { url: `${base}/privacy-policy`,priority: '0.3', changefreq: 'monthly' },
@@ -37,14 +41,35 @@ export async function GET(request: Request) {
   let results: any[] = []
   let info:    any[] = []
   let pdfs:    any[] = []
+  let announcements: any[] = []
+  let guides:        any[] = []
+  let services:      any[] = []
 
   try { const r = await fetch(`${apiBase}/api/data/jobs`,    { cache:'no-store' }); if(r.ok) jobs    = await r.json() } catch {}
   try { const r = await fetch(`${apiBase}/api/data/exams`,   { cache:'no-store' }); if(r.ok) exams   = await r.json() } catch {}
   try { const r = await fetch(`${apiBase}/api/data/results`, { cache:'no-store' }); if(r.ok) results = await r.json() } catch {}
   try { const r = await fetch(`${apiBase}/api/data/info`,    { cache:'no-store' }); if(r.ok) info    = await r.json() } catch {}
 
-  // PDF forms: read straight from the database (same source as the PDF pages)
-  try { const d = await getCollection('pdfforms'); if (Array.isArray(d)) pdfs = d } catch {}
+  // These sections are read straight from the database (same source as their pages)
+  const read = async (name: string): Promise<any[]> => {
+    try { const d = await getCollection(name); return Array.isArray(d) ? d : [] } catch { return [] }
+  }
+  pdfs          = await read('pdfforms')
+  announcements = await read('announcements')
+  guides        = await read('guides')
+  services      = await read('services')
+
+  // One <url> block for the three sections added in v2
+  const section = (folder: string, rows: any[], priority: string) =>
+    rows
+      .filter((x:any) => x && x.published !== false && (x.slug || x.id))
+      .map((x:any) => `
+  <url>
+    <loc>${base}/${folder}/${seg(x.slug || x.id)}</loc>
+    <lastmod>${fmt(x.updatedAt||x.createdAt)}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>${priority}</priority>
+  </url>`)
 
   const urls = [
     ...staticPages.map(p => `
@@ -108,6 +133,11 @@ export async function GET(request: Request) {
     <priority>0.6</priority>
   </url>`
       }),
+
+    // Announcements, Guides, Services detail pages
+    ...section('announcements', announcements, '0.6'),
+    ...section('guides',        guides,        '0.6'),
+    ...section('services',      services,      '0.6'),
   ]
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
